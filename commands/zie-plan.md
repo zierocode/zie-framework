@@ -6,12 +6,13 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill, Agent, TaskCreate
 
 # /zie-plan — Backlog → Draft Plan → Approve → Ready
 
-Draft implementation plans for backlog items and get Zie's approval before building. Supports multiple items in parallel (max 4 agents).
+Draft implementation plans for backlog items and get Zie's approval before
+building. Supports multiple items in parallel (max 4 agents).
 
 ## ตรวจสอบก่อนเริ่ม
 
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
-2. Read `zie-framework/.config` → zie_memory_enabled, superpowers_enabled.
+2. Read `zie-framework/.config` → zie_memory_enabled.
 
 ## ไม่มี argument — แสดงรายการ backlog
 
@@ -23,14 +24,18 @@ Draft implementation plans for backlog items and get Zie's approval before build
 ## ร่าง plan สำหรับ slug ที่เลือก
 
 1. If `zie_memory_enabled=true` — READ (1 batch query per slug):
-   - `recall project=<project> domain=<domain> tags=[shipped,retro,bug,decision] limit=20`
+   - `recall project=<project> domain=<domain> tags=[shipped,retro,bug,decision]
+     limit=20`
    - Returns approaches, pain points, ADRs, known bugs in one round-trip.
    - Bake key findings into plan as a "## Context from brain" section.
-   - /zie-build will read this section — no need to re-recall domain context at build time.
+   - /zie-build will read this section — no need to re-recall domain context at
+     build time.
 
-2. If multiple slugs → spawn parallel agents (max 4) to draft plans simultaneously:
+2. If multiple slugs → spawn parallel agents (max 4) to draft plans
+   simultaneously:
    - Each agent: reads `zie-framework/backlog/<slug>.md` → drafts plan → returns
-   - Plans saved to `zie-framework/plans/<slug>.md` with no frontmatter yet (pending)
+   - Plans saved to `zie-framework/plans/<slug>.md` with no frontmatter yet
+     (pending)
 
 3. If single slug → draft plan inline.
 
@@ -55,7 +60,8 @@ Draft implementation plans for backlog items and get Zie's approval before build
    - **drop** → leave item in Next unchanged, skip this plan
 
 2. If `zie_memory_enabled=true` — WRITE after approval:
-   - `remember "Plan approved: <feature>. Tasks: N. Complexity: <S|M|L>. Key decisions: [<d1>]." tags=[plan, <project>, <domain>]`
+   - `remember "Plan approved: <feature>. Tasks: N. Complexity: <S|M|L>. Key
+     decisions: [<d1>]." tags=[plan, <project>, <domain>]`
 
 ## สรุปผล
 
