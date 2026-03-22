@@ -10,9 +10,6 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [ ] SDLC pipeline redesign — 6-stage standard pipeline with quality gates —
-  [plan](plans/2026-03-23-sdlc-pipeline-redesign.md)
-
 ---
 
 ## Ready — Approved Plans
@@ -41,6 +38,8 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] SDLC pipeline redesign — 6-stage pipeline (backlog→spec→plan→implement→
+  release→retro) with spec/plan/impl reviewer quality gates — 2026-03-23
 - [x] zie-init deep scan + knowledge drift detection — Agent(Explore) scan,
   knowledge_hash, /zie-resync command — 2026-03-23
 - [x] Remove all superpowers dependencies — commands, hooks, config, docs fully
