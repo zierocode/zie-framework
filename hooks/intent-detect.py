@@ -31,18 +31,22 @@ PATTERNS = {
         r"\binit\b", r"เริ่มต้น.*project", r"ตั้งค่า.*project",
         r"setup.*project", r"bootstrap",
     ],
-    "idea": [
+    "backlog": [
         r"อยากทำ", r"อยากได้", r"อยากเพิ่ม", r"อยากสร้าง",
         r"\bidea\b", r"\bfeature\b", r"new feature", r"เพิ่ม.*feature",
         r"สร้าง.*ใหม่", r"want to (build|add|create|make)",
-        r"ต้องการ", r"would like to",
+        r"ต้องการ", r"would like to", r"\bbacklog\b", r"capture.*idea",
+    ],
+    "spec": [
+        r"\bspec\b", r"design.*doc", r"write.*spec", r"spec.*feature",
+        r"เขียน.*spec", r"ออกแบบ", r"design.*feature",
     ],
     "plan": [
         r"\bplan\b", r"วางแผน", r"อยากวางแผน", r"เลือก.*backlog",
         r"หยิบ.*backlog", r"plan.*feature", r"ready.*to.*plan",
         r"zie.?plan",
     ],
-    "build": [
+    "implement": [
         r"implement", r"ทำ.*ต่อ", r"continue", r"resume",
         r"สร้าง.*feature", r"next task", r"task.*ต่อ",
         r"code.*this", r"let.*s.*build", r"start.*coding",
@@ -53,8 +57,8 @@ PATTERNS = {
         r"ล้มเหลว", r"broken", r"doesn.*t work", r"not working",
         r"failed", r"failure",
     ],
-    "ship": [
-        r"\bship\b", r"\brelease\b", r"\bdeploy\b", r"\bpublish\b",
+    "release": [
+        r"\brelease\b", r"\bdeploy\b", r"\bpublish\b",
         r"merge.*main", r"go.*live", r"launch", r"ready.*to.*release",
         r"ปล่อย", r"deploy.*now",
     ],
@@ -70,14 +74,15 @@ PATTERNS = {
 }
 
 SUGGESTIONS = {
-    "init":   "/zie-init",
-    "idea":   "/zie-idea",
-    "plan":   "/zie-plan",
-    "build":  "/zie-build",
-    "fix":    "/zie-fix",
-    "ship":   "/zie-ship",
-    "retro":  "/zie-retro",
-    "status": "/zie-status",
+    "init":      "/zie-init",
+    "backlog":   "/zie-backlog",
+    "spec":      "/zie-spec",
+    "plan":      "/zie-plan",
+    "implement": "/zie-implement",
+    "fix":       "/zie-fix",
+    "release":   "/zie-release",
+    "retro":     "/zie-retro",
+    "status":    "/zie-status",
 }
 
 # Score each category

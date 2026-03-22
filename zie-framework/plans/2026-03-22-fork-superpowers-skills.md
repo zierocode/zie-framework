@@ -25,7 +25,7 @@ _No prior brain recall available for this session — context gathered from read
 ## File Map
 
 | Action | File | Responsibility |
-|--------|------|----------------|
+| --- | --- | --- |
 | Create | `skills/spec-design/SKILL.md` | Fork of superpowers brainstorming — zie-memory aware, uses zie-framework/specs/ paths |
 | Create | `skills/write-plan/SKILL.md` | Fork of superpowers writing-plans — saves to zie-framework/plans/, no auto-commit |
 | Create | `skills/debug/SKILL.md` | Fork of superpowers systematic-debugging — references zie-framework:tdd-loop, zie-memory bug recall |
@@ -41,6 +41,7 @@ _No prior brain recall available for this session — context gathered from read
 ## Task 1: Test scaffolding — skill file existence (RED)
 
 **Files:**
+
 - Create: `tests/unit/test_fork_superpowers_skills.py`
 
 - [ ] **Step 1: Write failing tests asserting skill files exist**
@@ -88,20 +89,24 @@ Expected: 4 failures — `SKILL.md` files do not exist yet.
 ---
 
 ## Task 2: Fork `spec-design` skill (GREEN)
+
 <!-- depends_on: T1 -->
 
 **Files:**
+
 - Create: `skills/spec-design/SKILL.md`
 
 - [ ] **Step 1: Create `skills/spec-design/` directory and write SKILL.md**
 
 Content requirements:
+
 - Frontmatter: `name: brainstorming`, `description:` matching superpowers version
 - Replace all `docs/superpowers/specs/` path references with `zie-framework/specs/`
 - Remove "commit the design document" instruction (zie-framework never auto-commits)
 - Remove the visual companion browser section (not applicable)
 - Add zie-memory integration block after "Explore project context" step:
-  ```
+
+  ```text
   ## zie-memory Pre-flight
   If zie_memory_enabled=true — READ (1 batch query):
     recall project=<project> domain=<domain> limit=15
@@ -109,12 +114,15 @@ Content requirements:
     → use to: detect duplicates, surface prior approaches
     → cache result — do not re-query within this session
   ```
+
 - Add zie-memory WRITE block after spec is written:
-  ```
+
+  ```text
   If zie_memory_enabled=true — WRITE:
     "Backlog: <slug>. Problem: <why>. Domain: <domain>."
     tags: [backlog, <project>, <domain>]
   ```
+
 - Remove reference to `spec-document-reviewer subagent` dispatching (superpowers internal)
 - Keep the core brainstorming flow: clarifying questions → approaches → design sections → approval → write spec
 - Terminal state: invoke `Skill(zie-framework:write-plan)` (not superpowers)
@@ -128,35 +136,44 @@ cd /Users/zie/Code/zie-framework && make test-unit 2>&1 | grep -E "PASSED|FAILED
 ---
 
 ## Task 3: Fork `write-plan` skill (GREEN)
+
 <!-- depends_on: T1 -->
 
 **Files:**
+
 - Create: `skills/write-plan/SKILL.md`
 
 - [ ] **Step 1: Create `skills/write-plan/` directory and write SKILL.md**
 
 Content requirements:
+
 - Frontmatter: `name: writing-plans`, `description:` matching superpowers version
 - Replace plan save path `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md` with `zie-framework/plans/YYYY-MM-DD-<feature-name>.md`
 - Update plan document header block — replace superpowers header with zie-framework equivalent:
-  ```
+
+  ```text
   > **For agentic workers:** Use /zie-build to implement this plan task-by-task with TDD RED/GREEN/REFACTOR loop.
   ```
+
 - Remove `superpowers:subagent-driven-development` and `superpowers:executing-plans` references in Execution Handoff section — replace with: "Hand off to /zie-build."
 - Remove "Commit" steps from task structure template (zie-framework does not auto-commit per task)
 - Remove plan-document-reviewer subagent dispatch (superpowers internal)
 - Add `## Context from brain` section placeholder to the plan document header template:
-  ```
+
+  ```text
   ## Context from brain
   _Populated by /zie-plan recall query — key past patterns, pain points, ADRs._
   ```
+
 - Add `depends_on` task comment syntax documentation:
-  ```
+
+  ```text
   ## Dependency Markers
   Tasks with no dependencies run in parallel (zie-build spawns up to 4 agents).
   To declare a dependency, add after the task heading:
     <!-- depends_on: T1, T2 -->
   ```
+
 - Keep all TDD task structure format, file map, bite-sized steps
 
 - [ ] **Step 2: Run tests to confirm `test_writing_plans_skill_exists` is GREEN**
@@ -168,31 +185,38 @@ cd /Users/zie/Code/zie-framework && make test-unit 2>&1 | grep -E "PASSED|FAILED
 ---
 
 ## Task 4: Fork `debug` skill (GREEN)
+
 <!-- depends_on: T1 -->
 
 **Files:**
+
 - Create: `skills/debug/SKILL.md`
 
 - [ ] **Step 1: Create `skills/debug/` directory and write SKILL.md**
 
 Content requirements:
+
 - Frontmatter: `name: systematic-debugging`, `description:` matching superpowers version
 - Replace all `superpowers:test-driven-development` references with `zie-framework:tdd-loop`
 - Replace all `superpowers:verification-before-completion` references with `zie-framework:verify`
 - Add zie-memory pre-flight block at top of "When to Use" section:
-  ```
+
+  ```text
   ## zie-memory Pre-flight
   If zie_memory_enabled=true — READ (1 batch query) before starting investigation:
     recall project=<project> domain=<domain> tags=[bug, build-learning] limit=10
     → detect recurring patterns, surface known fragile areas
     → cache result — do not re-query within this session
   ```
+
 - Add zie-memory WRITE block at Phase 4 "Verify Fix" step:
-  ```
+
+  ```text
   If zie_memory_enabled=true — WRITE after fix confirmed:
     "Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern: <recurring|one-off>."
     tags: [bug, <project>, <domain>]
   ```
+
 - Remove supporting techniques file references (`root-cause-tracing.md`, `defense-in-depth.md`, `condition-based-waiting.md`) — those are superpowers internal files; replace with inline summary of each technique
 - Keep all four phases intact: Root Cause Investigation, Pattern Analysis, Hypothesis and Testing, Implementation
 
@@ -205,14 +229,17 @@ cd /Users/zie/Code/zie-framework && make test-unit 2>&1 | grep -E "PASSED|FAILED
 ---
 
 ## Task 5: Fork `verify` skill (GREEN)
+
 <!-- depends_on: T1 -->
 
 **Files:**
+
 - Create: `skills/verify/SKILL.md`
 
 - [ ] **Step 1: Create `skills/verify/` directory and write SKILL.md**
 
 Content requirements:
+
 - Frontmatter: `name: verification`, `description:` matching superpowers `verification-before-completion`
 - Content is nearly identical to superpowers version — core logic (Iron Law, Gate Function, Common Failures, Red Flags) is preserved unchanged
 - Remove the "From 24 failure memories" line — replace with: "Evidence before assertions is non-negotiable."
@@ -228,9 +255,11 @@ cd /Users/zie/Code/zie-framework && make test-unit 2>&1 | grep -E "PASSED|FAILED
 ---
 
 ## Task 6: Test zie-memory integration content in skills (RED)
+
 <!-- depends_on: T2, T3, T4 -->
 
 **Files:**
+
 - Modify: `tests/unit/test_fork_superpowers_skills.py`
 
 - [ ] **Step 1: Add content assertion tests**
@@ -298,9 +327,11 @@ Expected: failures for content assertions not yet satisfied (some may already pa
 ---
 
 ## Task 7: Fix any skill content gaps to pass Task 6 tests (GREEN)
+
 <!-- depends_on: T6 -->
 
 **Files:**
+
 - Modify: `skills/spec-design/SKILL.md` (if needed)
 - Modify: `skills/write-plan/SKILL.md` (if needed)
 - Modify: `skills/debug/SKILL.md` (if needed)
@@ -324,9 +355,11 @@ cd /Users/zie/Code/zie-framework && make test-unit 2>&1 | grep -E "PASSED|FAILED
 ---
 
 ## Task 8: Test commands no longer reference `superpowers:` (RED)
+
 <!-- depends_on: T1 -->
 
 **Files:**
+
 - Modify: `tests/unit/test_fork_superpowers_skills.py`
 
 - [ ] **Step 1: Add command reference tests**
@@ -400,9 +433,11 @@ Expected: all 11 tests fail — commands still reference `superpowers:`.
 ---
 
 ## Task 9: Update commands to use zie-framework skills (GREEN)
+
 <!-- depends_on: T8, T2, T3, T4, T5 -->
 
 **Files:**
+
 - Modify: `commands/zie-idea.md`
 - Modify: `commands/zie-build.md`
 - Modify: `commands/zie-fix.md`
@@ -411,6 +446,7 @@ Expected: all 11 tests fail — commands still reference `superpowers:`.
 - [ ] **Step 1: Update `commands/zie-idea.md`**
 
 Changes:
+
 - Replace `Skill(superpowers:brainstorming)` with `Skill(zie-framework:spec-design)`
 - Remove the `**Directory override**` note — the forked skill already saves to `zie-framework/specs/`
 - Remove the `**Spec reviewer override**` note — the forked skill does not dispatch a superpowers spec reviewer
@@ -423,6 +459,7 @@ Changes:
 - [ ] **Step 2: Update `commands/zie-build.md`**
 
 Changes:
+
 - Replace `Skill(superpowers:test-driven-development)` with `Skill(zie-framework:tdd-loop)`
 - Remove `if superpowers_enabled=true` guard — tdd-loop skill is always available natively
 - Replace `Skill(superpowers:systematic-debugging)` with `Skill(zie-framework:debug)`
@@ -431,6 +468,7 @@ Changes:
 - [ ] **Step 3: Update `commands/zie-fix.md`**
 
 Changes:
+
 - Replace `Skill(superpowers:systematic-debugging)` with `Skill(zie-framework:debug)`
 - Replace `Skill(superpowers:verification-before-completion)` with `Skill(zie-framework:verify)`
 - Keep all other logic unchanged
@@ -438,6 +476,7 @@ Changes:
 - [ ] **Step 4: Update `commands/zie-ship.md`**
 
 Changes:
+
 - Replace `Skill(superpowers:verification-before-completion)` with `Skill(zie-framework:verify)`
 - Replace `Skill(superpowers:requesting-code-review)` with inline instruction: "Spawn a subagent to review the diff — read the git diff output and evaluate: correctness, regressions, edge cases missed."
 - Keep all other gate logic unchanged
@@ -451,9 +490,11 @@ cd /Users/zie/Code/zie-framework && make test-unit 2>&1 | grep -E "PASSED|FAILED
 ---
 
 ## Task 10: Full test suite GREEN + REFACTOR
+
 <!-- depends_on: T7, T9 -->
 
 **Files:**
+
 - Modify: `tests/unit/test_fork_superpowers_skills.py` (cleanup only, no new tests)
 - Modify: Any skill or command files needing minor cleanup
 
@@ -468,6 +509,7 @@ Expected: all tests pass — existing tests (`test_sdlc_gates.py`, `test_zie_ini
 - [ ] **Step 2: REFACTOR — review all four forked skills for consistency**
 
 Check across all four skill files:
+
 - Frontmatter format consistent with existing skills (`tdd-loop`, `test-pyramid`, `retro-format`)
 - No dangling references to superpowers paths or subagents
 - zie-memory blocks use consistent terminology (`zie_memory_enabled`, `recall`, `remember`)
@@ -476,6 +518,7 @@ Check across all four skill files:
 - [ ] **Step 3: REFACTOR — review commands for clarity**
 
 Check in each updated command:
+
 - No orphaned `If superpowers_enabled` guards referencing the removed branches
 - No `**Directory override**` or `**Commit override**` notes remaining
 - Skill invocations use the new names consistently
@@ -490,7 +533,7 @@ Expected: all pass, no warnings.
 
 - [ ] **Step 5: Print summary**
 
-```
+```text
 Fork complete.
 
 New skills:

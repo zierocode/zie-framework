@@ -18,6 +18,7 @@ spec: specs/2026-03-22-knowledge-architecture-design.md
 **Files:** `zie-framework/PROJECT.md` (create)
 
 **โครงสร้าง:**
+
 ```markdown
 # zie-framework
 
@@ -28,7 +29,7 @@ spec: specs/2026-03-22-knowledge-architecture-design.md
 ## Commands
 
 | Command | ทำอะไร |
-|---|---|
+| --- | --- |
 | /zie-idea | Brainstorm → spec → backlog item |
 | /zie-plan | Backlog → draft plan → approval → Ready |
 | /zie-build | Ready → TDD implementation → Now → complete |
@@ -61,6 +62,7 @@ spec: specs/2026-03-22-knowledge-architecture-design.md
 **Files:** `zie-framework/project/architecture.md` (create new directory + file)
 
 **โครงสร้าง:**
+
 ```markdown
 # Architecture — zie-framework
 
@@ -97,6 +99,7 @@ commands/zie-*.md, skills/*/SKILL.md, templates/, zie-framework/>
 **Files:** `zie-framework/project/components.md` (create)
 
 **โครงสร้าง:**
+
 ```markdown
 # Components Registry — zie-framework
 
@@ -105,7 +108,7 @@ commands/zie-*.md, skills/*/SKILL.md, templates/, zie-framework/>
 ## Commands
 
 | Command | Input | Output | Dependencies |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | /zie-idea | idea (optional) | spec + backlog item | spec-design skill, write-plan skill |
 | /zie-plan | slug(s) | approved plan in Ready | write-plan skill |
 | /zie-build | (reads ROADMAP Now) | implemented feature | tdd-loop, test-pyramid, debug skills |
@@ -117,7 +120,7 @@ commands/zie-*.md, skills/*/SKILL.md, templates/, zie-framework/>
 ## Skills
 
 | Skill | ทำอะไร | Invoked by |
-|---|---|---|
+| --- | --- | --- |
 | spec-design | Brainstorm → spec | /zie-idea |
 | write-plan | Spec → task plan | /zie-idea, /zie-plan |
 | tdd-loop | RED/GREEN/REFACTOR guide | /zie-build |
@@ -129,7 +132,7 @@ commands/zie-*.md, skills/*/SKILL.md, templates/, zie-framework/>
 ## Hooks
 
 | Hook | Event | ทำอะไร |
-|---|---|---|
+| --- | --- | --- |
 | auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save |
 | safety-check.py | PreToolUse:Bash | บล็อก dangerous commands |
 | intent-detect.py | PreToolUse:Bash | ตรวจ intent จาก bash pattern |
@@ -234,6 +237,7 @@ commands/zie-*.md, skills/*/SKILL.md, templates/, zie-framework/>
 **Files:** `templates/` (ตรวจว่ามี template อะไรบ้าง แล้วเพิ่ม PROJECT.md + project/)
 
 ขั้นตอน:
+
 1. อ่าน templates/ ดูว่ามี zie-init template หรือไม่
 2. ถ้ามี template file สำหรับ `/zie-init`:
    - เพิ่ม `PROJECT.md` ใน list of files to create
@@ -249,6 +253,7 @@ commands/zie-*.md, skills/*/SKILL.md, templates/, zie-framework/>
 **Files:** `tests/unit/test_knowledge_arch.py` (create)
 
 **Tests:**
+
 ```python
 def test_project_md_exists():
     # zie-framework/PROJECT.md ต้องมีอยู่
@@ -295,6 +300,7 @@ def test_retro_has_knowledge_sync():
 ---
 
 ## Notes
+
 - Tasks 1–4 ทำ parallel ได้ (create new files)
 - Task 5 (update zie-retro) ทำหลัง task 4 เสร็จ (เพื่อ reference decisions.md)
 - Task 6 (templates) ต้องอ่าน templates/ ก่อน — อาจไม่มี action ถ้า zie-init ใช้ inline

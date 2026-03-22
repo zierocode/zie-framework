@@ -7,13 +7,17 @@ metadata:
 
 # write-plan — Spec → Implementation Plan
 
-Write a comprehensive, task-by-task implementation plan. Output lives in `zie-framework/plans/`.
+Write a comprehensive, task-by-task implementation plan. Output lives in
+`zie-framework/plans/`.
 
 ## เตรียม context
 
 If `zie_memory_enabled=true`:
-- recall project=<project> domain=<feature-area> tags=[plan, implementation] limit=10
-- Surface past plan patterns, known pitfalls, and relevant architectural decisions.
+
+- `recall project=<project> domain=<feature-area> tags=[plan, implementation]
+  limit=10`
+- Surface past plan patterns, known pitfalls, and relevant architectural
+  decisions.
 
 ## Plan Document Header
 
@@ -40,7 +44,7 @@ backlog: backlog/<slug>.md
 Before defining tasks, map out which files will be created or modified:
 
 | Action | File | Responsibility |
-|--------|------|----------------|
+| --- | --- | --- |
 | Create | `path/to/file.py` | What this file does |
 | Modify | `path/to/existing.py` | What changes |
 
@@ -70,21 +74,32 @@ Each task follows TDD RED → GREEN → REFACTOR:
   Run: `make test-unit` — still PASS
 ```
 
-Use `<!-- depends_on: Task N, Task M -->` to express task dependencies. Tasks without depends_on can run in parallel.
+Use `<!-- depends_on: Task N, Task M -->` to express task dependencies. Tasks
+without depends_on can run in parallel.
 
 ## Context from brain
 
-_Prior memories relevant to this feature are surfaced here by /zie-plan before handing off to /zie-build._
+_Prior memories relevant to this feature are surfaced here by /zie-plan before
+handing off to /zie-implement._
 
 ## บันทึกไว้ที่
 
 Save plan to: `zie-framework/plans/YYYY-MM-DD-<feature-slug>.md`
 
-After saving, update `zie-framework/ROADMAP.md`:
-- Add to "Ready" section: `- [ ] <feature name> — [plan](plans/YYYY-MM-DD-<feature-slug>.md) ✓ approved`
+After saving, run the **plan reviewer loop**:
+
+- Invoke `Skill(zie-framework:plan-reviewer)` with path to plan + path to spec
+- If ❌ Issues Found → fix issues → re-invoke reviewer → repeat until ✅ APPROVED
+- Max 3 iterations → surface to human
+
+Then update `zie-framework/ROADMAP.md`:
+
+- Add to "Ready" section: `- [ ] <feature name> —
+  [plan](plans/YYYY-MM-DD-<feature-slug>.md) ✓ approved`
 - Wait for explicit approval before marking `approved: true` in frontmatter
 
 ## Notes
+
 - Exact file paths always
 - Complete code in plan (not "add validation")
 - Exact commands with expected output

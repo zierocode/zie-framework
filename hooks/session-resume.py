@@ -66,7 +66,6 @@ if plans_dir.exists():
 project_name = cwd.name
 project_type = config.get("project_type", "unknown")
 zie_memory = config.get("zie_memory_enabled", False)
-superpowers = config.get("superpowers_enabled", False)
 
 lines = [
     f"[zie-framework] {project_name} ({project_type}) v{version}",
@@ -82,7 +81,7 @@ if now_items:
         lines.append(f"  Plan    : zie-framework/plans/{active_plan}")
     lines.append(f"  Backlog : {len(next_items)} items in Next")
 else:
-    lines.append("  No active feature — run /zie-idea to start one")
+    lines.append("  No active feature — run /zie-backlog to start one")
 
 lines.append(f"  Brain   : {'enabled' if zie_memory else 'disabled'}")
 lines.append("  → Run /zie-status for full state")

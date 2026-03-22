@@ -19,7 +19,7 @@ backlog: backlog/test-pyramid-skill.md
 ## File Map
 
 | Action | File | Responsibility |
-|--------|------|----------------|
+| --- | --- | --- |
 | Modify | `commands/zie-build.md` | Add skill invocation to step 8 (RED phase) |
 | Modify | `tests/unit/test_sdlc_gates.py` | Add `TestZieBuildTestPyramid` class |
 
@@ -69,7 +69,7 @@ Run: `make test-unit` — all 4 tests in `TestZieBuildTestPyramid` must fail.
 
 In `commands/zie-build.md`, update step 8 (RED phase) by prepending the skill invocation line. The current step 8 reads:
 
-```
+```text
 8. **RED phase** — Write failing test first:
    - Create or update test file matching the module being implemented.
 ```

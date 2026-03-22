@@ -9,11 +9,14 @@
 **Date:** 2026-03-22
 **Status:** Accepted
 
-**Context:** ต้องการให้ focus — หลาย feature พร้อมกันทำให้ context แตก และเพิ่ม risk ของ merge conflicts
+**Context:** ต้องการให้ focus — หลาย feature พร้อมกันทำให้ context แตก และเพิ่ม
+risk ของ merge conflicts
 
-**Decision:** มีแค่ 1 `[ ]` (in-progress) feature ใน Now lane ต่อครั้ง `[x]` (complete) items สามารถสะสมใน Now เพื่อ batch release
+**Decision:** มีแค่ 1 `[ ]` (in-progress) feature ใน Now lane ต่อครั้ง `[x]`
+(complete) items สามารถสะสมใน Now เพื่อ batch release
 
-**Consequences:** developer ต้อง complete หรือ fix ก่อนเริ่ม feature ใหม่; ลด WIP ในระบบ; รองรับ batch release โดยไม่ต้อง ship ทุก feature แยกกัน
+**Consequences:** developer ต้อง complete หรือ fix ก่อนเริ่ม feature ใหม่; ลด
+WIP ในระบบ; รองรับ batch release โดยไม่ต้อง ship ทุก feature แยกกัน
 
 ---
 
@@ -22,11 +25,14 @@
 **Date:** 2026-03-22
 **Status:** Accepted
 
-**Context:** zie-memory และ superpowers เป็น optional dependencies ที่ไม่ใช่ทุกคนจะมี
+**Context:** zie-memory และ superpowers เป็น optional dependencies
+ที่ไม่ใช่ทุกคนจะมี
 
-**Decision:** ทุก feature ต้องทำงานได้โดยไม่มี optional deps — ใช้ `if zie_memory_enabled:` guard เสมอ
+**Decision:** ทุก feature ต้องทำงานได้โดยไม่มี optional deps — ใช้ `if
+zie_memory_enabled:` guard เสมอ
 
-**Consequences:** code มี conditional paths; แต่ผู้ใช้ที่ไม่มี deps ก็ยังใช้งานได้ครบทุก command
+**Consequences:** code มี conditional paths; แต่ผู้ใช้ที่ไม่มี deps
+ก็ยังใช้งานได้ครบทุก command
 
 ---
 
@@ -37,9 +43,11 @@
 
 **Context:** hooks ที่ crash จะทำให้ Claude Code ใช้ไม่ได้ทั้ง session
 
-**Decision:** ทุก hook ต้องมี try/except ครอบทั้ง main() และ exit(0) เสมอเมื่อ error — silent fail ดีกว่า crash
+**Decision:** ทุก hook ต้องมี try/except ครอบทั้ง main() และ exit(0) เสมอเมื่อ
+error — silent fail ดีกว่า crash
 
-**Consequences:** bugs ใน hooks อาจ silent fail; ต้องมี logging ที่ดีเพื่อ debug; pytest unit tests ครอบทุก hook
+**Consequences:** bugs ใน hooks อาจ silent fail; ต้องมี logging ที่ดีเพื่อ
+debug; pytest unit tests ครอบทุก hook
 
 ---
 
@@ -48,11 +56,14 @@
 **Date:** 2026-03-22
 **Status:** Accepted
 
-**Context:** zie-framework ขึ้นกับ superpowers:brainstorming, superpowers:writing-plans ซึ่งเป็น external dependency
+**Context:** zie-framework ขึ้นกับ superpowers:brainstorming,
+superpowers:writing-plans ซึ่งเป็น external dependency
 
-**Decision:** fork skills ที่ใช้บ่อยมาไว้ใน `zie-framework/skills/` โดยตรง (spec-design, write-plan, debug, verify, tdd-loop, test-pyramid, retro-format)
+**Decision:** fork skills ที่ใช้บ่อยมาไว้ใน `zie-framework/skills/` โดยตรง
+(spec-design, write-plan, debug, verify, tdd-loop, test-pyramid, retro-format)
 
-**Consequences:** ต้อง maintain skills เอง; แต่ได้ independence + customization สำหรับ zie-framework context
+**Consequences:** ต้อง maintain skills เอง; แต่ได้ independence + customization
+สำหรับ zie-framework context
 
 ---
 
@@ -61,8 +72,65 @@
 **Date:** 2026-03-22
 **Status:** Accepted
 
-**Context:** Solo developer workflow — ไม่จำเป็นต้อง ship ทุก feature แยกกัน; อยากสะสม features แล้ว release พร้อมกัน
+**Context:** Solo developer workflow — ไม่จำเป็นต้อง ship ทุก feature แยกกัน;
+อยากสะสม features แล้ว release พร้อมกัน
 
-**Decision:** `[x]` items ใน Now = "complete, pending release" — ค้างไว้จนกว่า /zie-ship จะย้ายทั้งหมดไป Done พร้อม version; /zie-build ไม่ย้าย items ไป Done
+**Decision:** `[x]` items ใน Now = "complete, pending release" — ค้างไว้จนกว่า
+/zie-release จะย้ายทั้งหมดไป Done พร้อม version; /zie-implement ไม่ย้าย items
+ไป Done
 
-**Consequences:** Now lane อาจมีหลาย `[x]` items; Done = shipped จริง; /zie-ship batch-moves ทั้งหมดพร้อมกัน
+**Consequences:** Now lane อาจมีหลาย `[x]` items; Done = shipped จริง;
+/zie-release batch-moves ทั้งหมดพร้อมกัน
+
+---
+
+## D-007: 6-stage SDLC pipeline with reviewer quality gates (2026-03-23)
+
+**Date:** 2026-03-23
+**Status:** Accepted
+
+**Context:** The original pipeline had 3 commands doing too much each:
+`/zie-idea` (brainstorm + spec + plan), `/zie-build` (implement), `/zie-ship`
+(release). There were no quality gates between stages — a spec could proceed
+to implementation without review, and code could ship without per-task review.
+
+**Decision:** Redesign to a 6-stage pipeline with single-responsibility
+commands and automatic reviewer quality gates at each handoff:
+
+1. `/zie-backlog` — capture problem + motivation only
+2. `/zie-spec` → spec-design → **spec-reviewer loop** (max 3 iter)
+3. `/zie-plan` → write-plan → **plan-reviewer loop** (max 3 iter)
+4. `/zie-implement` → TDD per task → **impl-reviewer after each REFACTOR**
+5. `/zie-release` — full gate sequence → merge → tag
+6. `/zie-retro` — ADRs + brain storage
+
+Old commands (zie-idea, zie-build, zie-ship) deleted. Intent-detect and
+session-resume hooks updated to new names.
+
+**Consequences:** Every spec, plan, and implementation task now goes through
+an automatic quality check before proceeding. Reviewer loops surface issues
+early rather than at release time. Backward compatibility: existing `.config`
+files unchanged; any project using old commands must update to new names.
+
+---
+
+## D-006: Remove superpowers dependency (2026-03-23)
+
+**Date:** 2026-03-23
+**Status:** Accepted
+
+**Context:** zie-framework previously used superpowers:brainstorming,
+superpowers:writing-plans, superpowers:systematic-debugging, and
+superpowers:verification-before-completion. These were forked into
+zie-framework/skills/ as spec-design, write-plan, debug, and verify (D-004).
+The last remaining references (`superpowers_enabled` config key in
+zie-plan.md, zie-init.md, and session-resume.py hook) were not cleaned up
+at the time of the fork.
+
+**Decision:** zie-framework is fully self-contained. Remove all
+`superpowers_enabled` references from commands and hooks. Remove
+superpowers from the optional dependencies list in docs.
+
+**Consequences:** zie-framework no longer depends on the superpowers plugin
+in any form. The `superpowers_enabled` field in existing `.config` files is
+silently ignored (backward compatible — no migration needed).

@@ -16,42 +16,42 @@ class TestZieInitBacklog:
         assert "backlog" in content, \
             "/zie-init must create zie-framework/backlog/ directory"
 
-class TestZieShipVersionSuggest:
+class TestZieReleaseVersionSuggest:
     def test_ship_suggests_version_bump(self):
-        content = read("commands/zie-ship.md")
+        content = read("commands/zie-release.md")
         assert "suggested" in content.lower() or "suggest" in content.lower(), \
-            "/zie-ship must suggest version bump type (major/minor/patch) with reasoning"
+            "/zie-release must suggest version bump type (major/minor/patch) with reasoning"
 
     def test_ship_version_rules_cover_all_three(self):
-        content = read("commands/zie-ship.md")
+        content = read("commands/zie-release.md")
         assert "major" in content and "minor" in content and "patch" in content, \
-            "/zie-ship must define rules for major, minor, and patch bumps"
+            "/zie-release must define rules for major, minor, and patch bumps"
 
 
-class TestZieShipChangelog:
+class TestZieReleaseChangelog:
     def test_ship_changelog_has_approve_flow(self):
-        content = read("commands/zie-ship.md")
+        content = read("commands/zie-release.md")
         assert "approve" in content.lower() and "edit" in content.lower(), \
-            "/zie-ship CHANGELOG step must have approve/edit flow for Zie to review before commit"
+            "/zie-release CHANGELOG step must have approve/edit flow for Zie to review before commit"
 
     def test_ship_changelog_handles_first_release(self):
-        content = read("commands/zie-ship.md")
+        content = read("commands/zie-release.md")
         assert "max-parents=0" in content or "rev-list" in content, \
-            "/zie-ship must handle first release (no previous tag) via git rev-list fallback"
+            "/zie-release must handle first release (no previous tag) via git rev-list fallback"
 
 
-class TestZieShipDocSync:
+class TestZieReleaseDocSync:
     def test_ship_has_doc_sync_gate(self):
-        content = read("commands/zie-ship.md")
+        content = read("commands/zie-release.md")
         assert "CLAUDE.md" in content and "README.md" in content, \
-            "/zie-ship must have a doc-sync gate checking CLAUDE.md and README.md before merge"
+            "/zie-release must have a doc-sync gate checking CLAUDE.md and README.md before merge"
 
 
-class TestZieShipMemory:
+class TestZieReleaseMemory:
     def test_ship_reads_wip_before_write(self):
-        content = read("commands/zie-ship.md")
+        content = read("commands/zie-release.md")
         assert "wip" in content.lower() or "recall" in content.lower(), \
-            "/zie-ship must READ WIP checkpoint before writing ship memory"
+            "/zie-release must READ WIP checkpoint before writing ship memory"
 
 class TestZieRetroMemory:
     def test_retro_recalls_all_since_last(self):
@@ -86,43 +86,43 @@ class TestIntentDetectPlan:
             f"Thai planning phrase should trigger /zie-plan, got: {result.stdout!r}"
 
 
-class TestZieBuildGates:
+class TestZieImplementGates:
     def test_build_checks_wip_limit(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         # Gate 1: [ ] = block (in-progress), [x] = leave in Now for batch release (zie-ship moves to Done)
         assert "[ ]" in content and "[x]" in content and "Now" in content, \
-            "/zie-build Gate 1 must handle both in-progress ([ ]) and done ([x]) items in Now lane"
+            "/zie-implement Gate 1 must handle both in-progress ([ ]) and done ([x]) items in Now lane"
 
     def test_build_does_not_move_done_to_done_section(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         # [x] items must NOT be moved to Done by zie-build — only zie-ship does that
         assert "ย้าย item ไป Done" not in content and "move.*Done" not in content, \
-            "/zie-build must NOT move [x] items to Done — only /zie-ship does that on release"
+            "/zie-implement must NOT move [x] items to Done — only /zie-release does that on release"
 
     def test_build_checks_approved_plan(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         assert "approved: true" in content, \
-            "/zie-build must check for approved: true in plan frontmatter"
+            "/zie-implement must check for approved: true in plan frontmatter"
 
     def test_build_has_auto_fallback(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         assert "auto" in content.lower() and "zie-plan" in content, \
-            "/zie-build must auto-fallback to /zie-plan when no approved plan"
+            "/zie-implement must auto-fallback to /zie-plan when no approved plan"
 
     def test_build_has_parallel_agents(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         assert "parallel" in content.lower() and "4" in content, \
-            "/zie-build must support parallel agents capped at 4"
+            "/zie-implement must support parallel agents capped at 4"
 
     def test_build_has_depends_on(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         assert "depends_on" in content, \
-            "/zie-build must parse depends_on for task dependency ordering"
+            "/zie-implement must parse depends_on for task dependency ordering"
 
     def test_build_has_micro_learning(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         assert "micro" in content.lower() or "build-learning" in content, \
-            "/zie-build must store micro-learnings per task in zie-memory"
+            "/zie-implement must store micro-learnings per task in zie-memory"
 
 
 class TestZiePlanCommand:
@@ -157,54 +157,55 @@ class TestZiePlanCommand:
             "/zie-plan must have zie-memory READ and WRITE steps"
 
 
-class TestZieIdeaBacklogFirst:
+class TestZieBacklogFirst:
     def test_idea_writes_to_next_not_now(self):
-        content = read("commands/zie-idea.md")
-        assert "ROADMAP Next" in content or "## Next" in content or '"Next"' in content, \
-            "/zie-idea must write to Next (backlog), not Now"
+        content = read("commands/zie-backlog.md")
+        assert "Next section" in content or "ROADMAP Next" in content \
+            or "## Next" in content or '"Next"' in content, \
+            "/zie-backlog must write to Next (backlog), not Now"
 
     def test_idea_does_not_move_to_now(self):
-        content = read("commands/zie-idea.md")
+        content = read("commands/zie-backlog.md")
         assert 'Add feature to "Now" section' not in content, \
-            "/zie-idea must not move feature to Now"
+            "/zie-backlog must not move feature to Now"
 
     def test_idea_has_memory_recall(self):
-        content = read("commands/zie-idea.md")
+        content = read("commands/zie-backlog.md")
         assert "recall" in content.lower(), \
-            "/zie-idea must recall memories before capturing idea"
+            "/zie-backlog must recall memories before capturing idea"
 
     def test_idea_has_memory_store(self):
-        content = read("commands/zie-idea.md")
+        content = read("commands/zie-backlog.md")
         assert "remember" in content.lower() or "store" in content.lower(), \
-            "/zie-idea must store backlog item in zie-memory"
+            "/zie-backlog must store backlog item in zie-memory"
 
 
-class TestZieBuildTestPyramid:
+class TestZieImplementTestPyramid:
     def test_build_invokes_test_pyramid_skill(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         assert "test-pyramid" in content, \
-            "/zie-build step 8 must invoke Skill(zie-framework:test-pyramid)"
+            "/zie-implement step 8 must invoke Skill(zie-framework:test-pyramid)"
 
     def test_build_pyramid_skill_uses_correct_namespace(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         assert "zie-framework:test-pyramid" in content, \
-            "/zie-build must reference the skill with full namespace zie-framework:test-pyramid"
+            "/zie-implement must reference the skill with full namespace zie-framework:test-pyramid"
 
     def test_build_pyramid_invocation_is_in_red_phase(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         # Match Thai heading "(RED)" — renamed from "RED phase"
         red_pos = content.find("(RED)")
         pyramid_pos = content.find("test-pyramid")
         assert red_pos != -1 and pyramid_pos != -1, \
-            "/zie-build must have both a RED phase heading and test-pyramid reference"
+            "/zie-implement must have both a RED phase heading and test-pyramid reference"
         green_pos = content.find("(GREEN)")
         assert red_pos < pyramid_pos < green_pos, \
             "test-pyramid skill invocation must be inside the RED section (between RED and GREEN)"
 
     def test_build_pyramid_guides_test_level(self):
-        content = read("commands/zie-build.md")
+        content = read("commands/zie-implement.md")
         assert "unit" in content and "integration" in content and "e2e" in content, \
-            "/zie-build must mention unit/integration/e2e levels (guided by test-pyramid)"
+            "/zie-implement must mention unit/integration/e2e levels (guided by test-pyramid)"
 
 
 class TestZieStatusHealth:

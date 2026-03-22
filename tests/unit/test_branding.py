@@ -62,11 +62,11 @@ class TestNoAsciiBoxes:
 
 
 class TestPhaseLabelsRenamed:
-    def test_phase_labels_renamed_build(self):
-        """zie-build.md ต้องไม่มี 'Gate 1 —' หรือ 'Phase 1' pattern."""
-        content = read_command("build")
-        assert "Gate 1 —" not in content, "zie-build.md ยังมี 'Gate 1 —'"
-        assert "Gate 2 —" not in content, "zie-build.md ยังมี 'Gate 2 —'"
+    def test_phase_labels_renamed_implement(self):
+        """zie-implement.md ต้องไม่มี 'Gate 1 —' หรือ 'Phase 1' pattern."""
+        content = read_command("implement")
+        assert "Gate 1 —" not in content, "zie-implement.md ยังมี 'Gate 1 —'"
+        assert "Gate 2 —" not in content, "zie-implement.md ยังมี 'Gate 2 —'"
 
     def test_phase_labels_renamed_fix(self):
         """zie-fix.md ต้องไม่มี 'Phase 1 —' pattern."""
@@ -74,15 +74,15 @@ class TestPhaseLabelsRenamed:
         assert "Phase 1 —" not in content, "zie-fix.md ยังมี 'Phase 1 —'"
         assert "Phase 2 —" not in content, "zie-fix.md ยังมี 'Phase 2 —'"
 
-    def test_phase_labels_renamed_ship(self):
-        """zie-ship.md ต้องไม่มี 'Gate 1 —' pattern."""
-        content = read_command("ship")
-        assert "Gate 1 —" not in content, "zie-ship.md ยังมี 'Gate 1 —'"
-        assert "Gate 2 —" not in content, "zie-ship.md ยังมี 'Gate 2 —'"
+    def test_phase_labels_renamed_release(self):
+        """zie-release.md ต้องไม่มี 'Gate 1 —' pattern."""
+        content = read_command("release")
+        assert "Gate 1 —" not in content, "zie-release.md ยังมี 'Gate 1 —'"
+        assert "Gate 2 —" not in content, "zie-release.md ยังมี 'Gate 2 —'"
 
     def test_preflight_renamed_to_thai(self):
         """commands ที่ควรเปลี่ยน Pre-flight → ตรวจสอบก่อนเริ่ม."""
-        for cmd in ["build", "fix", "ship", "idea", "plan", "retro"]:
+        for cmd in ["implement", "fix", "release", "backlog", "plan", "retro"]:
             content = read_command(cmd)
             assert "## Pre-flight" not in content, (
                 f"zie-{cmd}.md ยังมี '## Pre-flight' — ต้องเปลี่ยนเป็น '## ตรวจสอบก่อนเริ่ม'"
@@ -90,10 +90,10 @@ class TestPhaseLabelsRenamed:
 
 
 class TestHandoffBlocks:
-    def test_handoff_block_in_build(self):
-        """zie-build.md ต้องมี '## ขั้นตอนถัดไป' block."""
-        content = read_command("build")
-        assert "ขั้นตอนถัดไป" in content, "zie-build.md ไม่มี handoff block '## ขั้นตอนถัดไป'"
+    def test_handoff_block_in_implement(self):
+        """zie-implement.md ต้องมี '## ขั้นตอนถัดไป' block."""
+        content = read_command("implement")
+        assert "ขั้นตอนถัดไป" in content, "zie-implement.md ไม่มี handoff block '## ขั้นตอนถัดไป'"
 
     def test_handoff_block_in_fix(self):
         """zie-fix.md ต้องมี '## ขั้นตอนถัดไป' block."""

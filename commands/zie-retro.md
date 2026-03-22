@@ -5,29 +5,32 @@ allowed-tools: Read, Write, Bash, Glob, Grep, Skill
 
 # /zie-retro — Retrospective + ADRs + Brain Storage
 
-Post-release or end-of-session retrospective. Documents what happened, extracts architectural decisions as ADRs, updates ROADMAP, and stores learnings in the brain.
+Post-release or end-of-session retrospective. Documents what happened, extracts
+architectural decisions as ADRs, updates ROADMAP, and stores learnings in the
+brain.
 
 ## ตรวจสอบก่อนเริ่ม
 
 1. Read `zie-framework/.config` → project, zie_memory_enabled.
 2. Read `zie-framework/ROADMAP.md` → current state.
 3. Get git context:
-   - `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline` → changes since last tag
+   - `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list
+     --max-parents=0 HEAD)..HEAD --oneline` → changes since last tag
    - `git log -20 --oneline` → recent activity
 
 ## Steps
 
 ### รวบรวม context
 
-4. If `zie_memory_enabled=true`:
+1. If `zie_memory_enabled=true`:
    - Recall recent session memories: `recall "recent work on <project>"`
    - This gives context on what was decided/learned during the session.
 
-5. Count ADR files already in `zie-framework/decisions/` → get next ADR number.
+2. Count ADR files already in `zie-framework/decisions/` → get next ADR number.
 
 ### วิเคราะห์และสรุป
 
-6. Analyze the git log and session context. Generate a structured retrospective:
+1. Analyze the git log and session context. Generate a structured retrospective:
 
    **What shipped**: list of features/fixes in this release or session.
    **What worked well**: patterns, approaches, tools that helped.
@@ -37,9 +40,10 @@ Post-release or end-of-session retrospective. Documents what happened, extracts 
 
 ### บันทึก ADRs
 
-7. For each significant architectural decision identified:
+1. For each significant architectural decision identified:
    - Create `zie-framework/decisions/ADR-<NNN>-<slug>.md` from ADR template:
-     ```
+
+     ```text
      # ADR-<NNN>: <Title>
      Date: YYYY-MM-DD
      Status: Accepted
@@ -53,50 +57,64 @@ Post-release or end-of-session retrospective. Documents what happened, extracts 
      ## Consequences
      <what this means going forward — positive and negative>
      ```
-   - Only create ADR for decisions with lasting consequences. Skip routine implementation choices.
+
+   - Only create ADR for decisions with lasting consequences. Skip routine
+     implementation choices.
 
 ### อัปเดต project knowledge
 
-8. หลัง ADRs เขียนเสร็จ:
-   - อ่าน `zie-framework/project/components.md` → อัปเดต components ที่เปลี่ยน behavior ใน session นี้
-   - อ่าน `zie-framework/project/decisions.md` → append ADRs ใหม่ที่เพิ่งสร้าง (ถ้ายังไม่มี)
-   - ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
-   - ถ้า `zie_memory_enabled=true`:
-     `remember "Project snapshot: <version>. Components changed: <list>. Decisions: <new ADR slugs>." tags=[project-knowledge, zie-framework, <version>] supersedes=[project-knowledge, zie-framework]`
+หลัง ADRs เขียนเสร็จ:
+
+- อ่าน `zie-framework/project/components.md` → อัปเดต components ที่เปลี่ยน
+  behavior ใน session นี้
+- อ่าน `zie-framework/project/decisions.md` → append ADRs ใหม่ที่เพิ่งสร้าง
+  (ถ้ายังไม่มี)
+- ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
+- ถ้า `zie_memory_enabled=true`: `remember "Project snapshot: <version>.
+  Components changed: <list>. Decisions: <new ADR slugs>."
+  tags=[project-knowledge, zie-framework, <version>]
+  supersedes=[project-knowledge, zie-framework]`
 
 ### อัปเดต ROADMAP
 
-10. Update `zie-framework/ROADMAP.md`:
-   - Ensure all shipped items are in "Done" with date.
-   - Re-read "Next" section — re-prioritize based on what was learned.
-   - Move any "Icebox" items to "Next" if they became relevant.
-   - Ask Zie: "Anything to add to Next or Later?"
+Update `zie-framework/ROADMAP.md`:
+
+- Ensure all shipped items are in "Done" with date.
+- Re-read "Next" section — re-prioritize based on what was learned.
+- Move any "Icebox" items to "Next" if they became relevant.
+- Ask Zie: "Anything to add to Next or Later?"
 
 ### บันทึกสู่ brain
 
-11. If `zie_memory_enabled=true`:
-   - Store P1 preferences (what worked, add to permanent preferences):
-     `remember "<what worked>. Preference: always use this approach for <context>." priority=preference tags=[retro, <slug>]`
-   - Store P2 project learnings:
-     `remember "Retro <version>: <key learning>. Decision: <ADR slug>." priority=project tags=[retro, <project>] project=<project>`
-   - Downvote any memories that turned out to be incorrect via `downvote_memory`.
+If `zie_memory_enabled=true`:
+
+- Store P1 preferences (what worked): `remember "<what worked>. Preference:
+  always use this approach for <context>." priority=preference tags=[retro,
+  <slug>]`
+- Store P2 project learnings: `remember "Retro <version>: <key learning>.
+  Decision: <ADR slug>." priority=project tags=[retro, <project>]
+  project=<project>`
+- Downvote any memories that turned out to be incorrect via `downvote_memory`.
 
 ### สรุปผล
 
-12. Print:
-    ```
-    Retrospective complete
+Print:
 
-    Shipped  : <N features/fixes>
-    ADRs     : <list of ADR files created>
-    ROADMAP  : Now cleared → Done section updated
+```text
+Retrospective complete
 
-    Learnings stored: <N memories>
+Shipped  : <N features/fixes>
+ADRs     : <list of ADR files created>
+ROADMAP  : Now cleared → Done section updated
 
-    Next session: Run /zie-status to see current state.
-    ```
+Learnings stored: <N memories>
+
+Next session: Run /zie-status to see current state.
+```
 
 ## Notes
-- Can run standalone (not just after /zie-ship): `/zie-retro` at any time
+
+- Can run standalone (not just after /zie-release): `/zie-retro` at any time
 - Lightweight when nothing major happened — won't create empty ADRs
-- ADR numbers are auto-incremented from existing files in `zie-framework/decisions/`
+- ADR numbers are auto-incremented from existing files in
+  `zie-framework/decisions/`

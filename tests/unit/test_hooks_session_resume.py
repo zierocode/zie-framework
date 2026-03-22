@@ -82,7 +82,7 @@ class TestSessionResumeGracefulDegradation:
         roadmap = "## Now\n\n## Next\n- [ ] something\n"
         cwd = make_cwd(tmp_path, config={}, roadmap=roadmap)
         r = run_hook(tmp_cwd=cwd)
-        assert "No active feature" in r.stdout or "/zie-idea" in r.stdout
+        assert "No active feature" in r.stdout or "/zie-backlog" in r.stdout
 
     def test_handles_missing_roadmap_gracefully(self, tmp_path):
         cwd = make_cwd(tmp_path, config={})  # no roadmap

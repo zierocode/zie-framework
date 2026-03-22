@@ -5,13 +5,13 @@
   },
   "metadata": {
     "description": "Solo developer SDLC framework for Claude Code — spec-first, TDD, automated testing, brain-integrated",
-    "version": "1.0.0"
+    "version": "1.2.0"
   },
   "plugins": [
     {
       "name": "zie-framework",
       "source": "./",
-      "description": "Solo developer SDLC framework — /zie-init, /zie-idea, /zie-build, /zie-fix, /zie-ship, /zie-retro with ambient intent detection and auto-test hooks",
+      "description": "Solo developer SDLC framework — /zie-init, /zie-backlog, /zie-spec, /zie-plan, /zie-implement, /zie-release, /zie-fix, /zie-retro, /zie-resync with reviewer quality gates and ambient intent detection",
       "category": "workflow",
       "tags": ["sdlc", "tdd", "workflow", "solo-dev", "testing", "brain"]
     }
