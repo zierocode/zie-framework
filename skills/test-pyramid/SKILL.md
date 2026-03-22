@@ -71,7 +71,7 @@ type: reference
 ## ควรรัน Test ไหนเมื่อไหร่
 
 | Trigger | Tests to run |
-|---------|-------------|
+| --- | --- |
 | Every file save (PostToolUse hook) | Unit only (auto, fast) |
 | /zie-build task complete | Unit only |
 | /zie-build all tasks complete | Unit + Integration |

@@ -80,7 +80,7 @@ recall project=<p> domain=<d> tags=[<context-tags>] limit=<n>
 ## Components
 
 | Action | File | เปลี่ยนอะไร |
-|---|---|---|
+| --- | --- | --- |
 | Modify | `commands/zie-idea.md` | Simplify pre-flight, add handoff |
 | Modify | `commands/zie-plan.md` | Simplify pre-flight, add handoff |
 | Modify | `commands/zie-build.md` | Intent-driven steps, collapse config read |

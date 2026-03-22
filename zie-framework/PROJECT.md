@@ -9,7 +9,7 @@ AI-native SDLC framework plugin for Claude Code. ติดตั้ง structure
 ## Commands
 
 | Command | ทำอะไร |
-|---|---|
+| --- | --- |
 | /zie-idea | Brainstorm → spec → backlog item |
 | /zie-plan | Backlog → draft plan → approval → Ready lane |
 | /zie-build | Ready → TDD implementation (RED/GREEN/REFACTOR) |

@@ -29,10 +29,10 @@ spec: specs/2026-03-22-branding-communication-design.md
 ## สถานะ zie-framework
 
 | | |
-|---|---|
+| --- | --- |
 | โปรเจกต์ | <directory name> (<project_type>) |
 | Version | <VERSION> |
-| Brain | <enabled\|disabled> |
+| Brain | <enabled\ | disabled> |
 
 **ROADMAP**
 - Now: <N> in progress
@@ -43,10 +43,10 @@ spec: specs/2026-03-22-branding-communication-design.md
 **Plan**: <path or "ยังไม่มี plan">
 
 | Tests | สถานะ |
-|---|---|
-| unit | <✓ pass \| ✗ fail \| ? stale \| n/a> |
-| integration | <✓ pass \| ✗ fail \| ? stale \| n/a> |
-| e2e | <✓ pass \| ✗ fail \| ? stale \| n/a> |
+| --- | --- |
+| unit | <✓ pass \ | ✗ fail \ | ? stale \ | n/a> |
+| integration | <✓ pass \ | ✗ fail \ | ? stale \ | n/a> |
+| e2e | <✓ pass \ | ✗ fail \ | ? stale \ | n/a> |
 
 **ขั้นตอนถัดไป**: <context-appropriate suggestion>
 ```

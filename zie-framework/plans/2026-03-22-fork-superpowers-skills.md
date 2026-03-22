@@ -25,7 +25,7 @@ _No prior brain recall available for this session — context gathered from read
 ## File Map
 
 | Action | File | Responsibility |
-|--------|------|----------------|
+| --- | --- | --- |
 | Create | `skills/spec-design/SKILL.md` | Fork of superpowers brainstorming — zie-memory aware, uses zie-framework/specs/ paths |
 | Create | `skills/write-plan/SKILL.md` | Fork of superpowers writing-plans — saves to zie-framework/plans/, no auto-commit |
 | Create | `skills/debug/SKILL.md` | Fork of superpowers systematic-debugging — references zie-framework:tdd-loop, zie-memory bug recall |

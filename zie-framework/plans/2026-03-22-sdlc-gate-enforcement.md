@@ -19,7 +19,7 @@ backlog: backlog/sdlc-gate-enforcement.md
 ## File Map
 
 | Action | File | Responsibility |
-|--------|------|----------------|
+| --- | --- | --- |
 | CREATE | `commands/zie-plan.md` | New planning command with approval gate |
 | CREATE | `tests/unit/test_sdlc_gates.py` | All acceptance criteria tests |
 | MODIFY | `commands/zie-idea.md` | Backlog-first, zie-memory READ/WRITE |
@@ -693,7 +693,7 @@ Move SDLC gate enforcement item from Now → Done with date.
 ## Acceptance Criteria Mapping
 
 | AC | Covered by Task |
-|----|----------------|
+| --- | --- |
 | AC1: /zie-idea → Next only | T3, T4 |
 | AC2: /zie-plan no-args lists Next | T5, T6 |
 | AC3: /zie-plan sets approved: true | T5, T6 |

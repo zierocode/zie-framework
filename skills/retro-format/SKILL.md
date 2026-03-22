@@ -97,7 +97,7 @@ Status: Accepted
 ## ความถี่ของ Retro
 
 | Trigger | Depth |
-|---------|-------|
+| --- | --- |
 | After /zie-ship | Full retro + ADRs |
 | After a major debugging session | Patterns only (no full retro) |
 | End of long session (3+ hours) | Brief "what worked/what was painful" |

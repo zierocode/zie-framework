@@ -60,7 +60,7 @@ zie-memory (agent-facing)
 ## Growth Management
 
 | File | Growth Strategy |
-|---|---|
+| --- | --- |
 | `PROJECT.md` | Hard cap ~2 หน้า — ถ้าบวมขึ้น → ย้าย detail ไป spoke |
 | `project/architecture.md` | เขียนทับ section ที่เปลี่ยน — ไม่ append ตลอด |
 | `project/components.md` | Update เฉพาะ component ที่เปลี่ยน |
@@ -72,7 +72,7 @@ zie-memory (agent-facing)
 ## Update Triggers
 
 | Event | Action |
-|---|---|
+| --- | --- |
 | `/zie-ship` completes | auto-trigger `/zie-retro` |
 | `/zie-retro` | อ่าน project/*.md → distill changes → sync เข้า zie-memory |
 | Architecture เปลี่ยน | Update `project/architecture.md` ทันที (ไม่รอ retro) |

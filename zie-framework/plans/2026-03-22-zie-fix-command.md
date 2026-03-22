@@ -25,7 +25,7 @@ backlog: backlog/zie-fix-command.md
 ## File Map
 
 | Action | File | Responsibility |
-|--------|------|----------------|
+| --- | --- | --- |
 | Modify | `tests/unit/test_sdlc_gates.py` | Add `TestZieFixMemory` class — failing tests (RED) |
 | Modify | `commands/zie-fix.md` | Upgrade recall + remember calls to spec pattern (GREEN) |
 

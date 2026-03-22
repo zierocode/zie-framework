@@ -19,7 +19,7 @@ backlog: backlog/zie-status-test-health.md
 ## File Map
 
 | Action | File | Responsibility |
-|--------|------|----------------|
+| --- | --- | --- |
 | Modify | `commands/zie-status.md` | Update step 4 with real detection logic |
 | Modify | `tests/unit/test_sdlc_gates.py` | Add `TestZieStatusHealth` class |
 

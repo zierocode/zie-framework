@@ -19,7 +19,7 @@ backlog: backlog/unit-tests-hooks.md
 ## File Map
 
 | Action | File | Responsibility |
-|--------|------|----------------|
+| --- | --- | --- |
 | Create | `tests/unit/test_hooks_intent_detect.py` | Tests for `hooks/intent-detect.py` |
 | Create | `tests/unit/test_hooks_auto_test.py` | Tests for `hooks/auto-test.py` |
 | Create | `tests/unit/test_hooks_safety_check.py` | Tests for `hooks/safety-check.py` |

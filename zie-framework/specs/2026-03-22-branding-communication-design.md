@@ -46,7 +46,7 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 ### Commands (ชื่อภายนอก — ไม่เปลี่ยน)
 
 | Command | ทำอะไร | ชื่อสื่อถูกต้องมั้ย |
-|---|---|---|
+| --- | --- | --- |
 | `/zie-idea` | brainstorm → spec → backlog | ✓ idea → spec เป็น natural flow |
 | `/zie-plan` | backlog item → implementation plan | ✓ |
 | `/zie-build` | implement ด้วย TDD | ✓ |
@@ -58,7 +58,7 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 ### Internal Step Naming (เปลี่ยน)
 
 | ปัจจุบัน | ใหม่ | เหตุผล |
-|---|---|---|
+| --- | --- | --- |
 | Pre-flight | ตรวจสอบก่อนเริ่ม | สื่อตรง, Thai-primary |
 | Gate 1 — WIP check | ตรวจสอบ: งานที่ค้างอยู่ | บอก intent ไม่ใช่แค่ลำดับ |
 | Gate 2 — Approved plan | ตรวจสอบ: แผนที่อนุมัติแล้ว | เหมือนกัน |
@@ -89,7 +89,7 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 ## Components
 
 | Action | File | เปลี่ยนอะไร |
-|---|---|---|
+| --- | --- | --- |
 | Modify | `commands/zie-idea.md` | Thai-primary, rename phases |
 | Modify | `commands/zie-plan.md` | Thai-primary, rename phases |
 | Modify | `commands/zie-build.md` | Thai-primary, rename gates/phases, intent-driven steps |

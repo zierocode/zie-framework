@@ -19,7 +19,7 @@ backlog: backlog/test-pyramid-skill.md
 ## File Map
 
 | Action | File | Responsibility |
-|--------|------|----------------|
+| --- | --- | --- |
 | Modify | `commands/zie-build.md` | Add skill invocation to step 8 (RED phase) |
 | Modify | `tests/unit/test_sdlc_gates.py` | Add `TestZieBuildTestPyramid` class |
 

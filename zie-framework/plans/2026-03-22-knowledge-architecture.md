@@ -29,7 +29,7 @@ spec: specs/2026-03-22-knowledge-architecture-design.md
 ## Commands
 
 | Command | ทำอะไร |
-|---|---|
+| --- | --- |
 | /zie-idea | Brainstorm → spec → backlog item |
 | /zie-plan | Backlog → draft plan → approval → Ready |
 | /zie-build | Ready → TDD implementation → Now → complete |
@@ -108,7 +108,7 @@ commands/zie-*.md, skills/*/SKILL.md, templates/, zie-framework/>
 ## Commands
 
 | Command | Input | Output | Dependencies |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | /zie-idea | idea (optional) | spec + backlog item | spec-design skill, write-plan skill |
 | /zie-plan | slug(s) | approved plan in Ready | write-plan skill |
 | /zie-build | (reads ROADMAP Now) | implemented feature | tdd-loop, test-pyramid, debug skills |
@@ -120,7 +120,7 @@ commands/zie-*.md, skills/*/SKILL.md, templates/, zie-framework/>
 ## Skills
 
 | Skill | ทำอะไร | Invoked by |
-|---|---|---|
+| --- | --- | --- |
 | spec-design | Brainstorm → spec | /zie-idea |
 | write-plan | Spec → task plan | /zie-idea, /zie-plan |
 | tdd-loop | RED/GREEN/REFACTOR guide | /zie-build |
@@ -132,7 +132,7 @@ commands/zie-*.md, skills/*/SKILL.md, templates/, zie-framework/>
 ## Hooks
 
 | Hook | Event | ทำอะไร |
-|---|---|---|
+| --- | --- | --- |
 | auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save |
 | safety-check.py | PreToolUse:Bash | บล็อก dangerous commands |
 | intent-detect.py | PreToolUse:Bash | ตรวจ intent จาก bash pattern |

@@ -11,7 +11,7 @@ claude plugin install zierocode/zie-framework
 ## Commands
 
 | Command | Phase | Description |
-|---------|-------|-------------|
+| --- | --- | --- |
 | `/zie-init` | Bootstrap | Initialize framework in a project |
 | `/zie-status` | Anytime | Show current SDLC state |
 | `/zie-idea` | Ideation | Brainstorm → spec → implementation plan |
@@ -30,7 +30,7 @@ claude plugin install zierocode/zie-framework
 ## Dependencies
 
 | Dependency | Required | Graceful degradation |
-|-----------|----------|---------------------|
+| --- | --- | --- |
 | Claude Code | Yes | — |
 | Python 3.x | Yes | Hooks need Python |
 | superpowers plugin | No | Inline Q&A mode |

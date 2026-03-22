@@ -41,7 +41,7 @@ backlog: backlog/<slug>.md
 Before defining tasks, map out which files will be created or modified:
 
 | Action | File | Responsibility |
-|--------|------|----------------|
+| --- | --- | --- |
 | Create | `path/to/file.py` | What this file does |
 | Modify | `path/to/existing.py` | What changes |
 
