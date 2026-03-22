@@ -136,3 +136,18 @@ class TestCommandsNoSuperpowersDependency:
         content = read("commands/zie-ship.md")
         assert "Skill(zie-framework:verify)" in content, \
             "zie-ship must invoke Skill(zie-framework:verify)"
+
+    def test_zie_plan_no_superpowers_enabled(self):
+        content = read("commands/zie-plan.md")
+        assert "superpowers_enabled" not in content, \
+            "zie-plan must not read superpowers_enabled from .config"
+
+    def test_zie_init_no_superpowers_enabled_in_config_template(self):
+        content = read("commands/zie-init.md")
+        assert "superpowers_enabled" not in content, \
+            "zie-init .config template must not include superpowers_enabled field"
+
+    def test_session_resume_no_superpowers_enabled(self):
+        content = read("hooks/session-resume.py")
+        assert "superpowers_enabled" not in content, \
+            "session-resume hook must not read superpowers_enabled from config"
