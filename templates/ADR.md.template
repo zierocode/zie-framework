@@ -1,0 +1,20 @@
+# ADR-{{number}}: {{title}}
+
+Date: {{date}}
+Status: Accepted
+
+## Context
+
+{{what situation made this decision necessary — 1-3 sentences}}
+
+## Decision
+
+{{what was decided — 1-3 sentences, specific and actionable}}
+
+## Consequences
+
+**Positive:** {{what this enables or makes easier}}
+
+**Negative:** {{what this makes harder or trades off}}
+
+**Neutral:** {{things that change but are neither better nor worse — optional}}

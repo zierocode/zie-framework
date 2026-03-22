@@ -1,0 +1,10 @@
+{
+  "project_type": "python-api",
+  "test_runner": "pytest",
+  "has_frontend": false,
+  "playwright_enabled": false,
+  "zie_memory_enabled": false,
+  "superpowers_enabled": false,
+  "auto_test_debounce_ms": 3000,
+  "auto_test_timeout_ms": 30000
+}

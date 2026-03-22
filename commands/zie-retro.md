@@ -1,0 +1,88 @@
+# /zie-retro — Retrospective + ADRs + Brain Storage
+
+Post-release or end-of-session retrospective. Documents what happened, extracts architectural decisions as ADRs, updates ROADMAP, and stores learnings in the brain.
+
+## Pre-flight
+
+1. Read `zie-framework/.config` → project, zie_memory_enabled.
+2. Read `zie-framework/ROADMAP.md` → current state.
+3. Get git context:
+   - `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline` → changes since last tag
+   - `git log -20 --oneline` → recent activity
+
+## Steps
+
+### Phase 1 — Gather context
+
+4. If `zie_memory_enabled=true`:
+   - Recall recent session memories: `recall "recent work on <project>"`
+   - This gives context on what was decided/learned during the session.
+
+5. Count ADR files already in `zie-framework/decisions/` → get next ADR number.
+
+### Phase 2 — Generate retrospective
+
+6. Analyze the git log and session context. Generate a structured retrospective:
+
+   **What shipped**: list of features/fixes in this release or session.
+   **What worked well**: patterns, approaches, tools that helped.
+   **What was painful**: friction points, unexpected complexity.
+   **Key decisions made**: any significant architectural or design choices.
+   **Patterns to remember**: techniques, approaches worth storing in brain.
+
+### Phase 3 — Write ADRs
+
+7. For each significant architectural decision identified:
+   - Create `zie-framework/decisions/ADR-<NNN>-<slug>.md` from ADR template:
+     ```
+     # ADR-<NNN>: <Title>
+     Date: YYYY-MM-DD
+     Status: Accepted
+
+     ## Context
+     <what situation required this decision>
+
+     ## Decision
+     <what was decided>
+
+     ## Consequences
+     <what this means going forward — positive and negative>
+     ```
+   - Only create ADR for decisions with lasting consequences. Skip routine implementation choices.
+
+### Phase 4 — Update ROADMAP
+
+8. Update `zie-framework/ROADMAP.md`:
+   - Ensure all shipped items are in "Done" with date.
+   - Re-read "Next" section — re-prioritize based on what was learned.
+   - Move any "Icebox" items to "Next" if they became relevant.
+   - Ask Zie: "Anything to add to Next or Later?"
+
+### Phase 5 — Brain storage
+
+9. If `zie_memory_enabled=true`:
+   - Store P1 preferences (what worked, add to permanent preferences):
+     `remember "<what worked>. Preference: always use this approach for <context>." priority=preference tags=[retro, <slug>]`
+   - Store P2 project learnings:
+     `remember "Retro <version>: <key learning>. Decision: <ADR slug>." priority=project tags=[retro, <project>] project=<project>`
+   - Downvote any memories that turned out to be incorrect via `downvote_memory`.
+
+### Phase 6 — Print summary
+
+10. Print:
+    ```
+    Retrospective complete
+
+    Shipped  : <N features/fixes>
+    ADRs     : <list of ADR files created>
+    ROADMAP  : Now cleared → Done section updated
+
+    Learnings stored: <N memories>
+
+    Next session: Run /zie-status to see current state.
+    ```
+
+## Notes
+- Can run standalone (not just after /zie-ship): `/zie-retro` at any time
+- Lightweight when nothing major happened — won't create empty ADRs
+- ADR numbers are auto-incremented from existing files in `zie-framework/decisions/`

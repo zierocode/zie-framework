@@ -1,0 +1,39 @@
+VERSION := $(shell cat VERSION 2>/dev/null || echo "0.1.0")
+
+# ── Help ──────────────────────────────────────────────────────────────────────
+.DEFAULT_GOAL := help
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+	  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
+
+# ── Tests ─────────────────────────────────────────────────────────────────────
+test-unit: ## Fast unit tests (run constantly during /zie-build)
+	npx vitest run --reporter=dot
+
+test-int: ## Integration tests
+	npx vitest run --project=integration
+
+test-e2e: ## Playwright E2E — requires dev server running
+	npx playwright test
+
+test: test-unit test-int ## Full test suite (unit + integration)
+
+# ── Development ───────────────────────────────────────────────────────────────
+dev: ## Start dev server
+	npm run dev
+
+build: ## Production build
+	npm run build
+
+# ── Git workflow ──────────────────────────────────────────────────────────────
+push: ## Commit + push to dev branch (usage: make push m="commit message")
+	@test -n "$(m)" || (echo "Usage: make push m='commit message'" && exit 1)
+	git add -A && git commit -m "$(m)" && git push origin dev
+
+ship: ## Full release: run all tests → merge dev→main → tag (use /zie-ship instead)
+	$(MAKE) test || (echo "Tests failed — fix before shipping" && exit 1)
+	@echo "All tests passed. Run /zie-ship for the full release gate."
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+clean: ## Remove cache files and build artifacts
+	rm -rf .next dist node_modules/.cache
