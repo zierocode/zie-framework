@@ -9,9 +9,6 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [x] Knowledge Architecture (PROJECT.md hub + project/* spokes) — [spec](specs/2026-03-22-knowledge-architecture-design.md) [plan](plans/2026-03-22-knowledge-architecture.md)
-- [x] E2E Optimization — collapsed config reads, intent-driven steps, handoff blocks — 2026-03-22
-- [x] Branding, Communication & Naming Consistency — Thai-primary, no ASCII art, renamed phases, handoff blocks — 2026-03-22
 
 ---
 
@@ -44,6 +41,9 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] Knowledge Architecture — PROJECT.md hub + project/* spokes, templates, zie-retro sync — v1.1.0 2026-03-22
+- [x] E2E Optimization — intent-driven steps, config collapse, handoff blocks — v1.1.0 2026-03-22
+- [x] Branding & Naming Consistency — Thai-primary, renamed phases, batch release support — v1.1.0 2026-03-22
 - [x] test-pyramid skill in /zie-build — RED phase now invokes Skill(zie-framework:test-pyramid) — 2026-03-22
 - [x] /zie-status test health detection — .pytest_cache/lastfailed logic, mtime stale check — 2026-03-22
 - [x] /zie-fix memory enhancement — batch recall domain+tags, root cause pattern format — 2026-03-22
