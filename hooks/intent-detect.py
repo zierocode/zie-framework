@@ -37,6 +37,11 @@ PATTERNS = {
         r"สร้าง.*ใหม่", r"want to (build|add|create|make)",
         r"ต้องการ", r"would like to",
     ],
+    "plan": [
+        r"\bplan\b", r"วางแผน", r"อยากวางแผน", r"เลือก.*backlog",
+        r"หยิบ.*backlog", r"plan.*feature", r"ready.*to.*plan",
+        r"zie.?plan",
+    ],
     "build": [
         r"implement", r"ทำ.*ต่อ", r"continue", r"resume",
         r"สร้าง.*feature", r"next task", r"task.*ต่อ",
@@ -67,6 +72,7 @@ PATTERNS = {
 SUGGESTIONS = {
     "init":   "/zie-init",
     "idea":   "/zie-idea",
+    "plan":   "/zie-plan",
     "build":  "/zie-build",
     "fix":    "/zie-fix",
     "ship":   "/zie-ship",

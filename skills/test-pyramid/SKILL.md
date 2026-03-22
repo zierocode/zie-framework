@@ -18,7 +18,7 @@ type: reference
    /--------------\
 ```
 
-## By Project Type
+## แยกตาม Project Type
 
 ### python-api (e.g., zie-memory)
 
@@ -61,7 +61,7 @@ type: reference
 - Subprocess tests for CLI invocation
 - No E2E needed (CLI = the E2E)
 
-## When to Run What
+## ควรรัน Test ไหนเมื่อไหร่
 
 | Trigger | Tests to run |
 |---------|-------------|
@@ -71,7 +71,7 @@ type: reference
 | /zie-ship gate | Unit + Integration + E2E + Visual |
 | Debugging a failing test | Relevant unit only |
 
-## Writing Good Tests
+## เขียน Test ที่ดี
 
 **Name tests as behavior, not implementation:**
 - BAD: `test_hybrid_search_function`

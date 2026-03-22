@@ -22,12 +22,24 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    zie-framework/
    ├── .config
    ├── ROADMAP.md
+   ├── PROJECT.md
+   ├── project/
+   │   ├── architecture.md
+   │   ├── components.md
+   │   └── decisions.md
+   ├── backlog/
    ├── specs/
    ├── plans/
    ├── decisions/
    └── evidence/
    ```
    Create a `.gitignore` inside `zie-framework/` with: `evidence/`
+   Create `zie-framework/backlog/.gitkeep` so the directory is tracked by git.
+   Generate from templates with substitutions (`{{project_name}}`, `{{date}}`, `{{version}}`):
+   - `PROJECT.md` from `templates/PROJECT.md.template`
+   - `project/architecture.md` from `templates/project/architecture.md.template`
+   - `project/components.md` from `templates/project/components.md.template`
+   - `project/decisions.md` from `templates/project/decisions.md.template`
 
 3. **Generate `zie-framework/.config`** (JSON):
    ```json
@@ -54,17 +66,28 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    - If exists: keep as-is.
    - If not: create with content `0.1.0`
 
-7. **If `playwright_enabled=true`**:
+7. **Create `CLAUDE.md`** at project root:
+   - If exists: skip (never overwrite).
+   - If not: generate from `templates/CLAUDE.md.template` with these substitutions:
+     - `{{project_name}}` → current directory name
+     - `{{project_description}}` → `<project_type> project`
+     - `{{tech_stack}}` → detected stack (e.g. `Python 3.x`, `Node.js / TypeScript`)
+     - `{{test_runner}}` → detected test runner
+     - `{{build_commands}}` → appropriate commands for project_type:
+       - python: `make test-unit   # unit tests\nmake test        # full suite\nmake push m="msg"  # commit + push`
+       - typescript: `make test-unit   # unit tests\nmake test        # full suite\nmake push m="msg"  # commit + push`
+
+8. **If `playwright_enabled=true`**:
    - Check if `@playwright/test` in package.json devDependencies
    - If not: `npm install --save-dev @playwright/test` + `npx playwright install chromium`
    - Create `playwright.config.ts` from template if it doesn't exist
    - Create `tests/e2e/` directory with `fixtures.ts`
 
-8. **If `zie_memory_enabled=true`**:
-   - Store project bootstrap as P2 memory:
-     `remember "Project <name> initialized with zie-framework. Type: <project_type>. Test runner: <test_runner>." priority=project tags=[zie-framework, init]`
+9. **If `zie_memory_enabled=true`**:
+   - Store project bootstrap memory:
+     `remember "Project <name> initialized with zie-framework. Type: <project_type>. Stack: <tech_stack>. Test runner: <test_runner>." tags=[zie-framework, init, <project_name>]`
 
-9. **Print summary**:
+10. **Print summary**:
    ```
    zie-framework initialized in <project>/
 
@@ -76,6 +99,7 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
 
    Created:
      zie-framework/  (specs, plans, decisions, ROADMAP.md)
+     CLAUDE.md       (<created|skipped — already exists>)
      Makefile        (<created|updated>)
      VERSION         (<created|kept>)
 

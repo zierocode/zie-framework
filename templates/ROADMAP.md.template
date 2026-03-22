@@ -1,13 +1,19 @@
 # ROADMAP — {{project_name}}
 
 > Single source of truth for what's being built and why.
-> Updated by /zie-idea (Now), /zie-ship (Done), /zie-retro (reprioritization).
+> Updated by /zie-idea (Next), /zie-plan (Ready), /zie-build (Now), /zie-ship (Done), /zie-retro (reprioritization).
+
+---
+
+## Ready — Approved Plans
+
+<!-- Plans approved by Zie, ready to build. Pull into Now when slot is free. -->
 
 ---
 
 ## Now — Active Sprint
 
-<!-- Current feature in progress. One at a time. -->
+<!-- Current feature in progress. One at a time (WIP=1). -->
 
 - [ ] Initial setup complete — see [spec](specs/) [plan](plans/)
 

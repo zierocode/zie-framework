@@ -11,43 +11,46 @@ Show a concise snapshot of where the project is right now. No LLM reasoning need
 
 1. **Check initialization**: if `zie-framework/` does not exist → print "Not initialized. Run /zie-init first." and stop.
 
-2. **Read files**:
-   - `zie-framework/.config` → project_type, test_runner, has_frontend, playwright_enabled
-   - `zie-framework/ROADMAP.md` → Now / Next / Done sections
-   - `VERSION` → current version
-   - `zie-framework/specs/` → list files, sort by date
-   - `zie-framework/plans/` → list files, find most recent
+2. **Read files**: `zie-framework/.config`, `zie-framework/ROADMAP.md`, `VERSION`, specs/plans dirs เพื่อ context
 
 3. **Find active plan**: most recent file in `zie-framework/plans/` where ROADMAP.md "Now" section is not empty.
 
 4. **Check test health**:
-   - Look for `.pytest_cache/` or `test-results/` → get last run timestamp
-   - Check if any test files modified more recently than last run → "stale"
+   - Check `.pytest_cache/v/cache/lastfailed`:
+     - File exists and is **non-empty** (contains failed node IDs) → report `✗ fail`
+     - File exists and is **empty** (last run had zero failures) → report `✓ pass`
+     - If no `.pytest_cache/` directory at all → report `? stale`
+   - Compare mtime of `.pytest_cache/` directory vs the newest file under `tests/`:
+     - If any test file was modified more recently than `.pytest_cache/` → report `? stale`
+     (A stale result overrides a prior pass/fail — if tests changed since the last run, the cached result is unreliable.)
 
-5. **Print status block**:
-   ```
-   ┌─ zie-framework status ──────────────────────────────────
-   │ Project : <directory name> (<project_type>)
-   │ Version : <VERSION>
-   │ Brain   : <enabled|disabled>
-   │
-   │ ROADMAP ── Now  : <item count> in progress
-   │            Next : <item count> queued
-   │            Done : <item count> shipped
-   │
-   │ Active  : <first Now item or "nothing in progress">
-   │ Plan    : <zie-framework/plans/latest.md or "no active plan">
-   │
-   │ Tests   : unit        <✓ pass | ✗ fail | ? stale | n/a>
-   │           integration <✓ pass | ✗ fail | ? stale | n/a>
-   │           e2e         <✓ pass | ✗ fail | ? stale | n/a (no frontend)>
-   └──────────────────────────────────────────────────────────
+5. **พิมพ์สถานะ** โดยใช้ markdown format:
 
-   Suggestions:
-   → <context-appropriate next command>
-   ```
+   ## สถานะ zie-framework
 
-6. **Suggestions logic** (pick the most relevant):
+   | | |
+   |---|---|
+   | โปรเจกต์ | \<directory name> (\<project_type>) |
+   | Version | \<VERSION> |
+   | Brain | \<enabled\|disabled> |
+
+   **ROADMAP**
+   - Now: \<N> in progress
+   - Next: \<N> queued
+   - Done: \<N> shipped
+
+   **งานปัจจุบัน**: \<first Now item or "ยังไม่มีงาน">
+   **Plan**: \<zie-framework/plans/latest.md or "ยังไม่มี plan">
+
+   | Tests | สถานะ |
+   |---|---|
+   | unit | \<✓ pass \| ✗ fail \| ? stale \| n/a> |
+   | integration | \<✓ pass \| ✗ fail \| ? stale \| n/a> |
+   | e2e | \<✓ pass \| ✗ fail \| ? stale \| n/a> |
+
+   **ขั้นตอนถัดไป**: \<context-appropriate suggestion>
+
+6. **ตรรกะขั้นตอนถัดไป** (เลือกที่เกี่ยวข้องที่สุด):
    - Nothing in ROADMAP Now → "Start a feature: /zie-idea"
    - Active plan exists, tasks incomplete → "Continue: /zie-build"
    - Tests stale or failing → "Fix tests: /zie-fix"

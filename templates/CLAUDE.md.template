@@ -1,0 +1,22 @@
+# {{project_name}}
+
+{{project_description}}
+
+## Tech Stack
+
+- **Runtime**: {{tech_stack}}
+- **Test runner**: {{test_runner}}
+
+## Build Commands
+
+```bash
+{{build_commands}}
+```
+
+## Key Rules
+
+- (add project-specific rules here)
+
+## SDLC State
+
+Managed by zie-framework — see `zie-framework/ROADMAP.md` for current backlog.

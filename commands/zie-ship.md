@@ -7,30 +7,30 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 
 Full automated release gate. Runs all tests, verifies, bumps version, merges dev→main, tags, and updates ROADMAP. Nothing ships without passing every gate.
 
-## Pre-flight
+## ตรวจสอบก่อนเริ่ม
 
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
-2. Read `zie-framework/.config` → has_frontend, playwright_enabled, test_runner.
+2. อ่าน `zie-framework/.config` — ใช้ has_frontend, playwright_enabled เป็น context
 3. Read `VERSION` → current version.
 4. Check current git branch → should be `dev`. Warn if not.
 
-## Gate Sequence (all must pass)
+## ลำดับการตรวจสอบ (ต้องผ่านทุกขั้น)
 
-### Gate 1 — Unit Tests
+### ตรวจสอบ: Unit Tests
 ```
 make test-unit
 ```
 - Must exit 0.
 - On failure → STOP. Print: "Gate 1 FAILED: unit tests. Run /zie-fix before shipping."
 
-### Gate 2 — Integration Tests
+### ตรวจสอบ: Integration Tests
 ```
 make test-int
 ```
 - Must exit 0, OR skip if no integration tests exist.
 - On failure → STOP. Print: "Gate 2 FAILED: integration tests."
 
-### Gate 3 — E2E Tests (if `playwright_enabled=true`)
+### ตรวจสอบ: E2E Tests (ถ้า playwright_enabled=true)
 ```
 make test-e2e
 ```
@@ -38,32 +38,63 @@ make test-e2e
 - On failure → STOP. Print: "Gate 3 FAILED: e2e tests."
 - If `playwright_enabled=false` → skip this gate, note it.
 
-### Gate 4 — Visual Verification (if `has_frontend=true`)
+### ตรวจสอบ: Visual (ถ้า has_frontend=true)
 - Invoke `Skill(vercel:agent-browser-verify)` or `Skill(vercel:verification)` if available.
 - If not available → manual check: start dev server, describe what to verify, ask Zie to confirm.
 
-### Gate 5 — Verification Checklist
-- Invoke `Skill(superpowers:verification-before-completion)`.
+### ตรวจสอบ: Checklist ก่อน release
+- Invoke `Skill(zie-framework:verify)`.
 
-### Gate 6 — Code Review
-- Invoke `Skill(superpowers:requesting-code-review)` with a subagent.
+### ตรวจสอบ: Docs sync
+- Scan `git diff main..HEAD --name-only` → ถ้ามี new commands, skills, hooks, หรือ project structure เปลี่ยน:
+  - `CLAUDE.md` — project structure + tech stack ยังถูกต้องไหม?
+  - `README.md` — directory structure + commands table ยังถูกต้องไหม?
+- ถ้า out of sync → อัปเดตก่อน merge
+
+### ตรวจสอบ: Code diff ก่อน merge
+- Run `git diff main..HEAD --stat` and scan for anything unexpected before merging.
 
 ## All Gates Passed — Release
 
-5. Ask: "All gates passed. Bump version? Current: <VERSION>. Type: patch | minor | major"
+5. **Suggest version bump** based on what's in Now lane:
+   - Scan `[x]` items in Now + git log since last tag
+   - Apply rule (take highest that applies):
+     - **major** — breaking change: existing users/callers ต้องแก้ code/config ของตัวเองเพื่อ upgrade
+     - **minor** — new capability: มีของใหม่ที่ใช้ได้เลย โดยไม่ต้องแก้อะไรเดิม
+     - **patch** — no new capability: bug fix, docs, tests, refactor, rename, style
+   - Present suggestion with reasoning:
+     ```
+     Suggested bump: minor
+     Reason: Knowledge Architecture adds PROJECT.md + project/* (new feature, backward compatible)
+
+     Current: <VERSION> → <suggested new version>
+     Confirm? (Enter = accept / major / minor / patch to override)
+     ```
 
 6. **Bump VERSION**:
    - Read `patch|minor|major` from user response (default: `patch` if Enter pressed)
    - Calculate new version: e.g., `1.0.10` + `patch` → `1.0.11`
    - Write new version to `VERSION`
 
-7. **Update CHANGELOG.md**:
-   - Run: `git log $(git describe --tags --abbrev=0)..HEAD --oneline --no-merges`
-   - Append new section at top:
+7. **Draft CHANGELOG entry**:
+   - Run: `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline --no-merges`
+   - Rewrite commits เป็นภาษาที่คนอ่านเข้าใจ — ไม่ใช่แค่ copy commit messages:
+     - Group เป็น **Features**, **Fixed**, **Changed** (ข้าม group ที่ว่าง)
+     - แต่ละ item: อธิบาย *what changed and why it matters* ไม่ใช่แค่ชื่อ commit
+   - Present draft ให้ Zie approve:
      ```
      ## v<NEW_VERSION> — YYYY-MM-DD
-     <grouped git log entries by feat/fix/chore>
+
+     ### Features
+     - <human-readable description>
+
+     ### Fixed / Changed
+     - <human-readable description>
+
+     Approve this CHANGELOG entry? (yes / edit)
      ```
+   - **yes** → append section at top of `CHANGELOG.md` (สร้างไฟล์ถ้ายังไม่มี)
+   - **edit** → Zie แก้ text → write → continue
 
 8. **Commit release files**:
    ```
@@ -84,8 +115,12 @@ make test-e2e
     - Move all items from "Now" section → "Done" section with date and version.
     - Re-prioritize "Next" section if needed.
 
+10b. If `zie_memory_enabled=true` — READ before writing ship memory:
+    - Single batch query: `recall project=<project> tags=[wip, plan] feature=<slug> limit=5`
+    - Returns WIP notes + plan estimate → compute actual vs estimated complexity.
+
 11. **Store release in brain** (if `zie_memory_enabled=true`):
-    - `remember "Released v<NEW_VERSION> of <project>. Changes: <brief>." priority=project tags=[release, v<NEW_VERSION>] project=<project>`
+    - `remember "Shipped: <feature> v<NEW_VERSION>. Tasks: N. Actual: <vs estimate>." tags=[shipped, <project>, <domain>]`
 
 12. **Auto-run `/zie-retro`**.
 

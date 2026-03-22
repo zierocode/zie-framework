@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Bash, Glob, Grep, Skill
 
 Post-release or end-of-session retrospective. Documents what happened, extracts architectural decisions as ADRs, updates ROADMAP, and stores learnings in the brain.
 
-## Pre-flight
+## ตรวจสอบก่อนเริ่ม
 
 1. Read `zie-framework/.config` → project, zie_memory_enabled.
 2. Read `zie-framework/ROADMAP.md` → current state.
@@ -17,7 +17,7 @@ Post-release or end-of-session retrospective. Documents what happened, extracts 
 
 ## Steps
 
-### Phase 1 — Gather context
+### รวบรวม context
 
 4. If `zie_memory_enabled=true`:
    - Recall recent session memories: `recall "recent work on <project>"`
@@ -25,7 +25,7 @@ Post-release or end-of-session retrospective. Documents what happened, extracts 
 
 5. Count ADR files already in `zie-framework/decisions/` → get next ADR number.
 
-### Phase 2 — Generate retrospective
+### วิเคราะห์และสรุป
 
 6. Analyze the git log and session context. Generate a structured retrospective:
 
@@ -35,7 +35,7 @@ Post-release or end-of-session retrospective. Documents what happened, extracts 
    **Key decisions made**: any significant architectural or design choices.
    **Patterns to remember**: techniques, approaches worth storing in brain.
 
-### Phase 3 — Write ADRs
+### บันทึก ADRs
 
 7. For each significant architectural decision identified:
    - Create `zie-framework/decisions/ADR-<NNN>-<slug>.md` from ADR template:
@@ -55,26 +55,35 @@ Post-release or end-of-session retrospective. Documents what happened, extracts 
      ```
    - Only create ADR for decisions with lasting consequences. Skip routine implementation choices.
 
-### Phase 4 — Update ROADMAP
+### อัปเดต project knowledge
 
-8. Update `zie-framework/ROADMAP.md`:
+8. หลัง ADRs เขียนเสร็จ:
+   - อ่าน `zie-framework/project/components.md` → อัปเดต components ที่เปลี่ยน behavior ใน session นี้
+   - อ่าน `zie-framework/project/decisions.md` → append ADRs ใหม่ที่เพิ่งสร้าง (ถ้ายังไม่มี)
+   - ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
+   - ถ้า `zie_memory_enabled=true`:
+     `remember "Project snapshot: <version>. Components changed: <list>. Decisions: <new ADR slugs>." tags=[project-knowledge, zie-framework, <version>] supersedes=[project-knowledge, zie-framework]`
+
+### อัปเดต ROADMAP
+
+10. Update `zie-framework/ROADMAP.md`:
    - Ensure all shipped items are in "Done" with date.
    - Re-read "Next" section — re-prioritize based on what was learned.
    - Move any "Icebox" items to "Next" if they became relevant.
    - Ask Zie: "Anything to add to Next or Later?"
 
-### Phase 5 — Brain storage
+### บันทึกสู่ brain
 
-9. If `zie_memory_enabled=true`:
+11. If `zie_memory_enabled=true`:
    - Store P1 preferences (what worked, add to permanent preferences):
      `remember "<what worked>. Preference: always use this approach for <context>." priority=preference tags=[retro, <slug>]`
    - Store P2 project learnings:
      `remember "Retro <version>: <key learning>. Decision: <ADR slug>." priority=project tags=[retro, <project>] project=<project>`
    - Downvote any memories that turned out to be incorrect via `downvote_memory`.
 
-### Phase 6 — Print summary
+### สรุปผล
 
-10. Print:
+12. Print:
     ```
     Retrospective complete
 
