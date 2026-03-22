@@ -81,7 +81,7 @@ if now_items:
         lines.append(f"  Plan    : zie-framework/plans/{active_plan}")
     lines.append(f"  Backlog : {len(next_items)} items in Next")
 else:
-    lines.append("  No active feature — run /zie-idea to start one")
+    lines.append("  No active feature — run /zie-backlog to start one")
 
 lines.append(f"  Brain   : {'enabled' if zie_memory else 'disabled'}")
 lines.append("  → Run /zie-status for full state")
