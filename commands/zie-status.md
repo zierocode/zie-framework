@@ -20,23 +20,40 @@ needed — just read files and print.
 3. **Find active plan**: most recent file in `zie-framework/plans/` where
    ROADMAP.md "Now" section is not empty.
 
-4. **Check knowledge drift**:
+4. **Check knowledge drift** via Bash:
+
+   ```bash
+   python3 -c "
+   import hashlib, os, json
+   EXCLUDE = {'node_modules','.git','build','dist','.next',
+              '__pycache__','coverage','zie-framework'}
+   parts = []
+   for root, dirs, files in os.walk('.'):
+       dirs[:] = sorted(d for d in dirs if d not in EXCLUDE)
+       for f in sorted(files):
+           parts.append(os.path.join(root, f))
+   print(hashlib.sha256('|'.join(parts).encode()).hexdigest())
+   "
+   ```
+
    - Read `knowledge_hash` from `zie-framework/.config`
    - If missing → Knowledge status: `? no baseline — run /zie-resync`
-   - If present → recompute hash using same algorithm as `/zie-init`
-     (dirs + file counts + config files, same exclusion list)
+   - Compare script output to stored hash:
      - Equal → `✓ synced (<knowledge_synced_at>)`
      - Differs → `⚠ drift detected — run /zie-resync`
    - Knowledge row is informational only — does not block suggestions
 
-5. **Check test health**:
+5. **Check test health** (detect test runner from `.config`):
+
+   **pytest** (`test_runner=pytest`):
    - Check `.pytest_cache/v/cache/lastfailed`:
-     - File exists and is **non-empty** (contains failed node IDs) → report `✗ fail`
-     - File exists and is **empty** (last run had zero failures) → report `✓ pass`
-     - If no `.pytest_cache/` directory at all → report `? stale`
-   - Compare mtime of `.pytest_cache/` directory vs the newest file under `tests/`:
-     - If any test file was modified more recently than `.pytest_cache/` → report `? stale`
-     (Stale overrides prior pass/fail — if tests changed since the last run, cached result is unreliable.)
+     - Non-empty → `✗ fail` | Empty → `✓ pass` | No dir → `? stale`
+   - Compare mtime of `.pytest_cache/` vs newest file under `tests/`:
+     - Newer test file → `? stale` (overrides prior result)
+
+   **vitest/jest** (`test_runner=vitest|jest`):
+   - Check `node_modules/.vitest/` or `.jest-cache/` last-run timestamp
+   - If no cache dir → `? stale`
 
 6. **พิมพ์สถานะ** โดยใช้ markdown format:
 
@@ -47,7 +64,7 @@ needed — just read files and print.
    | โปรเจกต์ | \<directory name> (\<project_type>) |
    | Version | \<VERSION> |
    | Brain | \<enabled\|disabled> |
-   | Knowledge | \<✓ synced (YYYY-MM-DD) \| ⚠ drift detected — run /zie-resync \| ? no baseline — run /zie-resync> |
+   | Knowledge | \<✓ synced (date) \| ⚠ drift: /zie-resync \| ? no baseline> |
 
    **ROADMAP**
    - Now: \<N> in progress

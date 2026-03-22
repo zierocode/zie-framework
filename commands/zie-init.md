@@ -10,6 +10,15 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
 
 ## Steps
 
+0. **Re-run guard**: if `zie-framework/` already exists, skip all creation
+   steps and print:
+
+   ```text
+   Already initialized. Creating any missing files only.
+   ```
+
+   Then proceed — all creation steps below are idempotent (skip if exists).
+
 1. **Detect project type** by reading existing files:
    - `requirements.txt` or `pyproject.toml` → `python-api`
    - `package.json` with Next.js/React → `typescript-fullstack`
@@ -148,17 +157,19 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    ├── specs/
    ├── plans/
    ├── decisions/
-   └── evidence/
+   └── evidence/          # local-only: screenshots, test outputs, debug dumps
    ```
 
    Create a `.gitignore` inside `zie-framework/` with: `evidence/`
+   (evidence/ is gitignored — never committed; use it for local artifacts)
    Create `zie-framework/backlog/.gitkeep` so the directory is tracked by git.
    Generate from templates with substitutions (`{{project_name}}`, `{{date}}`, `{{version}}`):
    - `PROJECT.md` from `templates/PROJECT.md.template`
    - `project/architecture.md` from `templates/project/architecture.md.template`
    - `project/components.md` from `templates/project/components.md.template`
    - `project/decisions.md` from `templates/project/decisions.md.template`
-   (For existing projects: skip the four knowledge docs — already written in step 2.)
+   (For existing projects: skip the four knowledge docs —
+   already written in step 2.)
 
 4. **Generate `zie-framework/.config`** (JSON):
 
@@ -177,7 +188,8 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    ```
 
 5. **Generate `zie-framework/ROADMAP.md`** from template:
-   Use the ROADMAP template — set project name from current directory name.
+   Use `templates/ROADMAP.md.template` — set project name from
+   current directory name.
 
 6. **Create `Makefile`** at project root:
    - If Makefile already exists: ADD the standard targets (test-unit,
@@ -214,8 +226,10 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
 
 10. **If `playwright_enabled=true`**:
     - Check if `@playwright/test` in package.json devDependencies
-    - If not: `npm install --save-dev @playwright/test` +
-      `npx playwright install chromium`
+    - If not: ask "Install @playwright/test? This will run npm install. (yes/no)"
+      → If yes: `npm install --save-dev @playwright/test` +
+        `npx playwright install chromium`
+      → If no: set `playwright_enabled=false` in `.config` and skip
     - Create `playwright.config.ts` from template if it doesn't exist
     - Create `tests/e2e/` directory with `fixtures.ts`
 

@@ -57,6 +57,10 @@ Each task follows TDD RED → GREEN → REFACTOR:
 
 <!-- depends_on: Task M -->
 
+**Acceptance Criteria:**
+- <observable behavior 1 — what the user/system can verify>
+- <observable behavior 2>
+
 **Files:**
 - Create: `exact/path/to/file.py`
 - Modify: `exact/path/to/existing.py`

@@ -12,8 +12,13 @@ for bugs and regressions.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. อ่าน `zie-framework/.config` เพื่อ context
-2. If `zie_memory_enabled=true`:
+1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
+2. อ่าน `zie-framework/.config` เพื่อ context.
+3. Read `zie-framework/ROADMAP.md` → check Now lane.
+   - If a `[ ]` item exists → warn: "WIP active: `<feature>`. Bug fix will be
+     a separate commit outside the current feature. Proceed? (yes/no)"
+   - If no → stop.
+4. If `zie_memory_enabled=true`:
    - `recall project=<project> domain=<domain> tags=[bug, build-learning] limit=10`
    - → detect recurring patterns, surface known fragile areas
 
@@ -22,7 +27,8 @@ for bugs and regressions.
 ### ทำความเข้าใจ bug
 
 1. If bug description provided as argument → use it.
-   If not → ask: "What's the bug? Paste error output or describe the behavior."
+   If not → ask: "What's the bug? Paste error output or describe the
+   behavior."
 
 2. Invoke `Skill(zie-framework:debug)`:
    - Reproduce the bug
@@ -31,24 +37,29 @@ for bugs and regressions.
 
 ### เขียน regression test ก่อน (RED)
 
-1. เขียน failing test ที่ capture bug (`test_<bug_slug>`) — รัน `make test-unit`
-   เพื่อยืนยันว่า test FAILS ก่อนแก้เสมอ
+1. Write failing test that captures the bug. Use naming convention:
+   `test_should_not_<failure_description>` or
+   `test_<feature>_when_<condition>_should_<result>`
+   Run `make test-unit` — must FAIL before fix. This is non-negotiable.
 
 ### แก้ bug (GREEN)
 
-1. Implement minimal fix ที่แก้ root cause (ไม่แก้ code ที่ไม่เกี่ยว) — รัน
-   `make test-unit` เพื่อยืนยัน regression test PASSES และไม่มี regression ใหม่
+1. Implement minimal fix targeting root cause (not symptoms, not unrelated
+   code).
+   Run `make test-unit` — regression test must PASS, no new failures.
 
 ### ยืนยันว่าแก้ถูกต้อง
 
-1. Invoke `Skill(zie-framework:verify)`.
+1. Invoke `Skill(zie-framework:verify)` with scope = tests only (bug fixes
+   do not require full docs-sync check).
 
 2. If `has_frontend=true` and bug is UI-related:
-   - Start dev server and verify visually with agent-browser if needed.
+   - Start dev server and verify visually.
 
 ### บันทึกและเรียนรู้
 
-1. Update ROADMAP.md if bug was tracked there (move to Done).
+1. If bug was already tracked in `zie-framework/ROADMAP.md` → move to Done.
+   If not tracked → no ROADMAP update needed.
 
 2. If `zie_memory_enabled=true`:
    - `remember "Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern:
@@ -73,7 +84,7 @@ for bugs and regressions.
 
 ## Notes
 
-- Always write the regression test BEFORE fixing — this is non-negotiable
+- Always write the regression test BEFORE fixing — non-negotiable
 - If the bug reveals a design problem → after fixing, run /zie-backlog to
   capture and /zie-spec to plan a proper solution
 - Never use /zie-fix for features — use /zie-implement

@@ -14,15 +14,19 @@ problem and motivation. Output lives in `zie-framework/backlog/`.
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
 2. Read `zie-framework/.config` → zie_memory_enabled.
 3. If `zie_memory_enabled=true`:
-   - `recall project=<project> domain=<domain> tags=[backlog] limit=10`
+   - `recall project=<project> domain=<domain> tags=[backlog, <project>] limit=10`
    - Check for duplicates — warn if similar item already exists.
 
 ## Steps
 
 1. If argument provided → use as idea title. If not → ask: "What's the
    idea? (one line title)"
-2. Derive slug: lowercase, replace spaces with hyphens, strip punctuation.
-3. Write `zie-framework/backlog/<slug>.md`:
+2. Derive slug using: `re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')`
+   Example: "Add CSV Export!" → `add-csv-export`
+3. **Re-run guard**: if `zie-framework/backlog/SLUG.md` already exists →
+   print "Backlog item 'SLUG' already exists. Edit the file directly or
+   use a different title." and stop.
+4. Write `zie-framework/backlog/<slug>.md`:
 
    ```markdown
    # <Idea Title>
@@ -40,13 +44,13 @@ problem and motivation. Output lives in `zie-framework/backlog/`.
    <optional — what's in and out>
    ```
 
-4. Update `zie-framework/ROADMAP.md` Next section:
+5. Update `zie-framework/ROADMAP.md` Next section:
    `- [ ] <title> — [backlog](backlog/<slug>.md)`
 
-5. If `zie_memory_enabled=true`:
+6. If `zie_memory_enabled=true`:
    - `remember "Backlog: <title>. Problem: <one-line>." tags=[backlog, <project>]`
 
-6. Print:
+7. Print:
 
    ```text
    Backlog item added: zie-framework/backlog/<slug>.md

@@ -49,10 +49,13 @@ make test-e2e
 
 ### ตรวจสอบ: Visual (ถ้า has_frontend=true)
 
-- Invoke `Skill(vercel:agent-browser-verify)` or `Skill(vercel:verification)` if
-  available.
-- If not available → manual check: start dev server, describe what to verify,
-  ask Zie to confirm.
+- If `has_frontend=true` AND `playwright_enabled=true`:
+  - E2E gate above already covers this — skip.
+- If `has_frontend=true` AND `playwright_enabled=false`:
+  - Start dev server → manually verify key pages load, no console errors.
+  - Ask Zie to confirm: "Visual check passed? (yes/no)"
+  - If no → STOP. Fix and re-run.
+- If `has_frontend=false` → skip this gate.
 
 ### ตรวจสอบ: Checklist ก่อน release
 
@@ -60,16 +63,19 @@ make test-e2e
 
 ### ตรวจสอบ: Docs sync
 
-- Scan `git diff main..HEAD --name-only` → ถ้ามี new commands, skills, hooks,
-  หรือ project structure เปลี่ยน:
-  - `CLAUDE.md` — project structure + tech stack ยังถูกต้องไหม?
-  - `README.md` — directory structure + commands table ยังถูกต้องไหม?
-- ถ้า out of sync → อัปเดตก่อน merge
+Scan `git diff main..HEAD --name-only` → ถ้ามี new/changed commands, skills,
+hooks, or project structure:
+
+- `CLAUDE.md` — project structure + tech stack ยังถูกต้องไหม?
+- `README.md` — commands table + pipeline section ยังถูกต้องไหม?
+- `zie-framework/PROJECT.md` — commands/skills/hooks list ยังถูกต้องไหม?
+
+ถ้า out of sync → อัปเดตก่อน commit
 
 ### ตรวจสอบ: Code diff ก่อน merge
 
-- Run `git diff main..HEAD --stat` and scan for anything unexpected before
-  merging.
+Run `git diff main..HEAD --stat` and scan for anything unexpected before
+merging.
 
 ## All Gates Passed — Release
 
@@ -89,22 +95,25 @@ make test-e2e
      backward compatible)
 
      Current: <VERSION> → <suggested new version>
-     Confirm? (Enter = accept / major / minor / patch to override)
+     Confirm? (Enter = accept suggestion / major / minor / patch to override)
      ```
 
 2. **Bump VERSION**:
-
-   - Read `patch|minor|major` from user response (default: `patch` if Enter
-     pressed)
+   - Enter → accept the suggested bump shown above
+   - Or read `major|minor|patch` from user override
    - Calculate new version: e.g., `1.0.10` + `patch` → `1.0.11`
    - Write new version to `VERSION`
 
-3. **Draft CHANGELOG entry**:
-   - Run: `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list
-     --max-parents=0 HEAD)..HEAD --oneline --no-merges`
+3. **Update ROADMAP.md** *(before commit)*:
+   - Move all `[x]` items from "Now" → "Done" with date and version tag.
+   - Clear Now lane (leave `<!-- -->` comment).
+
+4. **Draft CHANGELOG entry**:
+   - Run: `git log $(git describe --tags --abbrev=0 2>/dev/null || git
+     rev-list --max-parents=0 HEAD)..HEAD --oneline --no-merges`
    - Rewrite commits เป็นภาษาที่คนอ่านเข้าใจ — ไม่ใช่แค่ copy commit messages:
      - Group เป็น **Features**, **Fixed**, **Changed** (ข้าม group ที่ว่าง)
-     - แต่ละ item: อธิบาย *what changed and why it matters* ไม่ใช่แค่ชื่อ commit
+     - แต่ละ item: อธิบาย *what changed and why it matters*
    - Present draft ให้ Zie approve:
 
      ```text
@@ -119,17 +128,20 @@ make test-e2e
      Approve this CHANGELOG entry? (yes / edit)
      ```
 
-   - **yes** → append section at top of `CHANGELOG.md` (สร้างไฟล์ถ้ายังไม่มี)
+   - **yes** → append section at top of `CHANGELOG.md`
    - **edit** → Zie แก้ text → write → continue
 
-4. **Commit release files**:
+5. **Commit release files**:
 
    ```bash
-   git add VERSION CHANGELOG.md zie-framework/ROADMAP.md
+   git add VERSION CHANGELOG.md zie-framework/ROADMAP.md \
+     CLAUDE.md README.md .claude-plugin/marketplace.json
    git commit -m "release: v<NEW_VERSION>"
    ```
 
-5. **Merge to main**:
+   *(git add ไม่ error ถ้าไฟล์ไม่ได้ถูกแก้)*
+
+6. **Merge to main**:
 
    ```bash
    git checkout main
@@ -139,14 +151,15 @@ make test-e2e
    git checkout dev
    ```
 
-6. **Update ROADMAP.md**: Move all items from "Now" section → "Done" section
-   with date and version. Re-prioritize "Next" section if needed.
+   - If `git push` fails → `git checkout dev` then STOP with:
+     "Push failed — tag `v<NEW_VERSION>` exists locally. Fix remote access and
+     run: `git push origin main --tags`"
+   - Do NOT re-tag on re-run — tag already exists locally and is correct.
 
-7. **Store release in brain** (if `zie_memory_enabled=true`): First READ:
-   `recall project=<project> tags=[wip, plan] feature=<slug> limit=5` → WIP
-   notes + plan estimate. Then WRITE: `remember "Shipped: <feature>
-   v<NEW_VERSION>. Tasks: N. Actual: <vs estimate>." tags=[shipped, <project>,
-   <domain>]`
+7. **Store release in brain** (if `zie_memory_enabled=true`):
+   - First READ: `recall project=<project> tags=[wip, plan] feature=<slug> limit=5`
+   - Then WRITE: `remember "Shipped: <feature> v<NEW_VERSION>. Tasks: N.
+     Actual: <vs estimate>." tags=[shipped, <project>, <domain>]`
 
 8. **Auto-run `/zie-retro`**.
 
@@ -164,7 +177,8 @@ make test-e2e
 
 ## Notes
 
-- Never call `make release` directly — always go through `/zie-release` for the
-  full gate sequence
+- Never call `make release` directly — always go through `/zie-release`
 - If any gate fails, no code is merged — fix and re-run `/zie-release`
 - The merge happens last, after all gates pass
+- ROADMAP update (step 3) happens before the commit so the release commit
+  reflects the correct state

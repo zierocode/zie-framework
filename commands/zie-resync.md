@@ -25,7 +25,8 @@ All updates require user confirmation before writing.
      components, tech stack, data flow, decisions, test strategy, active
      areas.
    - Exclude: `node_modules/`, `.git/`, `build/`, `dist/`, `.next/`,
-     `__pycache__/`, `*.pyc`, `coverage/`, `zie-framework/`
+     `__pycache__/`, `coverage/`, `zie-framework/`
+     (`*.pyc` is covered by `__pycache__/` exclusion)
 
 3. Read Agent report and draft updated versions of all four knowledge files:
    - `zie-framework/PROJECT.md`
@@ -41,14 +42,46 @@ All updates require user confirmation before writing.
 
 6. Overwrite all four knowledge files on disk.
 
-7. Recompute `knowledge_hash` using the same algorithm as `/zie-init`:
-   - Enumerate dirs (excluding node_modules, .git, build, dist, .next,
-     \_\_pycache\_\_, coverage, zie-framework)
-   - Sort + join with `\n`, separator `\n---\n`
-   - Append `<path>:<file_count>` sorted, separator `\n---\n`
-   - Append content of found config files (package.json, requirements.txt,
-     pyproject.toml, Cargo.toml, go.mod) sorted by filename
-   - SHA-256 hex of full UTF-8 string
+7. Recompute `knowledge_hash` using the same algorithm as `/zie-init`.
+   Run inline Python:
+
+   ```bash
+   python3 -c "
+   import hashlib, os
+   from pathlib import Path
+
+   EXCLUDE = {
+       'node_modules', '.git', 'build', 'dist', '.next',
+       '__pycache__', 'coverage', 'zie-framework'
+   }
+   CONFIG_FILES = [
+       'package.json', 'requirements.txt', 'pyproject.toml',
+       'Cargo.toml', 'go.mod'
+   ]
+
+   root = Path('.')
+   dirs = sorted(
+       str(p.relative_to(root))
+       for p in root.rglob('*')
+       if p.is_dir()
+       and not any(ex in p.parts for ex in EXCLUDE)
+   )
+   counts = sorted(
+       f'{d}:{len(list((root / d).iterdir()))}'
+       for d in dirs
+   )
+   configs = ''
+   for cf in CONFIG_FILES:
+       p = root / cf
+       if p.exists():
+           configs += p.read_text()
+
+   s = '\n'.join(dirs) + '\n---\n'
+   s += '\n'.join(counts) + '\n---\n'
+   s += configs
+   print(hashlib.sha256(s.encode()).hexdigest())
+   "
+   ```
 
 8. Merge into `zie-framework/.config` (never remove existing fields):
 
