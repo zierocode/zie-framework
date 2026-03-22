@@ -7,14 +7,16 @@ metadata:
 
 # spec-design — Brainstorm → Spec
 
-Turn an idea into a written spec through collaborative dialogue. Output lives in `zie-framework/specs/`.
+Turn an idea into a written spec through collaborative dialogue. Output lives in
+`zie-framework/specs/`.
 
 ## เตรียม context
 
 If `zie_memory_enabled=true`:
 
 - `recall project=<project> domain=<feature-area> tags=[spec, design] limit=10`
-- Use recalled context to inform design decisions and avoid repeating past mistakes.
+- Use recalled context to inform design decisions and avoid repeating past
+  mistakes.
 
 ## Steps
 
@@ -48,9 +50,15 @@ If `zie_memory_enabled=true`:
    **Out of Scope:** <list>
    ```
 
-5. **Ask user to review** the written spec before proceeding.
+5. **Spec reviewer loop** — dispatch `Skill(zie-framework:spec-reviewer)` with:
+   - Path to spec file
+   - Backlog item context
+   - If ❌ Issues Found → fix issues → re-invoke reviewer → repeat until ✅ APPROVED
+   - Max 3 iterations → surface to human
 
-6. If approved → hand off to `Skill(zie-framework:write-plan)`.
+6. **Ask user to review** the written spec before proceeding.
+
+7. If approved → hand off to `Skill(zie-framework:write-plan)`.
 
 ## Notes
 
