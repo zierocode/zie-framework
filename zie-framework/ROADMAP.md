@@ -10,9 +10,6 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [ ] zie-init deep scan + knowledge drift detection —
-  [plan](plans/2026-03-23-zie-init-deep-scan.md)
-
 ---
 
 ## Ready — Approved Plans
@@ -44,6 +41,8 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] zie-init deep scan + knowledge drift detection — Agent(Explore) scan,
+  knowledge_hash, /zie-resync command — 2026-03-23
 - [x] Remove all superpowers dependencies — commands, hooks, config, docs fully
   self-contained — 2026-03-23
 - [x] Knowledge Architecture — PROJECT.md hub + project/* spokes, templates,
