@@ -10,7 +10,7 @@ Use this skill during /zie-build for every task. This is a rigid process skill �
 
 ## The Loop
 
-### RED — Write a Failing Test
+### RED — เขียน test ที่ล้มเหลว
 
 1. Read the task acceptance criteria from the plan.
 2. Write a test that:
@@ -21,7 +21,7 @@ Use this skill during /zie-build for every task. This is a rigid process skill �
 3. Run the test → it MUST fail. If it passes, the feature already exists — skip to next task.
 4. Confirm you understand WHY it fails (not just that it fails).
 
-### GREEN — Make It Pass
+### GREEN — ทำให้ test ผ่าน
 
 5. Write the MINIMUM code to make the test pass.
    - No extra features
@@ -30,7 +30,7 @@ Use this skill during /zie-build for every task. This is a rigid process skill �
 6. Run the test → it MUST pass.
 7. Run the full unit suite → must not regress anything.
 
-### REFACTOR — Clean Up
+### REFACTOR — ปรับปรุง code
 
 8. Remove duplication.
 9. Improve names (variables, functions, parameters).
@@ -38,7 +38,7 @@ Use this skill during /zie-build for every task. This is a rigid process skill �
 11. Run tests again → must still pass.
 12. If refactor reveals a design problem → note it but don't fix it now (add to backlog).
 
-## Rules
+## กฎที่ต้องทำตาม
 
 - Never skip RED. Never write implementation before the failing test.
 - Never fix the test to make it pass — fix the code.

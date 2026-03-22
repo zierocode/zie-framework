@@ -45,16 +45,21 @@ After `/zie-init`, a `zie-framework/` folder is created in your project root:
 ```
 your-project/
 ├── zie-framework/
-│   ├── .config          # project type, thresholds, feature flags
-│   ├── ROADMAP.md       # single source of truth for backlog
-│   ├── specs/           # design specs (output of /zie-idea)
-│   ├── plans/           # implementation plans (output of /zie-idea)
-│   ├── decisions/       # ADRs (output of /zie-retro)
-│   └── evidence/        # milestone screenshots (gitignored by default)
-├── tests/               # test code (part of project, not framework)
-├── Makefile             # standard targets: test, push, ship
-├── VERSION              # semver
-└── CHANGELOG.md         # auto-generated
+│   ├── .config              # project type, thresholds, feature flags
+│   ├── ROADMAP.md           # single source of truth for backlog
+│   ├── PROJECT.md           # hub: project overview + knowledge links
+│   ├── project/
+│   │   ├── architecture.md  # system design, component relationships
+│   │   ├── components.md    # component registry
+│   │   └── decisions.md     # ADR log (append-only)
+│   ├── specs/               # design specs (output of /zie-idea)
+│   ├── plans/               # implementation plans (output of /zie-plan)
+│   ├── decisions/           # ADR files (output of /zie-retro)
+│   └── evidence/            # milestone screenshots (gitignored by default)
+├── tests/                   # test code (part of project, not framework)
+├── Makefile                 # standard targets: test, push, ship
+├── VERSION                  # semver
+└── CHANGELOG.md             # auto-generated
 ```
 
 ## Plugin Coexistence

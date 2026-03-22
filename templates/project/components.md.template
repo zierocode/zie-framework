@@ -1,0 +1,17 @@
+# Components Registry — {{project_name}}
+
+**Last updated:** {{date}}
+
+## Modules
+
+| Module | ทำอะไร | Dependencies |
+|---|---|---|
+| (เพิ่ม components หลัก) | | |
+
+## APIs / Interfaces
+
+TODO: document key interfaces
+
+## External Dependencies
+
+TODO: list external deps และ why

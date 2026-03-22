@@ -1,63 +1,69 @@
+---
+description: Debug path — skip ideation, go straight to systematic bug investigation and fix.
+argument-hint: Optional bug description or error message
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
+---
+
 # /zie-fix — Bug Fix Path
 
 Fast path for fixing bugs. Skips brainstorming and planning — goes directly to debugging, regression test, fix, and verify. Use this instead of /zie-build for bugs and regressions.
 
-## Pre-flight
+## ตรวจสอบก่อนเริ่ม
 
-1. Read `zie-framework/.config` → project_type, test_runner.
+1. อ่าน `zie-framework/.config` เพื่อ context
 2. If `zie_memory_enabled=true`:
-   - Search brain for similar bug patterns: `recall "<bug description>"`
+   - `recall project=<project> domain=<domain> tags=[bug, build-learning] limit=10`
+   - → detect recurring patterns, surface known fragile areas
 
 ## Steps
 
-### Phase 1 — Understand the bug
+### ทำความเข้าใจ bug
 
 3. If bug description provided as argument → use it.
    If not → ask: "What's the bug? Paste error output or describe the behavior."
 
-4. Invoke `Skill(superpowers:systematic-debugging)`:
+4. Invoke `Skill(zie-framework:debug)`:
    - Reproduce the bug
    - Isolate the root cause (not just the symptom)
    - Confirm the minimal reproduction case
 
-### Phase 2 — Regression test first (TDD)
+### เขียน regression test ก่อน (RED)
 
-5. Write a failing test that captures the bug:
-   - Test name: `test_<bug_slug>` or `test_should_<expected_behavior>`
-   - Run: `make test-unit` → confirm test FAILS (reproduces the bug).
-   - Never fix before writing the test.
+5. เขียน failing test ที่ capture bug (`test_<bug_slug>`) — รัน `make test-unit` เพื่อยืนยันว่า test FAILS ก่อนแก้เสมอ
 
-### Phase 3 — Fix
+### แก้ bug (GREEN)
 
-6. Implement the minimal fix:
-   - Change only what's needed to fix the root cause.
-   - No refactoring unrelated code.
-   - Run: `make test-unit` → confirm regression test now PASSES.
-   - Run: full `make test-unit` → confirm no regressions introduced.
+6. Implement minimal fix ที่แก้ root cause (ไม่แก้ code ที่ไม่เกี่ยว) — รัน `make test-unit` เพื่อยืนยัน regression test PASSES และไม่มี regression ใหม่
 
-### Phase 4 — Verify
+### ยืนยันว่าแก้ถูกต้อง
 
-7. Invoke `Skill(superpowers:verification-before-completion)`.
+7. Invoke `Skill(zie-framework:verify)`.
 
 8. If `has_frontend=true` and bug is UI-related:
    - Start dev server and verify visually with agent-browser if needed.
 
-### Phase 5 — Document + Learn
+### บันทึกและเรียนรู้
 
 9. Update ROADMAP.md if bug was tracked there (move to Done).
 
 10. If `zie_memory_enabled=true`:
-    - Store fix pattern: `remember "Bug: <description>. Root cause: <cause>. Fix: <approach>. Regression test: <test name>." priority=auto tags=[bug, fix, <module-slug>] project=<project>`
+    - `remember "Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern: <recurring|one-off>." tags=[bug, <project>, <domain>]`
 
 11. Print:
     ```
     Bug fixed: <description>
     Root cause: <cause>
     Fix: <brief description>
+    Pattern: <recurring|one-off>
     Regression test: <test name> ✓
 
     Run /zie-ship when ready to release.
     ```
+
+## ขั้นตอนถัดไป
+
+→ `/zie-ship` — เมื่อ fix เสร็จและ test ผ่านหมด
+→ `/zie-idea` — ถ้า bug reveal design problem ที่ต้องแก้อย่างถูกต้อง
 
 ## Notes
 - Always write the regression test BEFORE fixing — this is non-negotiable

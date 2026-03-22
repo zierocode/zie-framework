@@ -21,7 +21,7 @@ cmd = command.strip().lower()
 
 BLOCKS = [
     # Filesystem destruction
-    (r"rm\s+-rf\s+/\b", "rm -rf / is blocked — this would destroy the system"),
+    (r"rm\s+-rf\s+(/\s|/\b|/$)", "rm -rf / is blocked — this would destroy the system"),
     (r"rm\s+-rf\s+~\b", "rm -rf ~ is blocked — this would destroy your home directory"),
     (r"rm\s+-rf\s+\.", "rm -rf . blocked — use explicit paths"),
 

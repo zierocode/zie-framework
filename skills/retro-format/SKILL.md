@@ -6,18 +6,18 @@ type: reference
 
 # Retro Format — zie-framework
 
-## Retrospective Structure
+## โครงสร้าง Retrospective
 
 Generate a retrospective with these sections. Keep each section concise — bullet points, not prose.
 
-### What Shipped
+### สิ่งที่ Ship ออกไป
 List every feature, fix, or improvement that was completed. Include version if released.
 ```
 - csv-export feature (v1.0.11) — memories now exportable as CSV, MD, JSON
 - fix: hybrid search RRF scoring edge case with empty tags
 ```
 
-### What Worked Well
+### สิ่งที่ทำงานได้ดี
 Patterns, approaches, tools that saved time or reduced friction.
 Only note things worth repeating — skip obvious basics.
 ```
@@ -26,7 +26,7 @@ Only note things worth repeating — skip obvious basics.
 - zie-memory recalled the RRF pattern from a previous project
 ```
 
-### What Was Painful
+### สิ่งที่เจ็บปวด (Pain Points)
 Friction points, unexpected complexity, things that slowed down.
 Be specific — vague "communication" complaints are useless.
 ```
@@ -34,7 +34,7 @@ Be specific — vague "communication" complaints are useless.
 - Playwright setup took longer than expected — browser install in CI
 ```
 
-### Key Decisions Made
+### การตัดสินใจสำคัญ
 Decisions with lasting consequences — candidates for ADRs.
 Each decision: what → why → consequence.
 ```
@@ -42,14 +42,14 @@ Each decision: what → why → consequence.
 - Split LLM calls from DB sessions → never hold connection during async LLM
 ```
 
-### Patterns to Remember
+### Pattern ที่ควรจำ
 Reusable techniques worth storing in the brain as P1/P2 memories.
 ```
 - asyncpg CAST syntax: always CAST(:param AS vector), never :param::vector
 - Pre-flight dedup in every write path prevents duplicates without extra API calls
 ```
 
-## ADR Format
+## รูปแบบ ADR
 
 Only write an ADR when the decision:
 1. Has lasting consequences (will affect future work)
@@ -81,7 +81,7 @@ Status: Accepted
 - Library version choices (unless the version has breaking changes)
 - Performance micro-optimizations
 
-## Retrospective Frequency
+## ความถี่ของ Retro
 
 | Trigger | Depth |
 |---------|-------|
@@ -90,7 +90,7 @@ Status: Accepted
 | End of long session (3+ hours) | Brief "what worked/what was painful" |
 | Weekly (even without a release) | Light review of ROADMAP + brain |
 
-## ROADMAP Update Checklist
+## Checklist อัปเดต ROADMAP
 
 After every retro, review ROADMAP.md:
 - [ ] All shipped items moved to Done with date + version
