@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.2.0 — 2026-03-23
+
+### Features
+
+- **6-stage SDLC pipeline** — replaced 3-stage (idea/build/ship) with
+  backlog→spec→plan→implement→release→retro; single-responsibility commands
+- **Reviewer quality gates** — `spec-reviewer`, `plan-reviewer`, `impl-reviewer`
+  skills dispatch as subagents at each handoff (max 3 iterations → surface to human)
+- **zie-init deep scan** — Agent(Explore) scan on existing projects populates
+  PROJECT.md and project/* with real data instead of placeholder templates
+- **Knowledge drift detection** — `knowledge_hash` stored at init/resync time;
+  `/zie-status` warns when project files changed outside SDLC process
+- **/zie-resync command** — manual trigger for full codebase rescan + doc update
+
+### Fixes
+
+- Remove all `superpowers_enabled` references — framework fully self-contained
+- Fix markdownlint errors across all .md files; add pre-commit lint gate
+- Update intent-detect hook for new pipeline command names
+
+### Docs
+
+- ADR D-006: Remove superpowers dependency
+- ADR D-007: 6-stage SDLC pipeline with reviewer quality gates
+- ADR-001: Reviewer skills as dispatched subagents
+- ADR-002: markdownlint pre-commit gate
+
+---
+
 ## v1.1.0 — 2026-03-22
 
 ### Features
