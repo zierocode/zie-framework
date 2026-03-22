@@ -66,7 +66,6 @@ if plans_dir.exists():
 project_name = cwd.name
 project_type = config.get("project_type", "unknown")
 zie_memory = config.get("zie_memory_enabled", False)
-superpowers = config.get("superpowers_enabled", False)
 
 lines = [
     f"[zie-framework] {project_name} ({project_type}) v{version}",
