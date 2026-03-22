@@ -1,3 +1,8 @@
+---
+description: Full release gate — run all test gates, bump version, merge dev→main, tag, and trigger retrospective.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
+---
+
 # /zie-ship — Release Gate → Merge dev→main → Tag
 
 Full automated release gate. Runs all tests, verifies, bumps version, merges dev→main, tags, and updates ROADMAP. Nothing ships without passing every gate.

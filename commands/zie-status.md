@@ -1,3 +1,8 @@
+---
+description: Show current SDLC state — active feature, ROADMAP summary, test health, and next suggested command.
+allowed-tools: Read, Bash, Glob
+---
+
 # /zie-status — Show current SDLC state
 
 Show a concise snapshot of where the project is right now. No LLM reasoning needed — just read files and print.

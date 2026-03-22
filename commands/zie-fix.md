@@ -1,3 +1,9 @@
+---
+description: Debug path — skip ideation, go straight to systematic bug investigation and fix.
+argument-hint: Optional bug description or error message
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
+---
+
 # /zie-fix — Bug Fix Path
 
 Fast path for fixing bugs. Skips brainstorming and planning — goes directly to debugging, regression test, fix, and verify. Use this instead of /zie-build for bugs and regressions.

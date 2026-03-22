@@ -1,4 +1,5 @@
 {
+  "hooks": {
   "SessionStart": [
     {
       "matcher": "startup|resume|clear|compact",
@@ -56,4 +57,5 @@
       ]
     }
   ]
+  }
 }

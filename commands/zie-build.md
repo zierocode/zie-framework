@@ -1,3 +1,8 @@
+---
+description: Implement the active feature using TDD — RED/GREEN/REFACTOR loop per task. Reads active plan from ROADMAP.md.
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill, TaskCreate, TaskUpdate
+---
+
 # /zie-build — TDD Feature Implementation Loop
 
 Implement the active feature using Test-Driven Development. Reads the active plan from ROADMAP.md and guides through RED → GREEN → REFACTOR per task.

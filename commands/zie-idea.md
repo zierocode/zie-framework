@@ -1,3 +1,9 @@
+---
+description: Turn an idea into a written spec and actionable implementation plan. Runs brainstorming and writing-plans in sequence.
+argument-hint: Optional idea description (e.g. "add CSV export for memories")
+allowed-tools: Read, Write, Bash, Glob, Grep, Skill, TaskCreate
+---
+
 # /zie-idea — Brainstorm → Spec → Implementation Plan
 
 Turn an idea into a written spec and actionable implementation plan. Runs brainstorming and writing-plans in sequence. Output lives in `zie-framework/specs/` and `zie-framework/plans/`.

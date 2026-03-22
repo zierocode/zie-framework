@@ -1,3 +1,9 @@
+---
+description: Initialize zie-framework in the current project. Run once per project to create SDLC structure, ROADMAP, Makefile, and VERSION.
+argument-hint: (no arguments needed)
+allowed-tools: Read, Write, Bash, Glob, Grep
+---
+
 # /zie-init — Initialize zie-framework in current project
 
 Bootstrap zie-framework in the current working directory. Run this once per project.
