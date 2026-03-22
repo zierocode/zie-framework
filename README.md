@@ -1,6 +1,7 @@
 # zie-framework
 
-Solo developer SDLC framework for Claude Code. Spec-first, TDD, automated testing, brain-integrated.
+Solo developer SDLC framework for Claude Code. Spec-first, TDD, automated
+testing, brain-integrated.
 
 ## Install
 
@@ -22,10 +23,14 @@ claude plugin install zierocode/zie-framework
 
 ## How It Works
 
-1. **Ambient intent detection** — type anything, hooks detect your SDLC phase and suggest the right command
-2. **Auto-test on save** — PostToolUse hook runs unit tests after every file edit
-3. **Session resume** — SessionStart hook injects current SDLC state at every session start
-4. **Brain integration** — works with zie-memory for cross-session context (optional)
+1. **Ambient intent detection** — type anything, hooks detect your SDLC phase
+   and suggest the right command
+2. **Auto-test on save** — PostToolUse hook runs unit tests after every file
+   edit
+3. **Session resume** — SessionStart hook injects current SDLC state at every
+   session start
+4. **Brain integration** — works with zie-memory for cross-session context
+   (optional)
 
 ## Dependencies
 
@@ -33,7 +38,6 @@ claude plugin install zierocode/zie-framework
 | --- | --- | --- |
 | Claude Code | Yes | — |
 | Python 3.x | Yes | Hooks need Python |
-| superpowers plugin | No | Inline Q&A mode |
 | zie-memory plugin | No | Local-only, no brain |
 | playwright | No | `/zie-ship` skips e2e gate |
 | pytest / vitest | No | auto-test hook disabled |
@@ -64,4 +68,5 @@ your-project/
 
 ## Plugin Coexistence
 
-Works alongside zie-memory plugin. Both install hooks independently — no conflicts.
+Works alongside zie-memory plugin. Both install hooks independently — no
+conflicts.

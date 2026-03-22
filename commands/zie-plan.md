@@ -24,8 +24,7 @@ building. Supports multiple items in parallel (max 4 agents).
 ## ร่าง plan สำหรับ slug ที่เลือก
 
 1. If `zie_memory_enabled=true` — READ (1 batch query per slug):
-   - `recall project=<project> domain=<domain> tags=[shipped,retro,bug,decision]
-     limit=20`
+   - `recall project=<project> domain=<domain> tags=[shipped,retro,bug,decision] limit=20`
    - Returns approaches, pain points, ADRs, known bugs in one round-trip.
    - Bake key findings into plan as a "## Context from brain" section.
    - /zie-build will read this section — no need to re-recall domain context at

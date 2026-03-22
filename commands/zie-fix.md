@@ -6,7 +6,9 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 
 # /zie-fix — Bug Fix Path
 
-Fast path for fixing bugs. Skips brainstorming and planning — goes directly to debugging, regression test, fix, and verify. Use this instead of /zie-build for bugs and regressions.
+Fast path for fixing bugs. Skips brainstorming and planning — goes directly to
+debugging, regression test, fix, and verify. Use this instead of /zie-build for
+bugs and regressions.
 
 ## ตรวจสอบก่อนเริ่ม
 
@@ -29,11 +31,13 @@ Fast path for fixing bugs. Skips brainstorming and planning — goes directly to
 
 ### เขียน regression test ก่อน (RED)
 
-1. เขียน failing test ที่ capture bug (`test_<bug_slug>`) — รัน `make test-unit` เพื่อยืนยันว่า test FAILS ก่อนแก้เสมอ
+1. เขียน failing test ที่ capture bug (`test_<bug_slug>`) — รัน `make test-unit`
+   เพื่อยืนยันว่า test FAILS ก่อนแก้เสมอ
 
 ### แก้ bug (GREEN)
 
-1. Implement minimal fix ที่แก้ root cause (ไม่แก้ code ที่ไม่เกี่ยว) — รัน `make test-unit` เพื่อยืนยัน regression test PASSES และไม่มี regression ใหม่
+1. Implement minimal fix ที่แก้ root cause (ไม่แก้ code ที่ไม่เกี่ยว) — รัน
+   `make test-unit` เพื่อยืนยัน regression test PASSES และไม่มี regression ใหม่
 
 ### ยืนยันว่าแก้ถูกต้อง
 
@@ -47,7 +51,8 @@ Fast path for fixing bugs. Skips brainstorming and planning — goes directly to
 1. Update ROADMAP.md if bug was tracked there (move to Done).
 
 2. If `zie_memory_enabled=true`:
-   - `remember "Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern: <recurring|one-off>." tags=[bug, <project>, <domain>]`
+   - `remember "Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern:
+     <recurring|one-off>." tags=[bug, <project>, <domain>]`
 
 3. Print:
 
@@ -69,5 +74,6 @@ Fast path for fixing bugs. Skips brainstorming and planning — goes directly to
 ## Notes
 
 - Always write the regression test BEFORE fixing — this is non-negotiable
-- If the bug reveals a design problem → after fixing, run /zie-idea to plan a proper solution
+- If the bug reveals a design problem → after fixing, run /zie-idea to plan a
+  proper solution
 - Never use /zie-fix for features — use /zie-build
