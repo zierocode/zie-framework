@@ -1,0 +1,16 @@
+# Decisions — {{project_name}}
+
+> Append-only — ไม่ลบ decisions เก่า ใช้ `Status: Superseded` แทน
+
+---
+
+## D-001: (First architectural decision)
+
+**Date:** {{date}}
+**Status:** Accepted
+
+**Context:** (อะไรทำให้ต้องตัดสินใจ)
+
+**Decision:** (ตัดสินใจอะไร)
+
+**Consequences:** (ผลที่ตามมา)

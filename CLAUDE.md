@@ -28,6 +28,12 @@ commands/zie-*.md           # slash command definitions
 skills/*/SKILL.md           # skill definitions
 templates/                  # templates for /zie-init
 zie-framework/              # self-managed SDLC state (this repo uses itself)
+  ├── PROJECT.md            # hub: project overview + knowledge links
+  ├── project/              # spokes: architecture, components, decisions
+  ├── ROADMAP.md            # backlog + active work
+  ├── specs/                # feature design docs
+  ├── plans/                # implementation plans
+  └── decisions/            # ADR log
 ```
 
 ## Development Commands

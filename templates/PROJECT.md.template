@@ -1,0 +1,31 @@
+# {{project_name}}
+
+{{project_description}}
+
+**Version**: {{version}}  **Status**: active
+
+---
+
+## Commands
+
+| Command | ทำอะไร |
+|---|---|
+| /zie-idea | Brainstorm → spec → backlog item |
+| /zie-plan | Backlog → draft plan → approval → Ready |
+| /zie-build | Ready → TDD implementation |
+| /zie-fix | Bug → regression test → fix → verify |
+| /zie-ship | Release gate → merge → tag → retro |
+| /zie-status | Snapshot สถานะปัจจุบัน |
+| /zie-retro | Retrospective → ADRs → brain storage |
+
+## Knowledge
+
+- [Architecture](project/architecture.md) — system design, component relationships
+- [Components](project/components.md) — component registry
+- [Decisions](project/decisions.md) — ADR log
+
+## Links
+
+- [ROADMAP](ROADMAP.md) — current backlog + active work
+- [Specs](specs/) — feature designs
+- [Plans](plans/) — implementation plans

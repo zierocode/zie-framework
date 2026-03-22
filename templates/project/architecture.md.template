@@ -1,0 +1,23 @@
+# Architecture — {{project_name}}
+
+**Last updated:** {{date}}
+
+## Overview
+
+TODO: อธิบาย {{project_name}} ในแง่ system design
+
+## Structure
+
+TODO: diagram หรือ list ของ key files/directories
+
+## Component Relationships
+
+TODO: อธิบายความสัมพันธ์ระหว่าง components
+
+## Data Flow
+
+TODO: อธิบาย flow หลักของ system
+
+## Key Constraints
+
+- (เพิ่ม constraints ที่สำคัญ)
