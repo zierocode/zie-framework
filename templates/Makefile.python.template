@@ -16,7 +16,7 @@ test-int: ## Integration tests — requires real DB (TEST_DB_AVAILABLE=1)
 test-e2e: ## Playwright E2E — requires dev server running
 	npx playwright test
 
-test: test-unit test-int ## Full test suite (unit + integration)
+test: test-unit test-int lint-md ## Full test suite (unit + integration + md lint)
 
 # ── Development ───────────────────────────────────────────────────────────────
 dev: ## Start dev server
@@ -33,6 +33,15 @@ push: ## Commit + push to dev branch (usage: make push m="commit message")
 ship: ## Full release: run all tests → merge dev→main → tag (use /zie-ship instead)
 	$(MAKE) test || (echo "Tests failed — fix before shipping" && exit 1)
 	@echo "All tests passed. Run /zie-ship for the full release gate."
+
+# ── Setup ─────────────────────────────────────────────────────────────────────
+setup: ## Install git hooks (run once after cloning)
+	git config core.hooksPath .githooks
+	@echo "Git hooks installed from .githooks/"
+
+# ── Lint ──────────────────────────────────────────────────────────────────────
+lint-md: ## Lint all Markdown files (markdownlint, no exceptions)
+	npx markdownlint-cli "**/*.md" --ignore node_modules
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
 clean: ## Remove cache files and build artifacts

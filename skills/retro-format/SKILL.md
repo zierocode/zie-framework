@@ -8,11 +8,13 @@ type: reference
 
 ## โครงสร้าง Retrospective
 
-Generate a retrospective with these sections. Keep each section concise — bullet points, not prose.
+Generate a retrospective with these sections. Keep each section concise — bullet
+points, not prose.
 
 ### สิ่งที่ Ship ออกไป
 
-List every feature, fix, or improvement that was completed. Include version if released.
+List every feature, fix, or improvement that was completed. Include version if
+released.
 
 ```text
 - csv-export feature (v1.0.11) — memories now exportable as CSV, MD, JSON
@@ -56,7 +58,8 @@ Reusable techniques worth storing in the brain as P1/P2 memories.
 
 ```text
 - asyncpg CAST syntax: always CAST(:param AS vector), never :param::vector
-- Pre-flight dedup in every write path prevents duplicates without extra API calls
+- Pre-flight dedup in every write path prevents duplicates without extra API
+  calls
 ```
 
 ## รูปแบบ ADR
@@ -98,7 +101,7 @@ Status: Accepted
 
 | Trigger | Depth |
 | --- | --- |
-| After /zie-ship | Full retro + ADRs |
+| After /zie-release | Full retro + ADRs |
 | After a major debugging session | Patterns only (no full retro) |
 | End of long session (3+ hours) | Brief "what worked/what was painful" |
 | Weekly (even without a release) | Light review of ROADMAP + brain |

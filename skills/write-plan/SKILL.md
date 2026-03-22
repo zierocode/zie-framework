@@ -80,7 +80,7 @@ without depends_on can run in parallel.
 ## Context from brain
 
 _Prior memories relevant to this feature are surfaced here by /zie-plan before
-handing off to /zie-build._
+handing off to /zie-implement._
 
 ## บันทึกไว้ที่
 

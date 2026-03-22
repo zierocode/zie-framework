@@ -1,8 +1,12 @@
 # Branding, Communication & Naming Consistency — Design Spec
 
-**Problem:** zie-framework ยังสื่อสารด้วย plaintext ภาษาอังกฤษ, ASCII art, และ step ที่ตั้งชื่อแบบ generic — ไม่ได้ reflect ว่านี่คือ AI-native framework ที่ออกแบบมาโดยเฉพาะ
+**Problem:** zie-framework ยังสื่อสารด้วย plaintext ภาษาอังกฤษ, ASCII art, และ
+step ที่ตั้งชื่อแบบ generic — ไม่ได้ reflect ว่านี่คือ AI-native framework
+ที่ออกแบบมาโดยเฉพาะ
 
-**Approach:** ปรับ command/skill files ทั้งหมดให้ใช้ภาษาไทยเป็นหลัก, ใช้ Claude Code native markdown แทน ASCII art, ตั้งชื่อ phase/step ให้สื่อ intent จริงๆ และ maximise การใช้ AI reasoning แทนการระบุ step-by-step แบบ rigid
+**Approach:** ปรับ command/skill files ทั้งหมดให้ใช้ภาษาไทยเป็นหลัก, ใช้ Claude
+Code native markdown แทน ASCII art, ตั้งชื่อ phase/step ให้สื่อ intent จริงๆ และ
+maximise การใช้ AI reasoning แทนการระบุ step-by-step แบบ rigid
 
 **Tech Stack:** Markdown command files, pytest
 
@@ -10,7 +14,8 @@
 
 ## Identity
 
-zie-framework คือ **AI-native SDLC framework** ที่ออกแบบมาให้ทำงานกับ Claude โดยเฉพาะ:
+zie-framework คือ **AI-native SDLC framework** ที่ออกแบบมาให้ทำงานกับ Claude
+โดยเฉพาะ:
 
 - ไว้วางใจ AI reasoning — ไม่ over-specify สิ่งที่ AI ควรคิดเองได้
 - ภาษาไทยเป็นหลัก — professional, ไม่ informal
@@ -23,7 +28,8 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 ### ภาษา
 
 - **Thai primary** สำหรับ user-facing text ทั้งหมดใน command/skill files
-- **English** สำหรับ: technical terms (TDD, RED/GREEN, pytest), code snippets, file paths, tool names
+- **English** สำหรับ: technical terms (TDD, RED/GREEN, pytest), code snippets,
+  file paths, tool names
 - ตัวอย่าง: "ตรวจสอบ gate ก่อนเริ่ม" ไม่ใช่ "Pre-flight check"
 
 ### Format
@@ -69,7 +75,8 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 
 ## AI-Native Maximization
 
-แทนที่จะระบุ rigid steps ให้ AI follow ให้ปรับเป็น **intent-driven instructions**:
+แทนที่จะระบุ rigid steps ให้ AI follow ให้ปรับเป็น **intent-driven
+instructions**:
 
 ```markdown
 # ❌ แบบเดิม (rigid)
@@ -92,10 +99,10 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 | --- | --- | --- |
 | Modify | `commands/zie-idea.md` | Thai-primary, rename phases |
 | Modify | `commands/zie-plan.md` | Thai-primary, rename phases |
-| Modify | `commands/zie-build.md` | Thai-primary, rename gates/phases, intent-driven steps |
+| Modify | `commands/zie-build.md` | Thai-primary, rename gates/phases, inten |
 | Modify | `commands/zie-fix.md` | Thai-primary, rename phases |
-| Modify | `commands/zie-ship.md` | Thai-primary, rename gates, remove ASCII status print |
-| Modify | `commands/zie-status.md` | Thai-primary, remove ASCII box spec, ใช้ markdown table แทน |
+| Modify | `commands/zie-ship.md` | Thai-primary, rename gates, remove ASCII |
+| Modify | `commands/zie-status.md` | Thai-primary, remove ASCII box spec, ใช |
 | Modify | `commands/zie-retro.md` | Thai-primary |
 | Modify | `skills/*/SKILL.md` | Thai-primary communication style |
 

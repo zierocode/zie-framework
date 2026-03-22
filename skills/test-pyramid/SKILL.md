@@ -10,11 +10,11 @@ type: reference
 
 ```text
          /\
-        /E2E\          → Playwright — user journeys, /zie-ship only
+        /E2E\          → Playwright — user journeys, /zie-release only
        /------\
-      /  INTG  \       → Real DB/services, /zie-ship only
+      /  INTG  \       → Real DB/services, /zie-release only
      /----------\
-    / UNIT TESTS \     → Every PostToolUse:Edit, /zie-build constant
+    / UNIT TESTS \     → Every PostToolUse:Edit, /zie-implement constant
    /--------------\
 ```
 
@@ -73,9 +73,9 @@ type: reference
 | Trigger | Tests to run |
 | --- | --- |
 | Every file save (PostToolUse hook) | Unit only (auto, fast) |
-| /zie-build task complete | Unit only |
-| /zie-build all tasks complete | Unit + Integration |
-| /zie-ship gate | Unit + Integration + E2E + Visual |
+| /zie-implement task complete | Unit only |
+| /zie-implement all tasks complete | Unit + Integration |
+| /zie-release gate | Unit + Integration + E2E + Visual |
 | Debugging a failing test | Relevant unit only |
 
 ## เขียน Test ที่ดี

@@ -1,8 +1,11 @@
 # E2E Optimization — Design Spec
 
-**Problem:** zie-framework มี redundancy ในการ load context, ขั้นตอนบางอย่างที่ AI ควรทำเองได้กลับถูก over-specify และ handoff ระหว่าง command ไม่ smooth
+**Problem:** zie-framework มี redundancy ในการ load context, ขั้นตอนบางอย่างที่
+AI ควรทำเองได้กลับถูก over-specify และ handoff ระหว่าง command ไม่ smooth
 
-**Approach:** Audit flow ทั้งหมด end-to-end แล้วตัด/รวม/simplify จุดที่ซ้ำซ้อน ปรับให้ AI ใช้ judgment มากขึ้น และทำให้ transition ระหว่าง command เป็น seamless
+**Approach:** Audit flow ทั้งหมด end-to-end แล้วตัด/รวม/simplify จุดที่ซ้ำซ้อน
+ปรับให้ AI ใช้ judgment มากขึ้น และทำให้ transition ระหว่าง command เป็น
+seamless
 
 **Tech Stack:** Markdown command files, pytest
 
@@ -12,7 +15,8 @@
 
 ### 1. Context Loading ซ้ำซ้อน
 
-ทุก command อ่าน `.config` + `ROADMAP.md` ใหม่ทุกครั้ง — ควรอ่านครั้งเดียวแล้วใช้ตลอด session
+ทุก command อ่าน `.config` + `ROADMAP.md` ใหม่ทุกครั้ง —
+ควรอ่านครั้งเดียวแล้วใช้ตลอด session
 
 ### 2. Over-specified Steps
 
@@ -43,7 +47,8 @@ recall/remember กระจายอยู่ใน command ต่างๆ โ
 ### A. Reduce Config Re-reads
 
 **ปัจจุบัน:** ทุก command มี "Read `zie-framework/.config`" เป็น step แรก
-**ใหม่:** คงไว้ แต่ collapse เป็น 1 line และไม่ enumerate ทุก key — trust AI ว่ารู้ว่าต้องอ่านอะไร
+**ใหม่:** คงไว้ แต่ collapse เป็น 1 line และไม่ enumerate ทุก key — trust AI
+ว่ารู้ว่าต้องอ่านอะไร
 
 ### B. Simplify Pre-flight Pattern
 

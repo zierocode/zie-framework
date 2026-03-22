@@ -5,14 +5,17 @@ allowed-tools: Read, Write, Bash, Glob, Grep, Skill
 
 # /zie-retro — Retrospective + ADRs + Brain Storage
 
-Post-release or end-of-session retrospective. Documents what happened, extracts architectural decisions as ADRs, updates ROADMAP, and stores learnings in the brain.
+Post-release or end-of-session retrospective. Documents what happened, extracts
+architectural decisions as ADRs, updates ROADMAP, and stores learnings in the
+brain.
 
 ## ตรวจสอบก่อนเริ่ม
 
 1. Read `zie-framework/.config` → project, zie_memory_enabled.
 2. Read `zie-framework/ROADMAP.md` → current state.
 3. Get git context:
-   - `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline` → changes since last tag
+   - `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list
+     --max-parents=0 HEAD)..HEAD --oneline` → changes since last tag
    - `git log -20 --oneline` → recent activity
 
 ## Steps
@@ -55,16 +58,22 @@ Post-release or end-of-session retrospective. Documents what happened, extracts 
      <what this means going forward — positive and negative>
      ```
 
-   - Only create ADR for decisions with lasting consequences. Skip routine implementation choices.
+   - Only create ADR for decisions with lasting consequences. Skip routine
+     implementation choices.
 
 ### อัปเดต project knowledge
 
 หลัง ADRs เขียนเสร็จ:
 
-- อ่าน `zie-framework/project/components.md` → อัปเดต components ที่เปลี่ยน behavior ใน session นี้
-- อ่าน `zie-framework/project/decisions.md` → append ADRs ใหม่ที่เพิ่งสร้าง (ถ้ายังไม่มี)
+- อ่าน `zie-framework/project/components.md` → อัปเดต components ที่เปลี่ยน
+  behavior ใน session นี้
+- อ่าน `zie-framework/project/decisions.md` → append ADRs ใหม่ที่เพิ่งสร้าง
+  (ถ้ายังไม่มี)
 - ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
-- ถ้า `zie_memory_enabled=true`: `remember "Project snapshot: <version>. Components changed: <list>. Decisions: <new ADR slugs>." tags=[project-knowledge, zie-framework, <version>] supersedes=[project-knowledge, zie-framework]`
+- ถ้า `zie_memory_enabled=true`: `remember "Project snapshot: <version>.
+  Components changed: <list>. Decisions: <new ADR slugs>."
+  tags=[project-knowledge, zie-framework, <version>]
+  supersedes=[project-knowledge, zie-framework]`
 
 ### อัปเดต ROADMAP
 
@@ -79,8 +88,12 @@ Update `zie-framework/ROADMAP.md`:
 
 If `zie_memory_enabled=true`:
 
-- Store P1 preferences (what worked): `remember "<what worked>. Preference: always use this approach for <context>." priority=preference tags=[retro, <slug>]`
-- Store P2 project learnings: `remember "Retro <version>: <key learning>. Decision: <ADR slug>." priority=project tags=[retro, <project>] project=<project>`
+- Store P1 preferences (what worked): `remember "<what worked>. Preference:
+  always use this approach for <context>." priority=preference tags=[retro,
+  <slug>]`
+- Store P2 project learnings: `remember "Retro <version>: <key learning>.
+  Decision: <ADR slug>." priority=project tags=[retro, <project>]
+  project=<project>`
 - Downvote any memories that turned out to be incorrect via `downvote_memory`.
 
 ### สรุปผล
@@ -101,6 +114,7 @@ Next session: Run /zie-status to see current state.
 
 ## Notes
 
-- Can run standalone (not just after /zie-ship): `/zie-retro` at any time
+- Can run standalone (not just after /zie-release): `/zie-retro` at any time
 - Lightweight when nothing major happened — won't create empty ADRs
-- ADR numbers are auto-incremented from existing files in `zie-framework/decisions/`
+- ADR numbers are auto-incremented from existing files in
+  `zie-framework/decisions/`

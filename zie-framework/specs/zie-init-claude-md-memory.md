@@ -14,17 +14,20 @@
 
 ## Goal
 
-After running `/zie-init`, a project should be immediately usable by Claude Code:
+After running `/zie-init`, a project should be immediately usable by Claude
+Code:
 
 - `CLAUDE.md` exists at root with project name, tech stack, and build commands.
-- zie-memory contains initial project context for brain recall in future sessions.
+- zie-memory contains initial project context for brain recall in future
+  sessions.
 
 ## Scope
 
 ### In scope
 
 - Create `CLAUDE.md` from template (skip if already exists — idempotent)
-- Store structured initial memories via zie-memory when `zie_memory_enabled=true`
+- Store structured initial memories via zie-memory when
+  `zie_memory_enabled=true`
 - Templates: `templates/CLAUDE.md.template`
 - Pytest tests verifying template existence and command structure
 
@@ -36,10 +39,15 @@ After running `/zie-init`, a project should be immediately usable by Claude Code
 
 ## Acceptance Criteria
 
-1. `templates/CLAUDE.md.template` exists with placeholders: `{{project_name}}`, `{{project_description}}`, `{{tech_stack}}`, `{{test_runner}}`, `{{build_commands}}`
-2. `commands/zie-init.md` contains a CLAUDE.md step (step 7) that skips if file exists
-3. `commands/zie-init.md` zie-memory step stores: project name, type, test runner, and tech stack
-4. `commands/zie-init.md` does NOT reference local `~/.claude/projects` path manipulation
+1. `templates/CLAUDE.md.template` exists with placeholders: `{{project_name}}`,
+   `{{project_description}}`, `{{tech_stack}}`, `{{test_runner}}`,
+   `{{build_commands}}`
+2. `commands/zie-init.md` contains a CLAUDE.md step (step 7) that skips if file
+   exists
+3. `commands/zie-init.md` zie-memory step stores: project name, type, test
+   runner, and tech stack
+4. `commands/zie-init.md` does NOT reference local `~/.claude/projects` path
+   manipulation
 5. Pytest tests pass verifying (1)–(4)
 
 ## zie-memory Step Detail
@@ -47,7 +55,8 @@ After running `/zie-init`, a project should be immediately usable by Claude Code
 When `zie_memory_enabled=true`, store the following memories:
 
 ```text
-project bootstrap: "Project <name> initialized with zie-framework. Type: <type>. Stack: <stack>. Test runner: <runner>."
+project bootstrap: "Project <name> initialized with zie-framework.
+  Type: <type>. Stack: <stack>. Test runner: <runner>."
 ```
 
 Tags: `[zie-framework, init, <project_name>]`

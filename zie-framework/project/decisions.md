@@ -76,10 +76,41 @@ superpowers:writing-plans ซึ่งเป็น external dependency
 อยากสะสม features แล้ว release พร้อมกัน
 
 **Decision:** `[x]` items ใน Now = "complete, pending release" — ค้างไว้จนกว่า
-/zie-ship จะย้ายทั้งหมดไป Done พร้อม version; /zie-build ไม่ย้าย items ไป Done
+/zie-release จะย้ายทั้งหมดไป Done พร้อม version; /zie-implement ไม่ย้าย items
+ไป Done
 
-**Consequences:** Now lane อาจมีหลาย `[x]` items; Done = shipped จริง; /zie-ship
-batch-moves ทั้งหมดพร้อมกัน
+**Consequences:** Now lane อาจมีหลาย `[x]` items; Done = shipped จริง;
+/zie-release batch-moves ทั้งหมดพร้อมกัน
+
+---
+
+## D-007: 6-stage SDLC pipeline with reviewer quality gates (2026-03-23)
+
+**Date:** 2026-03-23
+**Status:** Accepted
+
+**Context:** The original pipeline had 3 commands doing too much each:
+`/zie-idea` (brainstorm + spec + plan), `/zie-build` (implement), `/zie-ship`
+(release). There were no quality gates between stages — a spec could proceed
+to implementation without review, and code could ship without per-task review.
+
+**Decision:** Redesign to a 6-stage pipeline with single-responsibility
+commands and automatic reviewer quality gates at each handoff:
+
+1. `/zie-backlog` — capture problem + motivation only
+2. `/zie-spec` → spec-design → **spec-reviewer loop** (max 3 iter)
+3. `/zie-plan` → write-plan → **plan-reviewer loop** (max 3 iter)
+4. `/zie-implement` → TDD per task → **impl-reviewer after each REFACTOR**
+5. `/zie-release` — full gate sequence → merge → tag
+6. `/zie-retro` — ADRs + brain storage
+
+Old commands (zie-idea, zie-build, zie-ship) deleted. Intent-detect and
+session-resume hooks updated to new names.
+
+**Consequences:** Every spec, plan, and implementation task now goes through
+an automatic quality check before proceeding. Reviewer loops surface issues
+early rather than at release time. Backward compatibility: existing `.config`
+files unchanged; any project using old commands must update to new names.
 
 ---
 

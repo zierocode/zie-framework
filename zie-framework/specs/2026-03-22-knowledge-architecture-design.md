@@ -1,8 +1,12 @@
 # Project Knowledge Architecture — Design Spec
 
-**Problem:** ความรู้เกี่ยวกับ project กระจายอยู่ใน spec/plan files ที่เป็น historical artifacts — ไม่มี single source of truth ที่บอก "project ปัจจุบันเป็นยังไง" และ agent ต้องอ่านไฟล์หลายไฟล์เพื่อ reconstruct context
+**Problem:** ความรู้เกี่ยวกับ project กระจายอยู่ใน spec/plan files ที่เป็น
+historical artifacts — ไม่มี single source of truth ที่บอก "project
+ปัจจุบันเป็นยังไง" และ agent ต้องอ่านไฟล์หลายไฟล์เพื่อ reconstruct context
 
-**Approach:** สร้าง hub-and-spoke knowledge structure — `PROJECT.md` เป็น hub ที่อ่านแล้วเข้าใจภาพรวมทันที, `project/*.md` เป็น spoke ที่ deep-dive แต่ละ domain, `/zie-retro` ทำ sync เข้า zie-memory หลัง ship ทุกครั้ง
+**Approach:** สร้าง hub-and-spoke knowledge structure — `PROJECT.md` เป็น hub
+ที่อ่านแล้วเข้าใจภาพรวมทันที, `project/*.md` เป็น spoke ที่ deep-dive แต่ละ
+domain, `/zie-retro` ทำ sync เข้า zie-memory หลัง ship ทุกครั้ง
 
 **Tech Stack:** Markdown files, zie-memory API, pytest
 

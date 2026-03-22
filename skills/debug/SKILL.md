@@ -37,7 +37,8 @@ If `zie_memory_enabled=true`:
 1. Form a hypothesis: "The failure is caused by X because Y."
 2. Add a minimal reproduction — reduce to the smallest failing case.
 3. Inspect relevant code: read the file, find the function, trace the data flow.
-4. Check recent changes: `git log --oneline -10` — did anything change that could cause this?
+4. Check recent changes: `git log --oneline -10` — did anything change that
+   could cause this?
 
 ### แก้ bug (Fix)
 
@@ -56,11 +57,14 @@ If `zie_memory_enabled=true`:
 
 If `zie_memory_enabled=true`:
 
-- `remember "Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern: <recurring|one-off>." tags=[bug, <project>, <domain>]`
+- `remember "Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern:
+  <recurring|one-off>." tags=[bug, <project>, <domain>]`
 
 ## กฎที่ต้องทำตาม
 
 - Never comment out a failing test to make the suite pass.
 - Never skip the reproduction step — a fix without reproduction is a guess.
-- If stuck after 2 attempts → surface the error, explain what you've tried, ask for direction.
-- If the fix requires a larger refactor → note it as a follow-up, don't scope-creep the bugfix.
+- If stuck after 2 attempts → surface the error, explain what you've tried, ask
+  for direction.
+- If the fix requires a larger refactor → note it as a follow-up, don't
+  scope-creep the bugfix.

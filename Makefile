@@ -13,7 +13,7 @@ test-unit: ## Fast unit tests (run constantly during /zie-build)
 test-int: ## Integration tests (hook event simulation)
 	python3 -m pytest tests/ -v -m "integration" --tb=short
 
-test: test-unit ## Full test suite (unit + integration)
+test: test-unit lint-md ## Full test suite (unit + integration + md lint)
 
 # ── Git workflow ──────────────────────────────────────────────────────────────
 push: ## Commit + push to dev branch (usage: make push m="commit message")
@@ -24,6 +24,11 @@ ship: ## Full release gate — use /zie-ship instead
 	$(MAKE) test || (echo "Tests failed — fix before shipping" && exit 1)
 	@echo "All tests passed. Run /zie-ship for the full release gate."
 
+# ── Setup ─────────────────────────────────────────────────────────────────────
+setup: ## Install git hooks (run once after cloning)
+	git config core.hooksPath .githooks
+	@echo "Git hooks installed from .githooks/"
+
 # ── Utilities ─────────────────────────────────────────────────────────────────
 clean: ## Remove cache files and build artifacts
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; \
@@ -32,3 +37,6 @@ clean: ## Remove cache files and build artifacts
 
 lint: ## Lint Python hooks
 	python3 -m py_compile hooks/*.py && echo "All hooks compile OK"
+
+lint-md: ## Lint all Markdown files (markdownlint, no exceptions)
+	npx markdownlint-cli "**/*.md" --ignore node_modules

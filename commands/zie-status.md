@@ -66,12 +66,12 @@ needed — just read files and print.
    **ขั้นตอนถัดไป**: \<context-appropriate suggestion>
 
 7. **ตรรกะขั้นตอนถัดไป** (เลือกที่เกี่ยวข้องที่สุด):
-   - Nothing in ROADMAP Now → "Start a feature: /zie-idea"
-   - Active plan exists, tasks incomplete → "Continue: /zie-build"
+   - Nothing in ROADMAP Now → "Start a feature: /zie-backlog"
+   - Active plan exists, tasks incomplete → "Continue: /zie-implement"
    - Tests stale or failing → "Fix tests: /zie-fix"
-   - All tasks in plan complete → "Ready to ship: /zie-ship"
-   - Always available: "/zie-status | /zie-idea | /zie-build | /zie-fix |
-     /zie-ship | /zie-retro"
+   - All tasks in plan complete → "Ready to release: /zie-release"
+   - Always available: "/zie-status | /zie-backlog | /zie-implement | /zie-fix |
+     /zie-release | /zie-retro"
 
 ## Notes
 

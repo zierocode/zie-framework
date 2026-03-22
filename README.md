@@ -42,7 +42,7 @@ claude plugin install zierocode/zie-framework
 | Claude Code | Yes | — |
 | Python 3.x | Yes | Hooks need Python |
 | zie-memory plugin | No | Local-only, no brain |
-| playwright | No | `/zie-ship` skips e2e gate |
+| playwright | No | `/zie-release` skips e2e gate |
 | pytest / vitest | No | auto-test hook disabled |
 
 ## Directory Structure (in your project)

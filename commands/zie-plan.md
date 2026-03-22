@@ -31,8 +31,8 @@ building. Supports multiple items in parallel (max 4 agents).
    - `recall project=<project> domain=<domain> tags=[shipped,retro,bug,decision] limit=20`
    - Returns approaches, pain points, ADRs, known bugs in one round-trip.
    - Bake key findings into plan as a "## Context from brain" section.
-   - /zie-build will read this section — no need to re-recall domain context at
-     build time.
+   - /zie-implement will read this section — no need to re-recall domain context
+     at build time.
 
 2. If multiple slugs → spawn parallel agents (max 4) to draft plans
    simultaneously:

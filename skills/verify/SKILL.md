@@ -7,7 +7,8 @@ metadata:
 
 # verify — Pre-Ship Verification
 
-Run this before claiming work is complete or opening a PR. Catch problems before they reach main.
+Run this before claiming work is complete or opening a PR. Catch problems before
+they reach main.
 
 ## รายการตรวจสอบ
 
@@ -56,7 +57,8 @@ grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
 
 ### 5. Documentation
 
-- Does `CLAUDE.md` need updating? (new commands, changed dependencies, new rules)
+- Does `CLAUDE.md` need updating? (new commands, changed dependencies, new
+  rules)
 - Does `README.md` need updating? (new features, changed setup steps)
 
 ## สรุปผล
@@ -71,7 +73,8 @@ TODOs   : none found | <N> found (see above)
 Docs    : up to date | updated
 Secrets : none detected
 
-Ready to ship: /zie-ship
+Ready to ship: /zie-release
 ```
 
-If anything fails → fix before proceeding. Never claim "done" with a failing check.
+If anything fails → fix before proceeding. Never claim "done" with a failing
+check.

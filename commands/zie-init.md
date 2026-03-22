@@ -243,7 +243,7 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
      VERSION         (<created|kept>)
 
    Next: Run /zie-status to see current state.
-         Run /zie-idea to start your first feature.
+         Run /zie-backlog to start your first feature.
    ```
 
 ## Notes

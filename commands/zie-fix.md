@@ -7,8 +7,8 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 # /zie-fix — Bug Fix Path
 
 Fast path for fixing bugs. Skips brainstorming and planning — goes directly to
-debugging, regression test, fix, and verify. Use this instead of /zie-build for
-bugs and regressions.
+debugging, regression test, fix, and verify. Use this instead of /zie-implement
+for bugs and regressions.
 
 ## ตรวจสอบก่อนเริ่ม
 
@@ -63,17 +63,17 @@ bugs and regressions.
    Pattern: <recurring|one-off>
    Regression test: <test name> ✓
 
-   Run /zie-ship when ready to release.
+   Run /zie-release when ready to release.
    ```
 
 ## ขั้นตอนถัดไป
 
-→ `/zie-ship` — เมื่อ fix เสร็จและ test ผ่านหมด
-→ `/zie-idea` — ถ้า bug reveal design problem ที่ต้องแก้อย่างถูกต้อง
+→ `/zie-release` — เมื่อ fix เสร็จและ test ผ่านหมด
+→ `/zie-backlog` — ถ้า bug reveal design problem ที่ต้องแก้อย่างถูกต้อง
 
 ## Notes
 
 - Always write the regression test BEFORE fixing — this is non-negotiable
-- If the bug reveals a design problem → after fixing, run /zie-idea to plan a
-  proper solution
-- Never use /zie-fix for features — use /zie-build
+- If the bug reveals a design problem → after fixing, run /zie-backlog to
+  capture and /zie-spec to plan a proper solution
+- Never use /zie-fix for features — use /zie-implement

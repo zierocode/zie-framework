@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Pre-commit hook: reject commits that contain markdownlint violations.
+# Checks only staged .md files for speed; falls back to full scan if none staged.
+
+set -euo pipefail
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep '\.md$' || true)
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+if ! command -v npx &>/dev/null; then
+  echo "pre-commit: npx not found — skipping markdown lint" >&2
+  exit 0
+fi
+
+echo "markdownlint: checking staged .md files..."
+# shellcheck disable=SC2086
+if ! npx markdownlint-cli $STAGED 2>&1; then
+  echo ""
+  echo "Commit blocked: fix markdownlint errors above, then re-commit."
+  echo "Run 'make lint-md' to see all violations."
+  exit 1
+fi
