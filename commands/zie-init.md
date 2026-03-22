@@ -52,7 +52,6 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
      "has_frontend": <true|false>,
      "playwright_enabled": <true if has_frontend>,
      "zie_memory_enabled": <true if ZIE_MEMORY_API_KEY set>,
-     "superpowers_enabled": <true if superpowers plugin found>,
      "auto_test_debounce_ms": 3000,
      "auto_test_timeout_ms": 30000
    }
@@ -62,7 +61,9 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    Use the ROADMAP template — set project name from current directory name.
 
 5. **Create `Makefile`** at project root:
-   - If Makefile already exists: ADD the standard targets (test-unit, test-int, test-e2e, test, push, ship) only if they don't already exist. Never overwrite existing targets.
+   - If Makefile already exists: ADD the standard targets (test-unit,
+     test-int, test-e2e, test, push, ship) only if they don't already
+     exist. Never overwrite existing targets.
    - If no Makefile: create from template matching project_type (python or typescript).
 
 6. **Create `VERSION`** at project root:
@@ -71,26 +72,41 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
 
 7. **Create `CLAUDE.md`** at project root:
    - If exists: skip (never overwrite).
-   - If not: generate from `templates/CLAUDE.md.template` with these substitutions:
+   - If not: generate from `templates/CLAUDE.md.template` with these
+     substitutions:
      - `{{project_name}}` → current directory name
      - `{{project_description}}` → `<project_type> project`
-     - `{{tech_stack}}` → detected stack (e.g. `Python 3.x`, `Node.js / TypeScript`)
+     - `{{tech_stack}}` → detected stack (e.g. `Python 3.x`,
+       `Node.js / TypeScript`)
      - `{{test_runner}}` → detected test runner
      - `{{build_commands}}` → appropriate commands for project_type:
-       - python: `make test-unit   # unit tests\nmake test        # full suite\nmake push m="msg"  # commit + push`
-       - typescript: `make test-unit   # unit tests\nmake test        # full suite\nmake push m="msg"  # commit + push`
+       - python: `make test-unit   # unit tests\nmake test        # full
+         suite\nmake push m="msg"  # commit + push`
+       - typescript: `make test-unit   # unit tests\nmake test        # full
+         suite\nmake push m="msg"  # commit + push`
 
-8. **If `playwright_enabled=true`**:
+8. **Install Markdown lint enforcement**:
+   - Create `.markdownlint.json` at project root from
+     `templates/markdownlint.json.template` — skip if already exists.
+   - Create `.githooks/pre-commit` from
+     `templates/githooks-pre-commit.template` — skip if already exists.
+     Run `chmod +x .githooks/pre-commit` after.
+   - Run `git config core.hooksPath .githooks` to activate the hook.
+
+9. **If `playwright_enabled=true`**:
    - Check if `@playwright/test` in package.json devDependencies
-   - If not: `npm install --save-dev @playwright/test` + `npx playwright install chromium`
+   - If not: `npm install --save-dev @playwright/test` +
+     `npx playwright install chromium`
    - Create `playwright.config.ts` from template if it doesn't exist
    - Create `tests/e2e/` directory with `fixtures.ts`
 
-9. **If `zie_memory_enabled=true`**:
-   - Store project bootstrap memory:
-     `remember "Project <name> initialized with zie-framework. Type: <project_type>. Stack: <tech_stack>. Test runner: <test_runner>." tags=[zie-framework, init, <project_name>]`
+10. **If `zie_memory_enabled=true`**:
+    - Store project bootstrap memory:
+      `remember "Project <name> initialized with zie-framework. Type:
+      <project_type>. Stack: <tech_stack>. Test runner: <test_runner>."
+      tags=[zie-framework, init, <project_name>]`
 
-10. **Print summary**:
+11. **Print summary**:
 
    ```text
    zie-framework initialized in <project>/
@@ -113,5 +129,6 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
 
 ## Notes
 
-- Safe to re-run (idempotent) — never overwrites existing files, only creates missing ones
+- Safe to re-run (idempotent) — never overwrites existing files, only
+  creates missing ones
 - If `zie-framework/` already exists, skip creation and print "already initialized"
