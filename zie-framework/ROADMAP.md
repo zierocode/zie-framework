@@ -10,16 +10,14 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [ ] zie-init deep scan + knowledge drift detection —
+  [plan](plans/2026-03-23-zie-init-deep-scan.md)
+
 ---
 
 ## Ready — Approved Plans
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
-
-- [ ] zie-init deep scan + knowledge drift detection —
-  [backlog](backlog/zie-init-deep-scan.md)
-  [spec](specs/2026-03-23-zie-init-deep-scan-design.md)
-  [plan](plans/2026-03-23-zie-init-deep-scan.md) — approved 2026-03-23
 - [ ] SDLC pipeline redesign — 6-stage standard pipeline with quality gates —
   [backlog](backlog/sdlc-pipeline-redesign.md)
   [plan](plans/2026-03-23-sdlc-pipeline-redesign.md) — approved 2026-03-23
