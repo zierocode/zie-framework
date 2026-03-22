@@ -11,13 +11,12 @@ def read(rel_path):
 # ── Task 1–4: Config collapse ─────────────────────────────────────────────────
 
 
-class TestConfigCollapseBuild:
-    def test_build_no_config_key_enumeration(self):
-        """zie-build pre-flight must not enumerate config keys as comma-separated list."""
-        content = read("commands/zie-build.md")
-        # The old pattern "project_type, test_runner" is a micro-step enumeration
+class TestConfigCollapseImplement:
+    def test_implement_no_config_key_enumeration(self):
+        """zie-implement pre-flight must not enumerate config keys as comma-separated list."""
+        content = read("commands/zie-implement.md")
         assert "project_type, test_runner" not in content, \
-            "zie-build must not enumerate config keys (project_type, test_runner) — collapse to intent line"
+            "zie-implement must not enumerate config keys (project_type, test_runner) — collapse to intent line"
 
 
 class TestConfigCollapseFix:
@@ -28,12 +27,12 @@ class TestConfigCollapseFix:
             "zie-fix must not enumerate config keys in pre-flight"
 
 
-class TestConfigCollapseShip:
-    def test_ship_no_config_key_enumeration(self):
-        """zie-ship pre-flight must not enumerate config keys as comma list."""
-        content = read("commands/zie-ship.md")
+class TestConfigCollapseRelease:
+    def test_release_no_config_key_enumeration(self):
+        """zie-release pre-flight must not enumerate config keys as comma list."""
+        content = read("commands/zie-release.md")
         assert "has_frontend, playwright_enabled, test_runner" not in content, \
-            "zie-ship must not enumerate config keys — collapse to intent line"
+            "zie-release must not enumerate config keys — collapse to intent line"
 
 
 class TestConfigCollapseStatus:
@@ -47,23 +46,23 @@ class TestConfigCollapseStatus:
 # ── Task 5–6: Pre-flight simplify + handoff blocks ───────────────────────────
 
 
-class TestHandoffBlockIdea:
-    def test_idea_has_handoff_block(self):
-        content = read("commands/zie-idea.md")
+class TestHandoffBlockBacklog:
+    def test_backlog_has_handoff_block(self):
+        content = read("commands/zie-backlog.md")
         assert "## ขั้นตอนถัดไป" in content, \
-            "zie-idea must have a ## ขั้นตอนถัดไป handoff block"
+            "zie-backlog must have a ## ขั้นตอนถัดไป handoff block"
 
-    def test_idea_handoff_suggests_zie_plan(self):
-        content = read("commands/zie-idea.md")
+    def test_backlog_handoff_suggests_zie_spec(self):
+        content = read("commands/zie-backlog.md")
         handoff_start = content.find("## ขั้นตอนถัดไป")
-        assert handoff_start != -1, "zie-idea must have ## ขั้นตอนถัดไป"
+        assert handoff_start != -1, "zie-backlog must have ## ขั้นตอนถัดไป"
         handoff_section = content[handoff_start:]
-        assert "/zie-plan" in handoff_section, \
-            "zie-idea handoff must suggest /zie-plan as next step"
+        assert "/zie-spec" in handoff_section, \
+            "zie-backlog handoff must suggest /zie-spec as next step"
 
-    def test_idea_preflight_is_concise(self):
-        """Pre-flight in zie-idea must be ≤ 3 items (not 3 verbose paragraphs)."""
-        content = read("commands/zie-idea.md")
+    def test_backlog_preflight_is_concise(self):
+        """Pre-flight in zie-backlog must be ≤ 3 items."""
+        content = read("commands/zie-backlog.md")
         preflight_start = content.find("## ตรวจสอบก่อนเริ่ม")
         next_section = content.find("\n## ", preflight_start + 1)
         preflight_section = content[preflight_start:next_section]
@@ -71,7 +70,7 @@ class TestHandoffBlockIdea:
         items = [line for line in preflight_section.split("\n")
                  if line.strip() and line.strip()[0].isdigit() and ". " in line]
         assert len(items) <= 3, \
-            f"zie-idea pre-flight must have ≤ 3 items, found {len(items)}"
+            f"zie-backlog pre-flight must have ≤ 3 items, found {len(items)}"
 
 
 class TestHandoffBlockPlan:
@@ -80,44 +79,44 @@ class TestHandoffBlockPlan:
         assert "## ขั้นตอนถัดไป" in content, \
             "zie-plan must have a ## ขั้นตอนถัดไป handoff block"
 
-    def test_plan_handoff_suggests_zie_build(self):
+    def test_plan_handoff_suggests_zie_implement(self):
         content = read("commands/zie-plan.md")
         handoff_start = content.find("## ขั้นตอนถัดไป")
         assert handoff_start != -1, "zie-plan must have ## ขั้นตอนถัดไป"
         handoff_section = content[handoff_start:]
-        assert "/zie-build" in handoff_section, \
-            "zie-plan handoff must suggest /zie-build as next step"
+        assert "/zie-implement" in handoff_section, \
+            "zie-plan handoff must suggest /zie-implement as next step"
 
 
-# ── Task 7: Intent-driven RED/GREEN/REFACTOR in zie-build ────────────────────
+# ── Task 7: Intent-driven RED/GREEN/REFACTOR in zie-implement ─────────────────
 
 
-class TestIntentDrivenBuild:
+class TestIntentDrivenImplement:
     def test_red_section_not_bullet_list(self):
-        """RED section in zie-build must be intent paragraph, not 4+ bullet items."""
-        content = read("commands/zie-build.md")
+        """RED section in zie-implement must be intent paragraph, not 4+ bullet items."""
+        content = read("commands/zie-implement.md")
         red_start = content.find("(RED)")
         green_start = content.find("(GREEN)")
         assert red_start != -1 and green_start != -1, \
-            "zie-build must have (RED) and (GREEN) phase markers"
+            "zie-implement must have (RED) and (GREEN) phase markers"
         red_section = content[red_start:green_start]
         # Count bullet lines (lines starting with "   -")
         bullet_lines = [ln for ln in red_section.split("\n")
                         if ln.strip().startswith("- ")]
         assert len(bullet_lines) <= 2, \
-            f"zie-build RED section must be intent-driven (≤ 2 bullets), found {len(bullet_lines)}"
+            f"zie-implement RED section must be intent-driven (≤ 2 bullets), found {len(bullet_lines)}"
 
 
-# ── Task 9: Gate descriptions simplified in zie-ship ─────────────────────────
+# ── Task 9: Gate descriptions simplified in zie-release ───────────────────────
 
 
-class TestGateDescriptionsShip:
+class TestGateDescriptionsRelease:
     def test_unit_test_gate_is_concise(self):
-        """zie-ship unit test gate must be ≤ 2 lines of description (intent + failure action)."""
-        content = read("commands/zie-ship.md")
+        """zie-release unit test gate must be ≤ 3 lines of description."""
+        content = read("commands/zie-release.md")
         gate_start = content.find("### ตรวจสอบ: Unit Tests")
         next_gate = content.find("### ตรวจสอบ:", gate_start + 1)
-        assert gate_start != -1, "zie-ship must have ตรวจสอบ: Unit Tests section"
+        assert gate_start != -1, "zie-release must have ตรวจสอบ: Unit Tests section"
         gate_section = content[gate_start:next_gate]
         # Count non-empty, non-heading, non-code-fence lines
         desc_lines = [ln for ln in gate_section.split("\n")
@@ -126,7 +125,7 @@ class TestGateDescriptionsShip:
                       and not ln.strip().startswith("```")
                       and ln.strip() != "make test-unit"]
         assert len(desc_lines) <= 3, \
-            f"zie-ship unit gate must be concise (≤ 3 description lines), found {len(desc_lines)}: {desc_lines}"
+            f"zie-release unit gate must be concise (≤ 3 description lines), found {len(desc_lines)}: {desc_lines}"
 
 
 # ── Task 10: Memory pattern standardization ──────────────────────────────────
@@ -136,10 +135,10 @@ class TestMemoryPatternStandardization:
     def test_all_recalls_have_limit_param(self):
         """Every recall call in command files must include a limit= parameter."""
         commands = [
-            "commands/zie-build.md",
+            "commands/zie-implement.md",
             "commands/zie-fix.md",
-            "commands/zie-ship.md",
-            "commands/zie-idea.md",
+            "commands/zie-release.md",
+            "commands/zie-backlog.md",
             "commands/zie-plan.md",
             "commands/zie-retro.md",
         ]
@@ -151,8 +150,8 @@ class TestMemoryPatternStandardization:
                     assert "limit=" in line, \
                         f"{cmd_path}:{i+1} — recall call missing limit= parameter: {line.strip()!r}"
 
-    def test_build_wip_remember_uses_supersedes(self):
-        """zie-build WIP checkpoint remember must use supersedes to prevent duplicate WIPs."""
-        content = read("commands/zie-build.md")
+    def test_implement_wip_remember_uses_supersedes(self):
+        """zie-implement WIP checkpoint remember must use supersedes to prevent duplicate WIPs."""
+        content = read("commands/zie-implement.md")
         assert "supersedes" in content, \
-            "zie-build WIP remember must use supersedes= to prevent duplicate WIP memories"
+            "zie-implement WIP remember must use supersedes= to prevent duplicate WIP memories"

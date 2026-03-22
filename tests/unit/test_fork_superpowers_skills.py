@@ -82,45 +82,45 @@ class TestSkillZieMemoryIntegration:
 
 
 class TestCommandsNoSuperpowersDependency:
-    def test_zie_idea_no_superpowers_skill(self):
-        content = read("commands/zie-idea.md")
+    def test_zie_spec_no_superpowers_skill(self):
+        content = read("commands/zie-spec.md")
         assert "Skill(superpowers:" not in content, \
-            "zie-idea must not call Skill(superpowers:*) after fork"
+            "zie-spec must not call Skill(superpowers:*) after fork"
 
-    def test_zie_build_no_superpowers_skill(self):
-        content = read("commands/zie-build.md")
+    def test_zie_implement_no_superpowers_skill(self):
+        content = read("commands/zie-implement.md")
         assert "Skill(superpowers:" not in content, \
-            "zie-build must not call Skill(superpowers:*) after fork"
+            "zie-implement must not call Skill(superpowers:*) after fork"
 
     def test_zie_fix_no_superpowers_skill(self):
         content = read("commands/zie-fix.md")
         assert "Skill(superpowers:" not in content, \
             "zie-fix must not call Skill(superpowers:*) after fork"
 
-    def test_zie_ship_no_superpowers_skill(self):
-        content = read("commands/zie-ship.md")
+    def test_zie_release_no_superpowers_skill(self):
+        content = read("commands/zie-release.md")
         assert "Skill(superpowers:" not in content, \
-            "zie-ship must not call Skill(superpowers:*) after fork"
+            "zie-release must not call Skill(superpowers:*) after fork"
 
-    def test_zie_idea_calls_zie_framework_spec_design(self):
-        content = read("commands/zie-idea.md")
+    def test_zie_spec_calls_zie_framework_spec_design(self):
+        content = read("commands/zie-spec.md")
         assert "Skill(zie-framework:spec-design)" in content, \
-            "zie-idea must invoke Skill(zie-framework:spec-design)"
+            "zie-spec must invoke Skill(zie-framework:spec-design)"
 
-    def test_zie_idea_calls_zie_framework_write_plan(self):
-        content = read("commands/zie-idea.md")
+    def test_spec_design_calls_zie_framework_write_plan(self):
+        content = read("skills/spec-design/SKILL.md")
         assert "Skill(zie-framework:write-plan)" in content, \
-            "zie-idea must invoke Skill(zie-framework:write-plan)"
+            "spec-design skill must hand off to Skill(zie-framework:write-plan)"
 
-    def test_zie_build_calls_zie_framework_tdd_loop(self):
-        content = read("commands/zie-build.md")
+    def test_zie_implement_calls_zie_framework_tdd_loop(self):
+        content = read("commands/zie-implement.md")
         assert "Skill(zie-framework:tdd-loop)" in content, \
-            "zie-build must invoke Skill(zie-framework:tdd-loop)"
+            "zie-implement must invoke Skill(zie-framework:tdd-loop)"
 
-    def test_zie_build_calls_zie_framework_debug(self):
-        content = read("commands/zie-build.md")
+    def test_zie_implement_calls_zie_framework_debug(self):
+        content = read("commands/zie-implement.md")
         assert "Skill(zie-framework:debug)" in content, \
-            "zie-build must invoke Skill(zie-framework:debug)"
+            "zie-implement must invoke Skill(zie-framework:debug)"
 
     def test_zie_fix_calls_zie_framework_debug(self):
         content = read("commands/zie-fix.md")
@@ -132,10 +132,10 @@ class TestCommandsNoSuperpowersDependency:
         assert "Skill(zie-framework:verify)" in content, \
             "zie-fix must invoke Skill(zie-framework:verify)"
 
-    def test_zie_ship_calls_zie_framework_verify(self):
-        content = read("commands/zie-ship.md")
+    def test_zie_release_calls_zie_framework_verify(self):
+        content = read("commands/zie-release.md")
         assert "Skill(zie-framework:verify)" in content, \
-            "zie-ship must invoke Skill(zie-framework:verify)"
+            "zie-release must invoke Skill(zie-framework:verify)"
 
     def test_zie_plan_no_superpowers_enabled(self):
         content = read("commands/zie-plan.md")

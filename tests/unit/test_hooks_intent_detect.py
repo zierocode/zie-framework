@@ -27,25 +27,25 @@ class TestIntentDetectHappyPath:
         r = run_hook({"prompt": "there is a bug in the auth module"}, tmp_cwd=cwd)
         assert "/zie-fix" in r.stdout
 
-    def test_build_intent_detected(self, tmp_path):
+    def test_implement_intent_detected(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
         r = run_hook({"prompt": "start coding this task now"}, tmp_cwd=cwd)
-        assert "/zie-build" in r.stdout
+        assert "/zie-implement" in r.stdout
 
-    def test_ship_intent_detected(self, tmp_path):
+    def test_release_intent_detected(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
-        r = run_hook({"prompt": "ready to ship and deploy now"}, tmp_cwd=cwd)
-        assert "/zie-ship" in r.stdout
+        r = run_hook({"prompt": "ready to deploy and release now"}, tmp_cwd=cwd)
+        assert "/zie-release" in r.stdout
 
     def test_plan_intent_thai(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
         r = run_hook({"prompt": "อยากวางแผน feature ใหม่"}, tmp_cwd=cwd)
         assert "/zie-plan" in r.stdout
 
-    def test_idea_intent_thai(self, tmp_path):
+    def test_backlog_intent_thai(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
         r = run_hook({"prompt": "อยากเพิ่ม feature ใหม่"}, tmp_cwd=cwd)
-        assert "/zie-idea" in r.stdout
+        assert "/zie-backlog" in r.stdout
 
 
 class TestIntentDetectGuardrails:
@@ -55,7 +55,7 @@ class TestIntentDetectGuardrails:
 
     def test_no_output_for_zie_command_prompt(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
-        r = run_hook({"prompt": "/zie-build the feature"}, tmp_cwd=cwd)
+        r = run_hook({"prompt": "/zie-implement the feature"}, tmp_cwd=cwd)
         assert r.stdout.strip() == ""
 
     def test_no_output_for_empty_prompt(self, tmp_path):
