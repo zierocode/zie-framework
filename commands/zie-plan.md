@@ -18,7 +18,11 @@ building. Supports multiple items in parallel (max 4 agents).
 
 1. If called with no args:
    - Read `zie-framework/ROADMAP.md` → list all Next items with index numbers.
-   - If Next is empty → print "No backlog items. Run /zie-idea first." and stop.
+   - Filter to items that have an approved spec: check
+     `zie-framework/specs/` for a file whose name contains the item slug.
+   - If Next is empty → print "No backlog items. Run /zie-backlog first." and stop.
+   - If no Next items have an approved spec → print "No items with approved
+     spec. Run /zie-spec SLUG first." and stop.
    - Ask: "Which items to plan? Enter numbers (e.g. 1, 3)"
 
 ## ร่าง plan สำหรับ slug ที่เลือก
@@ -73,12 +77,12 @@ building. Supports multiple items in parallel (max 4 agents).
    Re-drafted       : <list if any>
    Dropped → Next   : <list if any>
 
-   Next: Run /zie-build to start building.
+   Next: Run /zie-implement to start building.
    ```
 
 ## ขั้นตอนถัดไป
 
-→ `/zie-build` — เริ่ม implement feature ที่อนุมัติแล้ว
+→ `/zie-implement` — เริ่ม implement feature ที่อนุมัติแล้ว
 → `/zie-status` — ดูภาพรวม
 
 ## Notes
