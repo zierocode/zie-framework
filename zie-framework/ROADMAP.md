@@ -10,14 +10,14 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [ ] SDLC pipeline redesign — 6-stage standard pipeline with quality gates —
+  [plan](plans/2026-03-23-sdlc-pipeline-redesign.md)
+
 ---
 
 ## Ready — Approved Plans
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
-- [ ] SDLC pipeline redesign — 6-stage standard pipeline with quality gates —
-  [backlog](backlog/sdlc-pipeline-redesign.md)
-  [plan](plans/2026-03-23-sdlc-pipeline-redesign.md) — approved 2026-03-23
 
 ---
 
