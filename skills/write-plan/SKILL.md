@@ -12,7 +12,8 @@ Write a comprehensive, task-by-task implementation plan. Output lives in `zie-fr
 ## เตรียม context
 
 If `zie_memory_enabled=true`:
-- recall project=<project> domain=<feature-area> tags=[plan, implementation] limit=10
+
+- `recall project=<project> domain=<feature-area> tags=[plan, implementation] limit=10`
 - Surface past plan patterns, known pitfalls, and relevant architectural decisions.
 
 ## Plan Document Header
@@ -81,10 +82,12 @@ _Prior memories relevant to this feature are surfaced here by /zie-plan before h
 Save plan to: `zie-framework/plans/YYYY-MM-DD-<feature-slug>.md`
 
 After saving, update `zie-framework/ROADMAP.md`:
+
 - Add to "Ready" section: `- [ ] <feature name> — [plan](plans/YYYY-MM-DD-<feature-slug>.md) ✓ approved`
 - Wait for explicit approval before marking `approved: true` in frontmatter
 
 ## Notes
+
 - Exact file paths always
 - Complete code in plan (not "add validation")
 - Exact commands with expected output

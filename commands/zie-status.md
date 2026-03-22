@@ -29,7 +29,7 @@ Show a concise snapshot of where the project is right now. No LLM reasoning need
    ## สถานะ zie-framework
 
    | | |
-   |---|---|
+   | --- | --- |
    | โปรเจกต์ | \<directory name> (\<project_type>) |
    | Version | \<VERSION> |
    | Brain | \<enabled\|disabled> |
@@ -43,7 +43,7 @@ Show a concise snapshot of where the project is right now. No LLM reasoning need
    **Plan**: \<zie-framework/plans/latest.md or "ยังไม่มี plan">
 
    | Tests | สถานะ |
-   |---|---|
+   | --- | --- |
    | unit | \<✓ pass \| ✗ fail \| ? stale \| n/a> |
    | integration | \<✓ pass \| ✗ fail \| ? stale \| n/a> |
    | e2e | \<✓ pass \| ✗ fail \| ? stale \| n/a> |
@@ -58,5 +58,6 @@ Show a concise snapshot of where the project is right now. No LLM reasoning need
    - Always available: "/zie-status | /zie-idea | /zie-build | /zie-fix | /zie-ship | /zie-retro"
 
 ## Notes
+
 - Fast — no LLM, no network calls
 - Safe to run anytime, even mid-session

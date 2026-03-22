@@ -18,7 +18,8 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    - Check if `templates/` or `*.html` present → set `has_frontend=true`
 
 2. **Create `zie-framework/` structure** in project root:
-   ```
+
+   ```text
    zie-framework/
    ├── .config
    ├── ROADMAP.md
@@ -33,6 +34,7 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    ├── decisions/
    └── evidence/
    ```
+
    Create a `.gitignore` inside `zie-framework/` with: `evidence/`
    Create `zie-framework/backlog/.gitkeep` so the directory is tracked by git.
    Generate from templates with substitutions (`{{project_name}}`, `{{date}}`, `{{version}}`):
@@ -42,6 +44,7 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    - `project/decisions.md` from `templates/project/decisions.md.template`
 
 3. **Generate `zie-framework/.config`** (JSON):
+
    ```json
    {
      "project_type": "<detected>",
@@ -88,7 +91,8 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
      `remember "Project <name> initialized with zie-framework. Type: <project_type>. Stack: <tech_stack>. Test runner: <test_runner>." tags=[zie-framework, init, <project_name>]`
 
 10. **Print summary**:
-   ```
+
+   ```text
    zie-framework initialized in <project>/
 
    Project type : <type>
@@ -108,5 +112,6 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    ```
 
 ## Notes
+
 - Safe to re-run (idempotent) — never overwrites existing files, only creates missing ones
 - If `zie-framework/` already exists, skip creation and print "already initialized"

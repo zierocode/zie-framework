@@ -16,16 +16,19 @@ Run this before claiming work is complete or opening a PR. Catch problems before
 ```bash
 make test-unit
 ```
+
 - All tests pass? ✓
 - Any skipped tests? Investigate — skips hide real failures.
 - Any new tests added for this feature? If not, explain why.
 
 If integration tests exist:
+
 ```bash
 make test-int
 ```
 
 If e2e tests are enabled (playwright_enabled=true):
+
 ```bash
 make test-e2e
 ```
@@ -38,9 +41,11 @@ make test-e2e
 ### 3. ไม่มี TODO ค้างอยู่
 
 Search for leftover stubs:
+
 ```bash
 grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
 ```
+
 - Any hits in new code? Fix or create a tracked backlog item.
 
 ### 4. ตรวจ code ตัวเอง
@@ -57,7 +62,8 @@ grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
 ## สรุปผล
 
 Print a verification summary:
-```
+
+```text
 Verification complete:
 
 Tests   : unit ✓ | integration ✓|n/a | e2e ✓|n/a

@@ -38,6 +38,7 @@ Note: `/zie-fix` already has full zie-memory integration — no changes needed.
 ## Task 1: Write tests for ROADMAP Ready lane (RED)
 
 **Files:**
+
 - Modify: `tests/unit/test_sdlc_gates.py` (create if not exists)
 
 - [x] **Step 1: Write failing tests**
@@ -53,7 +54,6 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 def read(rel_path):
     with open(os.path.join(REPO_ROOT, rel_path)) as f:
         return f.read()
-
 
 class TestROADMAPReadyLane:
     def test_template_has_ready_section(self):
@@ -72,6 +72,7 @@ class TestROADMAPReadyLane:
 ```bash
 cd /Users/zie/Code/zie-framework && python3 -m pytest tests/unit/test_sdlc_gates.py::TestROADMAPReadyLane -v
 ```
+
 Expected: FAIL — "Ready" not in template yet
 
 ---
@@ -79,6 +80,7 @@ Expected: FAIL — "Ready" not in template yet
 ## Task 2: Implement ROADMAP Ready lane (GREEN)
 
 **Files:**
+
 - Modify: `templates/ROADMAP.md.template`
 - Modify: `zie-framework/ROADMAP.md`
 
@@ -111,6 +113,7 @@ Expected: FAIL — "Ready" not in template yet
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestROADMAPReadyLane -v
 ```
+
 Expected: PASS
 
 ---
@@ -118,6 +121,7 @@ Expected: PASS
 ## Task 3: Write tests for /zie-idea backlog-first + zie-memory (RED)
 
 **Files:**
+
 - Modify: `tests/unit/test_sdlc_gates.py`
 
 - [x] **Step 1: Add failing tests**
@@ -151,6 +155,7 @@ class TestZieIdeaBacklogFirst:
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestZieIdeaBacklogFirst -v
 ```
+
 Expected: at least 2 failures (Now reference exists, memory steps missing)
 
 ---
@@ -158,11 +163,13 @@ Expected: at least 2 failures (Now reference exists, memory steps missing)
 ## Task 4: Implement /zie-idea backlog-first + zie-memory (GREEN)
 
 **Files:**
+
 - Modify: `commands/zie-idea.md`
 
 - [x] **Step 1: Update Pre-flight — add zie-memory batch recall**
 
 Add after existing step 3:
+
 ```markdown
 3b. If `zie_memory_enabled=true`:
    - Single batch query: `recall project=<project> domain=<domain> limit=15`
@@ -173,6 +180,7 @@ Add after existing step 3:
 - [x] **Step 2: Replace Phase 3 — change Now → Next**
 
 Replace current step 9 (`Add feature to "Now" section`) with:
+
 ```markdown
 9. Update `zie-framework/ROADMAP.md`:
    - Add feature to **Next** section only: `- [ ] <feature name> — [idea](backlog/<slug>.md)`
@@ -190,11 +198,14 @@ Replace current step 9 (`Add feature to "Now" section`) with:
 - [x] **Step 4: Update print summary to match**
 
 Change:
-```
+
+```text
 ROADMAP updated → Now section
 ```
+
 To:
-```
+
+```text
 ROADMAP updated → Next (backlog)
 Backlog item  → zie-framework/backlog/<slug>.md
 
@@ -206,6 +217,7 @@ Backlog item  → zie-framework/backlog/<slug>.md
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestZieIdeaBacklogFirst -v
 ```
+
 Expected: PASS
 
 ---
@@ -213,6 +225,7 @@ Expected: PASS
 ## Task 5: Write tests for /zie-plan command (RED)
 
 **Files:**
+
 - Modify: `tests/unit/test_sdlc_gates.py`
 
 - [x] **Step 1: Add failing tests**
@@ -255,6 +268,7 @@ class TestZiePlanCommand:
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestZiePlanCommand -v
 ```
+
 Expected: all FAIL — file doesn't exist yet
 
 ---
@@ -262,6 +276,7 @@ Expected: all FAIL — file doesn't exist yet
 ## Task 6: Create /zie-plan command (GREEN)
 
 **Files:**
+
 - Create: `commands/zie-plan.md`
 
 - [x] **Step 1: Create the file**
@@ -310,12 +325,14 @@ Draft implementation plans for backlog items and get Zie's approval before build
    - Ask: "Approve this plan? (yes / re-draft / drop back to Next)"
    - **yes** → add frontmatter to plan file:
      ```yaml
+
      ---
      approved: true
      approved_at: YYYY-MM-DD
      backlog: backlog/<slug>.md
      ---
-     ```
+
+     ```text
      Move item in `zie-framework/ROADMAP.md` from Next → Ready:
      `- [ ] <feature name> — [plan](plans/<slug>.md) ✓ approved`
    - **re-draft** → revise plan and re-present (keeps pending state)
@@ -327,29 +344,31 @@ Draft implementation plans for backlog items and get Zie's approval before build
 ## Print summary
 
 9. Print:
-   ```
-   Plans processed: <N>
 
-   Approved → Ready : <list of approved slugs>
-   Re-drafted       : <list if any>
-   Dropped → Next   : <list if any>
+```text
+Plans processed: <N>
 
-   Next: Run /zie-build to start building.
-   ```
+Approved → Ready : <list of approved slugs>
+Re-drafted       : <list if any>
+Dropped → Next   : <list if any>
+
+Next: Run /zie-build to start building.
+```
 
 ## Notes
+
 - Plan files live at `zie-framework/plans/<slug>.md`
 - Pending plan = no `approved` key in frontmatter
 - Approved plan = `approved: true` + `approved_at` in frontmatter
 - Max 4 parallel agents when multiple slugs provided
 - Rejection path: re-draft (stays pending) or drop (returns to Next)
-```
 
 - [x] **Step 2: Run tests to confirm GREEN**
 
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestZiePlanCommand -v
 ```
+
 Expected: PASS
 
 ---
@@ -357,6 +376,7 @@ Expected: PASS
 ## Task 7: Write tests for /zie-build gates (RED)
 
 **Files:**
+
 - Modify: `tests/unit/test_sdlc_gates.py`
 
 - [x] **Step 1: Add failing tests**
@@ -399,6 +419,7 @@ class TestZieBuildGates:
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestZieBuildGates -v
 ```
+
 Expected: multiple failures — current /zie-build missing these
 
 ---
@@ -406,11 +427,13 @@ Expected: multiple failures — current /zie-build missing these
 ## Task 8: Implement /zie-build gates + parallel + zie-memory (GREEN)
 
 **Files:**
+
 - Modify: `commands/zie-build.md`
 
 - [x] **Step 1: Replace Pre-flight steps 2-3 with gate sequence**
 
 Replace current steps 2-3 with:
+
 ```markdown
 2. **Gate 1 — WIP check**: Read `zie-framework/ROADMAP.md` → check Now lane.
    - If Now is occupied → print "Now: `<current>` in progress. Finish it or run /zie-ship." and STOP.
@@ -433,6 +456,7 @@ Replace current steps 2-3 with:
 - [x] **Step 2: Add depends_on parsing + parallel agent spawning before task loop**
 
 Add after pre-flight:
+
 ```markdown
 ### Dependency resolution
 
@@ -466,6 +490,7 @@ Before starting tasks:
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestZieBuildGates -v
 ```
+
 Expected: PASS
 
 ---
@@ -473,6 +498,7 @@ Expected: PASS
 ## Task 9: Write tests for intent-detect plan pattern (RED)
 
 **Files:**
+
 - Modify: `tests/unit/test_sdlc_gates.py`
 
 - [x] **Step 1: Add failing tests**
@@ -511,6 +537,7 @@ class TestIntentDetectPlan:
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestIntentDetectPlan -v
 ```
+
 Expected: all FAIL
 
 ---
@@ -518,6 +545,7 @@ Expected: all FAIL
 ## Task 10: Implement intent-detect.py plan pattern (GREEN)
 
 **Files:**
+
 - Modify: `hooks/intent-detect.py`
 
 - [x] **Step 1: Add plan to PATTERNS dict** — insert after `"idea"` block:
@@ -541,6 +569,7 @@ Expected: all FAIL
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestIntentDetectPlan -v
 ```
+
 Expected: PASS
 
 ---
@@ -548,6 +577,7 @@ Expected: PASS
 ## Task 11: Write tests for /zie-init backlog/ + zie-ship/retro memory (RED)
 
 **Files:**
+
 - Modify: `tests/unit/test_sdlc_gates.py`
 
 - [x] **Step 1: Add failing tests**
@@ -578,6 +608,7 @@ class TestZieRetroMemory:
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestZieInitBacklog tests/unit/test_sdlc_gates.py::TestZieShipMemory tests/unit/test_sdlc_gates.py::TestZieRetroMemory -v
 ```
+
 Expected: some failures
 
 ---
@@ -585,6 +616,7 @@ Expected: some failures
 ## Task 12: Implement /zie-init backlog/ + /zie-ship + /zie-retro (GREEN)
 
 **Files:**
+
 - Modify: `commands/zie-init.md`
 - Modify: `commands/zie-ship.md`
 - Modify: `commands/zie-retro.md`
@@ -610,6 +642,7 @@ Renumber subsequent steps accordingly.
 - [x] **Step 3: Enhance /zie-retro — batch recall + compress + forget**:
 
 Replace current step 4 with:
+
 ```markdown
 4. If `zie_memory_enabled=true`:
    - Single batch query: `recall project=<project> since=<last_retro_date> limit=50`
@@ -624,6 +657,7 @@ Replace current step 4 with:
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py::TestZieInitBacklog tests/unit/test_sdlc_gates.py::TestZieShipMemory tests/unit/test_sdlc_gates.py::TestZieRetroMemory -v
 ```
+
 Expected: PASS
 
 ---
@@ -635,6 +669,7 @@ Expected: PASS
 ```bash
 python3 -m pytest tests/unit/test_sdlc_gates.py tests/unit/test_zie_init_templates.py -v
 ```
+
 Expected: all PASS
 
 - [x] **Step 2: Run full suite**
@@ -642,6 +677,7 @@ Expected: all PASS
 ```bash
 make test-unit
 ```
+
 Expected: all PASS, no regressions
 
 - [x] **Step 3: Update plan file — mark all tasks complete**

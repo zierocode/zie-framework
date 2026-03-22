@@ -21,37 +21,39 @@ Turn an idea into a written spec and actionable implementation plan. Runs brains
 
 ### สร้าง spec
 
-4. Invoke `Skill(zie-framework:spec-design)` with the user's idea as context:
+1. Invoke `Skill(zie-framework:spec-design)` with the user's idea as context:
    - Skill asks clarifying questions, proposes approaches, presents design sections, writes spec.
    - Spec saved to `zie-framework/specs/YYYY-MM-DD-<topic>-design.md`.
    - Do NOT auto-commit. Only commit when Zie explicitly requests it.
 
-5. Ask user: "Spec looks good? Proceed to implementation plan?"
+2. Ask user: "Spec looks good? Proceed to implementation plan?"
    - If no → revise and re-ask.
 
 ### เขียน implementation plan
 
-6. Invoke `Skill(zie-framework:write-plan)` with the approved spec:
+1. Invoke `Skill(zie-framework:write-plan)` with the approved spec:
    - Skill writes a task-by-task TDD plan.
    - Plan saved to `zie-framework/plans/YYYY-MM-DD-<topic>.md`.
 
 ### อัปเดต ROADMAP และ backlog
 
-9. Update `zie-framework/ROADMAP.md`:
+1. Update `zie-framework/ROADMAP.md`:
    - Add feature to "Next" section only: `- [ ] <feature name> — [idea](backlog/<slug>.md)`
    - Create `zie-framework/backlog/<slug>.md` with 1-2 paragraph description of the idea.
    - Do NOT move to Now or Ready. Feature stays in backlog until /zie-plan is run.
 
-9b. If `zie_memory_enabled=true` — WRITE:
-   - `remember "Backlog item added: <slug>. Problem: <one-line summary>. Domain: <domain>." tags=[backlog, <project>, <domain>]`
+1b. If `zie_memory_enabled=true` — WRITE:
 
-10. Print:
-    ```
-    Backlog item  → zie-framework/backlog/<slug>.md
-    ROADMAP updated → Next (backlog)
+- `remember "Backlog item added: <slug>. Problem: <one-line summary>. Domain: <domain>." tags=[backlog, <project>, <domain>]`
 
-    Run /zie-plan <slug> when ready to create an implementation plan.
-    ```
+1. Print:
+
+   ```text
+   Backlog item  → zie-framework/backlog/<slug>.md
+   ROADMAP updated → Next (backlog)
+
+   Run /zie-plan <slug> when ready to create an implementation plan.
+   ```
 
 ## ขั้นตอนถัดไป
 
@@ -59,6 +61,7 @@ Turn an idea into a written spec and actionable implementation plan. Runs brains
 → `/zie-status` — ดูภาพรวม backlog
 
 ## Notes
+
 - Can be run with argument: `/zie-idea "export memories as CSV"` to skip the initial prompt
 - Can be run without argument: will ask for the idea first
 - Always spec-first — never skips to plan without an approved spec

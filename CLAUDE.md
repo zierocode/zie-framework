@@ -5,6 +5,7 @@ Solo developer SDLC framework plugin for Claude Code.
 ## What This Is
 
 A Claude Code plugin that installs a structured development workflow into any project:
+
 - **Ambient intent detection** via hooks
 - **Spec-first TDD** via `/zie-*` commands
 - **Brain integration** with zie-memory
@@ -20,7 +21,7 @@ A Claude Code plugin that installs a structured development workflow into any pr
 
 ## Project Structure
 
-```
+```text
 .claude-plugin/plugin.json  # plugin metadata
 hooks/hooks.json            # hook event → script mapping
 hooks/*.py                  # hook implementations (Python)

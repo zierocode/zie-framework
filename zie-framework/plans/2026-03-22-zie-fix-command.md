@@ -34,6 +34,7 @@ backlog: backlog/zie-fix-command.md
 ## Task 1: Write failing tests for zie-fix memory integration (RED)
 
 **Files:**
+
 - Modify: `tests/unit/test_sdlc_gates.py`
 
 - [ ] **Step 1: Add `TestZieFixMemory` class with failing assertions**
@@ -74,17 +75,20 @@ All four tests must FAIL before proceeding to Task 2.
 ## Task 2: Implement zie-fix memory enhancement (GREEN)
 
 **Files:**
+
 - Modify: `commands/zie-fix.md`
 
 - [ ] **Step 1: Replace the Pre-flight recall call**
 
 Current (line ~15):
-```
+
+```text
 recall "<bug description>"
 ```
 
 Target:
-```
+
+```text
 recall project=<project> domain=<domain> tags=[bug, build-learning] limit=10
 → detect recurring patterns, surface known fragile areas
 ```
@@ -92,12 +96,14 @@ recall project=<project> domain=<domain> tags=[bug, build-learning] limit=10
 - [ ] **Step 2: Replace the Phase 5 remember call**
 
 Current (line ~56):
-```
+
+```text
 remember "Bug: <description>. Root cause: <cause>. Fix: <approach>. Regression test: <test name>." priority=auto tags=[bug, fix, <module-slug>] project=<project>
 ```
 
 Target:
-```
+
+```text
 remember "Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern: <recurring|one-off>." tags=[bug, <project>, <domain>]
 ```
 
@@ -127,7 +133,8 @@ python3 -m pytest tests/unit/test_sdlc_gates.py -v
 - [ ] **Step 2: Update summary print block to include Pattern line**
 
 The terminal summary printed at end of command should include:
-```
+
+```text
 Bug fixed: <description>
 Root cause: <cause>
 Fix: <brief description>

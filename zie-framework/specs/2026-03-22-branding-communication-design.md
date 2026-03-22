@@ -11,6 +11,7 @@
 ## Identity
 
 zie-framework คือ **AI-native SDLC framework** ที่ออกแบบมาให้ทำงานกับ Claude โดยเฉพาะ:
+
 - ไว้วางใจ AI reasoning — ไม่ over-specify สิ่งที่ AI ควรคิดเองได้
 - ภาษาไทยเป็นหลัก — professional, ไม่ informal
 - Output ใช้ Claude Code native rendering — ไม่ print เอง
@@ -20,11 +21,13 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 ## Communication Guidelines
 
 ### ภาษา
+
 - **Thai primary** สำหรับ user-facing text ทั้งหมดใน command/skill files
 - **English** สำหรับ: technical terms (TDD, RED/GREEN, pytest), code snippets, file paths, tool names
 - ตัวอย่าง: "ตรวจสอบ gate ก่อนเริ่ม" ไม่ใช่ "Pre-flight check"
 
 ### Format
+
 - ใช้ markdown headings (`##`, `###`) แทน ASCII boxes
 - ใช้ bold (`**`)  สำหรับ key actions
 - ใช้ bullet lists สำหรับ steps
@@ -32,6 +35,7 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 - Code blocks เฉพาะ code จริงๆ เท่านั้น
 
 ### Tone
+
 - Professional, direct — ไม่ verbose, ไม่ informal
 - ให้ AI ใช้ judgment ของตัวเองได้ — ไม่ต้อง specify ทุก micro-step
 
@@ -40,6 +44,7 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 ## Naming Consistency Audit
 
 ### Commands (ชื่อภายนอก — ไม่เปลี่ยน)
+
 | Command | ทำอะไร | ชื่อสื่อถูกต้องมั้ย |
 |---|---|---|
 | `/zie-idea` | brainstorm → spec → backlog | ✓ idea → spec เป็น natural flow |
@@ -51,6 +56,7 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 | `/zie-retro` | retrospective + learnings | ✓ |
 
 ### Internal Step Naming (เปลี่ยน)
+
 | ปัจจุบัน | ใหม่ | เหตุผล |
 |---|---|---|
 | Pre-flight | ตรวจสอบก่อนเริ่ม | สื่อตรง, Thai-primary |
@@ -96,6 +102,7 @@ zie-framework คือ **AI-native SDLC framework** ที่ออกแบบ
 ---
 
 ## Out of Scope
+
 - เปลี่ยนชื่อ command (`/zie-*`) — ไม่เปลี่ยน เพราะ user จำแล้ว
 - เปลี่ยน logic/behavior ของ command — แค่ปรับ language + format
 - เปลี่ยน hook output (hooks/*.py) — scope แยก

@@ -42,7 +42,7 @@ claude plugin install zierocode/zie-framework
 
 After `/zie-init`, a `zie-framework/` folder is created in your project root:
 
-```
+```text
 your-project/
 ├── zie-framework/
 │   ├── .config              # project type, thresholds, feature flags

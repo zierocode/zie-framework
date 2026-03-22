@@ -18,12 +18,14 @@ spec: specs/2026-03-22-branding-communication-design.md
 **Files:** `commands/zie-status.md`
 
 **เปลี่ยนอะไร:**
+
 - Step 5 print block: แทน `┌─ ... ─┐` ASCII box ด้วย markdown headings + table
 - Label ใน print block ให้ใช้ภาษาไทย: "โปรเจกต์", "สถานะ", "งานปัจจุบัน", "ขั้นตอนถัดไป"
 - Technical terms คงไว้เป็น English (VERSION, unit, integration, e2e, ROADMAP)
 
 **Print block ใหม่:**
-```
+
+```text
 ## สถานะ zie-framework
 
 | | |
@@ -58,6 +60,7 @@ spec: specs/2026-03-22-branding-communication-design.md
 **Files:** `commands/zie-ship.md`
 
 **เปลี่ยนอะไร:**
+
 - "## Pre-flight" → "## ตรวจสอบก่อนเริ่ม"
 - "### Gate 1 — Unit Tests" → "### ตรวจสอบ: Unit Tests"
 - "### Gate 2 — Integration Tests" → "### ตรวจสอบ: Integration Tests"
@@ -77,6 +80,7 @@ spec: specs/2026-03-22-branding-communication-design.md
 **Files:** `commands/zie-build.md`
 
 **เปลี่ยนอะไร:**
+
 - "## Pre-flight" → "## ตรวจสอบก่อนเริ่ม"
 - "**Gate 1 — WIP check**" → "**ตรวจสอบ: งานที่ค้างอยู่**"
 - "**Gate 2 — Approved plan check**" → "**ตรวจสอบ: แผนที่อนุมัติแล้ว**"
@@ -102,6 +106,7 @@ spec: specs/2026-03-22-branding-communication-design.md
 **Files:** `commands/zie-fix.md`
 
 **เปลี่ยนอะไร:**
+
 - "## Pre-flight" → "## ตรวจสอบก่อนเริ่ม"
 - "### Phase 1 — Understand the bug" → "### ทำความเข้าใจ bug"
 - "### Phase 2 — Regression test first (TDD)" → "### เขียน regression test ก่อน (RED)"
@@ -120,6 +125,7 @@ spec: specs/2026-03-22-branding-communication-design.md
 **Files:** `commands/zie-idea.md`
 
 **เปลี่ยนอะไร:**
+
 - "## Pre-flight" → "## ตรวจสอบก่อนเริ่ม"
 - "### Phase 1 — Brainstorm (spec)" → "### สร้าง spec"
 - "### Phase 2 — Implementation Plan" → "### เขียน implementation plan"
@@ -136,6 +142,7 @@ spec: specs/2026-03-22-branding-communication-design.md
 **Files:** `commands/zie-plan.md`
 
 **เปลี่ยนอะไร:**
+
 - "## Pre-flight" → "## ตรวจสอบก่อนเริ่ม"
 - "## No arguments — list and select" → "## ไม่มี argument — แสดงรายการ backlog"
 - "## With slug(s) — draft plans" → "## ร่าง plan สำหรับ slug ที่เลือก"
@@ -151,6 +158,7 @@ spec: specs/2026-03-22-branding-communication-design.md
 **Files:** `commands/zie-retro.md`
 
 **เปลี่ยนอะไร:**
+
 - "## Pre-flight" → "## ตรวจสอบก่อนเริ่ม"
 - "### Phase 1 — Gather context" → "### รวบรวม context"
 - "### Phase 2 — Generate retrospective" → "### วิเคราะห์และสรุป"
@@ -167,6 +175,7 @@ spec: specs/2026-03-22-branding-communication-design.md
 **Files:** `skills/spec-design/SKILL.md`, `skills/write-plan/SKILL.md`, `skills/debug/SKILL.md`, `skills/verify/SKILL.md`, `skills/tdd-loop/SKILL.md`, `skills/test-pyramid/SKILL.md`, `skills/retro-format/SKILL.md`
 
 **เปลี่ยนอะไร (สำหรับทุก skill):**
+
 - Section headings และ instruction text: ปรับเป็นภาษาไทยสำหรับ user-facing text
 - Technical terms คงไว้ (RED/GREEN/REFACTOR, TDD, pytest, unit/integration/e2e)
 - ใช้ `##` headings, bold, bullets — ไม่มี ASCII art
@@ -182,6 +191,7 @@ spec: specs/2026-03-22-branding-communication-design.md
 **Files:** `tests/unit/test_branding.py`
 
 **Tests:**
+
 - `test_no_ascii_boxes_in_commands` — ตรวจว่าไม่มี `┌`, `│`, `└` ใน command files
 - `test_no_ascii_boxes_in_skills` — ตรวจว่าไม่มี ASCII box ใน skill files
 - `test_phase_labels_renamed_build` — ตรวจว่า zie-build.md ไม่มี "Phase 1" / "Gate 1 —"
@@ -195,6 +205,7 @@ spec: specs/2026-03-22-branding-communication-design.md
 ---
 
 ## Notes
+
 - ลำดับ tasks: 1–8 ทำได้ parallel, task 9 รอหลัง 1–8 เสร็จ
 - อย่าเปลี่ยน logic (gates, TDD loop, memory patterns) — แค่ปรับ language + naming + format
 - Spec 2 (e2e-optimization) จะ build on top ของ spec 1 นี้ — ควรทำ spec 1 ก่อน

@@ -68,12 +68,14 @@ def make_zf_dir(tmp_path: Path, with_config: dict = None, with_roadmap: str = No
 ## Task 1: Tests for intent-detect.py (RED)
 
 **Hook behavior summary:**
+
 - Reads `{"prompt": "..."}` from stdin
 - Exits 0 silently if: invalid JSON, empty prompt, `len < 3`, prompt starts with `/zie-`, or `zie-framework/` dir absent in `CLAUDE_CWD`
 - Scores prompt against PATTERNS dict (8 categories), prints `[zie-framework] Detected: <cat> intent → /zie-<cmd>` if best score >= 1
 - Suppresses `init` suggestion if `zie-framework/.config` already exists
 
 **Files:**
+
 - Create: `tests/unit/test_hooks_intent_detect.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -98,7 +100,6 @@ def run_hook(event, tmp_cwd=None, env_overrides=None):
 def make_cwd_with_zf(tmp_path):
     (tmp_path / "zie-framework").mkdir(parents=True)
     return tmp_path
-
 
 class TestIntentDetectHappyPath:
     def test_fix_intent_detected(self, tmp_path):
@@ -125,7 +126,6 @@ class TestIntentDetectHappyPath:
         cwd = make_cwd_with_zf(tmp_path)
         r = run_hook({"prompt": "อยากเพิ่ม feature ใหม่"}, tmp_cwd=cwd)
         assert "/zie-idea" in r.stdout
-
 
 class TestIntentDetectGuardrails:
     def test_no_output_when_no_zf_dir(self, tmp_path):
@@ -188,12 +188,14 @@ Expected: all 11 PASS (hook already implements all tested behavior)
 ## Task 3: Tests for safety-check.py (RED)
 
 **Hook behavior summary:**
+
 - Reads `{"tool_name": "Bash", "tool_input": {"command": "..."}}` from stdin
 - Exits 0 silently if: invalid JSON, `tool_name != "Bash"`, or empty command
 - Checks command (lowercased) against BLOCKS patterns — prints `[zie-framework] BLOCKED: <msg>` and exits 1
 - Checks WARNS patterns — prints `[zie-framework] WARNING: <msg>` and exits 0
 
 **Files:**
+
 - Create: `tests/unit/test_hooks_safety_check.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -210,7 +212,6 @@ def run_hook(tool_name, command):
     event = {"tool_name": tool_name, "tool_input": {"command": command}}
     return subprocess.run([sys.executable, hook], input=json.dumps(event),
                           capture_output=True, text=True)
-
 
 class TestSafetyCheckBlocks:
     def test_rm_rf_root_is_blocked(self):
@@ -248,7 +249,6 @@ class TestSafetyCheckBlocks:
         assert r.returncode == 1
         assert "BLOCKED" in r.stdout
 
-
 class TestSafetyCheckWarns:
     def test_force_with_lease_warns(self):
         r = run_hook("Bash", "git push --force-with-lease origin dev")
@@ -264,7 +264,6 @@ class TestSafetyCheckWarns:
         r = run_hook("Bash", "alembic downgrade -1")
         assert r.returncode == 0
         assert "WARNING" in r.stdout
-
 
 class TestSafetyCheckPassThrough:
     def test_safe_command_passes(self):
@@ -307,6 +306,7 @@ Expected: all 13 PASS
 ## Task 5: Tests for auto-test.py (RED)
 
 **Hook behavior summary:**
+
 - Reads `{"tool_name": "Edit"|"Write", "tool_input": {"file_path": "..."}}` from stdin
 - Exits 0 silently if: invalid JSON, `tool_name` not Edit/Write, empty `file_path`, no `zie-framework/` dir, no `test_runner` in `.config`
 - Debounce: skips if `/tmp/zie-framework-last-test` was written within `auto_test_debounce_ms` ms
@@ -314,6 +314,7 @@ Expected: all 13 PASS
 - Prints `[zie-framework] Tests pass` on success, `[zie-framework] Tests FAILED` on failure
 
 **Files:**
+
 - Create: `tests/unit/test_hooks_auto_test.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -341,7 +342,6 @@ def make_cwd(tmp_path, config=None):
     if config:
         (zf / ".config").write_text(json.dumps(config))
     return tmp_path
-
 
 class TestAutoTestGuardrails:
     def test_no_action_when_no_zf_dir(self, tmp_path):
@@ -373,7 +373,6 @@ class TestAutoTestGuardrails:
         r = run_hook({"tool_name": "Edit", "tool_input": {}}, tmp_cwd=cwd)
         assert r.stdout.strip() == ""
 
-
 class TestAutoTestDebounce:
     def test_debounce_suppresses_rapid_second_call(self, tmp_path):
         # Write a fresh debounce file to simulate a very recent test run
@@ -386,7 +385,6 @@ class TestAutoTestDebounce:
                      tmp_cwd=cwd)
         # Should be suppressed — no test runner output expected
         assert "[zie-framework] Tests" not in r.stdout
-
 
 class TestAutoTestRunnerSelection:
     def test_unknown_test_runner_exits_zero(self, tmp_path):
@@ -428,6 +426,7 @@ Expected: all 6 PASS (debounce test may be environment-sensitive — see notes b
 ## Task 7: Tests for session-resume.py (RED)
 
 **Hook behavior summary:**
+
 - Reads any valid JSON from stdin (event content is not used)
 - Reads `CLAUDE_CWD` env var, exits if no `zie-framework/` dir
 - Reads `zie-framework/.config`, `zie-framework/ROADMAP.md`, `VERSION`
@@ -436,6 +435,7 @@ Expected: all 6 PASS (debounce test may be environment-sensitive — see notes b
 - Falls back gracefully when files are missing
 
 **Files:**
+
 - Create: `tests/unit/test_hooks_session_resume.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -482,7 +482,6 @@ def make_cwd(tmp_path, config=None, roadmap=None, version=None, plans=None):
             (plans_dir / name).write_text(content)
     return tmp_path
 
-
 class TestSessionResumeHappyPath:
     def test_prints_project_name(self, tmp_path):
         cwd = make_cwd(tmp_path, config={"project_type": "python-lib"},
@@ -512,7 +511,6 @@ class TestSessionResumeHappyPath:
         cwd = make_cwd(tmp_path, config={"zie_memory_enabled": True}, roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
         assert "enabled" in r.stdout
-
 
 class TestSessionResumeGracefulDegradation:
     def test_no_output_when_no_zf_dir(self, tmp_path):
@@ -556,6 +554,7 @@ Expected: all 8 PASS
 ## Task 9: Tests for session-learn.py (RED)
 
 **Hook behavior summary:**
+
 - Reads any valid JSON from stdin
 - Reads `CLAUDE_CWD`, exits if no `zie-framework/` dir
 - Reads `zie-framework/ROADMAP.md` "Now" section to build `wip_context`
@@ -565,6 +564,7 @@ Expected: all 8 PASS
 - Never crashes — all network errors are swallowed
 
 **Files:**
+
 - Create: `tests/unit/test_hooks_session_learn.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -599,7 +599,6 @@ def make_cwd(tmp_path, roadmap=None):
         (zf / "ROADMAP.md").write_text(roadmap)
     return tmp_path
 
-
 class TestSessionLearnPendingLearnFile:
     def test_writes_pending_learn_file(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
@@ -628,7 +627,6 @@ class TestSessionLearnPendingLearnFile:
         content = pending.read_text()
         assert "project=" in content
         assert "wip=" in content
-
 
 class TestSessionLearnGuardrails:
     def test_no_action_when_no_zf_dir(self, tmp_path):
@@ -676,6 +674,7 @@ Expected: all 7 PASS
 ## Task 11: Tests for wip-checkpoint.py (RED)
 
 **Hook behavior summary:**
+
 - Reads `{"tool_name": "Edit"|"Write", ...}` from stdin
 - Exits 0 silently if: invalid JSON, `tool_name` not Edit/Write, `ZIE_MEMORY_API_KEY` absent, or no `zie-framework/` dir
 - Maintains edit counter at `/tmp/zie-framework-edit-count`
@@ -685,6 +684,7 @@ Expected: all 7 PASS
 - Never crashes on network errors
 
 **Files:**
+
 - Create: `tests/unit/test_hooks_wip_checkpoint.py`
 
 - [ ] **Step 1: Write failing tests**
@@ -723,7 +723,6 @@ def reset_counter():
     if counter.exists():
         counter.unlink()
 
-
 class TestWipCheckpointGuardrails:
     def test_no_action_without_api_key(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
@@ -745,7 +744,6 @@ class TestWipCheckpointGuardrails:
         r = subprocess.run([sys.executable, HOOK], input="bad json",
                            capture_output=True, text=True)
         assert r.returncode == 0
-
 
 class TestWipCheckpointCounter:
     def test_counter_increments_each_call(self, tmp_path):
@@ -819,6 +817,7 @@ python3 -m pytest tests/unit/ --collect-only -q
 ```
 
 Should list test functions from:
+
 - `test_hooks_intent_detect.py`
 - `test_hooks_auto_test.py`
 - `test_hooks_safety_check.py`
@@ -830,4 +829,4 @@ Should list test functions from:
 
 ## Context from brain
 
-_(No prior memory entries for this feature — first time implementing hook unit tests.)_
+No prior memory entries for this feature — first time implementing hook unit tests.

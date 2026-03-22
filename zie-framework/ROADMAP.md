@@ -9,21 +9,17 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-
 ---
 
 ## Ready — Approved Plans
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 
-
-
 ---
 
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
-
 
 ---
 

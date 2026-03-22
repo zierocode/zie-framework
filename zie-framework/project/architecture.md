@@ -8,7 +8,7 @@ zie-framework เป็น Claude Code plugin ที่ใช้ hooks + command
 
 ## Plugin Structure
 
-```
+```text
 .claude-plugin/plugin.json   # plugin metadata + marketplace entry
 hooks/hooks.json             # hook event → script mapping
 hooks/*.py                   # hook implementations (Python 3.x)
@@ -34,7 +34,7 @@ zie-framework/               # self-managed SDLC state (this repo uses itself)
 
 ## Data Flow
 
-```
+```text
 User runs /zie-command
   → Claude loads command markdown
   → Steps execute (read files, invoke skills, run tools)

@@ -9,6 +9,7 @@
 ## Problem
 
 The current zie-framework allows (and accidentally encourages) skipping SDLC stages:
+
 - `/zie-idea` moves features directly to Now without a plan approval gate
 - `/zie-build` runs without checking if a plan exists or has been approved
 - No backlog stage — ideas go straight to active work
@@ -22,7 +23,7 @@ Enforce a strict stage gate: **idea → backlog → approved plan → build**, w
 
 ## ROADMAP Lanes (4 lanes)
 
-```
+```text
 Next (backlog) → Ready (approved plans) → Now (WIP=1) → Done
 ```
 
@@ -46,6 +47,7 @@ ref: <optional links>
 ```
 
 ROADMAP Next entry:
+
 ```markdown
 - [ ] Feature Name — [idea](backlog/slug.md)
 ```
@@ -59,7 +61,7 @@ No template enforcement. Freeform 1-2 paragraphs max.
 A plan file has two states:
 
 | State | frontmatter | Meaning |
-|-------|-------------|---------|
+| --- | --- | --- |
 | **pending** | no `approved` key | Drafted, not yet approved |
 | **approved** | `approved: true` + `approved_at: YYYY-MM-DD` | Approved, moves to Ready lane |
 
@@ -68,6 +70,7 @@ There is no `approved: false` state — a rejected plan is simply re-drafted (pe
 Plan files live at: `zie-framework/plans/<slug>.md`
 
 Plan frontmatter format when approved:
+
 ```yaml
 ---
 approved: true
@@ -81,6 +84,7 @@ backlog: backlog/slug.md
 ## Command Redesign
 
 ### `/zie-idea`
+
 - Captures idea → writes `zie-framework/backlog/<slug>.md`
 - Adds entry to **ROADMAP Next** only
 - Does NOT create plan
@@ -91,6 +95,7 @@ backlog: backlog/slug.md
 **No arguments**: list all Next items with index numbers → ask Zie to pick (e.g. "1, 3"). If Next is empty → print "No backlog items. Run /zie-idea first." and stop.
 
 **With slug(s)**:
+
 - Reads each backlog file as the lightweight spec
 - If multiple slugs → spawn parallel agents (max 4) to draft plans simultaneously
 - Presents each drafted plan to Zie for approval one at a time (sequential approval, parallel writing)
@@ -100,6 +105,7 @@ backlog: backlog/slug.md
 ### `/zie-build [slug?]`
 
 **Pre-flight checks (in order)**:
+
 1. If Now is occupied → print "Now: `<current>` in progress. Finish it or run /zie-ship." and stop.
 2. If Ready lane is empty → auto-fallback: print "[zie-build] No approved plan. Running /zie-plan first..." → run `/zie-plan` flow → after approval, continue to build automatically.
 3. If Ready has items → pull first item → move to **Now**
@@ -107,6 +113,7 @@ backlog: backlog/slug.md
 **AC#3 exact behavior**: if plan file exists but `approved: true` is absent → treat as missing approved plan → trigger auto-fallback (same as no Ready item). Never silently skip this check.
 
 **Build execution**:
+
 - Parse tasks in plan for `depends_on` markers (see Task Format below)
 - Tasks without `depends_on` → group as independent → spawn parallel agents (max 4)
 - If 0 independent tasks (all have `depends_on`) → execute all sequentially in dependency order; no agents spawned
@@ -133,11 +140,13 @@ The `<!-- depends_on: -->` comment is the machine-readable marker. Claude reads 
 ## Parallel Agent Rules
 
 **`/zie-plan` parallelism** (planning phase):
+
 - N slugs selected → spawn min(N, 4) agents
 - Each agent: reads its backlog file → drafts plan → returns to main thread
 - Main thread presents plans to Zie one at a time for approval
 
 **`/zie-build` parallelism** (build phase):
+
 - Count independent tasks → spawn min(count, 4) agents simultaneously
 - If count = 0 (all dependent) → sequential execution, no agents
 - Tasks with dependencies → run after all blocking tasks complete
@@ -148,7 +157,7 @@ The `<!-- depends_on: -->` comment is the machine-readable marker. Claude reads 
 
 ## Auto-fallback Logic (complete)
 
-```
+```text
 /zie-build called
   → Now occupied?
       → "Now: <X> in progress. Finish it or run /zie-ship." → STOP
@@ -188,7 +197,7 @@ zie-memory functions as a **compounding intelligence layer** — every cycle sto
 ### Optimization Principles
 
 | Principle | Rule |
-|-----------|------|
+| --- | --- |
 | **Batch recall** | One query per command, not multiple round-trips |
 | **WIP supersede** | Update existing WIP memory, never append duplicates |
 | **Conditional write** | Store micro-learnings only on friction — not every task |
@@ -198,8 +207,9 @@ zie-memory functions as a **compounding intelligence layer** — every cycle sto
 
 ---
 
-### `/zie-idea`
-```
+### `/zie-idea` memory pattern
+
+```text
 READ (1 batch query):
   recall project=<project> domain=<domain> limit=15
   → returns: past backlog items, shipped features, retro patterns in one call
@@ -210,8 +220,9 @@ WRITE:
   tags: [backlog, <project>, <domain>]
 ```
 
-### `/zie-plan`
-```
+### `/zie-plan` memory pattern
+
+```text
 READ (1 batch query):
   recall project=<project> domain=<domain> tags=[shipped,retro,bug,decision] limit=20
   → returns: past approaches, pain points, ADRs, known bugs — one round-trip
@@ -223,8 +234,9 @@ WRITE (on approval):
   tags: [plan, <project>, <domain>]
 ```
 
-### `/zie-build`
-```
+### `/zie-build` memory pattern
+
+```text
 READ (resume only — domain context already in plan):
   recall project=<project> tags=[wip] feature=<slug> limit=1
   → only retrieve WIP snapshot for session resume — skip domain re-recall
@@ -240,8 +252,9 @@ WRITE (micro-learning — ONLY on friction, not every task):
     tags: [build-learning, <project>, <domain>]
 ```
 
-### `/zie-ship`
-```
+### `/zie-ship` memory pattern
+
+```text
 READ (1 batch query):
   recall project=<project> tags=[wip, plan] feature=<slug> limit=5
   → pull WIP notes + plan estimate → compute actual vs estimated complexity
@@ -251,8 +264,9 @@ WRITE:
   tags: [shipped, <project>, <domain>]
 ```
 
-### `/zie-retro`
-```
+### `/zie-retro` memory pattern
+
+```text
 READ (1 batch query):
   recall project=<project> since=<last_retro_date> limit=50
   → returns all: shipped, build-learnings, bugs, WIPs, plans since last retro
@@ -268,8 +282,9 @@ WRITE:
   tags: [retro, <project>]
 ```
 
-### `/zie-fix`
-```
+### `/zie-fix` memory pattern
+
+```text
 READ (1 batch query):
   recall project=<project> domain=<domain> tags=[bug, build-learning] limit=10
   → detect recurring patterns, surface known fragile areas
@@ -280,13 +295,15 @@ WRITE (after fix confirmed):
 ```
 
 ### Compound Loop
-```
+
+```text
 /zie-plan recall (batched) → context baked into plan
   → /zie-build reads plan context (no re-recall)
   → friction triggers micro-learning (conditional)
   → /zie-retro compresses learnings → forgets noise
   → next /zie-plan recall gets richer signal, less noise
 ```
+
 Brain stays lean — compression prevents unbounded growth.
 
 ---

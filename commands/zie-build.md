@@ -35,6 +35,7 @@ Implement the active feature using Test-Driven Development. Reads the active pla
 ### วิเคราะห์ dependency ระหว่าง tasks
 
 Before starting tasks:
+
 - Parse all tasks in plan for `<!-- depends_on: T1, T2 -->` comments
 - Group tasks with no depends_on → **independent** (can run in parallel)
 - Tasks with depends_on → **dependent** (run after blocking tasks complete)
@@ -43,48 +44,42 @@ Before starting tasks:
 
 ## Steps
 
-### วนรอบ task จนครบ:
+### วนรอบ task จนครบ
 
-6. **Announce task**: "Working on: [Task N] — <task description>"
+1. **Announce task**: "Working on: [Task N] — {task description}"
 
-7. For non-trivial tasks, invoke `Skill(zie-framework:tdd-loop)` for RED/GREEN/REFACTOR guidance.
+2. For non-trivial tasks, invoke `Skill(zie-framework:tdd-loop)` for RED/GREEN/REFACTOR guidance.
 
-8. **เขียน test ที่ล้มเหลวก่อน (RED)**
+3. **เขียน test ที่ล้มเหลวก่อน (RED)**
    Invoke `Skill(zie-framework:test-pyramid)` เพื่อเลือก test level (unit / integration / e2e) ที่เหมาะสม แล้วเขียน test ที่ capture behavior ที่ต้องการ — test ต้อง fail ก่อนเสมอ รัน `make test-unit` เพื่อยืนยัน
    ถ้า test ผ่านแล้ว → feature มีอยู่แล้ว ข้ามไป task ถัดไป
 
-9. **เขียน code ให้ผ่าน test (GREEN)**
+4. **เขียน code ให้ผ่าน test (GREEN)**
    เขียน code น้อยที่สุดที่ทำให้ test ผ่าน — ไม่ over-engineer ไม่เดาล่วงหน้า รัน `make test-unit` เพื่อยืนยัน
 
-10. **ปรับปรุง code โดยไม่ทำให้ test พัง (REFACTOR)**
-    ลด duplication ปรับชื่อให้ชัด ทำให้ง่ายขึ้น — รัน `make test-unit` เพื่อยืนยัน
+5. **ปรับปรุง code โดยไม่ทำให้ test พัง (REFACTOR)**
+   ลด duplication ปรับชื่อให้ชัด ทำให้ง่ายขึ้น — รัน `make test-unit` เพื่อยืนยัน
 
-11. **บันทึก task เสร็จ**:
-    - Update `TaskUpdate` → completed.
-    - Update plan file: mark task as `[x]`.
-    - Update ROADMAP.md task counter if tracking.
+6. **บันทึก task เสร็จ**: Update `TaskUpdate` → completed. Update plan file: mark task as `[x]`. Update ROADMAP.md task counter if tracking.
+   If task had unexpected friction: `remember "Task harder than estimated: <why>. Next time: <tip>." tags=[build-learning, <project>, <domain>]` — conditional write only, not every task.
 
-11b. **บันทึก WIP สู่ brain** (เฉพาะเมื่อ task มี friction สูงกว่าคาด):
-    - `remember "Task harder than estimated: <why>. Next time: <tip>." tags=[build-learning, <project>, <domain>]`
-    - Skip this write if task went smoothly — only capture signal, not noise. This is a micro-learning: conditional write on friction only.
+7. **Brain checkpoint** (every 5 tasks or on natural stopping point): If `zie_memory_enabled=true`:
+   `remember "WIP: <feature> — T<N>/<total> done." tags=[wip, <project>, <feature-slug>] supersedes=[wip, <project>, <feature-slug>]`
+   supersedes replaces previous WIP memory — no duplicate WIPs accumulate.
 
-12. **Brain checkpoint** (every 5 tasks or on natural stopping point):
-    - If `zie_memory_enabled=true`:
-      `remember "WIP: <feature> — T<N>/<total> done." tags=[wip, <project>, <feature-slug>] supersedes=[wip, <project>, <feature-slug>]`
-      - supersedes replaces previous WIP memory — no duplicate WIPs accumulate.
+### เมื่อทำครบทุก task
 
-### เมื่อทำครบทุก task:
+1. Run full test suite: `make test-unit` (required) + `make test-int` (if available).
 
-13. Run full test suite: `make test-unit` (required) + `make test-int` (if available).
+2. Print:
 
-14. Print:
-    ```
-    All tasks complete for: <feature name>
+   ```text
+   All tasks complete for: <feature name>
 
-    Tests: unit ✓ | integration ✓|n/a
+   Tests: unit ✓ | integration ✓|n/a
 
-    Next: Run /zie-ship to release, or /zie-idea for the next feature.
-    ```
+   Next: Run /zie-ship to release, or /zie-idea for the next feature.
+   ```
 
 ## เมื่อ test ล้มเหลว
 
@@ -98,6 +93,7 @@ Before starting tasks:
 → `/zie-idea` — เริ่ม feature ถัดไป
 
 ## Notes
+
 - Works for any language — test runner detected from `.config`
 - If no active plan in ROADMAP.md → suggest running `/zie-idea` first
 - Can be run mid-task to resume after a break

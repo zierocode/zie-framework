@@ -10,7 +10,7 @@
 
 ## Architecture
 
-```
+```text
 zie-framework/
   PROJECT.md              ← hub: overview + links (max ~2 หน้า, ไม่บวมขึ้น)
   project/
@@ -27,6 +27,7 @@ zie-memory (agent-facing)
 ## File Responsibilities
 
 ### PROJECT.md (hub)
+
 - **ไม่เกิน 2 หน้า** — ถ้าบวมขึ้น แสดงว่า detail ไม่ได้ย้ายไป spoke
 - ประกอบด้วย:
   - What is zie-framework (1 paragraph)
@@ -36,17 +37,20 @@ zie-memory (agent-facing)
   - Links ไปยัง ROADMAP, specs, plans
 
 ### project/architecture.md (spoke)
+
 - Current system design
 - Component relationships
 - Data flow overview
 - เปลี่ยนเมื่อ: architecture เปลี่ยนจริงๆ (ไม่ใช่ทุก ship)
 
 ### project/components.md (spoke)
+
 - แต่ละ command/skill/hook: ทำอะไร, input/output, dependencies
 - **Current state** — ไม่ใช่ historical
 - เปลี่ยนเมื่อ: command/skill/hook เปลี่ยน behavior
 
 ### project/decisions.md (spoke)
+
 - ADR format: Decision → Context → Rationale → Consequences
 - เปลี่ยนเมื่อ: มี architectural decision ใหม่
 - ไม่ลบ decisions เก่า — mark เป็น superseded แทน
@@ -80,16 +84,19 @@ zie-memory (agent-facing)
 ## zie-memory Sync Pattern
 
 หลัง /zie-retro:
-```
+
+```text
 remember "Project snapshot: <version>. Components: <changed>. Decisions: <new>."
   tags=[project-knowledge, zie-framework, <version>]
   supersedes=[project-knowledge, zie-framework]
 ```
 
 การ recall ของ agent:
-```
+
+```text
 recall project=zie-framework tags=[project-knowledge] limit=1
 ```
+
 → ได้ current snapshot ทันที ไม่ต้องอ่าน md files
 
 ---
@@ -97,7 +104,7 @@ recall project=zie-framework tags=[project-knowledge] limit=1
 ## Components
 
 | Action | File | Responsibility |
-|---|---|---|
+| --- | --- | --- |
 | Create | `zie-framework/PROJECT.md` | Hub document |
 | Create | `zie-framework/project/architecture.md` | System design |
 | Create | `zie-framework/project/components.md` | Component registry |
@@ -109,6 +116,7 @@ recall project=zie-framework tags=[project-knowledge] limit=1
 ---
 
 ## Out of Scope
+
 - Auto-generate PROJECT.md จาก code (ต้อง write manually)
 - Full-text search ใน project knowledge
 - Version history ของ knowledge (git เป็น history แล้ว)

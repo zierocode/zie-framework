@@ -23,20 +23,20 @@ Use this skill during /zie-build for every task. This is a rigid process skill �
 
 ### GREEN — ทำให้ test ผ่าน
 
-5. Write the MINIMUM code to make the test pass.
+1. Write the MINIMUM code to make the test pass.
    - No extra features
    - No optimization yet
    - Hardcoding is OK here if needed to get green
-6. Run the test → it MUST pass.
-7. Run the full unit suite → must not regress anything.
+2. Run the test → it MUST pass.
+3. Run the full unit suite → must not regress anything.
 
 ### REFACTOR — ปรับปรุง code
 
-8. Remove duplication.
-9. Improve names (variables, functions, parameters).
-10. Simplify logic where obvious.
-11. Run tests again → must still pass.
-12. If refactor reveals a design problem → note it but don't fix it now (add to backlog).
+1. Remove duplication.
+2. Improve names (variables, functions, parameters).
+3. Simplify logic where obvious.
+4. Run tests again → must still pass.
+5. If refactor reveals a design problem → note it but don't fix it now (add to backlog).
 
 ## กฎที่ต้องทำตาม
 
