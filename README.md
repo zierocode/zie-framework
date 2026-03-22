@@ -11,15 +11,18 @@ claude plugin install zierocode/zie-framework
 
 ## Commands
 
-| Command | Phase | Description |
+| Command | Stage | Description |
 | --- | --- | --- |
 | `/zie-init` | Bootstrap | Initialize framework in a project |
 | `/zie-status` | Anytime | Show current SDLC state |
-| `/zie-idea` | Ideation | Brainstorm → spec → implementation plan |
-| `/zie-build` | Build | TDD feature loop |
-| `/zie-fix` | Debug | Bug path — skip ideation, go to fix |
-| `/zie-ship` | Release | Full test gate → merge dev→main → tag |
-| `/zie-retro` | Learn | Retrospective + ADRs + brain storage |
+| `/zie-resync` | Anytime | Rescan codebase + update knowledge docs |
+| `/zie-backlog` | 1 — Capture | Capture a new backlog item |
+| `/zie-spec` | 2 — Design | Write a design spec with reviewer loop |
+| `/zie-plan` | 3 — Plan | Draft implementation plan + approval |
+| `/zie-implement` | 4 — Build | TDD feature loop with impl-reviewer |
+| `/zie-release` | 5 — Release | Full test gate → merge dev→main → tag |
+| `/zie-retro` | 6 — Learn | Retrospective + ADRs + brain storage |
+| `/zie-fix` | Debug | Bug path — skip to systematic fix |
 
 ## How It Works
 
@@ -56,12 +59,12 @@ your-project/
 │   │   ├── architecture.md  # system design, component relationships
 │   │   ├── components.md    # component registry
 │   │   └── decisions.md     # ADR log (append-only)
-│   ├── specs/               # design specs (output of /zie-idea)
+│   ├── specs/               # design specs (output of /zie-spec)
 │   ├── plans/               # implementation plans (output of /zie-plan)
 │   ├── decisions/           # ADR files (output of /zie-retro)
 │   └── evidence/            # milestone screenshots (gitignored by default)
 ├── tests/                   # test code (part of project, not framework)
-├── Makefile                 # standard targets: test, push, ship
+├── Makefile                 # standard targets: test, push
 ├── VERSION                  # semver
 └── CHANGELOG.md             # auto-generated
 ```

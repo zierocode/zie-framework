@@ -1,8 +1,8 @@
 # ROADMAP — zie-framework
 
 > Single source of truth for what's being built and why.
-> Updated by /zie-idea (Next), /zie-plan (Ready), /zie-build (Now), /zie-ship
-(Done), /zie-retro (reprioritization).
+> Updated by /zie-backlog (Next), /zie-plan (Ready), /zie-implement (Now),
+> /zie-release (Done), /zie-retro (reprioritization).
 
 ---
 
