@@ -7,29 +7,39 @@ import urllib.request
 from pathlib import Path
 
 
-def parse_roadmap_now(roadmap_path) -> list:
-    """Extract cleaned items from the ## Now section of ROADMAP.md.
+def parse_roadmap_section(roadmap_path, section_name: str) -> list:
+    """Extract cleaned items from a named ## section of ROADMAP.md.
 
-    Returns [] if the file is missing, the Now section is absent, or it is empty.
+    section_name is matched case-insensitively against ## headers.
+    Returns [] if file missing, section absent, or section empty.
     Accepts Path or str.
     """
     path = Path(roadmap_path)
     if not path.exists():
         return []
     lines = []
-    in_now = False
+    in_section = False
     for line in path.read_text().splitlines():
-        if line.startswith("##") and "now" in line.lower():
-            in_now = True
+        if line.startswith("##") and section_name.lower() in line.lower():
+            in_section = True
             continue
-        if line.startswith("##") and in_now:
+        if line.startswith("##") and in_section:
             break
-        if in_now and line.strip().startswith("- "):
+        if in_section and line.strip().startswith("- "):
             clean = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', line.strip())
             clean = clean.lstrip("- ").lstrip("[ ]").lstrip("[x]").strip()
             if clean:
                 lines.append(clean)
     return lines
+
+
+def parse_roadmap_now(roadmap_path) -> list:
+    """Extract cleaned items from the ## Now section of ROADMAP.md.
+
+    Returns [] if the file is missing, the Now section is absent, or it is empty.
+    Accepts Path or str.
+    """
+    return parse_roadmap_section(roadmap_path, "now")
 
 
 def atomic_write(path: Path, content: str) -> None:

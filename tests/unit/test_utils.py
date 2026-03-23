@@ -10,7 +10,7 @@ sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
 import json
 from unittest.mock import patch
-from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd
+from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd, parse_roadmap_section
 
 
 class TestParseRoadmapNow:
@@ -358,6 +358,41 @@ class TestParseRoadmapNowEdgeCases:
         f.write_text("## Now\n- [ ] **bold link** — [spec](specs/foo.md)\n")
         result = parse_roadmap_now(f)
         assert result == ["**bold link** — spec"]
+
+
+class TestParseRoadmapSection:
+    def test_next_section_returns_items(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] a\n## Next\n- [ ] b\n- [ ] c\n## Done\n- [x] d\n")
+        assert parse_roadmap_section(f, "next") == ["b", "c"]
+
+    def test_done_section_returns_items(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Done\n- [x] finished task\n")
+        assert parse_roadmap_section(f, "done") == ["finished task"]
+
+    def test_case_insensitive_match(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## NEXT\n- [ ] item\n")
+        assert parse_roadmap_section(f, "next") == ["item"]
+
+    def test_missing_section_returns_empty(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] a\n")
+        assert parse_roadmap_section(f, "done") == []
+
+    def test_missing_file_returns_empty(self, tmp_path):
+        assert parse_roadmap_section(tmp_path / "none.md", "next") == []
+
+    def test_strips_markdown_links(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Next\n- [ ] my task — [plan](plans/foo.md)\n")
+        assert parse_roadmap_section(f, "next") == ["my task — plan"]
+
+    def test_parse_roadmap_now_still_works_via_wrapper(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] now item\n## Next\n- [ ] next item\n")
+        assert parse_roadmap_now(f) == ["now item"]
 
 
 class TestReadEvent:

@@ -32,6 +32,8 @@
 - [x] Skills table in PROJECT.md — [plan](plans/2026-03-24-audit-skills-registry-gaps.md)
 - [x] zie-init deprecated filename — [plan](plans/2026-03-24-audit-zieinit-deprecated-filename.md)
 - [x] Dependabot setup — [plan](plans/2026-03-24-audit-dependabot-setup.md)
+- [x] read_event() boilerplate dedup — [plan](plans/2026-03-24-audit-event-parsing-boilerplate.md)
+- [x] get_cwd() boilerplate dedup — [plan](plans/2026-03-24-audit-cwd-init-boilerplate.md)
 
 ---
 
@@ -59,8 +61,6 @@
 <!-- moved to Now: Dependabot setup -->
 
 <!-- LOW — Lean -->
-- [ ] read_event() boilerplate dedup — [plan](plans/2026-03-24-audit-event-parsing-boilerplate.md) ✓
-- [ ] get_cwd() boilerplate dedup — [plan](plans/2026-03-24-audit-cwd-init-boilerplate.md) ✓
 - [ ] parse_roadmap_section() dedup — [plan](plans/2026-03-24-audit-parse-section-dedup.md) ✓
 - [ ] knowledge-hash.py extraction — [plan](plans/2026-03-24-audit-knowledge-hash-dedup.md) ✓
 
