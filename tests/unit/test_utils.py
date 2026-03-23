@@ -251,3 +251,47 @@ class TestSafeWriteTmp:
         result = safe_write_tmp(target, "first-run")
         assert result is True
         assert target.read_text() == "first-run"
+
+
+class TestParseRoadmapNowEdgeCases:
+    """Edge case tests for parse_roadmap_now().
+
+    These tests document the parser's existing behaviour for inputs that are
+    valid ROADMAP content but outside the basic happy path. They are
+    contract tests — if behaviour changes, update the assertion AND the spec.
+    """
+
+    def test_bold_inline_markdown_in_task(self, tmp_path):
+        # Bold markers are not in the link regex — they pass through unchanged
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] **Refactor** the payment module\n")
+        result = parse_roadmap_now(f)
+        assert result == ["**Refactor** the payment module"]
+
+    def test_italic_inline_markdown_in_task(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] fix _memory leak_ in cache\n")
+        result = parse_roadmap_now(f)
+        assert result == ["fix _memory leak_ in cache"]
+
+    def test_malformed_link_missing_closing_paren(self, tmp_path):
+        # re.sub pattern requires closing ) — without it, the link is NOT stripped
+        # Contract: raw text is preserved (no partial stripping)
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] my feature — [plan](plans/foo.md\n")
+        result = parse_roadmap_now(f)
+        assert result == ["my feature — [plan](plans/foo.md"]
+
+    def test_html_entity_in_task_description(self, tmp_path):
+        # HTML entities are never decoded — plain text passthrough
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] support &amp; operator\n")
+        result = parse_roadmap_now(f)
+        assert result == ["support &amp; operator"]
+
+    def test_nested_bold_link_combo(self, tmp_path):
+        # Link is stripped (well-formed), bold markers around link text are preserved
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] **bold link** — [spec](specs/foo.md)\n")
+        result = parse_roadmap_now(f)
+        assert result == ["**bold link** — spec"]
