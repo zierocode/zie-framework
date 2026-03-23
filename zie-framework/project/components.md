@@ -7,11 +7,11 @@
 | Command | Input | Output | Dependencies |
 | --- | --- | --- | --- |
 | /zie-backlog | idea title (optional) | backlog item file | none |
-| /zie-spec | backlog slug | approved spec | spec-design skill |
+| /zie-spec | backlog slug OR inline idea string | approved spec | spec-design |
 | /zie-plan | slug(s) | approved plan in Ready | write-plan skill |
-| /zie-implement | (reads ROADMAP Now) | implemented feature | tdd-loop, test-pyr |
-| /zie-fix | bug description | regression test + fix | debug, verify skills |
-| /zie-release | (reads ROADMAP Now) | release tag + ADRs | verify skill |
+| /zie-implement | (reads ROADMAP Now) | feature tasks | tdd-loop, test-pyr |
+| /zie-fix | bug description | regression test + fix | debug, verify |
+| /zie-release | (ROADMAP Now) | release tag + ADRs | verify, make release |
 | /zie-status | (reads files) | status snapshot | none |
 | /zie-resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
 | /zie-retro | (reads git log) | ADRs + brain memories | retro-format skill |
@@ -21,11 +21,11 @@
 | Skill | ทำอะไร | Invoked by |
 | --- | --- | --- |
 | spec-design | Brainstorm → design spec + spec-reviewer loop | /zie-spec |
-| spec-reviewer | Review spec completeness + YAGNI | spec-design |
+| spec-reviewer | Phase 1-3 review with context bundle | spec-design |
 | write-plan | Spec → task plan + plan-reviewer loop | /zie-plan, spec-design |
-| plan-reviewer | Review plan TDD structure + spec coverage | write-plan |
+| plan-reviewer | Phase 1-3 review with context bundle | write-plan |
 | tdd-loop | RED/GREEN/REFACTOR guide | /zie-implement |
-| impl-reviewer | Review task AC coverage + test quality | /zie-implement |
+| impl-reviewer | Phase 1-3 review with context bundle | /zie-implement |
 | test-pyramid | Choose test level (unit/int/e2e) | /zie-implement (RED phase) |
 | debug | Reproduce → isolate → fix | /zie-implement, /zie-fix |
 | verify | Pre-release verification checklist | /zie-fix, /zie-release |
