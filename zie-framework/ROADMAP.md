@@ -11,6 +11,7 @@
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
 - [x] safety-check regex bypass — [plan](plans/2026-03-24-audit-safety-check-regex-bypass.md)
+- [x] TOCTOU race on /tmp debounce file — [plan](plans/2026-03-24-audit-toctou-tmp-race.md)
 
 ---
 
@@ -23,8 +24,8 @@
 
 <!-- CRITICAL — moved to Now -->
 
-<!-- HIGH -->
-- [ ] TOCTOU race on /tmp debounce file — [plan](plans/2026-03-24-audit-toctou-tmp-race.md) ✓
+<!-- HIGH — toctou moved to Now -->
+
 - [ ] Symlink attack on /tmp state files — [plan](plans/2026-03-24-audit-symlink-tmp-attack.md) ✓
 - [ ] Add Bandit SAST to CI — [plan](plans/2026-03-24-audit-bandit-sast-ci.md) ✓
 - [ ] file_path CWD boundary validation — [plan](plans/2026-03-24-audit-filepath-cwd-validation.md) ✓

@@ -84,7 +84,12 @@ if __name__ == "__main__":
         last_run = debounce_file.stat().st_mtime
         if (time.time() - last_run) < (debounce_ms / 1000):
             sys.exit(0)
-    debounce_file.write_text(file_path)
+    try:
+        tmp_write = debounce_file.parent / (debounce_file.name + ".tmp")
+        tmp_write.write_text(file_path)
+        os.replace(tmp_write, debounce_file)
+    except OSError:
+        pass  # /tmp full or unavailable — skip debounce, tests will run
 
     changed = Path(file_path)
 

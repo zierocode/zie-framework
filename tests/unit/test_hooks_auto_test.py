@@ -1,7 +1,6 @@
 """Tests for hooks/auto-test.py"""
 import os, sys, json, subprocess, pytest, re
 from pathlib import Path
-
 HOOKS_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")), "hooks")
 sys.path.insert(0, HOOKS_DIR)
 from utils import project_tmp_path
@@ -161,3 +160,43 @@ class TestAutoTestDebounceBoundary:
                      tmp_cwd=cwd)
         assert "[zie-framework] Tests" not in r.stdout
         assert r.returncode == 0
+
+
+class TestAutoTestAtomicDebounceWrite:
+    """Debounce write must be atomic (write-then-rename, not direct write_text)."""
+
+    @pytest.fixture(autouse=True)
+    def _cleanup(self, tmp_path):
+        yield
+        debounce = project_tmp_path("last-test", tmp_path.name)
+        tmp_sib = debounce.parent / (debounce.name + ".tmp")
+        for p in (debounce, tmp_sib):
+            if p.is_dir():
+                try:
+                    p.rmdir()
+                except OSError:
+                    pass
+            elif p.exists():
+                p.unlink(missing_ok=True)
+
+    def test_debounce_write_uses_atomic_rename(self):
+        """Source must use os.replace (atomic rename), not bare write_text for debounce."""
+        source = Path(HOOK).read_text()
+        assert "os.replace" in source, \
+            "atomic rename (os.replace) missing from hook source"
+        assert "debounce_file.write_text" not in source, \
+            "bare debounce_file.write_text found — must use atomic write-then-rename"
+
+    def test_debounce_write_oserror_does_not_crash_hook(self, tmp_path):
+        """If the debounce write raises OSError, hook must exit 0 (no crash)."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest", "auto_test_debounce_ms": 0})
+        debounce = project_tmp_path("last-test", cwd.name)
+        # Make debounce path a directory — causes IsADirectoryError (an OSError) on write
+        debounce.mkdir(parents=True, exist_ok=True)
+
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(cwd / "hooks" / "utils.py")}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr
