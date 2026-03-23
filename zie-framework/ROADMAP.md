@@ -75,6 +75,9 @@
 <!-- LOW — Polish -->
 - [ ] Velocity tracking — `/zie-status` shows throughput from git tags — [backlog](backlog/velocity-tracking.md)
 - [ ] Retro → Next active loop — surface top backlog candidate after retro — [backlog](backlog/retro-next-active-loop.md)
+- [ ] impl-reviewer risk-based invocation — skip reviewer on low-risk tasks — [backlog](backlog/impl-reviewer-risk-based.md)
+- [ ] Implement loop inline guidance + parallel tasks — remove per-task skill calls, parallelize by default — [backlog](backlog/implement-guidance-inline.md)
+- [ ] Reviewer fail-fast — all issues in one pass, 2 total iterations — [backlog](backlog/reviewer-fail-fast.md)
 - [ ] Retro living docs sync — retro systematically updates CLAUDE.md + README.md — [backlog](backlog/retro-living-docs-sync.md)
 - [ ] /zie-audit enhancements — hard data (coverage/CVE/complexity) + historical diff + auto-fix — [backlog](backlog/zie-audit-enhancements.md)
 - [ ] Skills advanced features ($ARGUMENTS[N], session vars, supporting files)
