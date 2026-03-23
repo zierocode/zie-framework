@@ -5,9 +5,12 @@ import json
 import os
 from pathlib import Path
 
+sys.path.insert(0, os.path.dirname(__file__))
+from utils import parse_roadmap_now
+
 try:
     event = json.loads(sys.stdin.read())
-except Exception:
+except Exception:  # intentional — malformed event must not crash hook
     sys.exit(0)
 
 cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
@@ -25,11 +28,14 @@ if config_file.exists():
     except Exception:
         pass
 
-# Read ROADMAP
+# Read ROADMAP (truncated to avoid overloading context)
 roadmap_text = ""
 roadmap_file = zf / "ROADMAP.md"
 if roadmap_file.exists():
-    roadmap_text = roadmap_file.read_text()
+    raw_lines = roadmap_file.read_text().splitlines()
+    if len(raw_lines) > 200:
+        raw_lines = raw_lines[:100]
+    roadmap_text = "\n".join(raw_lines)
 
 # Parse ROADMAP sections
 def parse_section(text, header):
@@ -45,7 +51,7 @@ def parse_section(text, header):
             lines.append(line.strip())
     return lines
 
-now_items = parse_section(roadmap_text, "now")
+now_items = parse_roadmap_now(roadmap_file)
 next_items = parse_section(roadmap_text, "next")
 done_items = parse_section(roadmap_text, "done")
 
@@ -72,10 +78,7 @@ lines = [
 ]
 
 if now_items:
-    active = now_items[0].lstrip("- [ ]").lstrip("- [x]").strip()
-    # Strip markdown links
-    import re
-    active = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', active)
+    active = now_items[0]
     lines.append(f"  Active  : {active}")
     if active_plan:
         lines.append(f"  Plan    : zie-framework/plans/{active_plan}")

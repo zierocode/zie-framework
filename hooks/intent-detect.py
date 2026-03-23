@@ -77,6 +77,11 @@ PATTERNS = {
     ],
 }
 
+COMPILED_PATTERNS = {
+    cat: [re.compile(p) for p in pats]
+    for cat, pats in PATTERNS.items()
+}
+
 SUGGESTIONS = {
     "init":      "/zie-init",
     "backlog":   "/zie-backlog",
@@ -91,10 +96,10 @@ SUGGESTIONS = {
 
 # Score each category
 scores = {}
-for category, patterns in PATTERNS.items():
+for category, compiled_pats in COMPILED_PATTERNS.items():
     score = 0
-    for pattern in patterns:
-        if re.search(pattern, message):
+    for compiled_pat in compiled_pats:
+        if compiled_pat.search(message):
             score += 1
     if score > 0:
         scores[category] = score

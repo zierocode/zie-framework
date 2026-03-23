@@ -1,6 +1,5 @@
 ---
-description: Deep project audit — 9-dimension analysis with dynamic external
-  research. Produces a scored findings report for backlog selection.
+description: Deep project audit — 9-dimension analysis with external research. Produces scored findings for backlog.
 allowed-tools: Read, Bash, Glob, Grep, Skill, Agent, WebSearch, WebFetch
 ---
 

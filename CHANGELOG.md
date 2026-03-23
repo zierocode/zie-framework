@@ -1,5 +1,64 @@
 # Changelog
 
+## v1.4.1 — 2026-03-23
+
+### Fixed
+
+- **Safety hooks** — PreToolUse `exit(2)` was silently ineffective (was
+  `exit(1)`). All 9 block patterns now correctly trigger Claude Code's block
+  signal. `rm -rf ./`, force-push to main, `--no-verify`, DROP DATABASE etc.
+  are now actually blocked, not just logged.
+- **Hook URL validation** — `session-learn.py` and `wip-checkpoint.py` had
+  a hardcoded `https://memory.zie-agent.cloud` fallback. Replaced with an
+  empty default + `if not api_url.startswith("https://")` guard so hooks
+  never silently call an unexpected endpoint.
+- **intent-detect** — Prompt that starts with `/zie-*` command text was not
+  being skipped; also now skips YAML frontmatter (starts with `---`) and
+  messages longer than 500 chars to avoid false-positive intent suggestions.
+
+### Changed
+
+- **`hooks/utils.py`** — New shared library with `parse_roadmap_now()` and
+  `project_tmp_path()`. All hooks that read ROADMAP or write to `/tmp` now
+  use these helpers — eliminates 40+ lines of duplicated inline logic and
+  prevents cross-project `/tmp` file collisions when multiple projects use
+  the framework simultaneously.
+- **`hooks/session-cleanup.py`** — New Stop hook that deletes project-scoped
+  `/tmp` files at session end, so stale debounce/counter state from one
+  session never bleeds into the next.
+- **Pattern pre-compilation** — `intent-detect.py` now compiles all regex
+  patterns once at module load (`COMPILED_PATTERNS`) instead of recompiling
+  on every keystroke, improving runtime safety and performance.
+- **Silent exception logging** — All `except Exception: pass` swallowed
+  errors in hooks now log to stderr for visibility without breaking hook
+  safety contract.
+- **Hook output protocol** — `hooks/hooks.json` now documents the expected
+  stdout format for each event type via `_hook_output_protocol` key.
+
+### Tests
+
+- **290 unit tests** (was 258 pre-sprint). New coverage:
+  - `test_utils.py` — `parse_roadmap_now` + `project_tmp_path` (11 tests)
+  - `test_session_cleanup.py` — Stop hook file cleanup (5 tests)
+  - `test_docs_standards.py` — plugin.json sync, ADR numbering, SECURITY.md,
+    .cz.toml, README references, CHANGELOG translation (21 tests)
+  - Autouse `/tmp` teardown fixtures across all hook test classes
+  - `TestIntentDetectHappyPath` assertions upgraded to JSON parse
+  - `TestFindMatchingTest` — `find_matching_test()` importable + direct tests
+  - `TestAutoTestDebounceBoundary` + `TestWipCheckpointRoadmapEdgeCases`
+
+### Docs
+
+- `SECURITY.md` — added vulnerability reporting and responsible disclosure
+  policy (90-day embargo).
+- `.cz.toml` — commitizen config for conventional commits with 9 commit types.
+- `project/context.md` — ADR headers canonicalized from `D-NNN` to `ADR-NNN`.
+- `project/architecture.md` — updated timestamp and added Version History
+  Summary section.
+- `CHANGELOG.md v1.1.0` — translated from Thai to English.
+- `Makefile` — added `sync-version` target; `.githooks/pre-commit` now checks
+  version drift before markdownlint.
+
 ## v1.4.0 — 2026-03-23
 
 ### Features

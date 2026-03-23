@@ -3,12 +3,16 @@
 import sys
 import json
 import os
+import re
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, os.path.dirname(__file__))
+from utils import parse_roadmap_now
+
 try:
     event = json.loads(sys.stdin.read())
-except Exception:
+except Exception:  # intentional — malformed event must not crash hook
     sys.exit(0)
 
 api_key = os.environ.get("ZIE_MEMORY_API_KEY", "")
@@ -27,22 +31,8 @@ pending_learn_file.parent.mkdir(parents=True, exist_ok=True)
 
 # Read ROADMAP for context
 roadmap_file = zf / "ROADMAP.md"
-wip_context = ""
-if roadmap_file.exists():
-    text = roadmap_file.read_text()
-    lines = []
-    in_now = False
-    for line in text.splitlines():
-        if line.startswith("##") and "now" in line.lower():
-            in_now = True
-            continue
-        if line.startswith("##") and in_now:
-            break
-        if in_now and line.strip().startswith("- "):
-            import re
-            clean = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', line.strip())
-            lines.append(clean.lstrip("- [ ]").lstrip("- [x]").strip())
-    wip_context = "; ".join(lines[:3]) if lines else ""
+lines = parse_roadmap_now(roadmap_file)
+wip_context = "; ".join(lines[:3]) if lines else ""
 
 pending_learn_file.write_text(
     f"project={project}\n"
@@ -71,5 +61,5 @@ try:
         method="POST",
     )
     urllib.request.urlopen(req, timeout=5)
-except Exception:
-    pass  # Never crash on stop
+except Exception as e:
+    print(f"[zie-framework] session-learn: {e}", file=sys.stderr)

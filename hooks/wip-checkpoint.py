@@ -6,9 +6,12 @@ import os
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, os.path.dirname(__file__))
+from utils import parse_roadmap_now, project_tmp_path
+
 try:
     event = json.loads(sys.stdin.read())
-except Exception:
+except Exception:  # intentional — malformed event must not crash hook
     sys.exit(0)
 
 tool_name = event.get("tool_name", "")
@@ -29,13 +32,13 @@ if not zf.exists():
     sys.exit(0)
 
 # Edit counter via temp file
-counter_file = Path("/tmp/zie-framework-edit-count")
+counter_file = project_tmp_path("edit-count", cwd.name)
 count = 0
 if counter_file.exists():
     try:
         count = int(counter_file.read_text().strip())
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[zie-framework] wip-checkpoint: {e}", file=sys.stderr)
 
 count += 1
 counter_file.write_text(str(count))
@@ -47,20 +50,8 @@ if count % CHECKPOINT_EVERY != 0:
 
 # Read current ROADMAP "Now" section for WIP context
 roadmap_file = zf / "ROADMAP.md"
-wip_summary = ""
-if roadmap_file.exists():
-    text = roadmap_file.read_text()
-    lines = []
-    in_now = False
-    for line in text.splitlines():
-        if line.startswith("##") and "now" in line.lower():
-            in_now = True
-            continue
-        if line.startswith("##") and in_now:
-            break
-        if in_now and line.strip().startswith("- "):
-            lines.append(line.strip().lstrip("- [ ]").lstrip("- [x]").strip())
-    wip_summary = "; ".join(lines[:3]) if lines else ""
+lines = parse_roadmap_now(roadmap_file)
+wip_summary = "; ".join(lines[:3]) if lines else ""
 
 if not wip_summary:
     sys.exit(0)
@@ -87,5 +78,5 @@ try:
         method="POST",
     )
     urllib.request.urlopen(req, timeout=3)
-except Exception:
-    pass  # Never crash the hook
+except Exception as e:
+    print(f"[zie-framework] wip-checkpoint: {e}", file=sys.stderr)
