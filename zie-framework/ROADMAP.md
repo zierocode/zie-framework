@@ -28,6 +28,8 @@
 
 <!-- Good ideas, not yet prioritized. -->
 
+- [ ] Fix markdownlint-cli@0.48.0 in pre-commit — currently broken (always
+  shows help, exits 0); pin to working version or switch to markdownlint-cli2
 - [ ] CI/CD via GitHub Actions (run pytest on push)
 - [ ] Plugin versioning strategy (semver auto-bump on ship)
 - [ ] Integration test: mock Claude Code hook events end-to-end
