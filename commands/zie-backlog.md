@@ -47,10 +47,17 @@ problem and motivation. Output lives in `zie-framework/backlog/`.
 5. Update `zie-framework/ROADMAP.md` Next section:
    `- [ ] <title> — [backlog](backlog/<slug>.md)`
 
-6. If `zie_memory_enabled=true`:
+6. **Commit backlog item**:
+
+   ```bash
+   git add zie-framework/backlog/<slug>.md zie-framework/ROADMAP.md
+   git commit -m "backlog: <slug>"
+   ```
+
+7. If `zie_memory_enabled=true`:
    - `remember "Backlog: <title>. Problem: <one-line>." tags=[backlog, <project>]`
 
-7. Print:
+8. Print:
 
    ```text
    Backlog item added: zie-framework/backlog/<slug>.md

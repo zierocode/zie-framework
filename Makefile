@@ -29,12 +29,16 @@ release: ## Publish release (usage: make release NEW=1.2.3)
 ifndef NEW
 	$(error NEW is required — usage: make release NEW=1.2.3)
 endif
+	@git diff --quiet && git diff --cached --quiet || \
+		(echo "ERROR: Working tree is dirty. Commit or stash changes before releasing." && exit 1)
+	@git rev-parse --abbrev-ref HEAD | grep -q "^dev$$" || \
+		(echo "ERROR: Must release from 'dev' branch. Currently on: $$(git rev-parse --abbrev-ref HEAD)" && exit 1)
 	sed -i '' 's/"version": "[^"]*"/"version": "$(NEW)"/' .claude-plugin/plugin.json
 	git add .claude-plugin/plugin.json
 	git diff --cached --quiet || git commit --amend --no-edit
 	git checkout main
 	git merge dev --no-ff -m "release: v$(NEW)"
-	git tag -a v$(NEW) -m "release v$(NEW)"
+	git tag -s v$(NEW) -m "release v$(NEW)"
 	git push origin main --tags
 	git checkout dev
 
@@ -47,7 +51,9 @@ sync-version: ## Sync plugin.json version to match VERSION
 	jq --arg v "$$(cat VERSION)" '.version = $$v' .claude-plugin/plugin.json \
 	  > .claude-plugin/plugin.json.tmp \
 	  && mv .claude-plugin/plugin.json.tmp .claude-plugin/plugin.json
-	@echo "plugin.json version synced to $$(cat VERSION)"
+	sed -i '' 's/\*\*Version\*\*: [0-9.]*/\*\*Version\*\*: '"$$(cat VERSION)"'/' \
+	  zie-framework/PROJECT.md
+	@echo "plugin.json + PROJECT.md version synced to $$(cat VERSION)"
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
 clean: ## Remove cache files and build artifacts
@@ -55,8 +61,11 @@ clean: ## Remove cache files and build artifacts
 	find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null; \
 	find . -name "*.pyc" -delete 2>/dev/null; true
 
-lint: ## Lint Python hooks
+lint: lint-bandit ## Lint Python hooks (syntax + SAST)
 	python3 -m py_compile hooks/*.py && echo "All hooks compile OK"
+
+lint-bandit: ## Run Bandit SAST on hooks/ (medium severity + confidence)
+	python3 -m bandit -r hooks/ -ll -q
 
 lint-md: ## Lint all Markdown files (markdownlint, no exceptions)
 	npx markdownlint-cli "**/*.md" --ignore node_modules

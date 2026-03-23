@@ -99,3 +99,16 @@ your-project/
 
 Works alongside zie-memory plugin. Both install hooks independently — no
 conflicts.
+
+## Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| Hook not firing | Run `make setup` to activate `.githooks/`; verify Python 3 is on `PATH` |
+| zie-memory not connecting | Check `ZIE_MEMORY_API_KEY` env var; `zie_memory_enabled` must be `true` in `.config` |
+| Tests not auto-running | Verify `test_runner` is set in `.config`; run `make test-unit` manually to confirm runner works |
+
+## More
+
+- [CHANGELOG](CHANGELOG.md) — release history
+- [SECURITY](SECURITY.md) — vulnerability reporting policy

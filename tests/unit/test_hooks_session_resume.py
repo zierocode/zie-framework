@@ -89,3 +89,68 @@ class TestSessionResumeGracefulDegradation:
         r = run_hook(tmp_cwd=cwd)
         assert r.returncode == 0
         assert "[zie-framework]" in r.stdout
+
+
+class TestHookExceptionConvention:
+    def test_claude_md_documents_hook_error_convention(self):
+        """CLAUDE.md must contain the Hook Error Handling Convention section."""
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        claude_md = os.path.join(repo_root, "CLAUDE.md")
+        content = open(claude_md).read()
+        assert "Hook Error Handling" in content, (
+            "CLAUDE.md missing 'Hook Error Handling' section — convention not documented"
+        )
+
+    def test_no_bare_pass_in_session_resume_inner_ops(self):
+        """session-resume.py must not contain bare except: pass in inner operations."""
+        import ast
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        src = open(os.path.join(repo_root, "hooks", "session-resume.py")).read()
+        tree = ast.parse(src)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ExceptHandler):
+                if (
+                    node.name is None
+                    and len(node.body) == 1
+                    and isinstance(node.body[0], ast.Pass)
+                    and node.lineno > 20
+                ):
+                    raise AssertionError(
+                        f"Bare 'except: pass' found at line {node.lineno} "
+                        "in session-resume.py — inner ops must log to stderr"
+                    )
+
+
+class TestSessionResumeConfigParseWarning:
+    def test_warns_on_corrupt_config(self, tmp_path):
+        """Corrupt .config must produce a [zie] warning on stderr."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text("not valid json !!!")
+        r = run_hook(tmp_cwd=tmp_path)
+        assert r.returncode == 0
+        assert "[zie] warning" in r.stderr, (
+            f"Expected '[zie] warning' in stderr, got: {r.stderr!r}"
+        )
+
+    def test_still_prints_output_with_corrupt_config(self, tmp_path):
+        """Hook must still produce normal output even with corrupt config."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text("{bad json")
+        r = run_hook(tmp_cwd=tmp_path)
+        assert r.returncode == 0
+        assert "[zie-framework]" in r.stdout
+
+    def test_no_warning_on_valid_config(self, tmp_path):
+        """Valid .config must not produce any warning."""
+        cwd = make_cwd(tmp_path, config={"project_type": "python-lib"})
+        r = run_hook(tmp_cwd=cwd)
+        assert "[zie] warning" not in r.stderr
+
+    def test_no_warning_when_config_missing(self, tmp_path):
+        """Missing .config must not produce any warning."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        r = run_hook(tmp_cwd=tmp_path)
+        assert "[zie] warning" not in r.stderr

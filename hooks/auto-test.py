@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import project_tmp_path
+from utils import project_tmp_path, safe_write_tmp, read_event, get_cwd
 
 
 def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None:
@@ -22,11 +22,17 @@ def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None
             tests_dir / f"{stem}_test.py",
         ]
         # Also search recursively
-        for candidate in tests_dir.rglob(f"test_{stem}.py"):
-            candidates.append(candidate)
+        try:
+            for candidate in tests_dir.rglob(f"test_{stem}.py"):
+                candidates.append(candidate)
+        except OSError:
+            pass  # tests/ dir missing or not accessible — candidates stays as-is
         for c in candidates:
-            if c.exists():
-                return str(c)
+            try:
+                if c.exists():
+                    return str(c)
+            except OSError:
+                pass
 
     elif runner in ("vitest", "jest"):
         parent = changed_path.parent
@@ -44,10 +50,7 @@ def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None
 
 
 if __name__ == "__main__":
-    try:
-        event = json.loads(sys.stdin.read())
-    except Exception:  # intentional — malformed event must not crash hook
-        sys.exit(0)
+    event = read_event()
 
     # Only trigger on Edit/Write
     tool_name = event.get("tool_name", "")
@@ -58,7 +61,7 @@ if __name__ == "__main__":
     if not file_path:
         sys.exit(0)
 
-    cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
+    cwd = get_cwd()
     zf = cwd / "zie-framework"
 
     if not zf.exists():
@@ -70,8 +73,8 @@ if __name__ == "__main__":
     if config_file.exists():
         try:
             config = json.loads(config_file.read_text())
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[zie] warning: .config unreadable ({e}), using defaults", file=sys.stderr)
 
     test_runner = config.get("test_runner", "")
     if not test_runner:
@@ -84,9 +87,12 @@ if __name__ == "__main__":
         last_run = debounce_file.stat().st_mtime
         if (time.time() - last_run) < (debounce_ms / 1000):
             sys.exit(0)
-    debounce_file.write_text(file_path)
+    safe_write_tmp(debounce_file, file_path)
 
-    changed = Path(file_path)
+    changed = Path(file_path).resolve()
+    cwd_resolved = cwd.resolve()
+    if not changed.is_relative_to(cwd_resolved):
+        sys.exit(0)
 
     timeout = config.get("auto_test_timeout_ms", 30000) // 1000
 

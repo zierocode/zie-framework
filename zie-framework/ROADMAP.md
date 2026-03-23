@@ -15,6 +15,39 @@
 ## Ready — Approved Plans
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
+<!-- Order: Critical → High → Medium (Security/Arch/Quality/Docs/Standards) → Low -->
+<!-- Dependency order: toctou before symlink; redos before recompile; -->
+<!--   session-learn-concurrent before urllib-dedup; dependabot before signed-releases -->
+
+<!-- CRITICAL — moved to Now -->
+
+<!-- HIGH — moved to Now -->
+
+<!-- MEDIUM — Security/Arch -->
+
+<!-- MEDIUM — Quality -->
+<!-- moved to Now: Strengthen no-crash assertions -->
+<!-- moved to Now: parse_roadmap_now edge cases -->
+<!-- moved to Now: project_tmp_path edge cases -->
+
+<!-- MEDIUM — Docs — moved to Now -->
+
+<!-- MEDIUM — Standards -->
+<!-- moved to Now: Dependabot setup -->
+
+<!-- LOW — Lean -->
+
+<!-- LOW — Quality -->
+- [x] counter ValueError contract tests — [plan](plans/2026-03-24-audit-counter-valueerror.md) ✓
+- [x] safety-check ReDoS perf tests — [plan](plans/2026-03-24-audit-safety-check-redos-test.md) ✓
+- [x] find_matching_test edge cases — [plan](plans/2026-03-24-audit-find-matching-test-edge-cases.md) ✓
+
+<!-- LOW — Docs/Standards -->
+- [x] CHANGELOG stale commands annotated — [plan](plans/2026-03-24-audit-changelog-stale-commands.md) ✓
+- [x] SECURITY.md fork disclaimer — [plan](plans/2026-03-24-audit-security-md-username.md) ✓
+- [x] .gitignore gaps fixed — [plan](plans/2026-03-24-audit-gitignore-gaps.md) ✓
+- [x] Makefile release branch guard — [plan](plans/2026-03-24-audit-makefile-release-branch.md) ✓
+- [x] Signed releases + SLSA L1 — [plan](plans/2026-03-24-audit-signed-releases.md) ✓
 
 ---
 
@@ -28,6 +61,8 @@
 
 <!-- Good ideas, not yet prioritized. -->
 
+- [ ] Fix markdownlint-cli@0.48.0 in pre-commit — currently broken (always
+  shows help, exits 0); pin to working version or switch to markdownlint-cli2
 - [ ] CI/CD via GitHub Actions (run pytest on push)
 - [ ] Plugin versioning strategy (semver auto-bump on ship)
 - [ ] Integration test: mock Claude Code hook events end-to-end
@@ -38,6 +73,9 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] Security + quality audit sprint — 39 security fixes, 400 tests,
+  shared hook utils, Bandit SAST, Dependabot, signed releases, SLSA L1
+  — v1.5.0 2026-03-24
 - [x] Safety hook fix — exit(2), URL hardening, dead code removal
   — v1.4.1 2026-03-23
 - [x] Hook refactor — shared utils, /tmp isolation, session-cleanup Stop hook

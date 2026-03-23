@@ -8,7 +8,9 @@ import pytest
 REPO_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
-from utils import parse_roadmap_now, project_tmp_path
+import json
+from unittest.mock import patch
+from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd, parse_roadmap_section
 
 
 class TestParseRoadmapNow:
@@ -67,3 +69,366 @@ class TestProjectTmpPath:
     def test_returns_path_object(self):
         result = project_tmp_path("foo", "bar")
         assert isinstance(result, Path)
+
+
+class TestAtomicWrite:
+    def test_writes_content_to_target(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "pending_learn.txt"
+        atomic_write(target, "project=foo\nwip=bar\n")
+        assert target.read_text() == "project=foo\nwip=bar\n"
+
+    def test_no_tmp_file_left_on_success(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "pending_learn.txt"
+        atomic_write(target, "hello")
+        tmp_file = target.with_suffix(".tmp")
+        assert not tmp_file.exists(), ".tmp file must be cleaned up after successful rename"
+
+    def test_overwrites_existing_file(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "pending_learn.txt"
+        target.write_text("old content")
+        atomic_write(target, "new content")
+        assert target.read_text() == "new content"
+
+    def test_handles_empty_content(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "out.txt"
+        atomic_write(target, "")
+        assert target.read_text() == ""
+
+    def test_stale_tmp_overwritten(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "out.txt"
+        stale_tmp = target.with_suffix(".tmp")
+        stale_tmp.write_text("stale")
+        atomic_write(target, "fresh")
+        assert target.read_text() == "fresh"
+        assert not stale_tmp.exists()
+
+
+class TestSafeProjectName:
+    def test_alphanumeric_unchanged(self):
+        from utils import safe_project_name
+        assert safe_project_name("myproject") == "myproject"
+
+    def test_spaces_replaced_with_dash(self):
+        from utils import safe_project_name
+        assert safe_project_name("my project") == "my-project"
+
+    def test_special_chars_replaced(self):
+        from utils import safe_project_name
+        assert safe_project_name("my project!") == "my-project-"
+
+    def test_empty_string_returns_empty(self):
+        from utils import safe_project_name
+        assert safe_project_name("") == ""
+
+    def test_already_safe_no_change(self):
+        from utils import safe_project_name
+        assert safe_project_name("zie-framework") == "zie-framework"
+
+    def test_project_tmp_path_uses_safe_project_name(self):
+        """project_tmp_path output must equal /tmp/zie-{safe_project_name(p)}-{name}."""
+        from utils import safe_project_name
+        from pathlib import Path
+        p = "my project!"
+        expected = Path(f"/tmp/zie-{safe_project_name(p)}-last-test")
+        assert project_tmp_path("last-test", p) == expected
+
+
+class TestCallZieMemoryApi:
+    def test_raises_on_unreachable_url(self):
+        from utils import call_zie_memory_api
+        with pytest.raises(Exception):
+            call_zie_memory_api(
+                "https://localhost:19999", "fake-key",
+                "/api/hooks/session-stop", {"project": "test"}, timeout=1,
+            )
+
+    def test_raises_type_error_on_non_serializable_payload(self):
+        from utils import call_zie_memory_api
+        with pytest.raises((TypeError, Exception)):
+            call_zie_memory_api(
+                "https://localhost:19999", "fake-key",
+                "/api/hooks/session-stop", {"bad": object()},
+            )
+
+    def test_constructs_correct_request(self):
+        from utils import call_zie_memory_api
+        from unittest import mock
+        captured = {}
+
+        def fake_urlopen(req, timeout=None):
+            captured["url"] = req.full_url
+            captured["method"] = req.method
+            captured["auth"] = req.get_header("Authorization")
+            captured["content_type"] = req.get_header("Content-type")
+            captured["timeout"] = timeout
+
+        with mock.patch("urllib.request.urlopen", fake_urlopen):
+            call_zie_memory_api(
+                "https://zie-memory.example.com", "my-key",
+                "/api/hooks/session-stop", {"project": "test"},
+            )
+
+        assert captured["url"] == "https://zie-memory.example.com/api/hooks/session-stop"
+        assert captured["method"] == "POST"
+        assert captured["auth"] == "Bearer my-key"
+        assert captured["content_type"] == "application/json"
+
+    def test_default_timeout_is_5(self):
+        from utils import call_zie_memory_api
+        from unittest import mock
+        captured = {}
+
+        def fake_urlopen(req, timeout=None):
+            captured["timeout"] = timeout
+
+        with mock.patch("urllib.request.urlopen", fake_urlopen):
+            call_zie_memory_api(
+                "https://zie-memory.example.com", "my-key",
+                "/api/hooks/session-stop", {"project": "test"},
+            )
+
+        assert captured["timeout"] == 5
+
+
+class TestSafeWriteTmp:
+    def test_normal_write_returns_true(self, tmp_path):
+        from utils import safe_write_tmp
+        target = tmp_path / "zie-test-foo"
+        result = safe_write_tmp(target, "hello")
+        assert result is True
+        assert target.read_text() == "hello"
+
+    def test_normal_write_is_atomic(self, tmp_path):
+        """Content is written via a .tmp sibling then renamed."""
+        from utils import safe_write_tmp
+        target = tmp_path / "zie-test-atomic"
+        safe_write_tmp(target, "data")
+        tmp_sibling = tmp_path / "zie-test-atomic.tmp"
+        assert not tmp_sibling.exists()
+        assert target.read_text() == "data"
+
+    def test_symlink_returns_false(self, tmp_path):
+        from utils import safe_write_tmp
+        real_file = tmp_path / "real.txt"
+        real_file.write_text("secret")
+        link = tmp_path / "zie-test-link"
+        link.symlink_to(real_file)
+        result = safe_write_tmp(link, "overwrite")
+        assert result is False
+        assert real_file.read_text() == "secret"
+
+    def test_symlink_to_nonexistent_returns_false(self, tmp_path):
+        from utils import safe_write_tmp
+        link = tmp_path / "zie-test-dangling"
+        link.symlink_to(tmp_path / "does-not-exist")
+        result = safe_write_tmp(link, "data")
+        assert result is False
+
+    def test_symlink_blocked_emits_stderr_warning(self, tmp_path, capsys):
+        from utils import safe_write_tmp
+        link = tmp_path / "zie-test-warn"
+        link.symlink_to(tmp_path / "anything")
+        safe_write_tmp(link, "x")
+        captured = capsys.readouterr()
+        assert "WARNING" in captured.err
+        assert "symlink" in captured.err.lower()
+
+    def test_oserror_returns_false(self, tmp_path):
+        from utils import safe_write_tmp
+        from unittest import mock
+        target = tmp_path / "zie-test-err"
+        with mock.patch("os.replace", side_effect=OSError("disk full")):
+            result = safe_write_tmp(target, "data")
+        assert result is False
+
+    def test_path_not_exist_is_normal_write(self, tmp_path):
+        from utils import safe_write_tmp
+        target = tmp_path / "zie-test-new"
+        assert not target.exists()
+        result = safe_write_tmp(target, "first-run")
+        assert result is True
+        assert target.read_text() == "first-run"
+
+
+class TestProjectTmpPathEdgeCases:
+    """Contract tests for project_tmp_path() with pathological project names.
+
+    These tests document known behaviour (including known gaps like no length cap).
+    If implementation changes, update assertions AND the spec.
+    """
+
+    def test_unicode_project_name(self):
+        # Accented chars are outside [a-zA-Z0-9] — replaced with '-'
+        result = project_tmp_path("last-test", "mon-projet-caf\u00e9")
+        result_str = str(result)
+        assert result_str.isascii(), f"Expected ASCII path, got: {result_str}"
+        assert isinstance(result, Path)
+        # 'é' → '-', so 'café' → 'caf-'
+        assert result_str == "/tmp/zie-mon-projet-caf--last-test"
+
+    def test_emoji_project_name(self):
+        # Each emoji code point is non-alphanumeric — replaced with single '-'
+        result = project_tmp_path("edit-count", "my-app-\U0001F680")
+        result_str = str(result)
+        assert result_str.isascii(), f"Expected ASCII path, got: {result_str}"
+        assert isinstance(result, Path)
+        # 'my-app-' + '🚀'→'-' → 'my-app--'; path = zie- + my-app-- + -edit-count
+        assert result_str == "/tmp/zie-my-app---edit-count"
+
+    def test_leading_dash_project_name(self):
+        # '-' is not in [a-zA-Z0-9] but re.sub('-'→'-') is a no-op change
+        result = project_tmp_path("last-test", "-myproject")
+        assert str(result) == "/tmp/zie--myproject-last-test"
+        assert isinstance(result, Path)
+
+    def test_very_long_project_name(self):
+        """No truncation: name >255 chars will cause OSError at write time, not at Path construction.
+
+        This test documents the known gap — callers must handle OSError on write.
+        """
+        long_name = "x" * 256
+        result = project_tmp_path("edit-count", long_name)
+        assert isinstance(result, Path)
+        assert len(result.name) > 255
+
+    def test_path_traversal_attempt(self):
+        # '.' and '/' are both outside [a-zA-Z0-9] — replaced with '-'
+        # '../etc' → '---etc'
+        result = project_tmp_path("last-test", "../etc")
+        result_str = str(result)
+        assert ".." not in result_str
+        parts = Path(result_str).parts
+        assert parts[0] == "/"
+        assert parts[1] == "tmp"
+        assert result_str == "/tmp/zie----etc-last-test"
+
+    def test_dot_only_project_name(self):
+        # '.' → '-' via re.sub
+        result = project_tmp_path("x", ".")
+        result_str = str(result)
+        assert result_str == "/tmp/zie---x"
+        assert isinstance(result, Path)
+        assert "/." not in result_str
+
+
+class TestParseRoadmapNowEdgeCases:
+    """Edge case tests for parse_roadmap_now().
+
+    These tests document the parser's existing behaviour for inputs that are
+    valid ROADMAP content but outside the basic happy path. They are
+    contract tests — if behaviour changes, update the assertion AND the spec.
+    """
+
+    def test_bold_inline_markdown_in_task(self, tmp_path):
+        # Bold markers are not in the link regex — they pass through unchanged
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] **Refactor** the payment module\n")
+        result = parse_roadmap_now(f)
+        assert result == ["**Refactor** the payment module"]
+
+    def test_italic_inline_markdown_in_task(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] fix _memory leak_ in cache\n")
+        result = parse_roadmap_now(f)
+        assert result == ["fix _memory leak_ in cache"]
+
+    def test_malformed_link_missing_closing_paren(self, tmp_path):
+        # re.sub pattern requires closing ) — without it, the link is NOT stripped
+        # Contract: raw text is preserved (no partial stripping)
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] my feature — [plan](plans/foo.md\n")
+        result = parse_roadmap_now(f)
+        assert result == ["my feature — [plan](plans/foo.md"]
+
+    def test_html_entity_in_task_description(self, tmp_path):
+        # HTML entities are never decoded — plain text passthrough
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] support &amp; operator\n")
+        result = parse_roadmap_now(f)
+        assert result == ["support &amp; operator"]
+
+    def test_nested_bold_link_combo(self, tmp_path):
+        # Link is stripped (well-formed), bold markers around link text are preserved
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] **bold link** — [spec](specs/foo.md)\n")
+        result = parse_roadmap_now(f)
+        assert result == ["**bold link** — spec"]
+
+
+class TestParseRoadmapSection:
+    def test_next_section_returns_items(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] a\n## Next\n- [ ] b\n- [ ] c\n## Done\n- [x] d\n")
+        assert parse_roadmap_section(f, "next") == ["b", "c"]
+
+    def test_done_section_returns_items(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Done\n- [x] finished task\n")
+        assert parse_roadmap_section(f, "done") == ["finished task"]
+
+    def test_case_insensitive_match(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## NEXT\n- [ ] item\n")
+        assert parse_roadmap_section(f, "next") == ["item"]
+
+    def test_missing_section_returns_empty(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] a\n")
+        assert parse_roadmap_section(f, "done") == []
+
+    def test_missing_file_returns_empty(self, tmp_path):
+        assert parse_roadmap_section(tmp_path / "none.md", "next") == []
+
+    def test_strips_markdown_links(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Next\n- [ ] my task — [plan](plans/foo.md)\n")
+        assert parse_roadmap_section(f, "next") == ["my task — plan"]
+
+    def test_parse_roadmap_now_still_works_via_wrapper(self, tmp_path):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] now item\n## Next\n- [ ] next item\n")
+        assert parse_roadmap_now(f) == ["now item"]
+
+
+class TestReadEvent:
+    def test_valid_json_returns_dict(self):
+        payload = json.dumps({"tool": "Write", "input": {}})
+        with patch("sys.stdin") as mock_stdin:
+            mock_stdin.read.return_value = payload
+            result = read_event()
+        assert result == {"tool": "Write", "input": {}}
+
+    def test_invalid_json_exits_zero(self):
+        with patch("sys.stdin") as mock_stdin:
+            mock_stdin.read.return_value = "not-json"
+            with pytest.raises(SystemExit) as exc:
+                read_event()
+        assert exc.value.code == 0
+
+    def test_empty_stdin_exits_zero(self):
+        with patch("sys.stdin") as mock_stdin:
+            mock_stdin.read.return_value = ""
+            with pytest.raises(SystemExit) as exc:
+                read_event()
+        assert exc.value.code == 0
+
+
+class TestGetCwd:
+    def test_returns_claude_cwd_when_set(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("CLAUDE_CWD", str(tmp_path))
+        result = get_cwd()
+        assert result == Path(str(tmp_path))
+
+    def test_returns_getcwd_when_env_unset(self, monkeypatch):
+        monkeypatch.delenv("CLAUDE_CWD", raising=False)
+        result = get_cwd()
+        assert result == Path(os.getcwd())
+
+    def test_returns_path_object(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("CLAUDE_CWD", str(tmp_path))
+        assert isinstance(get_cwd(), Path)

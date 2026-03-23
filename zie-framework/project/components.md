@@ -37,8 +37,10 @@
 | Hook | Event | ทำอะไร |
 | --- | --- | --- |
 | auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save (debounced) |
-| safety-check.py | PreToolUse:Bash | บล็อก dangerous commands (rm -rf /, sud |
-| intent-detect.py | PreToolUse:Bash | ตรวจ intent จาก bash pattern → suggest |
+| safety-check.py | PreToolUse:Bash | บล็อก dangerous cmds (exit 2 = block) |
+| intent-detect.py | PreToolUse:Bash | ตรวจ intent → suggest cmd (JSON out) |
 | session-resume.py | SessionStart | แสดง project state + active feature |
-| session-learn.py | PostToolUse | สังเกต patterns และบันทึก micro-learnings |
+| session-learn.py | PostToolUse | สังเกต patterns, บันทึก micro-learnings |
 | wip-checkpoint.py | PeriodicTask | บันทึก WIP progress สู่ brain |
+| session-cleanup.py | Stop | ลบ project-scoped /tmp files on exit |
+| utils.py | (shared library) | parse_roadmap_now() + project_tmp_path() |

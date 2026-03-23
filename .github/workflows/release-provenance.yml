@@ -1,0 +1,18 @@
+name: Release Provenance
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  id-token: write
+  contents: write
+  attestations: write
+jobs:
+  provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate SLSA provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: '.claude-plugin/plugin.json'

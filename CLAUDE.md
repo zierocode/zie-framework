@@ -57,6 +57,18 @@ make push m="msg"  # commit + push to dev
   are missing
 - **Test runner**: pytest
 
+## Hook Error Handling Convention
+
+All hooks follow a two-tier pattern:
+
+1. **Outer guard** — event parse + early-exit checks. Use bare `except Exception`
+   → `sys.exit(0)`. This tier must _never_ block Claude regardless of input.
+2. **Inner operations** — file I/O, API calls, subprocess. Use
+   `except Exception as e: print(f"[zie-framework] <hook-name>: {e}", file=sys.stderr)`.
+   Hook still exits 0 after logging; Claude is never blocked.
+
+Never raise an unhandled exception from a hook. Never use a non-zero exit code.
+
 ## SDLC State
 
 Managed by zie-framework itself — see `zie-framework/ROADMAP.md` for current

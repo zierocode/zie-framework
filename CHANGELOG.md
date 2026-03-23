@@ -1,5 +1,56 @@
 # Changelog
 
+## v1.5.0 — 2026-03-24
+
+### Security
+
+- **Whitespace normalization** — `safety-check.py` now strips and collapses
+  whitespace before pattern matching, closing a bypass where `rm  -rf  /`
+  (multi-space) was not caught by the block rules.
+- **Symlink attack prevention** — `safe_write_tmp()` in `utils.py` now
+  detects symlinks on the target path and refuses to write, blocking an
+  attack where a symlink to a sensitive file could be overwritten via
+  hook state files.
+- **TOCTOU race fix** — debounce file writes (auto-test, wip-checkpoint)
+  now use atomic write-then-rename instead of direct `write_text()`,
+  eliminating a race condition in concurrent hook invocations.
+- **CWD boundary enforcement** — `auto-test.py` resolves and validates
+  `file_path` against the project CWD before use; paths outside the
+  project are silently ignored.
+- **intent-detect ReDoS guard** — Added `MAX_MESSAGE_LEN = 500` cap
+  before regex matching; long messages exit early before pattern evaluation.
+
+### Features
+
+- **Bandit SAST** — `make lint` now runs `bandit -r hooks/ -ll` and the
+  pre-commit hook gates every commit on bandit passing.
+- **Dependabot** — `.github/dependabot.yml` added for automated pip and
+  GitHub Actions dependency updates.
+- **Signed releases** — `make release` now uses `git tag -s` (GPG-signed
+  tags) with clean-tree and branch pre-flight guards.
+- **SLSA L1 provenance** — `.github/workflows/release-provenance.yml`
+  generates attestations on every tagged release via
+  `actions/attest-build-provenance@v1`.
+
+### Changed
+
+- **Shared hook utilities** — `hooks/utils.py` gained `read_event()`,
+  `get_cwd()`, `parse_roadmap_section()`, and `call_zie_memory_api()`.
+  All 7 hooks now use these helpers; 200+ lines of duplicated boilerplate
+  removed across the codebase.
+- **`hooks/knowledge-hash.py`** — Knowledge hash computation extracted
+  from inline `python3 -c "..."` blocks in `zie-init.md`, `zie-status.md`,
+  and `zie-resync.md` into a standalone script.
+- **SECURITY.md** — Added fork note to advisory URL and new `## Release
+  Signing` section documenting GPG tag verification and SLSA provenance.
+
+### Tests
+
+- 400 unit tests (was 361) — added contract tests for counter ValueError
+  recovery, safety-check ReDoS performance bounds, `find_matching_test()`
+  edge cases (missing dir, symlinks, permission-denied, empty dir), and
+  comprehensive coverage for all new hook utilities.
+
 ## v1.4.1 — 2026-03-23
 
 ### Fixed
@@ -160,10 +211,10 @@
   (RED)").
 - **Batch release support** — `[x]` items in the Now lane accumulate pending
   release. `/zie-ship` moves them to Done with a version tag — no need to
-  ship features individually.
+  ship features individually. *(command removed in v1.2.0 — use `/zie-release`)*
 - **Intent-driven steps** — RED/GREEN/REFACTOR in `/zie-build` are short
   paragraphs instead of bullet micro-steps; config reads collapsed to one
-  line.
+  line. *(command removed in v1.2.0 — use `/zie-implement`)*
 - **Version bump suggestion** — `/zie-ship` analyzes the Now lane and git log
   then suggests major/minor/patch with reasoning before confirmation.
 - **Human-readable CHANGELOG** — `/zie-ship` drafts the CHANGELOG entry for

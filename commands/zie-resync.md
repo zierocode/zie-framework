@@ -85,41 +85,7 @@ All updates require user confirmation before writing.
    Run inline Python:
 
    ```bash
-   python3 -c "
-   import hashlib, os
-   from pathlib import Path
-
-   EXCLUDE = {
-       'node_modules', '.git', 'build', 'dist', '.next',
-       '__pycache__', 'coverage', 'zie-framework'
-   }
-   CONFIG_FILES = [
-       'package.json', 'requirements.txt', 'pyproject.toml',
-       'Cargo.toml', 'go.mod'
-   ]
-
-   root = Path('.')
-   dirs = sorted(
-       str(p.relative_to(root))
-       for p in root.rglob('*')
-       if p.is_dir()
-       and not any(ex in p.parts for ex in EXCLUDE)
-   )
-   counts = sorted(
-       f'{d}:{len(list((root / d).iterdir()))}'
-       for d in dirs
-   )
-   configs = ''
-   for cf in CONFIG_FILES:
-       p = root / cf
-       if p.exists():
-           configs += p.read_text()
-
-   s = '\n'.join(dirs) + '\n---\n'
-   s += '\n'.join(counts) + '\n---\n'
-   s += configs
-   print(hashlib.sha256(s.encode()).hexdigest())
-   "
+   python3 hooks/knowledge-hash.py
    ```
 
 9. Merge into `zie-framework/.config` (never remove existing fields):

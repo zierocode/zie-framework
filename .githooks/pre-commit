@@ -13,6 +13,17 @@ if [ -n "$plugin_ver" ] && [ -n "$version_ver" ] && [ "$plugin_ver" != "$version
   exit 1
 fi
 
+# Bandit SAST: scan hooks/ for security issues
+if ! command -v bandit &>/dev/null && ! python3 -m bandit --version &>/dev/null 2>&1; then
+  echo "pre-commit: bandit not found — run: pip install 'bandit>=1.7'" >&2
+else
+  if ! make lint-bandit; then
+    echo ""
+    echo "Commit blocked: fix bandit findings above, then re-commit."
+    exit 1
+  fi
+fi
+
 STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep '\.md$' || true)
 
 if [ -z "$STAGED" ]; then
