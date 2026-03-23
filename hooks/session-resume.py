@@ -25,8 +25,8 @@ config_file = zf / ".config"
 if config_file.exists():
     try:
         config = json.loads(config_file.read_text())
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[zie] warning: .config unreadable ({e}), using defaults", file=sys.stderr)
 
 # Read ROADMAP (truncated to avoid overloading context)
 roadmap_text = ""

@@ -89,3 +89,38 @@ class TestSessionResumeGracefulDegradation:
         r = run_hook(tmp_cwd=cwd)
         assert r.returncode == 0
         assert "[zie-framework]" in r.stdout
+
+
+class TestSessionResumeConfigParseWarning:
+    def test_warns_on_corrupt_config(self, tmp_path):
+        """Corrupt .config must produce a [zie] warning on stderr."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text("not valid json !!!")
+        r = run_hook(tmp_cwd=tmp_path)
+        assert r.returncode == 0
+        assert "[zie] warning" in r.stderr, (
+            f"Expected '[zie] warning' in stderr, got: {r.stderr!r}"
+        )
+
+    def test_still_prints_output_with_corrupt_config(self, tmp_path):
+        """Hook must still produce normal output even with corrupt config."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text("{bad json")
+        r = run_hook(tmp_cwd=tmp_path)
+        assert r.returncode == 0
+        assert "[zie-framework]" in r.stdout
+
+    def test_no_warning_on_valid_config(self, tmp_path):
+        """Valid .config must not produce any warning."""
+        cwd = make_cwd(tmp_path, config={"project_type": "python-lib"})
+        r = run_hook(tmp_cwd=cwd)
+        assert "[zie] warning" not in r.stderr
+
+    def test_no_warning_when_config_missing(self, tmp_path):
+        """Missing .config must not produce any warning."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        r = run_hook(tmp_cwd=tmp_path)
+        assert "[zie] warning" not in r.stderr

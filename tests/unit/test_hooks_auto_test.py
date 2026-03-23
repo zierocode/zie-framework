@@ -176,7 +176,7 @@ class TestAutoTestAtomicDebounceWrite:
                     p.rmdir()
                 except OSError:
                     pass
-            elif p.exists():
+            elif p.is_symlink() or p.exists():
                 p.unlink(missing_ok=True)
 
     def test_debounce_write_uses_safe_write_tmp(self):
@@ -186,6 +186,7 @@ class TestAutoTestAtomicDebounceWrite:
             "safe_write_tmp call missing from hook source"
         assert "debounce_file.write_text" not in source, \
             "bare debounce_file.write_text found — must use safe_write_tmp"
+
 
     def test_debounce_write_oserror_does_not_crash_hook(self, tmp_path):
         """If the debounce write raises OSError, hook must exit 0 (no crash)."""
@@ -271,3 +272,38 @@ class TestAutoTestFilePathCwdValidation:
         )
         assert "/etc/shadow" not in r.stdout
         assert "/etc/shadow" not in r.stderr
+
+
+class TestAutoTestConfigParseWarning:
+    def test_warns_on_corrupt_config(self, tmp_path):
+        """Corrupt .config must produce a [zie] warning on stderr."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text("this is not json {{{")
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
+            tmp_cwd=tmp_path,
+        )
+        assert r.returncode == 0
+        assert "[zie] warning" in r.stderr, (
+            f"Expected '[zie] warning' in stderr, got: {r.stderr!r}"
+        )
+
+    def test_no_warning_on_valid_config(self, tmp_path):
+        """Valid .config must not produce any warning."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
+            tmp_cwd=cwd,
+        )
+        assert "[zie] warning" not in r.stderr
+
+    def test_no_warning_when_config_missing(self, tmp_path):
+        """Missing .config must not produce any warning."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
+            tmp_cwd=tmp_path,
+        )
+        assert "[zie] warning" not in r.stderr

@@ -70,8 +70,8 @@ if __name__ == "__main__":
     if config_file.exists():
         try:
             config = json.loads(config_file.read_text())
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[zie] warning: .config unreadable ({e}), using defaults", file=sys.stderr)
 
     test_runner = config.get("test_runner", "")
     if not test_runner:
