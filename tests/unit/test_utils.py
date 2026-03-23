@@ -253,6 +253,67 @@ class TestSafeWriteTmp:
         assert target.read_text() == "first-run"
 
 
+class TestProjectTmpPathEdgeCases:
+    """Contract tests for project_tmp_path() with pathological project names.
+
+    These tests document known behaviour (including known gaps like no length cap).
+    If implementation changes, update assertions AND the spec.
+    """
+
+    def test_unicode_project_name(self):
+        # Accented chars are outside [a-zA-Z0-9] — replaced with '-'
+        result = project_tmp_path("last-test", "mon-projet-caf\u00e9")
+        result_str = str(result)
+        assert result_str.isascii(), f"Expected ASCII path, got: {result_str}"
+        assert isinstance(result, Path)
+        # 'é' → '-', so 'café' → 'caf-'
+        assert result_str == "/tmp/zie-mon-projet-caf--last-test"
+
+    def test_emoji_project_name(self):
+        # Each emoji code point is non-alphanumeric — replaced with single '-'
+        result = project_tmp_path("edit-count", "my-app-\U0001F680")
+        result_str = str(result)
+        assert result_str.isascii(), f"Expected ASCII path, got: {result_str}"
+        assert isinstance(result, Path)
+        # 'my-app-' + '🚀'→'-' → 'my-app--'; path = zie- + my-app-- + -edit-count
+        assert result_str == "/tmp/zie-my-app---edit-count"
+
+    def test_leading_dash_project_name(self):
+        # '-' is not in [a-zA-Z0-9] but re.sub('-'→'-') is a no-op change
+        result = project_tmp_path("last-test", "-myproject")
+        assert str(result) == "/tmp/zie--myproject-last-test"
+        assert isinstance(result, Path)
+
+    def test_very_long_project_name(self):
+        """No truncation: name >255 chars will cause OSError at write time, not at Path construction.
+
+        This test documents the known gap — callers must handle OSError on write.
+        """
+        long_name = "x" * 256
+        result = project_tmp_path("edit-count", long_name)
+        assert isinstance(result, Path)
+        assert len(result.name) > 255
+
+    def test_path_traversal_attempt(self):
+        # '.' and '/' are both outside [a-zA-Z0-9] — replaced with '-'
+        # '../etc' → '---etc'
+        result = project_tmp_path("last-test", "../etc")
+        result_str = str(result)
+        assert ".." not in result_str
+        parts = Path(result_str).parts
+        assert parts[0] == "/"
+        assert parts[1] == "tmp"
+        assert result_str == "/tmp/zie----etc-last-test"
+
+    def test_dot_only_project_name(self):
+        # '.' → '-' via re.sub
+        result = project_tmp_path("x", ".")
+        result_str = str(result)
+        assert result_str == "/tmp/zie---x"
+        assert isinstance(result, Path)
+        assert "/." not in result_str
+
+
 class TestParseRoadmapNowEdgeCases:
     """Edge case tests for parse_roadmap_now().
 

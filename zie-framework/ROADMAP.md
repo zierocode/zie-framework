@@ -25,7 +25,8 @@
 - [x] Tests use pytest tmp_path — [plan](plans/2026-03-24-audit-tests-tmp-path.md)
 - [x] Fixture naming collision fix — [plan](plans/2026-03-24-audit-fixture-naming-collision.md)
 - [x] Strengthen no-crash assertions — [plan](plans/2026-03-24-audit-weak-nocrash-assertions.md)
-- [ ] parse_roadmap_now edge cases — [plan](plans/2026-03-24-audit-parse-roadmap-edge-cases.md)
+- [x] parse_roadmap_now edge cases — [plan](plans/2026-03-24-audit-parse-roadmap-edge-cases.md)
+- [ ] project_tmp_path edge cases — [plan](plans/2026-03-24-audit-project-tmp-path-edge-cases.md)
 
 ---
 
@@ -45,7 +46,7 @@
 <!-- MEDIUM — Quality -->
 <!-- moved to Now: Strengthen no-crash assertions -->
 <!-- moved to Now: parse_roadmap_now edge cases -->
-- [ ] project_tmp_path edge cases — [plan](plans/2026-03-24-audit-project-tmp-path-edge-cases.md) ✓
+<!-- moved to Now: project_tmp_path edge cases -->
 
 <!-- MEDIUM — Docs -->
 - [ ] PROJECT.md version 1.4.0→1.4.1 — [plan](plans/2026-03-24-audit-project-md-version-stale.md) ✓
