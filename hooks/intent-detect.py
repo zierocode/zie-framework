@@ -6,36 +6,10 @@ import os
 import re
 from pathlib import Path
 
-try:
-    event = json.loads(sys.stdin.read())
-except Exception:
-    sys.exit(0)
-
-message = (event.get("prompt") or "").lower().strip()
+# ── Module-level constants (compiled once, cached in .pyc) ──────────────────
 
 MAX_MESSAGE_LEN = 1000
 
-if not message or len(message) < 3:
-    sys.exit(0)
-
-# Hard cap to prevent ReDoS on adversarially long inputs
-if len(message) > MAX_MESSAGE_LEN:
-    sys.exit(0)
-
-# Skip if prompt looks like command content (frontmatter or very long)
-if message.startswith("---") or len(message) > 500:
-    sys.exit(0)
-
-# Only run if zie-framework is initialized in cwd
-cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
-if not (cwd / "zie-framework").exists():
-    sys.exit(0)
-
-# Suppress if user is explicitly running a /zie-* command already
-if message.startswith("/zie-"):
-    sys.exit(0)
-
-# Pattern definitions — (regex patterns, signal weight)
 PATTERNS = {
     "init": [
         r"\binit\b", r"เริ่มต้น.*project", r"ตั้งค่า.*project",
@@ -99,6 +73,35 @@ SUGGESTIONS = {
     "retro":     "/zie-retro",
     "status":    "/zie-status",
 }
+
+# ── Hook execution ───────────────────────────────────────────────────────────
+
+try:
+    event = json.loads(sys.stdin.read())
+except Exception:
+    sys.exit(0)
+
+message = (event.get("prompt") or "").lower().strip()
+
+if not message or len(message) < 3:
+    sys.exit(0)
+
+# Hard cap to prevent ReDoS on adversarially long inputs
+if len(message) > MAX_MESSAGE_LEN:
+    sys.exit(0)
+
+# Skip if prompt looks like command content (frontmatter or very long)
+if message.startswith("---") or len(message) > 500:
+    sys.exit(0)
+
+# Only run if zie-framework is initialized in cwd
+cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
+if not (cwd / "zie-framework").exists():
+    sys.exit(0)
+
+# Suppress if user is explicitly running a /zie-* command already
+if message.startswith("/zie-"):
+    sys.exit(0)
 
 # Score each category
 scores = {}

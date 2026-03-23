@@ -175,3 +175,30 @@ class TestIntentDetectReDoSGuard:
             os.environ.update(original_env)
         assert hasattr(mod, "MAX_MESSAGE_LEN"), "MAX_MESSAGE_LEN constant not found"
         assert mod.MAX_MESSAGE_LEN == 1000
+
+
+class TestIntentDetectModuleLevelConstants:
+    def test_patterns_defined_before_any_conditional(self):
+        """PATTERNS must appear before any if/try block in the source file."""
+        import ast
+        hook = os.path.join(REPO_ROOT, "hooks", "intent-detect.py")
+        src = open(hook).read()
+        tree = ast.parse(src)
+
+        patterns_line = None
+        first_conditional_line = None
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and target.id == "PATTERNS":
+                        patterns_line = node.lineno
+            if isinstance(node, (ast.If, ast.Try)) and first_conditional_line is None:
+                first_conditional_line = node.lineno
+
+        assert patterns_line is not None, "PATTERNS assignment not found"
+        assert first_conditional_line is not None, "No conditional found (unexpected)"
+        assert patterns_line < first_conditional_line, (
+            f"PATTERNS (line {patterns_line}) must be defined before first "
+            f"conditional (line {first_conditional_line})"
+        )
