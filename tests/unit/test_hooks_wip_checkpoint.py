@@ -101,9 +101,11 @@ class TestWipCheckpointCounter:
         project_tmp_path("edit-count", tmp_path.name).write_text("4")
         r = run_hook(tmp_cwd=cwd, env_overrides={
             "ZIE_MEMORY_API_KEY": "fake-key",
-            "ZIE_MEMORY_API_URL": "http://localhost:19999",
+            "ZIE_MEMORY_API_URL": "https://localhost:19999",  # https to pass guard, bad host fails network
         })
         assert r.returncode == 0  # graceful failure — never crash
+        assert project_tmp_path("edit-count", tmp_path.name).read_text().strip() == "5"
+        assert r.stderr.strip() != "", "hook must report network error to stderr"
 
 
 class TestWipCheckpointRoadmapEdgeCases:
@@ -122,6 +124,9 @@ class TestWipCheckpointRoadmapEdgeCases:
             "ZIE_MEMORY_API_URL": "https://localhost:19999",
         })
         assert r.returncode == 0
+        counter = project_tmp_path("edit-count", tmp_path.name)
+        assert counter.exists(), "hook must write counter even when roadmap is absent"
+        assert counter.read_text().strip() == "1"
 
     def test_empty_now_section_no_crash(self, tmp_path):
         roadmap = "## Now\n\n## Ready\n- [ ] Some item\n"
@@ -131,6 +136,9 @@ class TestWipCheckpointRoadmapEdgeCases:
             "ZIE_MEMORY_API_URL": "https://localhost:19999",
         })
         assert r.returncode == 0
+        counter = project_tmp_path("edit-count", tmp_path.name)
+        assert counter.exists(), "hook must write counter even when Now section is empty"
+        assert counter.read_text().strip() == "1"
 
     def test_malformed_now_items_graceful_skip(self, tmp_path):
         roadmap = "## Now\nnot a list item\nanother line\n"
@@ -140,6 +148,9 @@ class TestWipCheckpointRoadmapEdgeCases:
             "ZIE_MEMORY_API_URL": "https://localhost:19999",
         })
         assert r.returncode == 0
+        counter = project_tmp_path("edit-count", tmp_path.name)
+        assert counter.exists(), "hook must write counter even with malformed Now items"
+        assert counter.read_text().strip() == "1"
 
 
 class TestWipCheckpointSymlinkProtection:
