@@ -46,6 +46,42 @@
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
+<!-- Source: Deep Claude Code integration research — 2026-03-24 -->
+
+<!-- CRITICAL — Core UX breakage -->
+- [ ] PreCompact/PostCompact WIP preservation — [backlog](backlog/prepostcompact-wip-preservation.md)
+- [ ] UserPromptSubmit SDLC context injection — [backlog](backlog/userpromptsubmit-sdlc-context.md)
+
+<!-- HIGH — Significant quality/UX improvement -->
+- [ ] Reviewer skills → custom agents with persistent memory — [backlog](backlog/reviewer-agents-memory.md)
+- [ ] Skills frontmatter hardening (disable-model-invocation, user-invocable,
+  effort) — [backlog](backlog/skills-frontmatter-hardening.md)
+- [ ] SessionStart CLAUDE_ENV_FILE config injection — [backlog](backlog/sessionstart-env-file.md)
+- [ ] SubagentStart SDLC context injection — [backlog](backlog/subagentstart-sdlc-context.md)
+- [ ] PermissionRequest auto-approve safe SDLC operations — [backlog](backlog/permission-request-auto-approve.md)
+
+<!-- MEDIUM — Meaningful improvements -->
+- [ ] PostToolUse additionalContext test file hints — [backlog](backlog/posttooluse-additionalcontext.md)
+- [ ] Stop hook uncommitted work guard — [backlog](backlog/stop-uncommitted-guard.md)
+- [ ] PreToolUse updatedInput path sanitization + rewriting — [backlog](backlog/pretooluse-input-modification.md)
+- [ ] PostToolUseFailure debugging context injection — [backlog](backlog/posttoolusefailure-debug-context.md)
+- [ ] Skills context:fork for isolated reviewer execution — [backlog](backlog/skills-fork-context.md)
+- [ ] Skills !`cmd` bash injection for live context — [backlog](backlog/skills-bash-injection.md)
+- [ ] SubagentStop capture + resume subagent pattern — [backlog](backlog/subagent-lifecycle-hooks.md)
+- [ ] Plugin settings.json defaults + CLAUDE_PLUGIN_DATA storage — [backlog](backlog/plugin-settings-defaults.md)
+- [ ] TaskCompleted quality gate hook — [backlog](backlog/taskcompleted-validation.md)
+- [ ] type:"agent" hooks for smart safety validation — [backlog](backlog/agent-type-hooks.md)
+
+<!-- LOW — Polish -->
+- [ ] Skills advanced features ($ARGUMENTS[N], session vars, supporting files)
+  — [backlog](backlog/skills-advanced-features.md)
+- [ ] StopFailure API error logging — [backlog](backlog/stopfailure-logging.md)
+- [ ] ConfigChange CLAUDE.md drift detection — [backlog](backlog/configchange-drift-detection.md)
+- [ ] Agent isolation:worktree + background:true parallel review — [backlog](backlog/agent-worktree-isolation.md)
+- [ ] Plugin .mcp.json bundle zie-memory server — [backlog](backlog/plugin-mcp-bundle.md)
+- [ ] Notification hook permission dialog intercept — [backlog](backlog/notification-hook-intercept.md)
+- [ ] Session-wide agent mode (--agent integration) — [backlog](backlog/session-agent-mode.md)
+- [ ] model:haiku + effort:low for fast skills — [backlog](backlog/model-haiku-fast-skills.md)
 
 ---
 
