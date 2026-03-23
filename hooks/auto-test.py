@@ -22,11 +22,17 @@ def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None
             tests_dir / f"{stem}_test.py",
         ]
         # Also search recursively
-        for candidate in tests_dir.rglob(f"test_{stem}.py"):
-            candidates.append(candidate)
+        try:
+            for candidate in tests_dir.rglob(f"test_{stem}.py"):
+                candidates.append(candidate)
+        except OSError:
+            pass  # tests/ dir missing or not accessible — candidates stays as-is
         for c in candidates:
-            if c.exists():
-                return str(c)
+            try:
+                if c.exists():
+                    return str(c)
+            except OSError:
+                pass
 
     elif runner in ("vitest", "jest"):
         parent = changed_path.parent

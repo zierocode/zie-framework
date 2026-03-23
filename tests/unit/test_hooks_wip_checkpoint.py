@@ -107,6 +107,38 @@ class TestWipCheckpointCounter:
         assert project_tmp_path("edit-count", tmp_path.name).read_text().strip() == "5"
         assert r.stderr.strip() != "", "hook must report network error to stderr"
 
+    def test_corrupt_counter_file_resets_gracefully(self, tmp_path):
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        project_tmp_path("edit-count", tmp_path.name).write_text("not-a-number\n")
+        r = run_hook(tmp_cwd=cwd, env_overrides={
+            "ZIE_MEMORY_API_KEY": "fake-key",
+            "ZIE_MEMORY_API_URL": "https://localhost:19999",
+        })
+        assert r.returncode == 0
+        assert project_tmp_path("edit-count", tmp_path.name).read_text().strip() == "1"
+        assert "wip-checkpoint" in r.stderr
+
+    def test_whitespace_only_counter_file_resets_gracefully(self, tmp_path):
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        project_tmp_path("edit-count", tmp_path.name).write_text("   \n")
+        r = run_hook(tmp_cwd=cwd, env_overrides={
+            "ZIE_MEMORY_API_KEY": "fake-key",
+            "ZIE_MEMORY_API_URL": "https://localhost:19999",
+        })
+        assert r.returncode == 0
+        assert project_tmp_path("edit-count", tmp_path.name).read_text().strip() == "1"
+        assert "wip-checkpoint" in r.stderr
+
+    def test_empty_counter_file_resets_gracefully(self, tmp_path):
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        project_tmp_path("edit-count", tmp_path.name).write_text("")
+        r = run_hook(tmp_cwd=cwd, env_overrides={
+            "ZIE_MEMORY_API_KEY": "fake-key",
+            "ZIE_MEMORY_API_URL": "https://localhost:19999",
+        })
+        assert r.returncode == 0
+        assert project_tmp_path("edit-count", tmp_path.name).read_text().strip() == "1"
+
 
 class TestWipCheckpointRoadmapEdgeCases:
     @pytest.fixture(autouse=True)

@@ -307,3 +307,74 @@ class TestAutoTestConfigParseWarning:
             tmp_cwd=tmp_path,
         )
         assert "[zie] warning" not in r.stderr
+
+
+class TestFindMatchingTestEdgeCases:
+    """Edge case tests for find_matching_test() — unusual or degraded filesystem states."""
+
+    @pytest.fixture
+    def load_module(self):
+        """Import auto-test.py without triggering hook execution (same as TestFindMatchingTest)."""
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("auto_test", HOOK)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_no_tests_directory_returns_none(self, tmp_path, load_module):
+        # No tests/ directory at all — rglob on non-existent path must not raise
+        changed = tmp_path / "src" / "payments.py"
+        result = load_module.find_matching_test(changed, "pytest", tmp_path)
+        assert result is None
+
+    def test_symlinked_test_file_found(self, tmp_path, load_module):
+        # Real test file in unit subdir; symlink with matching name in tests/ root
+        tests_dir = tmp_path / "tests" / "unit"
+        tests_dir.mkdir(parents=True)
+        real_file = tests_dir / "test_payments.py"
+        real_file.write_text("# test")
+        link = tmp_path / "tests" / "test_payments.py"
+        link.symlink_to(real_file)
+        changed = tmp_path / "src" / "payments.py"
+        result = load_module.find_matching_test(changed, "pytest", tmp_path)
+        # rglob finds both real file and symlink (both match test_payments.py)
+        assert result in (str(real_file), str(link))
+
+    @pytest.mark.skipif(
+        os.getuid() == 0,
+        reason="root bypasses filesystem permissions — test not meaningful as root",
+    )
+    def test_permission_denied_on_tests_dir_returns_none(self, tmp_path, load_module):
+        tests_dir = tmp_path / "tests"
+        tests_dir.mkdir()
+        tests_dir.chmod(0o000)
+        try:
+            changed = tmp_path / "src" / "payments.py"
+            result = load_module.find_matching_test(changed, "pytest", tmp_path)
+            assert result is None
+        finally:
+            tests_dir.chmod(0o755)
+
+    def test_non_standard_extension_not_matched_for_pytest(self, tmp_path, load_module):
+        # .ts file in tests/ — pytest runner only matches .py files
+        tests_dir = tmp_path / "tests"
+        tests_dir.mkdir()
+        (tests_dir / "test_payments.ts").write_text("// ts test")
+        changed = tmp_path / "src" / "payments.py"
+        result = load_module.find_matching_test(changed, "pytest", tmp_path)
+        assert result is None
+
+    def test_vitest_missing_test_file_returns_none(self, tmp_path, load_module):
+        # src/ exists but no .test.ts or .spec.ts for button
+        src_dir = tmp_path / "src"
+        src_dir.mkdir()
+        changed = src_dir / "button.tsx"
+        result = load_module.find_matching_test(changed, "vitest", tmp_path)
+        assert result is None
+
+    def test_empty_tests_directory_returns_none(self, tmp_path, load_module):
+        # tests/ dir exists with no files inside
+        (tmp_path / "tests").mkdir()
+        changed = tmp_path / "src" / "payments.py"
+        result = load_module.find_matching_test(changed, "pytest", tmp_path)
+        assert result is None

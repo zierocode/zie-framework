@@ -34,6 +34,8 @@
 - [x] Dependabot setup — [plan](plans/2026-03-24-audit-dependabot-setup.md)
 - [x] read_event() boilerplate dedup — [plan](plans/2026-03-24-audit-event-parsing-boilerplate.md)
 - [x] get_cwd() boilerplate dedup — [plan](plans/2026-03-24-audit-cwd-init-boilerplate.md)
+- [x] parse_roadmap_section() dedup — [plan](plans/2026-03-24-audit-parse-section-dedup.md)
+- [x] knowledge-hash.py extraction — [plan](plans/2026-03-24-audit-knowledge-hash-dedup.md)
 
 ---
 
@@ -61,13 +63,11 @@
 <!-- moved to Now: Dependabot setup -->
 
 <!-- LOW — Lean -->
-- [ ] parse_roadmap_section() dedup — [plan](plans/2026-03-24-audit-parse-section-dedup.md) ✓
-- [ ] knowledge-hash.py extraction — [plan](plans/2026-03-24-audit-knowledge-hash-dedup.md) ✓
 
 <!-- LOW — Quality -->
-- [ ] counter ValueError contract tests — [plan](plans/2026-03-24-audit-counter-valueerror.md) ✓
-- [ ] safety-check ReDoS perf tests — [plan](plans/2026-03-24-audit-safety-check-redos-test.md) ✓
-- [ ] find_matching_test edge cases — [plan](plans/2026-03-24-audit-find-matching-test-edge-cases.md) ✓
+- [x] counter ValueError contract tests — [plan](plans/2026-03-24-audit-counter-valueerror.md) ✓
+- [x] safety-check ReDoS perf tests — [plan](plans/2026-03-24-audit-safety-check-redos-test.md) ✓
+- [x] find_matching_test edge cases — [plan](plans/2026-03-24-audit-find-matching-test-edge-cases.md) ✓
 
 <!-- LOW — Docs/Standards -->
 - [ ] CHANGELOG stale commands annotated — [plan](plans/2026-03-24-audit-changelog-stale-commands.md) ✓
