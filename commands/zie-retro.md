@@ -71,7 +71,9 @@ For each significant architectural decision identified:
   "Project knowledge docs not found — run /zie-resync to generate them."
 - อ่าน `zie-framework/project/components.md` → อัปเดต components ที่เปลี่ยน
   behavior ใน session นี้
-- อ่าน `zie-framework/project/decisions.md` → append ADRs ใหม่
+- อ่าน `zie-framework/project/context.md` → เป็น background เท่านั้น (read-only)
+- เขียน ADR ใหม่แต่ละอันเป็นไฟล์แยกใน `zie-framework/decisions/ADR-NNN-<slug>.md`
+  (ใช้ NNN = running number ถัดจากไฟล์ล่าสุดใน decisions/)
 - ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
 - ถ้า `zie_memory_enabled=true`: `remember "Project snapshot: <version>.
   Components changed: <list>. Decisions: <new ADR slugs>."

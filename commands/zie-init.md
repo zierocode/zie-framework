@@ -10,14 +10,23 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
 
 ## Steps
 
-0. **Re-run guard**: if `zie-framework/` already exists, skip all creation
-   steps and print:
+0. **Re-run guard**: if `zie-framework/` already exists, check completeness:
 
-   ```text
-   Already initialized. Creating any missing files only.
-   ```
+   **Complete** = `zie-framework/PROJECT.md` exists AND
+   `zie-framework/project/architecture.md` exists AND
+   `zie-framework/.config` contains `"knowledge_hash"` with a non-empty value.
 
-   Then proceed — all creation steps below are idempotent (skip if exists).
+   - **If complete**: print "Already initialized." then **skip to Step 3**
+     (create missing files only — all steps idempotent). Knowledge scan is
+     not repeated; run `/zie-resync` to update knowledge docs.
+
+   - **If incomplete** (missing knowledge docs or missing/empty
+     `knowledge_hash`): print "Existing framework found, but knowledge scan
+     not yet done. Scanning codebase..." then proceed to Step 2 (skip Step 1
+     project-type detection only if `.config` already exists with
+     `project_type`).
+
+   - **If `zie-framework/` does not exist**: proceed normally from Step 1.
 
 1. **Detect project type** by reading existing files:
    - `requirements.txt` or `pyproject.toml` → `python-api`
@@ -40,6 +49,12 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    codebase..." then:
 
    a. Invoke `Agent(subagent_type=Explore)`:
+      - **Before scanning code**: read existing project docs as
+        primary sources — prefer documented intent over inferred
+        code structure:
+        `README.md`, `CHANGELOG.md`, `ARCHITECTURE.md`, `AGENTS.md`,
+        `docs/**`, any `**/specs/*.md`, `**/plans/*.md`,
+        `**/decisions/*.md` outside `zie-framework/`
       - Task: scan every file, return a structured analysis report:
         - Architecture pattern and overall structure
         - Every significant component/module (name + one-line purpose)
@@ -57,7 +72,7 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
       - `zie-framework/PROJECT.md`
       - `zie-framework/project/architecture.md`
       - `zie-framework/project/components.md`
-      - `zie-framework/project/decisions.md`
+      - `zie-framework/project/context.md`
         (only real decisions found; unknowns marked TBD)
 
    c. Present all four drafts inline as markdown code blocks. Ask:
@@ -134,7 +149,41 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
       }
       ```
 
-   h. Continue to step 3 (create zie-framework/ directory structure —
+   h. **Detect migratable documentation** — scan project root
+      (excluding `zie-framework/`, `node_modules/`, `.git/`) for
+      files matching these patterns:
+
+      | Pattern | Destination |
+      | --- | --- |
+      | `**/specs/*.md`, `**/spec/*.md` | `zie-framework/specs/` |
+      | `**/plans/*.md`, `**/plan/*.md` | `zie-framework/plans/` |
+      | `**/decisions/*.md`, `**/adr/*.md` | `zie-framework/decisions/` |
+      | `ADR-*.md` (at project root) | `zie-framework/decisions/` |
+
+      Skip always: `README.md`, `CHANGELOG.md`, `LICENSE*`,
+      `CLAUDE.md`, `AGENTS.md`, files already inside
+      `zie-framework/`, and any `docs/` tree that contains
+      `index.md` or `_sidebar.md` at its root (public doc site).
+
+      If candidates found, print:
+
+      ```text
+      Found documentation that can be migrated into zie-framework/:
+
+        docs/specs/foo.md  →  zie-framework/specs/foo.md
+        docs/plans/bar.md  →  zie-framework/plans/bar.md
+
+      Migrate these files? (yes / no / select)
+      ```
+
+      - `yes` → migrate all using `git mv`
+      - `no` → skip silently
+      - `select` → confirm each file individually (y/n per file)
+
+      After migration, print the list of moved files.
+      If no candidates found, skip silently.
+
+   i. Continue to step 3 (create zie-framework/ directory structure —
       skip the four knowledge docs since they were already written).
 
    **Failure handling:** If Agent scan fails or returns empty → warn
@@ -167,7 +216,7 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    - `PROJECT.md` from `templates/PROJECT.md.template`
    - `project/architecture.md` from `templates/project/architecture.md.template`
    - `project/components.md` from `templates/project/components.md.template`
-   - `project/decisions.md` from `templates/project/decisions.md.template`
+   - `project/context.md` from `templates/project/context.md.template`
    (For existing projects: skip the four knowledge docs —
    already written in step 2.)
 

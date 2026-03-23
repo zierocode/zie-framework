@@ -27,7 +27,9 @@ integration, safety guardrails.
 - [Architecture](project/architecture.md) — system design, component
   relationships
 - [Components](project/components.md) — command/skill/hook registry
-- [Decisions](project/decisions.md) — ADR log
+- [Context](project/context.md) — design context, constraints,
+  key decisions found in codebase
+- [ADRs](decisions/) — formal Architecture Decision Records
 
 ## Links
 

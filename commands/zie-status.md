@@ -20,19 +20,44 @@ needed — just read files and print.
 3. **Find active plan**: most recent file in `zie-framework/plans/` where
    ROADMAP.md "Now" section is not empty.
 
-4. **Check knowledge drift** via Bash:
+4. **Check knowledge drift** via Bash — must use the **same algorithm**
+   as `/zie-resync` and `/zie-init`:
 
    ```bash
    python3 -c "
-   import hashlib, os, json
-   EXCLUDE = {'node_modules','.git','build','dist','.next',
-              '__pycache__','coverage','zie-framework'}
-   parts = []
-   for root, dirs, files in os.walk('.'):
-       dirs[:] = sorted(d for d in dirs if d not in EXCLUDE)
-       for f in sorted(files):
-           parts.append(os.path.join(root, f))
-   print(hashlib.sha256('|'.join(parts).encode()).hexdigest())
+   import hashlib
+   from pathlib import Path
+
+   EXCLUDE = {
+       'node_modules', '.git', 'build', 'dist', '.next',
+       '__pycache__', 'coverage', 'zie-framework'
+   }
+   CONFIG_FILES = [
+       'package.json', 'requirements.txt', 'pyproject.toml',
+       'Cargo.toml', 'go.mod'
+   ]
+
+   root = Path('.')
+   dirs = sorted(
+       str(p.relative_to(root))
+       for p in root.rglob('*')
+       if p.is_dir()
+       and not any(ex in p.parts for ex in EXCLUDE)
+   )
+   counts = sorted(
+       f'{d}:{len(list((root / d).iterdir()))}'
+       for d in dirs
+   )
+   configs = ''
+   for cf in CONFIG_FILES:
+       p = root / cf
+       if p.exists():
+           configs += p.read_text()
+
+   s = '\n'.join(dirs) + '\n---\n'
+   s += '\n'.join(counts) + '\n---\n'
+   s += configs
+   print(hashlib.sha256(s.encode()).hexdigest())
    "
    ```
 
