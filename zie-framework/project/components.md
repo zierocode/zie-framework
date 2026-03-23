@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-03-23
+**Last updated:** 2026-03-24
 
 ## Commands
 
@@ -36,11 +36,11 @@
 
 | Hook | Event | ทำอะไร |
 | --- | --- | --- |
-| auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save (debounced) |
-| safety-check.py | PreToolUse:Bash | บล็อก dangerous cmds (exit 2 = block) |
+| auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save (debounced); OSError-guarded rglob + c.exists() |
+| safety-check.py | PreToolUse:Bash | บล็อก dangerous cmds (exit 2 = block); MAX_MESSAGE_LEN=500 ReDoS guard; whitespace normalised before match |
 | intent-detect.py | PreToolUse:Bash | ตรวจ intent → suggest cmd (JSON out) |
 | session-resume.py | SessionStart | แสดง project state + active feature |
 | session-learn.py | PostToolUse | สังเกต patterns, บันทึก micro-learnings |
-| wip-checkpoint.py | PeriodicTask | บันทึก WIP progress สู่ brain |
+| wip-checkpoint.py | PeriodicTask | บันทึก WIP progress สู่ brain; counter ValueError recovery |
 | session-cleanup.py | Stop | ลบ project-scoped /tmp files on exit |
-| utils.py | (shared library) | parse_roadmap_now() + project_tmp_path() |
+| utils.py | (shared library) | read_event(), get_cwd(), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write) |
