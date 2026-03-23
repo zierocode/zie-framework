@@ -47,7 +47,9 @@ sync-version: ## Sync plugin.json version to match VERSION
 	jq --arg v "$$(cat VERSION)" '.version = $$v' .claude-plugin/plugin.json \
 	  > .claude-plugin/plugin.json.tmp \
 	  && mv .claude-plugin/plugin.json.tmp .claude-plugin/plugin.json
-	@echo "plugin.json version synced to $$(cat VERSION)"
+	sed -i '' 's/\*\*Version\*\*: [0-9.]*/\*\*Version\*\*: '"$$(cat VERSION)"'/' \
+	  zie-framework/PROJECT.md
+	@echo "plugin.json + PROJECT.md version synced to $$(cat VERSION)"
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
 clean: ## Remove cache files and build artifacts
