@@ -17,7 +17,7 @@ integration, safety guardrails.
 | /zie-plan | Approved spec → draft plan → approval → Ready lane |
 | /zie-implement | Ready → TDD implementation + impl-reviewer gate |
 | /zie-fix | Bug → regression test → fix → verify |
-| /zie-release | Release gate → merge dev→main → tag → retro |
+| /zie-release | Release gate → readiness check → `make release` → retro |
 | /zie-status | Snapshot สถานะปัจจุบัน |
 | /zie-resync | Rescan codebase + update knowledge docs + hash |
 | /zie-retro | Retrospective → ADRs → brain storage |

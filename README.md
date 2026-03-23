@@ -20,7 +20,7 @@ claude plugin install zierocode/zie-framework
 | `/zie-spec` | 2 — Design | Write a design spec with reviewer loop |
 | `/zie-plan` | 3 — Plan | Draft implementation plan + approval |
 | `/zie-implement` | 4 — Build | TDD feature loop with impl-reviewer |
-| `/zie-release` | 5 — Release | Full test gate → merge dev→main → tag |
+| `/zie-release` | 5 — Release | Test gates → readiness → `make release` |
 | `/zie-retro` | 6 — Learn | Retrospective + ADRs + brain storage |
 | `/zie-fix` | Debug | Bug path — skip to systematic fix |
 

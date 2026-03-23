@@ -141,29 +141,41 @@ merging.
 
    *(git add ไม่ error ถ้าไฟล์ไม่ได้ถูกแก้)*
 
-6. **Merge to main**:
+6. **Readiness gate — verify `make release` is implemented**:
 
    ```bash
-   git checkout main
-   git merge dev --no-ff -m "release: v<NEW_VERSION>"
-   git tag -a v<NEW_VERSION> -m "release v<NEW_VERSION>"
-   git push origin main --tags
-   git checkout dev
+   grep -q "ZIE-NOT-READY" Makefile && echo "NOT_READY" || echo "READY"
    ```
 
-   - If `git push` fails → `git checkout dev` then STOP with:
-     "Push failed — tag `v<NEW_VERSION>` exists locally. Fix remote access and
-     run: `git push origin main --tags`"
-   - Do NOT re-tag on re-run — tag already exists locally and is correct.
+   - `NOT_READY` → **STOP**. Print:
 
-7. **Store release in brain** (if `zie_memory_enabled=true`):
+     ```text
+     Release blocked: make release is not implemented yet.
+
+     Open Makefile, replace the ZIE-NOT-READY skeleton with real
+     publish steps for this project, then re-run /zie-release.
+     ```
+
+   - `READY` → proceed.
+
+7. **Delegate publish to project**:
+
+   ```bash
+   make release NEW=<version>
+   ```
+
+   - Exit 0 → proceed.
+   - Non-zero → **STOP**. Surface make error. Print: "Release failed —
+     fix make release and re-run /zie-release."
+
+8. **Store release in brain** (if `zie_memory_enabled=true`):
    - First READ: `recall project=<project> tags=[wip, plan] feature=<slug> limit=5`
    - Then WRITE: `remember "Shipped: <feature> v<NEW_VERSION>. Tasks: N.
      Actual: <vs estimate>." tags=[shipped, <project>, <domain>]`
 
-8. **Auto-run `/zie-retro`**.
+9. **Auto-run `/zie-retro`**.
 
-9. Print:
+10. Print:
 
     ```text
     Released v<NEW_VERSION>
@@ -177,8 +189,8 @@ merging.
 
 ## Notes
 
-- Never call `make release` directly — always go through `/zie-release`
-- If any gate fails, no code is merged — fix and re-run `/zie-release`
-- The merge happens last, after all gates pass
+- If any gate fails, `make release` is never called — fix and re-run `/zie-release`
+- Git ops (merge, tag, push) are delegated to `make release` — implement
+  the skeleton in your project's Makefile before first release
 - ROADMAP update (step 3) happens before the commit so the release commit
   reflects the correct state

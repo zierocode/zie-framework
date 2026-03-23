@@ -10,6 +10,13 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [x] Hybrid release — `make release NEW=<v>` skeleton in Makefile templates;
+  `/zie-release` readiness gate + delegation; `/zie-init` negotiates skeleton
+- [x] Quick spec — `/zie-spec "idea"` skips backlog, inline idea → spec-design
+  directly
+- [x] Reviewer depth — context bundle (decisions/ + ROADMAP + context.md) for
+  spec/plan/impl reviewers
+
 ---
 
 ## Ready — Approved Plans

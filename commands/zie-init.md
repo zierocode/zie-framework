@@ -246,11 +246,28 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
      exist. Never overwrite existing targets.
    - If no Makefile: create from template matching project_type (python or typescript).
 
-7. **Create `VERSION`** at project root:
-   - If exists: keep as-is.
-   - If not: create with content `0.1.0`
+7. **Negotiate `make release` skeleton** (both greenfield + existing paths):
 
-8. **Create `CLAUDE.md`** at project root:
+   - Check if `Makefile` already contains a `release` target:
+     `grep -q "^release:" Makefile 2>/dev/null` → if found: **skip**
+     (idempotent — never overwrite an existing target).
+   - Draft skeleton by `project_type`:
+
+     | project\_type | Skeleton hint |
+     | --- | --- |
+     | `python-api` | `sed` VERSION + pyproject.toml bump + pip publish |
+     | `python-plugin` | `sed` VERSION + plugin.json bump + gh release |
+     | `typescript-cli` | `npm version` + `npm publish` |
+     | `typescript-fullstack` | `npm version` + `vercel deploy --prod` |
+     | (other) | generic with detailed `ZIE-NOT-READY` TODO comment |
+
+   - Present skeleton and ask: "Does this look right? (yes / no / edit)"
+   - `yes` → append to `Makefile`; `no` → skip; `edit` → redraft → repeat.
+
+8. **Create `VERSION`** at project root — keep as-is if exists;
+   create with content `0.1.0` if missing.
+
+9. **Create `CLAUDE.md`** at project root:
    - If exists: skip (never overwrite).
    - If not: generate from `templates/CLAUDE.md.template` with these
      substitutions:
@@ -265,15 +282,15 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
        - typescript: `make test-unit   # unit tests\nmake test        # full
          suite\nmake push m="msg"  # commit + push`
 
-9. **Install Markdown lint enforcement**:
-   - Create `.markdownlint.json` at project root from
-     `templates/markdownlint.json.template` — skip if already exists.
-   - Create `.githooks/pre-commit` from
-     `templates/githooks-pre-commit.template` — skip if already exists.
-     Run `chmod +x .githooks/pre-commit` after.
-   - Run `git config core.hooksPath .githooks` to activate the hook.
+10. **Install Markdown lint enforcement**:
+    - Create `.markdownlint.json` at project root from
+      `templates/markdownlint.json.template` — skip if already exists.
+    - Create `.githooks/pre-commit` from
+      `templates/githooks-pre-commit.template` — skip if already exists.
+      Run `chmod +x .githooks/pre-commit` after.
+    - Run `git config core.hooksPath .githooks` to activate the hook.
 
-10. **If `playwright_enabled=true`**:
+11. **If `playwright_enabled=true`**:
     - Check if `@playwright/test` in package.json devDependencies
     - If not: ask "Install @playwright/test? This will run npm install. (yes/no)"
       → If yes: `npm install --save-dev @playwright/test` +
@@ -282,13 +299,13 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
     - Create `playwright.config.ts` from template if it doesn't exist
     - Create `tests/e2e/` directory with `fixtures.ts`
 
-11. **If `zie_memory_enabled=true`**:
+12. **If `zie_memory_enabled=true`**:
     - Store project bootstrap memory:
       `remember "Project <name> initialized with zie-framework. Type:
       <project_type>. Stack: <tech_stack>. Test runner: <test_runner>."
       tags=[zie-framework, init, <project_name>]`
 
-12. **Print summary**:
+13. **Print summary**:
 
    ```text
    zie-framework initialized in <project>/

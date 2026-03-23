@@ -24,6 +24,20 @@ ship: ## Full release gate — use /zie-ship instead
 	$(MAKE) test || (echo "Tests failed — fix before shipping" && exit 1)
 	@echo "All tests passed. Run /zie-ship for the full release gate."
 
+# ── Release ───────────────────────────────────────────────────────────────────
+release: ## Publish release (usage: make release NEW=1.2.3)
+ifndef NEW
+	$(error NEW is required — usage: make release NEW=1.2.3)
+endif
+	sed -i '' 's/"version": "[^"]*"/"version": "$(NEW)"/' .claude-plugin/plugin.json
+	git add .claude-plugin/plugin.json
+	git diff --cached --quiet || git commit -m "chore: bump plugin.json to v$(NEW)"
+	git checkout main
+	git merge dev --no-ff -m "release: v$(NEW)"
+	git tag -a v$(NEW) -m "release v$(NEW)"
+	git push origin main --tags
+	git checkout dev
+
 # ── Setup ─────────────────────────────────────────────────────────────────────
 setup: ## Install git hooks (run once after cloning)
 	git config core.hooksPath .githooks

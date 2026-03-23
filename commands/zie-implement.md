@@ -24,8 +24,9 @@ plan from ROADMAP.md and guides through RED → GREEN → REFACTOR per task.
    - If Ready is empty → auto-fallback: print "[zie-implement] No approved plan.
      Running /zie-plan first..."
      → run `/zie-plan` (show Next list, Zie selects) → get approval → continue.
-   - If Next is also empty during fallback → print "No backlog items. Run
-     /zie-backlog first." and STOP.
+   - If Next is also empty during fallback → print "No backlog items.
+     Run /zie-backlog to capture a new feature, or
+     /zie-plan \"idea\" to skip backlog and plan inline." and STOP.
    - Read plan file → check frontmatter for `approved: true`.
    - If `approved: true` absent → treat as unapproved → trigger auto-fallback
      above.
@@ -133,7 +134,8 @@ Before starting tasks:
 ## Notes
 
 - Works for any language — test runner detected from `.config`
-- If no active plan in ROADMAP.md → suggest running `/zie-backlog` first
+- If no active plan in ROADMAP.md → suggest `/zie-backlog` (full flow) or
+  `/zie-plan "idea"` (quick plan, no backlog file needed)
 - Can be run mid-task to resume after a break
 - The PostToolUse:auto-test hook fires on every file save — this command sets
   the strategic direction, hooks handle the feedback loop
