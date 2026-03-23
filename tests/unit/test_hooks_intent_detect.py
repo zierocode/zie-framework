@@ -136,3 +136,42 @@ class TestIntentDetectSkipGuards:
         # 500 chars total with clear bug/fix keywords — should NOT be suppressed
         r = run_hook({"prompt": "fix the bug " + "x" * 488}, tmp_cwd=cwd)
         assert r.stdout.strip() != ""
+
+
+class TestIntentDetectReDoSGuard:
+    def test_message_at_limit_is_not_rejected(self, tmp_path):
+        """Exactly MAX_MESSAGE_LEN chars — should NOT be suppressed by length guard."""
+        cwd = make_cwd_with_zf(tmp_path)
+        msg = "fix " + "x" * 996  # 1000 chars total
+        r = run_hook({"prompt": msg}, tmp_cwd=cwd)
+        assert r.returncode == 0
+
+    def test_message_over_limit_produces_no_output(self, tmp_path):
+        """1001 chars — MAX_MESSAGE_LEN guard must fire, producing no output."""
+        cwd = make_cwd_with_zf(tmp_path)
+        msg = "fix " + "x" * 997  # 1001 chars total
+        r = run_hook({"prompt": msg}, tmp_cwd=cwd)
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_max_message_len_constant_is_1000(self):
+        """MAX_MESSAGE_LEN must be defined as 1000 in the hook module."""
+        import importlib.util, io
+        hook = os.path.join(REPO_ROOT, "hooks", "intent-detect.py")
+        spec = importlib.util.spec_from_file_location("intent_detect_redos", hook)
+        mod = importlib.util.module_from_spec(spec)
+        original_stdin = sys.stdin
+        original_env = os.environ.copy()
+        try:
+            sys.stdin = io.StringIO('{"prompt": "hi"}')
+            os.environ["CLAUDE_CWD"] = "/tmp"
+            try:
+                spec.loader.exec_module(mod)
+            except SystemExit:
+                pass
+        finally:
+            sys.stdin = original_stdin
+            os.environ.clear()
+            os.environ.update(original_env)
+        assert hasattr(mod, "MAX_MESSAGE_LEN"), "MAX_MESSAGE_LEN constant not found"
+        assert mod.MAX_MESSAGE_LEN == 1000

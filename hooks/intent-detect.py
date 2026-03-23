@@ -13,7 +13,13 @@ except Exception:
 
 message = (event.get("prompt") or "").lower().strip()
 
+MAX_MESSAGE_LEN = 1000
+
 if not message or len(message) < 3:
+    sys.exit(0)
+
+# Hard cap to prevent ReDoS on adversarially long inputs
+if len(message) > MAX_MESSAGE_LEN:
     sys.exit(0)
 
 # Skip if prompt looks like command content (frontmatter or very long)
