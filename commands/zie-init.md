@@ -8,6 +8,17 @@ allowed-tools: Read, Write, Bash, Glob, Grep, Agent
 
 Bootstrap zie-framework in the current working directory. Run this once per project.
 
+## ตรวจสอบก่อนเริ่ม
+
+Verify a git repository exists:
+
+```bash
+git rev-parse --git-dir 2>/dev/null
+```
+
+Non-zero → **STOP**: `"No git repository found. Run 'git init' first,
+then re-run /zie-init."`
+
 ## Steps
 
 0. **Re-run guard**: if `zie-framework/` already exists, check completeness:
