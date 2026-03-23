@@ -23,6 +23,23 @@ integration, safety guardrails.
 | /zie-retro | Retrospective → ADRs → brain storage |
 | /zie-audit | 9-dimension audit + external research → scored report → backlog |
 
+## Skills
+
+> Invoked automatically by commands as subagents — not called directly by users.
+
+| Skill | Purpose |
+| --- | --- |
+| spec-design | Draft design spec from backlog item |
+| spec-reviewer | Review spec for completeness and correctness |
+| write-plan | Convert approved spec into implementation plan |
+| plan-reviewer | Review plan for feasibility and test coverage |
+| tdd-loop | RED/GREEN/REFACTOR loop for a single task |
+| impl-reviewer | Review implementation against spec and plan |
+| verify | Post-implementation verification gate |
+| test-pyramid | Test strategy advisor |
+| retro-format | Format retrospective findings as ADRs |
+| debug | Systematic bug diagnosis and fix path |
+
 ## Knowledge
 
 - [Architecture](project/architecture.md) — system design, component

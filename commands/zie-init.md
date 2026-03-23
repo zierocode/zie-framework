@@ -212,7 +212,7 @@ then re-run /zie-init."`
    ├── project/
    │   ├── architecture.md
    │   ├── components.md
-   │   └── decisions.md
+   │   └── context.md
    ├── backlog/
    ├── specs/
    ├── plans/

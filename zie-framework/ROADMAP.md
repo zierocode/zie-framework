@@ -28,6 +28,9 @@
 - [x] parse_roadmap_now edge cases — [plan](plans/2026-03-24-audit-parse-roadmap-edge-cases.md)
 - [x] project_tmp_path edge cases — [plan](plans/2026-03-24-audit-project-tmp-path-edge-cases.md)
 - [x] PROJECT.md version 1.4.0→1.4.1 — [plan](plans/2026-03-24-audit-project-md-version-stale.md)
+- [x] README troubleshooting section — [plan](plans/2026-03-24-audit-readme-troubleshooting.md)
+- [x] Skills table in PROJECT.md — [plan](plans/2026-03-24-audit-skills-registry-gaps.md)
+- [x] zie-init deprecated filename — [plan](plans/2026-03-24-audit-zieinit-deprecated-filename.md)
 
 ---
 
@@ -49,11 +52,7 @@
 <!-- moved to Now: parse_roadmap_now edge cases -->
 <!-- moved to Now: project_tmp_path edge cases -->
 
-<!-- MEDIUM — Docs -->
-<!-- moved to Now: PROJECT.md version 1.4.0→1.4.1 -->
-- [ ] README troubleshooting section — [plan](plans/2026-03-24-audit-readme-troubleshooting.md) ✓
-- [ ] Skills table in PROJECT.md — [plan](plans/2026-03-24-audit-skills-registry-gaps.md) ✓
-- [ ] zie-init deprecated filename — [plan](plans/2026-03-24-audit-zieinit-deprecated-filename.md) ✓
+<!-- MEDIUM — Docs — moved to Now -->
 
 <!-- MEDIUM — Standards -->
 - [ ] Dependabot setup — [plan](plans/2026-03-24-audit-dependabot-setup.md) ✓
