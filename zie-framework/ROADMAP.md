@@ -22,6 +22,69 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+<!-- CRITICAL -->
+- [ ] safety-check regex bypass via whitespace variations — [audit finding](backlog/audit-safety-check-regex-bypass.md)
+
+<!-- HIGH -->
+- [ ] TOCTOU race condition on /tmp debounce file — [audit finding](backlog/audit-toctou-tmp-race.md)
+- [ ] Symlink attack on /tmp state files — [audit finding](backlog/audit-symlink-tmp-attack.md)
+- [ ] Add Bandit/Semgrep SAST to CI pipeline — [audit finding](backlog/audit-bandit-sast-ci.md)
+- [ ] file_path from hook event not validated within cwd — [audit finding](backlog/audit-filepath-cwd-validation.md)
+
+<!-- MEDIUM — Security -->
+- [ ] session-cleanup reimplements safe_project sanitization
+  outside utils — [audit finding](backlog/audit-safe-project-dedup.md)
+- [ ] intent-detect recompiles 96 regex patterns per event
+  (ReDoS surface) — [audit finding](backlog/audit-intent-detect-redos.md)
+- [ ] session-learn concurrent file write without lock — [audit finding](backlog/audit-session-learn-concurrent-write.md)
+
+<!-- MEDIUM — Lean -->
+- [ ] Duplicated urllib POST pattern across session-learn
+  and wip-checkpoint — [audit finding](backlog/audit-urllib-post-dedup.md)
+
+<!-- MEDIUM — Quality -->
+- [ ] Tests write real /tmp paths instead of pytest tmp_path — [audit finding](backlog/audit-tests-tmp-path.md)
+- [ ] Fixture naming collision _cleanup_debounce × 3 in auto_test — [audit finding](backlog/audit-fixture-naming-collision.md)
+- [ ] Weak "no-crash" assertions don't verify hook behavior — [audit finding](backlog/audit-weak-nocrash-assertions.md)
+- [ ] parse_roadmap_now() untested for nested markdown and
+  malformed links — [audit finding](backlog/audit-parse-roadmap-edge-cases.md)
+- [ ] project_tmp_path() untested for pathological inputs — [audit finding](backlog/audit-project-tmp-path-edge-cases.md)
+
+<!-- MEDIUM — Docs -->
+- [ ] PROJECT.md version stale: 1.4.0 vs 1.4.1 — [audit finding](backlog/audit-project-md-version-stale.md)
+- [ ] README missing troubleshooting and SECURITY/CHANGELOG
+  links — [audit finding](backlog/audit-readme-troubleshooting.md)
+- [ ] 10 skills not listed in PROJECT.md components section — [audit finding](backlog/audit-skills-registry-gaps.md)
+- [ ] zie-init.md shows deprecated project/decisions.md filename — [audit finding](backlog/audit-zieinit-deprecated-filename.md)
+
+<!-- MEDIUM — Architecture -->
+- [ ] Silent JSON config parse failures with no stderr logging — [audit finding](backlog/audit-silent-config-parse-failures.md)
+- [ ] Inconsistent exception handling strategy across hooks — [audit finding](backlog/audit-exception-handling-inconsistency.md)
+- [ ] intent-detect.py recompiles regex on every invocation — [audit finding](backlog/audit-intent-detect-regex-recompile.md)
+
+<!-- MEDIUM — Standards -->
+- [ ] Set up Dependabot for dev dependencies — [audit finding](backlog/audit-dependabot-setup.md)
+
+<!-- LOW — Lean -->
+- [ ] Event parsing boilerplate repeated in 7 hooks — [audit finding](backlog/audit-event-parsing-boilerplate.md)
+- [ ] CLAUDE_CWD initialization repeated in 6 hooks — [audit finding](backlog/audit-cwd-init-boilerplate.md)
+- [ ] parse_section() duplicates parse_roadmap_now logic — [audit finding](backlog/audit-parse-section-dedup.md)
+- [ ] Knowledge hash algorithm duplicated in 3 command files — [audit finding](backlog/audit-knowledge-hash-dedup.md)
+
+<!-- LOW — Quality -->
+- [ ] wip-checkpoint counter file not guarded against ValueError — [audit finding](backlog/audit-counter-valueerror.md)
+- [ ] No test for very long commands in safety-check (ReDoS) — [audit finding](backlog/audit-safety-check-redos-test.md)
+- [ ] find_matching_test() edge cases not covered — [audit finding](backlog/audit-find-matching-test-edge-cases.md)
+
+<!-- LOW — Docs -->
+- [ ] CHANGELOG references removed commands /zie-ship and /zie-build — [audit finding](backlog/audit-changelog-stale-commands.md)
+- [ ] SECURITY.md hardcodes 'zierocode' GitHub username — [audit finding](backlog/audit-security-md-username.md)
+
+<!-- LOW — Architecture -->
+- [ ] .gitignore missing evidence/ and .pytest_cache entries — [audit finding](backlog/audit-gitignore-gaps.md)
+- [ ] Makefile release target doesn't verify main branch is clean — [audit finding](backlog/audit-makefile-release-branch.md)
+- [ ] No signed releases or SLSA provenance — [audit finding](backlog/audit-signed-releases.md)
+
 ---
 
 ## Later — Someday / Maybe
