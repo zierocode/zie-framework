@@ -15,6 +15,7 @@
 | /zie-status | (reads files) | status snapshot | none |
 | /zie-resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
 | /zie-retro | (reads git log) | ADRs + brain memories | retro-format skill |
+| /zie-audit | --focus dim | audit report + backlog | Agent, WebSearch |
 
 ## Skills
 

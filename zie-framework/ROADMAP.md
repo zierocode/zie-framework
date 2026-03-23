@@ -10,6 +10,9 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [x] /zie-audit — deep 9-dimension project audit with external research +
+  backlog integration — [plan](plans/2026-03-23-zie-audit.md)
+
 ---
 
 ## Ready — Approved Plans
