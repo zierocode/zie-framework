@@ -10,33 +10,6 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [x] safety-check regex bypass — [plan](plans/2026-03-24-audit-safety-check-regex-bypass.md)
-- [x] TOCTOU race on /tmp debounce file — [plan](plans/2026-03-24-audit-toctou-tmp-race.md)
-- [x] Symlink attack on /tmp state files — [plan](plans/2026-03-24-audit-symlink-tmp-attack.md)
-- [x] Add Bandit SAST to CI — [plan](plans/2026-03-24-audit-bandit-sast-ci.md)
-- [x] file_path CWD boundary validation — [plan](plans/2026-03-24-audit-filepath-cwd-validation.md)
-- [x] safe_project_name() dedup — [plan](plans/2026-03-24-audit-safe-project-dedup.md)
-- [x] intent-detect ReDoS guard — [plan](plans/2026-03-24-audit-intent-detect-redos.md)
-- [x] session-learn atomic write — [plan](plans/2026-03-24-audit-session-learn-concurrent-write.md)
-- [x] urllib POST helper dedup — [plan](plans/2026-03-24-audit-urllib-post-dedup.md)
-- [x] Silent config parse warning — [plan](plans/2026-03-24-audit-silent-config-parse-failures.md)
-- [x] Exception handling convention — [plan](plans/2026-03-24-audit-exception-handling-inconsistency.md)
-- [x] intent-detect module-level regex — [plan](plans/2026-03-24-audit-intent-detect-regex-recompile.md)
-- [x] Tests use pytest tmp_path — [plan](plans/2026-03-24-audit-tests-tmp-path.md)
-- [x] Fixture naming collision fix — [plan](plans/2026-03-24-audit-fixture-naming-collision.md)
-- [x] Strengthen no-crash assertions — [plan](plans/2026-03-24-audit-weak-nocrash-assertions.md)
-- [x] parse_roadmap_now edge cases — [plan](plans/2026-03-24-audit-parse-roadmap-edge-cases.md)
-- [x] project_tmp_path edge cases — [plan](plans/2026-03-24-audit-project-tmp-path-edge-cases.md)
-- [x] PROJECT.md version 1.4.0→1.4.1 — [plan](plans/2026-03-24-audit-project-md-version-stale.md)
-- [x] README troubleshooting section — [plan](plans/2026-03-24-audit-readme-troubleshooting.md)
-- [x] Skills table in PROJECT.md — [plan](plans/2026-03-24-audit-skills-registry-gaps.md)
-- [x] zie-init deprecated filename — [plan](plans/2026-03-24-audit-zieinit-deprecated-filename.md)
-- [x] Dependabot setup — [plan](plans/2026-03-24-audit-dependabot-setup.md)
-- [x] read_event() boilerplate dedup — [plan](plans/2026-03-24-audit-event-parsing-boilerplate.md)
-- [x] get_cwd() boilerplate dedup — [plan](plans/2026-03-24-audit-cwd-init-boilerplate.md)
-- [x] parse_roadmap_section() dedup — [plan](plans/2026-03-24-audit-parse-section-dedup.md)
-- [x] knowledge-hash.py extraction — [plan](plans/2026-03-24-audit-knowledge-hash-dedup.md)
-
 ---
 
 ## Ready — Approved Plans
@@ -100,6 +73,9 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] Security + quality audit sprint — 39 security fixes, 400 tests,
+  shared hook utils, Bandit SAST, Dependabot, signed releases, SLSA L1
+  — v1.5.0 2026-03-24
 - [x] Safety hook fix — exit(2), URL hardening, dead code removal
   — v1.4.1 2026-03-23
 - [x] Hook refactor — shared utils, /tmp isolation, session-cleanup Stop hook
