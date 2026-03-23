@@ -86,7 +86,10 @@ if __name__ == "__main__":
             sys.exit(0)
     safe_write_tmp(debounce_file, file_path)
 
-    changed = Path(file_path)
+    changed = Path(file_path).resolve()
+    cwd_resolved = cwd.resolve()
+    if not changed.is_relative_to(cwd_resolved):
+        sys.exit(0)
 
     timeout = config.get("auto_test_timeout_ms", 30000) // 1000
 

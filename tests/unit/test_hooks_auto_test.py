@@ -219,3 +219,55 @@ class TestAutoTestAtomicDebounceWrite:
         assert real.read_text() == "original"
         assert "WARNING" in r.stderr
         assert "symlink" in r.stderr.lower()
+
+
+class TestAutoTestFilePathCwdValidation:
+    """file_path must be resolved and validated within cwd before use."""
+
+    def test_absolute_path_outside_cwd_exits_zero(self, tmp_path):
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": "/etc/passwd"}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_tmp_path_outside_cwd_exits_zero(self, tmp_path):
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": "/tmp/malicious.py"}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_dotdot_traversal_outside_cwd_exits_zero(self, tmp_path):
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        escaped = str(cwd) + "/../../etc/passwd"
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": escaped}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_path_inside_cwd_proceeds(self, tmp_path):
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        inside_path = str(cwd / "hooks" / "utils.py")
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": inside_path}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert "/etc/passwd" not in r.stdout
+        assert "/etc/passwd" not in r.stderr
+
+    def test_out_of_bounds_path_not_leaked_to_output(self, tmp_path):
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": "/etc/shadow"}},
+            tmp_cwd=cwd,
+        )
+        assert "/etc/shadow" not in r.stdout
+        assert "/etc/shadow" not in r.stderr

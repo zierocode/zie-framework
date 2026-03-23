@@ -14,6 +14,7 @@
 - [x] TOCTOU race on /tmp debounce file — [plan](plans/2026-03-24-audit-toctou-tmp-race.md)
 - [x] Symlink attack on /tmp state files — [plan](plans/2026-03-24-audit-symlink-tmp-attack.md)
 - [x] Add Bandit SAST to CI — [plan](plans/2026-03-24-audit-bandit-sast-ci.md)
+- [x] file_path CWD boundary validation — [plan](plans/2026-03-24-audit-filepath-cwd-validation.md)
 
 ---
 
@@ -26,9 +27,7 @@
 
 <!-- CRITICAL — moved to Now -->
 
-<!-- HIGH — toctou + symlink moved to Now -->
-
-- [ ] file_path CWD boundary validation — [plan](plans/2026-03-24-audit-filepath-cwd-validation.md) ✓
+<!-- HIGH — moved to Now -->
 
 <!-- MEDIUM — Security/Arch -->
 - [ ] safe_project_name() dedup — [plan](plans/2026-03-24-audit-safe-project-dedup.md) ✓
