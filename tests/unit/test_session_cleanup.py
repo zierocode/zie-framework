@@ -6,6 +6,8 @@ import subprocess
 from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
+from utils import project_tmp_path
 
 
 def run_hook(cwd_name, stdin_data=None):
@@ -25,10 +27,10 @@ def run_hook(cwd_name, stdin_data=None):
 
 
 class TestSessionCleanupDeletes:
-    def test_deletes_project_scoped_tmp_files(self):
-        project = "zie-cleanup-test-proj"
-        tmp1 = Path(f"/tmp/zie-{project}-last-test")
-        tmp2 = Path(f"/tmp/zie-{project}-edit-count")
+    def test_deletes_project_scoped_tmp_files(self, tmp_path):
+        project = tmp_path.name
+        tmp1 = project_tmp_path("last-test", project)
+        tmp2 = project_tmp_path("edit-count", project)
         tmp1.write_text("x")
         tmp2.write_text("1")
         assert tmp1.exists()
@@ -39,20 +41,19 @@ class TestSessionCleanupDeletes:
         assert not tmp1.exists(), f"{tmp1} should have been deleted"
         assert not tmp2.exists(), f"{tmp2} should have been deleted"
 
-    def test_does_not_delete_other_project_files(self):
-        our_project = "zie-cleanup-ours"
-        other_project = "zie-cleanup-other"
-        other_file = Path(f"/tmp/zie-{other_project}-last-test")
+    def test_does_not_delete_other_project_files(self, tmp_path):
+        our_project = tmp_path.name
+        other_project = "other-" + tmp_path.name
+        other_file = project_tmp_path("last-test", other_project)
         other_file.write_text("keep me")
 
         r = run_hook(our_project)
         assert r.returncode == 0
         assert other_file.exists(), "File from other project must not be deleted"
-        # cleanup
         other_file.unlink(missing_ok=True)
 
-    def test_exits_cleanly_when_no_matching_files(self):
-        r = run_hook("zie-cleanup-nonexistent-proj-xyz")
+    def test_exits_cleanly_when_no_matching_files(self, tmp_path):
+        r = run_hook(tmp_path.name + "-nonexistent-xyz")
         assert r.returncode == 0
         assert r.stdout.strip() == ""
 
@@ -67,6 +68,18 @@ class TestSessionCleanupDeletes:
         r = run_hook(project)
         assert r.returncode == 0
         assert not tmp1.exists(), f"{tmp1} should have been deleted"
+
+
+class TestSessionCleanupTmpPathScoped:
+    def test_no_hardcoded_project_names_in_test_source(self):
+        """Tests must not use hardcoded project names — use tmp_path.name instead."""
+        src = Path(__file__).read_text()
+        hardcoded = ["zie-cleanup-test-" + "proj", "zie-cleanup-" + "ours", "zie-cleanup-" + "other"]
+        for name in hardcoded:
+            assert name not in src, (
+                f"Hardcoded project name {name!r} found in test source — "
+                "use tmp_path.name to derive unique project names"
+            )
 
 
 class TestSessionCleanupGuards:

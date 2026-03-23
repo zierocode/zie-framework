@@ -1,9 +1,11 @@
 """Tests for hooks/wip-checkpoint.py"""
-import os, sys, json, subprocess, re, pytest
+import os, sys, json, subprocess, pytest
 from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "wip-checkpoint.py")
+sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
+from utils import project_tmp_path
 
 SAMPLE_ROADMAP = """## Now
 - [ ] Refactor the payment module
@@ -29,15 +31,16 @@ def make_cwd(tmp_path, roadmap=None):
     return tmp_path
 
 
-def counter_path(project_name: str) -> Path:
-    safe = re.sub(r'[^a-zA-Z0-9]', '-', project_name)
-    return Path(f"/tmp/zie-{safe}-edit-count")
 
-
-def reset_counter(project_name: str):
-    counter = counter_path(project_name)
-    if counter.exists():
-        counter.unlink()
+class TestWipCheckpointUsesProjectTmpPath:
+    def test_no_local_counter_path_helper(self):
+        """counter_path() local helper must be removed — use project_tmp_path() from utils."""
+        src = Path(HOOK).parent.parent / "tests" / "unit" / "test_hooks_wip_checkpoint.py"
+        content = src.read_text()
+        forbidden = "def " + "counter_path"
+        assert forbidden not in content, (
+            "counter_path() local helper still present — replace with project_tmp_path() from utils"
+        )
 
 
 class TestWipCheckpointGuardrails:
@@ -67,7 +70,7 @@ class TestWipCheckpointCounter:
     @pytest.fixture(autouse=True)
     def _cleanup_counter(self, tmp_path):
         yield
-        p = counter_path(tmp_path.name)
+        p = project_tmp_path("edit-count", tmp_path.name)
         if p.exists():
             p.unlink()
 
@@ -80,7 +83,7 @@ class TestWipCheckpointCounter:
                 "ZIE_MEMORY_API_KEY": "fake-key",
                 "ZIE_MEMORY_API_URL": "https://localhost:19999",
             })
-        counter = counter_path(tmp_path.name)
+        counter = project_tmp_path("edit-count", tmp_path.name)
         assert counter.exists()
         assert int(counter.read_text().strip()) == 3
 
@@ -95,7 +98,7 @@ class TestWipCheckpointCounter:
 
     def test_no_crash_on_fifth_edit_with_bad_url(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        counter_path(tmp_path.name).write_text("4")
+        project_tmp_path("edit-count", tmp_path.name).write_text("4")
         r = run_hook(tmp_cwd=cwd, env_overrides={
             "ZIE_MEMORY_API_KEY": "fake-key",
             "ZIE_MEMORY_API_URL": "http://localhost:19999",
@@ -107,7 +110,7 @@ class TestWipCheckpointRoadmapEdgeCases:
     @pytest.fixture(autouse=True)
     def _cleanup_counter(self, tmp_path):
         yield
-        p = counter_path(tmp_path.name)
+        p = project_tmp_path("edit-count", tmp_path.name)
         if p.exists():
             p.unlink()
 
@@ -143,13 +146,13 @@ class TestWipCheckpointSymlinkProtection:
     @pytest.fixture(autouse=True)
     def _cleanup_counter(self, tmp_path):
         yield
-        p = counter_path(tmp_path.name)
+        p = project_tmp_path("edit-count", tmp_path.name)
         if p.is_symlink() or p.exists():
             p.unlink(missing_ok=True)
 
     def test_counter_symlink_does_not_overwrite_target(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        counter = counter_path(tmp_path.name)
+        counter = project_tmp_path("edit-count", tmp_path.name)
         real_file = tmp_path / "important.txt"
         real_file.write_text("do not overwrite")
         counter.symlink_to(real_file)
