@@ -160,10 +160,10 @@
   (RED)").
 - **Batch release support** — `[x]` items in the Now lane accumulate pending
   release. `/zie-ship` moves them to Done with a version tag — no need to
-  ship features individually.
+  ship features individually. *(command removed in v1.2.0 — use `/zie-release`)*
 - **Intent-driven steps** — RED/GREEN/REFACTOR in `/zie-build` are short
   paragraphs instead of bullet micro-steps; config reads collapsed to one
-  line.
+  line. *(command removed in v1.2.0 — use `/zie-implement`)*
 - **Version bump suggestion** — `/zie-ship` analyzes the Now lane and git log
   then suggests major/minor/patch with reasoning before confirmation.
 - **Human-readable CHANGELOG** — `/zie-ship` drafts the CHANGELOG entry for

@@ -29,12 +29,16 @@ release: ## Publish release (usage: make release NEW=1.2.3)
 ifndef NEW
 	$(error NEW is required — usage: make release NEW=1.2.3)
 endif
+	@git diff --quiet && git diff --cached --quiet || \
+		(echo "ERROR: Working tree is dirty. Commit or stash changes before releasing." && exit 1)
+	@git rev-parse --abbrev-ref HEAD | grep -q "^dev$$" || \
+		(echo "ERROR: Must release from 'dev' branch. Currently on: $$(git rev-parse --abbrev-ref HEAD)" && exit 1)
 	sed -i '' 's/"version": "[^"]*"/"version": "$(NEW)"/' .claude-plugin/plugin.json
 	git add .claude-plugin/plugin.json
 	git diff --cached --quiet || git commit --amend --no-edit
 	git checkout main
 	git merge dev --no-ff -m "release: v$(NEW)"
-	git tag -a v$(NEW) -m "release v$(NEW)"
+	git tag -s v$(NEW) -m "release v$(NEW)"
 	git push origin main --tags
 	git checkout dev
 

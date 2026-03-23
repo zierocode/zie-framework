@@ -70,11 +70,11 @@
 - [x] find_matching_test edge cases — [plan](plans/2026-03-24-audit-find-matching-test-edge-cases.md) ✓
 
 <!-- LOW — Docs/Standards -->
-- [ ] CHANGELOG stale commands annotated — [plan](plans/2026-03-24-audit-changelog-stale-commands.md) ✓
-- [ ] SECURITY.md fork disclaimer — [plan](plans/2026-03-24-audit-security-md-username.md) ✓
-- [ ] .gitignore gaps fixed — [plan](plans/2026-03-24-audit-gitignore-gaps.md) ✓
-- [ ] Makefile release branch guard — [plan](plans/2026-03-24-audit-makefile-release-branch.md) ✓
-- [ ] Signed releases + SLSA L1 — [plan](plans/2026-03-24-audit-signed-releases.md) ✓
+- [x] CHANGELOG stale commands annotated — [plan](plans/2026-03-24-audit-changelog-stale-commands.md) ✓
+- [x] SECURITY.md fork disclaimer — [plan](plans/2026-03-24-audit-security-md-username.md) ✓
+- [x] .gitignore gaps fixed — [plan](plans/2026-03-24-audit-gitignore-gaps.md) ✓
+- [x] Makefile release branch guard — [plan](plans/2026-03-24-audit-makefile-release-branch.md) ✓
+- [x] Signed releases + SLSA L1 — [plan](plans/2026-03-24-audit-signed-releases.md) ✓
 
 ---
 
