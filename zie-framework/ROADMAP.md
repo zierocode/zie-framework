@@ -49,39 +49,39 @@
 <!-- Source: Deep Claude Code integration research — 2026-03-24 -->
 
 <!-- CRITICAL — Core UX breakage -->
-- [ ] PreCompact/PostCompact WIP preservation — [backlog](backlog/prepostcompact-wip-preservation.md)
-- [ ] UserPromptSubmit SDLC context injection — [backlog](backlog/userpromptsubmit-sdlc-context.md)
+- [ ] PreCompact/PostCompact WIP preservation — [backlog](backlog/prepostcompact-wip-preservation.md) | [spec](specs/2026-03-24-prepostcompact-wip-preservation-design.md)
+- [ ] UserPromptSubmit SDLC context injection — [backlog](backlog/userpromptsubmit-sdlc-context.md) | [spec](specs/2026-03-24-userpromptsubmit-sdlc-context-design.md)
 
 <!-- HIGH — Significant quality/UX improvement -->
-- [ ] Reviewer skills → custom agents with persistent memory — [backlog](backlog/reviewer-agents-memory.md)
+- [ ] Reviewer skills → custom agents with persistent memory — [backlog](backlog/reviewer-agents-memory.md) | [spec](specs/2026-03-24-reviewer-agents-memory-design.md)
 - [ ] Skills frontmatter hardening (disable-model-invocation, user-invocable,
-  effort) — [backlog](backlog/skills-frontmatter-hardening.md)
-- [ ] SessionStart CLAUDE_ENV_FILE config injection — [backlog](backlog/sessionstart-env-file.md)
-- [ ] SubagentStart SDLC context injection — [backlog](backlog/subagentstart-sdlc-context.md)
-- [ ] PermissionRequest auto-approve safe SDLC operations — [backlog](backlog/permission-request-auto-approve.md)
+  effort) — [backlog](backlog/skills-frontmatter-hardening.md) | [spec](specs/2026-03-24-skills-frontmatter-hardening-design.md)
+- [ ] SessionStart CLAUDE_ENV_FILE config injection — [backlog](backlog/sessionstart-env-file.md) | [spec](specs/2026-03-24-sessionstart-env-file-design.md)
+- [ ] SubagentStart SDLC context injection — [backlog](backlog/subagentstart-sdlc-context.md) | [spec](specs/2026-03-24-subagentstart-sdlc-context-design.md)
+- [ ] PermissionRequest auto-approve safe SDLC operations — [backlog](backlog/permission-request-auto-approve.md) | [spec](specs/2026-03-24-permission-request-auto-approve-design.md)
 
 <!-- MEDIUM — Meaningful improvements -->
-- [ ] PostToolUse additionalContext test file hints — [backlog](backlog/posttooluse-additionalcontext.md)
-- [ ] Stop hook uncommitted work guard — [backlog](backlog/stop-uncommitted-guard.md)
-- [ ] PreToolUse updatedInput path sanitization + rewriting — [backlog](backlog/pretooluse-input-modification.md)
-- [ ] PostToolUseFailure debugging context injection — [backlog](backlog/posttoolusefailure-debug-context.md)
-- [ ] Skills context:fork for isolated reviewer execution — [backlog](backlog/skills-fork-context.md)
-- [ ] Skills !`cmd` bash injection for live context — [backlog](backlog/skills-bash-injection.md)
-- [ ] SubagentStop capture + resume subagent pattern — [backlog](backlog/subagent-lifecycle-hooks.md)
-- [ ] Plugin settings.json defaults + CLAUDE_PLUGIN_DATA storage — [backlog](backlog/plugin-settings-defaults.md)
-- [ ] TaskCompleted quality gate hook — [backlog](backlog/taskcompleted-validation.md)
-- [ ] type:"agent" hooks for smart safety validation — [backlog](backlog/agent-type-hooks.md)
+- [ ] PostToolUse additionalContext test file hints — [backlog](backlog/posttooluse-additionalcontext.md) | [spec](specs/2026-03-24-posttooluse-additionalcontext-design.md)
+- [ ] Stop hook uncommitted work guard — [backlog](backlog/stop-uncommitted-guard.md) | [spec](specs/2026-03-24-stop-uncommitted-guard-design.md)
+- [ ] PreToolUse updatedInput path sanitization + rewriting — [backlog](backlog/pretooluse-input-modification.md) | [spec](specs/2026-03-24-pretooluse-input-modification-design.md)
+- [ ] PostToolUseFailure debugging context injection — [backlog](backlog/posttoolusefailure-debug-context.md) | [spec](specs/2026-03-24-posttoolusefailure-debug-context-design.md)
+- [ ] Skills context:fork for isolated reviewer execution — [backlog](backlog/skills-fork-context.md) | [spec](specs/2026-03-24-skills-fork-context-design.md)
+- [ ] Skills !`cmd` bash injection for live context — [backlog](backlog/skills-bash-injection.md) | [spec](specs/2026-03-24-skills-bash-injection-design.md)
+- [ ] SubagentStop capture + resume subagent pattern — [backlog](backlog/subagent-lifecycle-hooks.md) | [spec](specs/2026-03-24-subagent-lifecycle-hooks-design.md)
+- [ ] Plugin settings.json defaults + CLAUDE_PLUGIN_DATA storage — [backlog](backlog/plugin-settings-defaults.md) | [spec](specs/2026-03-24-plugin-settings-defaults-design.md)
+- [ ] TaskCompleted quality gate hook — [backlog](backlog/taskcompleted-validation.md) | [spec](specs/2026-03-24-taskcompleted-validation-design.md)
+- [ ] type:"agent" hooks for smart safety validation — [backlog](backlog/agent-type-hooks.md) | [spec](specs/2026-03-24-agent-type-hooks-design.md)
 
 <!-- LOW — Polish -->
 - [ ] Skills advanced features ($ARGUMENTS[N], session vars, supporting files)
-  — [backlog](backlog/skills-advanced-features.md)
-- [ ] StopFailure API error logging — [backlog](backlog/stopfailure-logging.md)
-- [ ] ConfigChange CLAUDE.md drift detection — [backlog](backlog/configchange-drift-detection.md)
-- [ ] Agent isolation:worktree + background:true parallel review — [backlog](backlog/agent-worktree-isolation.md)
-- [ ] Plugin .mcp.json bundle zie-memory server — [backlog](backlog/plugin-mcp-bundle.md)
-- [ ] Notification hook permission dialog intercept — [backlog](backlog/notification-hook-intercept.md)
-- [ ] Session-wide agent mode (--agent integration) — [backlog](backlog/session-agent-mode.md)
-- [ ] model:haiku + effort:low for fast skills — [backlog](backlog/model-haiku-fast-skills.md)
+  — [backlog](backlog/skills-advanced-features.md) | [spec](specs/2026-03-24-skills-advanced-features-design.md)
+- [ ] StopFailure API error logging — [backlog](backlog/stopfailure-logging.md) | [spec](specs/2026-03-24-stopfailure-logging-design.md)
+- [ ] ConfigChange CLAUDE.md drift detection — [backlog](backlog/configchange-drift-detection.md) | [spec](specs/2026-03-24-configchange-drift-detection-design.md)
+- [ ] Agent isolation:worktree + background:true parallel review — [backlog](backlog/agent-worktree-isolation.md) | [spec](specs/2026-03-24-agent-worktree-isolation-design.md)
+- [ ] Plugin .mcp.json bundle zie-memory server — [backlog](backlog/plugin-mcp-bundle.md) | [spec](specs/2026-03-24-plugin-mcp-bundle-design.md)
+- [ ] Notification hook permission dialog intercept — [backlog](backlog/notification-hook-intercept.md) | [spec](specs/2026-03-24-notification-hook-intercept-design.md)
+- [ ] Session-wide agent mode (--agent integration) — [backlog](backlog/session-agent-mode.md) | [spec](specs/2026-03-24-session-agent-mode-design.md)
+- [ ] model:haiku + effort:low for fast skills — [backlog](backlog/model-haiku-fast-skills.md) | [spec](specs/2026-03-24-model-haiku-fast-skills-design.md)
 
 ---
 
