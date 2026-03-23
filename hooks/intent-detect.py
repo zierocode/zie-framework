@@ -16,6 +16,10 @@ message = (event.get("prompt") or "").lower().strip()
 if not message or len(message) < 3:
     sys.exit(0)
 
+# Skip if prompt looks like command content (frontmatter or very long)
+if message.startswith("---") or len(message) > 500:
+    sys.exit(0)
+
 # Only run if zie-framework is initialized in cwd
 cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
 if not (cwd / "zie-framework").exists():
@@ -108,4 +112,4 @@ if best_score >= 1:
     # Don't suggest init if already initialized
     if best == "init" and (cwd / "zie-framework" / ".config").exists():
         sys.exit(0)
-    print(f"[zie-framework] Detected: {best} intent → {cmd}")
+    print(json.dumps({"additionalContext": f"[zie-framework] Detected: {best} intent → {cmd}"}))
