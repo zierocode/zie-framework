@@ -36,7 +36,7 @@ def project_tmp_path(name: str, project: str) -> Path:
     Example: project_tmp_path("last-test", "my-project") -> Path("/tmp/zie-my-project-last-test")
     """
     safe_project = re.sub(r'[^a-zA-Z0-9]', '-', project)
-    return Path(f"/tmp/zie-{safe_project}-{name}")
+    return Path(f"/tmp/zie-{safe_project}-{name}")  # nosec B108 — project-scoped /tmp paths by design
 
 
 def safe_write_tmp(path: Path, content: str) -> bool:

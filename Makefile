@@ -55,8 +55,11 @@ clean: ## Remove cache files and build artifacts
 	find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null; \
 	find . -name "*.pyc" -delete 2>/dev/null; true
 
-lint: ## Lint Python hooks
+lint: lint-bandit ## Lint Python hooks (syntax + SAST)
 	python3 -m py_compile hooks/*.py && echo "All hooks compile OK"
+
+lint-bandit: ## Run Bandit SAST on hooks/ (medium severity + confidence)
+	python3 -m bandit -r hooks/ -ll -q
 
 lint-md: ## Lint all Markdown files (markdownlint, no exceptions)
 	npx markdownlint-cli "**/*.md" --ignore node_modules

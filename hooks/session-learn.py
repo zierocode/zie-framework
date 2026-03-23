@@ -60,6 +60,6 @@ try:
         },
         method="POST",
     )
-    urllib.request.urlopen(req, timeout=5)
+    urllib.request.urlopen(req, timeout=5)  # nosec B310 — URL validated as https:// above
 except Exception as e:
     print(f"[zie-framework] session-learn: {e}", file=sys.stderr)

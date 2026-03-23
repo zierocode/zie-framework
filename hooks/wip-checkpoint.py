@@ -77,6 +77,6 @@ try:
         },
         method="POST",
     )
-    urllib.request.urlopen(req, timeout=3)
+    urllib.request.urlopen(req, timeout=3)  # nosec B310 — URL validated as https:// above
 except Exception as e:
     print(f"[zie-framework] wip-checkpoint: {e}", file=sys.stderr)

@@ -15,7 +15,7 @@ except Exception:
 cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
 safe_project = re.sub(r'[^a-zA-Z0-9]', '-', cwd.name)
 
-for tmp_file in Path("/tmp").glob(f"zie-{safe_project}-*"):
+for tmp_file in Path("/tmp").glob(f"zie-{safe_project}-*"):  # nosec B108 — project-scoped /tmp paths by design
     try:
         tmp_file.unlink()
     except Exception as e:
