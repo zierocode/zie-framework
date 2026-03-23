@@ -141,17 +141,32 @@ merging.
    - **yes** → append section at top of `CHANGELOG.md`
    - **edit** → Zie แก้ text → write → continue
 
-5. **Commit release files**:
+5. **Pre-flight: ตรวจสอบ uncommitted files**:
+
+   ```bash
+   git status --short
+   ```
+
+   - Release commit ควรมีแค่ 4 ไฟล์: `VERSION`, `CHANGELOG.md`,
+     `zie-framework/ROADMAP.md`, `.claude-plugin/plugin.json`
+   - ถ้าเจอ implementation files (hooks/*, tests/*, commands/*) ค้างอยู่ →
+     STOP: "Uncommitted feature files found: [list]. These should have been
+     committed in a `feat:` commit. Run `git add -A && git commit
+     -m "feat: SLUG"` — then re-run /zie-release."
+   - ถ้าเจอแค่ docs (CLAUDE.md, README.md) ที่ release gate เพิ่งอัปเดต →
+     include ได้ในขั้นถัดไป
+
+6. **Commit release files**:
 
    ```bash
    git add VERSION CHANGELOG.md zie-framework/ROADMAP.md \
-     CLAUDE.md README.md .claude-plugin/marketplace.json
+     .claude-plugin/plugin.json
    git commit -m "release: v<NEW_VERSION>"
    ```
 
    *(git add ไม่ error ถ้าไฟล์ไม่ได้ถูกแก้)*
 
-6. **Readiness gate — verify `make release` is implemented**:
+7. **Readiness gate — verify `make release` is implemented**:
 
    ```bash
    grep -q "ZIE-NOT-READY" Makefile && echo "NOT_READY" || echo "READY"
@@ -168,7 +183,7 @@ merging.
 
    - `READY` → proceed.
 
-7. **Delegate publish to project**:
+8. **Delegate publish to project**:
 
    ```bash
    make release NEW=<version>
@@ -178,14 +193,14 @@ merging.
    - Non-zero → **STOP**. Surface make error. Print: "Release failed —
      fix make release and re-run /zie-release."
 
-8. **Store release in brain** (if `zie_memory_enabled=true`):
+9. **Store release in brain** (if `zie_memory_enabled=true`):
    - First READ: `recall project=<project> tags=[wip, plan] feature=<slug> limit=5`
    - Then WRITE: `remember "Shipped: <feature> v<NEW_VERSION>. Tasks: N.
      Actual: <vs estimate>." tags=[shipped, <project>, <domain>]`
 
-9. **Auto-run `/zie-retro`**.
+10. **Auto-run `/zie-retro`**.
 
-10. Print:
+11. Print:
 
     ```text
     Released v<NEW_VERSION>

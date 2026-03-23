@@ -33,9 +33,22 @@ plan from ROADMAP.md and guides through RED → GREEN → REFACTOR per task.
 
 4. Pull first Ready item → move to Now in ROADMAP.md.
 
-5. อ่าน `zie-framework/.config` เพื่อ context
+5. **ตรวจสอบ uncommitted work** — ตรวจก่อนเริ่ม task loop ทุกครั้ง:
 
-6. If `zie_memory_enabled=true`:
+   ```bash
+   git status --short
+   ```
+
+   - ถ้ามี modified/untracked files ที่เกี่ยวกับ feature นี้ →
+     print: "Uncommitted work found from prior session: [list] —
+     will be included in the feat: commit at the end of this feature."
+   - ไม่ต้องทำอะไรตอนนี้ — `git add -A` ตอน feature จบจะ capture ทุกอย่าง
+   - ถ้าเจอ backlog/spec/plan ที่ยังไม่ได้ commit → warn:
+     "SDLC files uncommitted — commit them before starting implementation."
+
+6. อ่าน `zie-framework/.config` เพื่อ context
+
+7. If `zie_memory_enabled=true`:
    - If **resuming** (feature was already in Now lane):
      `recall project=<project> tags=[wip] feature=<slug> limit=1`
      to restore in-progress context.
@@ -44,7 +57,7 @@ plan from ROADMAP.md and guides through RED → GREEN → REFACTOR per task.
    - Read plan's "## Context from brain" section for domain context.
    - Do NOT re-recall domain patterns — /zie-plan already baked them in.
 
-7. **Create task tracker**: `TaskCreate` for each plan task with name +
+8. **Create task tracker**: `TaskCreate` for each plan task with name +
    description. Use returned task IDs for `TaskUpdate` progress tracking.
 
 ### วิเคราะห์ dependency ระหว่าง tasks
@@ -110,11 +123,25 @@ Before starting tasks:
 3. Mark feature complete and commit to dev:
    - Update `zie-framework/ROADMAP.md` Now lane: change feature from `[ ]`
      to `[x]` (complete, pending release — see D-005 batch release pattern).
-   - Commit all feature code and updated plan/ROADMAP to dev:
+   - Review what will be committed:
 
      ```bash
-     make push m="feat: <feature-slug>"
+     git status --short
      ```
+
+     Expected: implementation files (code, tests, hooks, commands) +
+     `zie-framework/ROADMAP.md`. If backlog/spec/plan files appear here they
+     were not committed at their stage — commit them now too.
+
+   - Commit all feature code to dev:
+
+     ```bash
+     git add -A
+     git commit -m "feat: <feature-slug>"
+     git push origin dev
+     ```
+
+     **ห้าม** commit ระหว่าง task loop — commit ครั้งเดียวตอนนี้เท่านั้น.
 
 4. Print:
 

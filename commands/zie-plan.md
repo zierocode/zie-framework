@@ -82,6 +82,15 @@ For each drafted plan, before showing to Zie:
 
      Move item in `zie-framework/ROADMAP.md` from Next → Ready:
      `- [ ] <feature name> — [plan](plans/YYYY-MM-DD-<slug>.md) ✓`
+
+     Commit plan + ROADMAP:
+
+     ```bash
+     git add zie-framework/plans/YYYY-MM-DD-<slug>.md \
+       zie-framework/ROADMAP.md
+     git commit -m "plan: <slug>"
+     ```
+
    - **re-draft** → revise plan and re-run plan-reviewer gate before
      re-presenting (keeps pending state)
    - **drop** → leave item in Next unchanged, skip this plan

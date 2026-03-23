@@ -34,7 +34,16 @@ reviewer loop. Output lives in `zie-framework/specs/`.
 2. **Slug mode** (existing flow): pass backlog file content to
    `Skill(zie-framework:spec-design)` with `zie_memory_enabled` from
    .config. Spec saved to `zie-framework/specs/YYYY-MM-DD-<slug>-design.md`
-   with `approved: true` in frontmatter once reviewed. Go to step 4.
+   with `approved: true` in frontmatter once reviewed.
+
+   Commit spec after approval:
+
+   ```bash
+   git add zie-framework/specs/YYYY-MM-DD-<slug>-design.md
+   git commit -m "spec: <slug>"
+   ```
+
+   Go to step 4.
 
 3. **Quick spec mode** (new): print "Quick spec mode — skipping backlog.
    Starting spec design..."
@@ -50,6 +59,14 @@ reviewer loop. Output lives in `zie-framework/specs/`.
      spec, runs spec-reviewer loop, records `approved: true` in frontmatter.
    - After spec approved, add to ROADMAP Next:
      `- [ ] <idea title> — [spec](specs/YYYY-MM-DD-<slug>-design.md)`
+
+   Commit spec + ROADMAP after approval:
+
+   ```bash
+   git add zie-framework/specs/YYYY-MM-DD-<slug>-design.md \
+     zie-framework/ROADMAP.md
+   git commit -m "spec: <slug>"
+   ```
 
 4. Print handoff (both modes):
 
