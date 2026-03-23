@@ -38,6 +38,14 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] Safety hook fix — exit(2), URL hardening, dead code removal
+  — v1.4.1 2026-03-23
+- [x] Hook refactor — shared utils, /tmp isolation, session-cleanup Stop hook
+  — v1.4.1 2026-03-23
+- [x] Test hardening — autouse fixtures, JSON assertions, find_matching_test,
+  ROADMAP edge cases, debounce boundary — v1.4.1 2026-03-23
+- [x] Docs + standards sprint — plugin.json sync, ADR canonicalization,
+  SECURITY.md, .cz.toml, CHANGELOG translation — v1.4.1 2026-03-23
 - [x] /zie-audit — 9-dimension project audit, external research via
   WebSearch/WebFetch, scored report, backlog integration — v1.4.0 2026-03-23
 - [x] Pipeline fixes — implement commit step, release verify consolidation,

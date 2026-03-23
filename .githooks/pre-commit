@@ -4,6 +4,15 @@
 
 set -euo pipefail
 
+# Version drift check: plugin.json must match VERSION
+plugin_ver=$(jq -r .version .claude-plugin/plugin.json 2>/dev/null || echo "")
+version_ver=$(cat VERSION 2>/dev/null || echo "")
+if [ -n "$plugin_ver" ] && [ -n "$version_ver" ] && [ "$plugin_ver" != "$version_ver" ]; then
+  echo "Version drift: plugin.json=$plugin_ver vs VERSION=$version_ver"
+  echo "Run: make sync-version"
+  exit 1
+fi
+
 STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep '\.md$' || true)
 
 if [ -z "$STAGED" ]; then

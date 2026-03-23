@@ -1,4 +1,11 @@
 {
+  "_hook_output_protocol": {
+    "SessionStart": "plain text printed to stdout — injected as session context",
+    "UserPromptSubmit": "JSON {\"additionalContext\": \"...\"} printed to stdout",
+    "PostToolUse": "plain text warnings/status printed to stdout",
+    "PreToolUse": "plain text BLOCKED/WARNING printed to stdout; exit(2) to block",
+    "Stop": "no output required; side-effects only (file writes, API calls)"
+  },
   "hooks": {
   "SessionStart": [
     {
@@ -52,6 +59,10 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-learn.py\""
+        },
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-cleanup.py\""
         }
       ]
     }

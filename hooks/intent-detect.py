@@ -16,6 +16,10 @@ message = (event.get("prompt") or "").lower().strip()
 if not message or len(message) < 3:
     sys.exit(0)
 
+# Skip if prompt looks like command content (frontmatter or very long)
+if message.startswith("---") or len(message) > 500:
+    sys.exit(0)
+
 # Only run if zie-framework is initialized in cwd
 cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
 if not (cwd / "zie-framework").exists():
@@ -73,6 +77,11 @@ PATTERNS = {
     ],
 }
 
+COMPILED_PATTERNS = {
+    cat: [re.compile(p) for p in pats]
+    for cat, pats in PATTERNS.items()
+}
+
 SUGGESTIONS = {
     "init":      "/zie-init",
     "backlog":   "/zie-backlog",
@@ -87,10 +96,10 @@ SUGGESTIONS = {
 
 # Score each category
 scores = {}
-for category, patterns in PATTERNS.items():
+for category, compiled_pats in COMPILED_PATTERNS.items():
     score = 0
-    for pattern in patterns:
-        if re.search(pattern, message):
+    for compiled_pat in compiled_pats:
+        if compiled_pat.search(message):
             score += 1
     if score > 0:
         scores[category] = score
@@ -108,4 +117,4 @@ if best_score >= 1:
     # Don't suggest init if already initialized
     if best == "init" and (cwd / "zie-framework" / ".config").exists():
         sys.exit(0)
-    print(f"[zie-framework] Detected: {best} intent → {cmd}")
+    print(json.dumps({"additionalContext": f"[zie-framework] Detected: {best} intent → {cmd}"}))

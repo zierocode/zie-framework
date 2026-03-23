@@ -1,6 +1,6 @@
 # Architecture — zie-framework
 
-**Last updated:** 2026-03-22
+**Last updated:** 2026-03-23
 
 ## Overview
 
@@ -57,3 +57,12 @@ User runs /zie-command
 - **Graceful degradation**: all features work without zie-memory or superpowers
 - **Hook safety**: hooks must never crash — every hook has try/except + exit(0)
   on error
+
+## Version History Summary
+
+- **v1.3.0** (2026-03-23) — 6-stage SDLC pipeline; `project/context.md`
+  renamed from `decisions.md`; reviewer context bundles; quick spec mode;
+  hybrid release via `make release`.
+- **v1.4.0** (2026-03-23) — `/zie-audit` 9-dimension audit command with
+  external research; `research_profile` dynamic intelligence layer; intent-detect
+  skip command content.
