@@ -24,8 +24,9 @@ plan from ROADMAP.md and guides through RED → GREEN → REFACTOR per task.
    - If Ready is empty → auto-fallback: print "[zie-implement] No approved plan.
      Running /zie-plan first..."
      → run `/zie-plan` (show Next list, Zie selects) → get approval → continue.
-   - If Next is also empty during fallback → print "No backlog items. Run
-     /zie-backlog first." and STOP.
+   - If Next is also empty during fallback → print "No backlog items.
+     Run /zie-backlog to capture a new feature, or
+     /zie-plan \"idea\" to skip backlog and plan inline." and STOP.
    - Read plan file → check frontmatter for `approved: true`.
    - If `approved: true` absent → treat as unapproved → trigger auto-fallback
      above.
@@ -34,11 +35,17 @@ plan from ROADMAP.md and guides through RED → GREEN → REFACTOR per task.
 
 5. อ่าน `zie-framework/.config` เพื่อ context
 
-6. If `zie_memory_enabled=true` (resume only — domain context already in plan):
-   - `recall project=<project> tags=[wip] feature=<slug> limit=1`
+6. If `zie_memory_enabled=true`:
+   - If **resuming** (feature was already in Now lane):
+     `recall project=<project> tags=[wip] feature=<slug> limit=1`
+     to restore in-progress context.
+   - If **starting fresh** (just pulled from Ready): skip WIP recall — no WIP
+     memory exists yet.
    - Read plan's "## Context from brain" section for domain context.
-   - Do NOT re-recall domain patterns — /zie-plan already baked them into the
-     plan.
+   - Do NOT re-recall domain patterns — /zie-plan already baked them in.
+
+7. **Create task tracker**: `TaskCreate` for each plan task with name +
+   description. Use returned task IDs for `TaskUpdate` progress tracking.
 
 ### วิเคราะห์ dependency ระหว่าง tasks
 
@@ -56,8 +63,8 @@ Before starting tasks:
 
 1. **Announce task**: "Working on: [Task N] — {task description}"
 
-2. For non-trivial tasks, invoke `Skill(zie-framework:tdd-loop)` for
-   RED/GREEN/REFACTOR guidance.
+2. Invoke `Skill(zie-framework:tdd-loop)` for RED/GREEN/REFACTOR guidance.
+   Skip only for pure documentation tasks (no code changes).
 
 3. **เขียน test ที่ล้มเหลวก่อน (RED)**
    Invoke `Skill(zie-framework:test-pyramid)` เพื่อเลือก test level (unit /
@@ -74,7 +81,8 @@ Before starting tasks:
    เพื่อยืนยัน
 
 6. **Invoke `Skill(zie-framework:impl-reviewer)`**:
-   - Pass: task description + AC from plan + list of files changed
+   - Pass: task description, **Acceptance Criteria** from plan task header,
+     and list of files changed
    - If ❌ Issues found → fix → re-run `make test-unit` → re-invoke
      reviewer → repeat until ✅ APPROVED
    - Max 3 iterations → surface to human
@@ -96,12 +104,16 @@ Before starting tasks:
 1. Run full test suite: `make test-unit` (required) + `make test-int` (if
    available).
 
-2. Print:
+2. Invoke `Skill(zie-framework:verify)` — checks TODOs, docs sync, secrets,
+   and confirms feature is release-ready before leaving implementation context.
+
+3. Print:
 
    ```text
    All tasks complete for: <feature name>
 
    Tests: unit ✓ | integration ✓|n/a
+   Verify: ✓
 
    Next: Run /zie-release to release, or /zie-backlog for the next feature.
    ```
@@ -122,7 +134,8 @@ Before starting tasks:
 ## Notes
 
 - Works for any language — test runner detected from `.config`
-- If no active plan in ROADMAP.md → suggest running `/zie-backlog` first
+- If no active plan in ROADMAP.md → suggest `/zie-backlog` (full flow) or
+  `/zie-plan "idea"` (quick plan, no backlog file needed)
 - Can be run mid-task to resume after a break
 - The PostToolUse:auto-test hook fires on every file save — this command sets
   the strategic direction, hooks handle the feedback loop

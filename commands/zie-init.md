@@ -10,6 +10,24 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
 
 ## Steps
 
+0. **Re-run guard**: if `zie-framework/` already exists, check completeness:
+
+   **Complete** = `zie-framework/PROJECT.md` exists AND
+   `zie-framework/project/architecture.md` exists AND
+   `zie-framework/.config` contains `"knowledge_hash"` with a non-empty value.
+
+   - **If complete**: print "Already initialized." then **skip to Step 3**
+     (create missing files only — all steps idempotent). Knowledge scan is
+     not repeated; run `/zie-resync` to update knowledge docs.
+
+   - **If incomplete** (missing knowledge docs or missing/empty
+     `knowledge_hash`): print "Existing framework found, but knowledge scan
+     not yet done. Scanning codebase..." then proceed to Step 2 (skip Step 1
+     project-type detection only if `.config` already exists with
+     `project_type`).
+
+   - **If `zie-framework/` does not exist**: proceed normally from Step 1.
+
 1. **Detect project type** by reading existing files:
    - `requirements.txt` or `pyproject.toml` → `python-api`
    - `package.json` with Next.js/React → `typescript-fullstack`
@@ -31,6 +49,12 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    codebase..." then:
 
    a. Invoke `Agent(subagent_type=Explore)`:
+      - **Before scanning code**: read existing project docs as
+        primary sources — prefer documented intent over inferred
+        code structure:
+        `README.md`, `CHANGELOG.md`, `ARCHITECTURE.md`, `AGENTS.md`,
+        `docs/**`, any `**/specs/*.md`, `**/plans/*.md`,
+        `**/decisions/*.md` outside `zie-framework/`
       - Task: scan every file, return a structured analysis report:
         - Architecture pattern and overall structure
         - Every significant component/module (name + one-line purpose)
@@ -48,7 +72,7 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
       - `zie-framework/PROJECT.md`
       - `zie-framework/project/architecture.md`
       - `zie-framework/project/components.md`
-      - `zie-framework/project/decisions.md`
+      - `zie-framework/project/context.md`
         (only real decisions found; unknowns marked TBD)
 
    c. Present all four drafts inline as markdown code blocks. Ask:
@@ -125,7 +149,41 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
       }
       ```
 
-   h. Continue to step 3 (create zie-framework/ directory structure —
+   h. **Detect migratable documentation** — scan project root
+      (excluding `zie-framework/`, `node_modules/`, `.git/`) for
+      files matching these patterns:
+
+      | Pattern | Destination |
+      | --- | --- |
+      | `**/specs/*.md`, `**/spec/*.md` | `zie-framework/specs/` |
+      | `**/plans/*.md`, `**/plan/*.md` | `zie-framework/plans/` |
+      | `**/decisions/*.md`, `**/adr/*.md` | `zie-framework/decisions/` |
+      | `ADR-*.md` (at project root) | `zie-framework/decisions/` |
+
+      Skip always: `README.md`, `CHANGELOG.md`, `LICENSE*`,
+      `CLAUDE.md`, `AGENTS.md`, files already inside
+      `zie-framework/`, and any `docs/` tree that contains
+      `index.md` or `_sidebar.md` at its root (public doc site).
+
+      If candidates found, print:
+
+      ```text
+      Found documentation that can be migrated into zie-framework/:
+
+        docs/specs/foo.md  →  zie-framework/specs/foo.md
+        docs/plans/bar.md  →  zie-framework/plans/bar.md
+
+      Migrate these files? (yes / no / select)
+      ```
+
+      - `yes` → migrate all using `git mv`
+      - `no` → skip silently
+      - `select` → confirm each file individually (y/n per file)
+
+      After migration, print the list of moved files.
+      If no candidates found, skip silently.
+
+   i. Continue to step 3 (create zie-framework/ directory structure —
       skip the four knowledge docs since they were already written).
 
    **Failure handling:** If Agent scan fails or returns empty → warn
@@ -148,17 +206,19 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    ├── specs/
    ├── plans/
    ├── decisions/
-   └── evidence/
+   └── evidence/          # local-only: screenshots, test outputs, debug dumps
    ```
 
    Create a `.gitignore` inside `zie-framework/` with: `evidence/`
+   (evidence/ is gitignored — never committed; use it for local artifacts)
    Create `zie-framework/backlog/.gitkeep` so the directory is tracked by git.
    Generate from templates with substitutions (`{{project_name}}`, `{{date}}`, `{{version}}`):
    - `PROJECT.md` from `templates/PROJECT.md.template`
    - `project/architecture.md` from `templates/project/architecture.md.template`
    - `project/components.md` from `templates/project/components.md.template`
-   - `project/decisions.md` from `templates/project/decisions.md.template`
-   (For existing projects: skip the four knowledge docs — already written in step 2.)
+   - `project/context.md` from `templates/project/context.md.template`
+   (For existing projects: skip the four knowledge docs —
+   already written in step 2.)
 
 4. **Generate `zie-framework/.config`** (JSON):
 
@@ -177,7 +237,8 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
    ```
 
 5. **Generate `zie-framework/ROADMAP.md`** from template:
-   Use the ROADMAP template — set project name from current directory name.
+   Use `templates/ROADMAP.md.template` — set project name from
+   current directory name.
 
 6. **Create `Makefile`** at project root:
    - If Makefile already exists: ADD the standard targets (test-unit,
@@ -185,11 +246,28 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
      exist. Never overwrite existing targets.
    - If no Makefile: create from template matching project_type (python or typescript).
 
-7. **Create `VERSION`** at project root:
-   - If exists: keep as-is.
-   - If not: create with content `0.1.0`
+7. **Negotiate `make release` skeleton** (both greenfield + existing paths):
 
-8. **Create `CLAUDE.md`** at project root:
+   - Check if `Makefile` already contains a `release` target:
+     `grep -q "^release:" Makefile 2>/dev/null` → if found: **skip**
+     (idempotent — never overwrite an existing target).
+   - Draft skeleton by `project_type`:
+
+     | project\_type | Skeleton hint |
+     | --- | --- |
+     | `python-api` | `sed` VERSION + pyproject.toml bump + pip publish |
+     | `python-plugin` | `sed` VERSION + plugin.json bump + gh release |
+     | `typescript-cli` | `npm version` + `npm publish` |
+     | `typescript-fullstack` | `npm version` + `vercel deploy --prod` |
+     | (other) | generic with detailed `ZIE-NOT-READY` TODO comment |
+
+   - Present skeleton and ask: "Does this look right? (yes / no / edit)"
+   - `yes` → append to `Makefile`; `no` → skip; `edit` → redraft → repeat.
+
+8. **Create `VERSION`** at project root — keep as-is if exists;
+   create with content `0.1.0` if missing.
+
+9. **Create `CLAUDE.md`** at project root:
    - If exists: skip (never overwrite).
    - If not: generate from `templates/CLAUDE.md.template` with these
      substitutions:
@@ -204,28 +282,30 @@ Bootstrap zie-framework in the current working directory. Run this once per proj
        - typescript: `make test-unit   # unit tests\nmake test        # full
          suite\nmake push m="msg"  # commit + push`
 
-9. **Install Markdown lint enforcement**:
-   - Create `.markdownlint.json` at project root from
-     `templates/markdownlint.json.template` — skip if already exists.
-   - Create `.githooks/pre-commit` from
-     `templates/githooks-pre-commit.template` — skip if already exists.
-     Run `chmod +x .githooks/pre-commit` after.
-   - Run `git config core.hooksPath .githooks` to activate the hook.
+10. **Install Markdown lint enforcement**:
+    - Create `.markdownlint.json` at project root from
+      `templates/markdownlint.json.template` — skip if already exists.
+    - Create `.githooks/pre-commit` from
+      `templates/githooks-pre-commit.template` — skip if already exists.
+      Run `chmod +x .githooks/pre-commit` after.
+    - Run `git config core.hooksPath .githooks` to activate the hook.
 
-10. **If `playwright_enabled=true`**:
+11. **If `playwright_enabled=true`**:
     - Check if `@playwright/test` in package.json devDependencies
-    - If not: `npm install --save-dev @playwright/test` +
-      `npx playwright install chromium`
+    - If not: ask "Install @playwright/test? This will run npm install. (yes/no)"
+      → If yes: `npm install --save-dev @playwright/test` +
+        `npx playwright install chromium`
+      → If no: set `playwright_enabled=false` in `.config` and skip
     - Create `playwright.config.ts` from template if it doesn't exist
     - Create `tests/e2e/` directory with `fixtures.ts`
 
-11. **If `zie_memory_enabled=true`**:
+12. **If `zie_memory_enabled=true`**:
     - Store project bootstrap memory:
       `remember "Project <name> initialized with zie-framework. Type:
       <project_type>. Stack: <tech_stack>. Test runner: <test_runner>."
       tags=[zie-framework, init, <project_name>]`
 
-12. **Print summary**:
+13. **Print summary**:
 
    ```text
    zie-framework initialized in <project>/

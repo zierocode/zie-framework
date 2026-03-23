@@ -56,9 +56,26 @@ If `zie_memory_enabled=true`:
    - If ❌ Issues Found → fix issues → re-invoke reviewer → repeat until ✅ APPROVED
    - Max 3 iterations → surface to human
 
-6. **Ask user to review** the written spec before proceeding.
+6. **Record approval** — once spec-reviewer returns ✅ APPROVED, prepend
+   frontmatter to the spec file:
 
-7. If approved → hand off to `Skill(zie-framework:write-plan)`.
+   ```yaml
+   ---
+   approved: true
+   approved_at: YYYY-MM-DD
+   backlog: backlog/<slug>.md
+   ---
+   ```
+
+7. **Ask user to review** the written spec before proceeding.
+
+8. Print handoff — do NOT auto-invoke write-plan:
+
+   ```text
+   Spec approved ✓ → zie-framework/specs/YYYY-MM-DD-<slug>-design.md
+
+   Next: Run /zie-plan <slug> to draft the implementation plan.
+   ```
 
 ## Notes
 

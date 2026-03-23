@@ -107,10 +107,14 @@ class TestCommandsNoSuperpowersDependency:
         assert "Skill(zie-framework:spec-design)" in content, \
             "zie-spec must invoke Skill(zie-framework:spec-design)"
 
-    def test_spec_design_calls_zie_framework_write_plan(self):
+    def test_spec_design_does_not_auto_invoke_write_plan(self):
+        # spec-design must NOT auto-invoke write-plan — commands are the control
+        # plane; zie-plan handles the write-plan handoff after spec approval.
         content = read("skills/spec-design/SKILL.md")
-        assert "Skill(zie-framework:write-plan)" in content, \
-            "spec-design skill must hand off to Skill(zie-framework:write-plan)"
+        assert "Skill(zie-framework:write-plan)" not in content, \
+            "spec-design must not auto-invoke write-plan (pipeline divergence fix)"
+        assert "/zie-plan" in content, \
+            "spec-design must print handoff to /zie-plan instead of invoking write-plan"
 
     def test_zie_implement_calls_zie_framework_tdd_loop(self):
         content = read("commands/zie-implement.md")

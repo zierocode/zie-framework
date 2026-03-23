@@ -29,7 +29,7 @@ class TestProjectMdHub:
         content = read("zie-framework/PROJECT.md")
         assert "project/architecture.md" in content
         assert "project/components.md" in content
-        assert "project/decisions.md" in content
+        assert "project/context.md" in content
 
 
 class TestSpokes:
@@ -41,14 +41,9 @@ class TestSpokes:
         assert os.path.isfile(os.path.join(ZIE, "project", "components.md")), \
             "zie-framework/project/components.md must exist"
 
-    def test_decisions_md_exists(self):
-        assert os.path.isfile(os.path.join(ZIE, "project", "decisions.md")), \
-            "zie-framework/project/decisions.md must exist"
-
-    def test_decisions_md_append_only_note(self):
-        content = read("zie-framework/project/decisions.md")
-        assert "Superseded" in content or "append-only" in content.lower(), \
-            "decisions.md must note it is append-only (use 'Superseded' status or note)"
+    def test_context_md_exists(self):
+        assert os.path.isfile(os.path.join(ZIE, "project", "context.md")), \
+            "zie-framework/project/context.md must exist"
 
 
 class TestInitTemplates:
@@ -62,7 +57,7 @@ class TestInitTemplates:
             "PROJECT.md.template must use {{project_name}} placeholder"
 
     def test_project_spoke_templates_exist(self):
-        for spoke in ["architecture.md.template", "components.md.template", "decisions.md.template"]:
+        for spoke in ["architecture.md.template", "components.md.template", "context.md.template"]:
             path = os.path.join(REPO_ROOT, "templates", "project", spoke)
             assert os.path.isfile(path), f"templates/project/{spoke} must exist for /zie-init"
 

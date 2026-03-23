@@ -38,6 +38,16 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] Reviewer depth — context bundle (decisions/ + ROADMAP + context.md) for
+  spec/plan/impl reviewers — v1.3.0 2026-03-23
+- [x] Quick spec — `/zie-spec "idea"` skips backlog, inline idea → spec-design
+  directly — v1.3.0 2026-03-23
+- [x] Hybrid release — `make release NEW=<v>` skeleton in Makefile templates;
+  `/zie-release` readiness gate + delegation; `/zie-init` negotiates skeleton —
+  v1.3.0 2026-03-23
+- [x] Post-release pipeline audit — 33 issues (6 critical, 16 important,
+  11 minor) across all 10 commands + 10 skills + hooks; ADR-003 + ADR-004;
+  README pipeline section — 2026-03-23
 - [x] SDLC pipeline redesign — 6-stage pipeline (backlog→spec→plan→implement→
   release→retro) with spec/plan/impl reviewer quality gates — 2026-03-23
 - [x] zie-init deep scan + knowledge drift detection — Agent(Explore) scan,

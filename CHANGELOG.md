@@ -1,5 +1,36 @@
 # Changelog
 
+## v1.3.0 — 2026-03-23
+
+### Features
+
+- **Quick spec mode** — `/zie-spec "idea"` accepts inline ideas directly,
+  no backlog file needed. Detects spaces in argument, derives slug, jumps
+  straight to spec-design.
+- **Hybrid release** — `/zie-release` delegates publish to `make release
+  NEW=<v>`. Makefile templates ship a `ZIE-NOT-READY` skeleton; `/zie-init`
+  negotiates a project-appropriate skeleton on first run. Readiness gate
+  prevents accidental skeleton execution.
+- **Reviewer context bundles** — All three reviewers gain a Phase 1
+  context load (named files, ADRs, project/context.md, ROADMAP) and Phase 3
+  checks: file existence, ADR conflict, ROADMAP conflict, pattern match.
+
+### Fixed
+
+- `project/decisions.md` renamed to `project/context.md` — avoids naming
+  collision with `decisions/` ADR directory. All templates + tests updated.
+- `/zie-init` deep scan `knowledge_hash` now stable (dir tree + file counts
+  + config files SHA-256). Used by `/zie-resync` for drift detection.
+- Post-release pipeline audit: 33 issues (6 critical, 16 important, 11 minor)
+  fixed across all 10 commands, 10 skills, and hooks. ADR-003 + ADR-004
+  written.
+
+### Changed
+
+- SDLC pipeline redesigned to 6 stages with reviewer quality gates at every
+  handoff. `superpowers_enabled` removed — framework is fully self-contained.
+- Markdownlint: default config (MD013 line-length no longer overridden).
+
 ## v1.2.0 — 2026-03-23
 
 ### Features

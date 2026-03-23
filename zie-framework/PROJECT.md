@@ -4,7 +4,7 @@ AI-native SDLC framework plugin for Claude Code. ติดตั้ง structure
 workflow เข้าไปในทุก project: spec-first TDD, intent detection, memory
 integration, safety guardrails.
 
-**Version**: 1.0.0  **Status**: active
+**Version**: 1.3.0  **Status**: active
 
 ---
 
@@ -17,7 +17,7 @@ integration, safety guardrails.
 | /zie-plan | Approved spec → draft plan → approval → Ready lane |
 | /zie-implement | Ready → TDD implementation + impl-reviewer gate |
 | /zie-fix | Bug → regression test → fix → verify |
-| /zie-release | Release gate → merge dev→main → tag → retro |
+| /zie-release | Release gate → readiness check → `make release` → retro |
 | /zie-status | Snapshot สถานะปัจจุบัน |
 | /zie-resync | Rescan codebase + update knowledge docs + hash |
 | /zie-retro | Retrospective → ADRs → brain storage |
@@ -27,7 +27,9 @@ integration, safety guardrails.
 - [Architecture](project/architecture.md) — system design, component
   relationships
 - [Components](project/components.md) — command/skill/hook registry
-- [Decisions](project/decisions.md) — ADR log
+- [Context](project/context.md) — design context, constraints,
+  key decisions found in codebase
+- [ADRs](decisions/) — formal Architecture Decision Records
 
 ## Links
 
