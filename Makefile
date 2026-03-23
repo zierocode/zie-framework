@@ -31,7 +31,7 @@ ifndef NEW
 endif
 	sed -i '' 's/"version": "[^"]*"/"version": "$(NEW)"/' .claude-plugin/plugin.json
 	git add .claude-plugin/plugin.json
-	git diff --cached --quiet || git commit -m "chore: bump plugin.json to v$(NEW)"
+	git diff --cached --quiet || git commit --amend --no-edit
 	git checkout main
 	git merge dev --no-ff -m "release: v$(NEW)"
 	git tag -a v$(NEW) -m "release v$(NEW)"
