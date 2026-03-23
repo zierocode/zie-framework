@@ -173,6 +173,22 @@ class TestWipCheckpointSymlinkProtection:
         assert real_file.read_text() == "do not overwrite"
 
 
+class TestWipCheckpointUsesSharedHelper:
+    def test_uses_call_zie_memory_api(self):
+        """wip-checkpoint.py must use call_zie_memory_api, not inline urllib."""
+        source = Path(HOOK).read_text()
+        assert "call_zie_memory_api" in source, (
+            "wip-checkpoint.py must import and use call_zie_memory_api from utils"
+        )
+
+    def test_no_inline_urlopen(self):
+        """wip-checkpoint.py must not contain inline urlopen calls."""
+        source = Path(HOOK).read_text()
+        assert "urlopen" not in source, (
+            "wip-checkpoint.py must not call urlopen directly — use call_zie_memory_api"
+        )
+
+
 class TestWipCheckpointUrlSafety:
     def test_exits_zero_with_http_scheme_url(self, tmp_path):
         """Non-https URL must cause clean exit before any HTTP call."""

@@ -3,11 +3,10 @@
 import sys
 import json
 import os
-import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now, project_tmp_path, safe_write_tmp
+from utils import parse_roadmap_now, project_tmp_path, safe_write_tmp, call_zie_memory_api
 
 try:
     event = json.loads(sys.stdin.read())
@@ -60,23 +59,12 @@ project = cwd.name
 content = f"[WIP:{project}] {wip_summary} (checkpoint at {count} edits)"
 
 try:
-    payload = json.dumps({
+    call_zie_memory_api(api_url, api_key, "/api/hooks/wip-update", {
         "content": content,
         "priority": "project",
         "tags": ["wip", "checkpoint", project],
         "project": project,
         "force": True,
-    }).encode()
-
-    req = urllib.request.Request(
-        f"{api_url}/api/hooks/wip-update",
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    urllib.request.urlopen(req, timeout=3)  # nosec B310 — URL validated as https:// above
+    }, timeout=3)
 except Exception as e:
     print(f"[zie-framework] wip-checkpoint: {e}", file=sys.stderr)

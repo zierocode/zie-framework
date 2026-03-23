@@ -1,7 +1,9 @@
 """Shared utilities for zie-framework hooks. Not a hook — do not run directly."""
+import json
 import os
 import re
 import sys
+import urllib.request
 from pathlib import Path
 
 
@@ -56,6 +58,24 @@ def project_tmp_path(name: str, project: str) -> Path:
     Example: project_tmp_path("last-test", "my-project") -> Path("/tmp/zie-my-project-last-test")
     """
     return Path(f"/tmp/zie-{safe_project_name(project)}-{name}")  # nosec B108 — project-scoped /tmp paths by design
+
+
+def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeout: int = 5) -> None:
+    """POST payload as JSON to a zie-memory API endpoint. Re-raises on network error.
+
+    Caller is responsible for URL validation (must be https://) and error handling.
+    """
+    data = json.dumps(payload).encode()
+    req = urllib.request.Request(
+        f"{url}{endpoint}",
+        data=data,
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    urllib.request.urlopen(req, timeout=timeout)  # nosec B310 — URL validated as https:// by caller
 
 
 def safe_write_tmp(path: Path, content: str) -> bool:

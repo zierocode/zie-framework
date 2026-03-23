@@ -18,6 +18,7 @@
 - [x] safe_project_name() dedup — [plan](plans/2026-03-24-audit-safe-project-dedup.md)
 - [x] intent-detect ReDoS guard — [plan](plans/2026-03-24-audit-intent-detect-redos.md)
 - [x] session-learn atomic write — [plan](plans/2026-03-24-audit-session-learn-concurrent-write.md)
+- [x] urllib POST helper dedup — [plan](plans/2026-03-24-audit-urllib-post-dedup.md)
 
 ---
 
@@ -33,7 +34,6 @@
 <!-- HIGH — moved to Now -->
 
 <!-- MEDIUM — Security/Arch -->
-- [ ] urllib POST helper dedup — [plan](plans/2026-03-24-audit-urllib-post-dedup.md) ✓
 - [ ] Silent config parse warning — [plan](plans/2026-03-24-audit-silent-config-parse-failures.md) ✓
 - [ ] Exception handling convention — [plan](plans/2026-03-24-audit-exception-handling-inconsistency.md) ✓
 - [ ] intent-detect module-level regex — [plan](plans/2026-03-24-audit-intent-detect-regex-recompile.md) ✓

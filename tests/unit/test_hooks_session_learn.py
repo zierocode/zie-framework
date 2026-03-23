@@ -96,6 +96,22 @@ class TestSessionLearnGuardrails:
         assert r.stdout.strip() == ""  # no output when key absent
 
 
+class TestSessionLearnUsesSharedHelper:
+    def test_uses_call_zie_memory_api(self):
+        """session-learn.py must use call_zie_memory_api, not inline urllib."""
+        source = Path(HOOK).read_text()
+        assert "call_zie_memory_api" in source, (
+            "session-learn.py must import and use call_zie_memory_api from utils"
+        )
+
+    def test_no_inline_urlopen(self):
+        """session-learn.py must not contain inline urlopen calls."""
+        source = Path(HOOK).read_text()
+        assert "urlopen" not in source, (
+            "session-learn.py must not call urlopen directly — use call_zie_memory_api"
+        )
+
+
 class TestSessionLearnUrlSafety:
     def test_exits_zero_with_http_scheme_url(self, tmp_path):
         """Non-https URL must cause clean exit before any HTTP call."""

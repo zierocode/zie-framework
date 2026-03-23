@@ -136,6 +136,63 @@ class TestSafeProjectName:
         assert project_tmp_path("last-test", p) == expected
 
 
+class TestCallZieMemoryApi:
+    def test_raises_on_unreachable_url(self):
+        from utils import call_zie_memory_api
+        with pytest.raises(Exception):
+            call_zie_memory_api(
+                "https://localhost:19999", "fake-key",
+                "/api/hooks/session-stop", {"project": "test"}, timeout=1,
+            )
+
+    def test_raises_type_error_on_non_serializable_payload(self):
+        from utils import call_zie_memory_api
+        with pytest.raises((TypeError, Exception)):
+            call_zie_memory_api(
+                "https://localhost:19999", "fake-key",
+                "/api/hooks/session-stop", {"bad": object()},
+            )
+
+    def test_constructs_correct_request(self):
+        from utils import call_zie_memory_api
+        from unittest import mock
+        captured = {}
+
+        def fake_urlopen(req, timeout=None):
+            captured["url"] = req.full_url
+            captured["method"] = req.method
+            captured["auth"] = req.get_header("Authorization")
+            captured["content_type"] = req.get_header("Content-type")
+            captured["timeout"] = timeout
+
+        with mock.patch("urllib.request.urlopen", fake_urlopen):
+            call_zie_memory_api(
+                "https://zie-memory.example.com", "my-key",
+                "/api/hooks/session-stop", {"project": "test"},
+            )
+
+        assert captured["url"] == "https://zie-memory.example.com/api/hooks/session-stop"
+        assert captured["method"] == "POST"
+        assert captured["auth"] == "Bearer my-key"
+        assert captured["content_type"] == "application/json"
+
+    def test_default_timeout_is_5(self):
+        from utils import call_zie_memory_api
+        from unittest import mock
+        captured = {}
+
+        def fake_urlopen(req, timeout=None):
+            captured["timeout"] = timeout
+
+        with mock.patch("urllib.request.urlopen", fake_urlopen):
+            call_zie_memory_api(
+                "https://zie-memory.example.com", "my-key",
+                "/api/hooks/session-stop", {"project": "test"},
+            )
+
+        assert captured["timeout"] == 5
+
+
 class TestSafeWriteTmp:
     def test_normal_write_returns_true(self, tmp_path):
         from utils import safe_write_tmp
