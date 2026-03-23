@@ -31,6 +31,7 @@
 - [x] README troubleshooting section — [plan](plans/2026-03-24-audit-readme-troubleshooting.md)
 - [x] Skills table in PROJECT.md — [plan](plans/2026-03-24-audit-skills-registry-gaps.md)
 - [x] zie-init deprecated filename — [plan](plans/2026-03-24-audit-zieinit-deprecated-filename.md)
+- [x] Dependabot setup — [plan](plans/2026-03-24-audit-dependabot-setup.md)
 
 ---
 
@@ -55,7 +56,7 @@
 <!-- MEDIUM — Docs — moved to Now -->
 
 <!-- MEDIUM — Standards -->
-- [ ] Dependabot setup — [plan](plans/2026-03-24-audit-dependabot-setup.md) ✓
+<!-- moved to Now: Dependabot setup -->
 
 <!-- LOW — Lean -->
 - [ ] read_event() boilerplate dedup — [plan](plans/2026-03-24-audit-event-parsing-boilerplate.md) ✓
