@@ -75,6 +75,8 @@
 <!-- LOW — Polish -->
 - [ ] Velocity tracking — `/zie-status` shows throughput from git tags — [backlog](backlog/velocity-tracking.md)
 - [ ] Retro → Next active loop — surface top backlog candidate after retro — [backlog](backlog/retro-next-active-loop.md)
+- [ ] Retro living docs sync — retro systematically updates CLAUDE.md + README.md — [backlog](backlog/retro-living-docs-sync.md)
+- [ ] /zie-audit enhancements — hard data (coverage/CVE/complexity) + historical diff + auto-fix — [backlog](backlog/zie-audit-enhancements.md)
 - [ ] Skills advanced features ($ARGUMENTS[N], session vars, supporting files)
   — [backlog](backlog/skills-advanced-features.md) | [spec](specs/2026-03-24-skills-advanced-features-design.md)
 - [ ] StopFailure API error logging — [backlog](backlog/stopfailure-logging.md) | [spec](specs/2026-03-24-stopfailure-logging-design.md)
