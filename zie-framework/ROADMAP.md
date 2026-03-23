@@ -10,9 +10,6 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [x] /zie-audit — deep 9-dimension project audit with external research +
-  backlog integration — [plan](plans/2026-03-23-zie-audit.md)
-
 ---
 
 ## Ready — Approved Plans
@@ -41,6 +38,10 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] /zie-audit — 9-dimension project audit, external research via
+  WebSearch/WebFetch, scored report, backlog integration — v1.4.0 2026-03-23
+- [x] Pipeline fixes — implement commit step, release verify consolidation,
+  Makefile --amend for plugin.json — v1.4.0 2026-03-23
 - [x] Reviewer depth — context bundle (decisions/ + ROADMAP + context.md) for
   spec/plan/impl reviewers — v1.3.0 2026-03-23
 - [x] Quick spec — `/zie-spec "idea"` skips backlog, inline idea → spec-design

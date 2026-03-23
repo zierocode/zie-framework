@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.4.0 — 2026-03-23
+
+### Features
+
+- **/zie-audit** — New 5-phase project health command. Builds a
+  `research_profile` from your codebase, runs 5 parallel agents across
+  9 dimensions (Security, Lean, Quality, Docs, Architecture + Performance,
+  Dependency Health, Developer Experience, Standards), fetches external
+  benchmarks via WebSearch/WebFetch, scores each dimension /100, and
+  presents a ranked findings report. You select which findings to push
+  into backlog + ROADMAP. Supports `--focus <dim>` for scoped audits.
+
+### Fixed
+
+- **/zie-implement** — Removed stale `/zie-plan "idea"` reference (now
+  correctly points to `/zie-spec`). Added explicit commit step after all
+  tasks complete so feature code lands on `dev` before release.
+- **/zie-release** — Replaced double-verify pattern with inline TODO +
+  secrets scan to eliminate redundant verify call at release time.
+- **Makefile** — `make release` now folds plugin.json version bump into
+  the release commit via `--amend` instead of creating a separate commit.
+
 ## v1.3.0 — 2026-03-23
 
 ### Features
