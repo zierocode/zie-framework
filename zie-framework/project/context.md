@@ -156,6 +156,26 @@ layer is project-specific.
 
 ---
 
+## D-010: /zie-audit uses research_profile as dynamic intelligence layer (ADR-007)
+
+**Date:** 2026-03-23
+**Status:** Accepted
+
+**Context:** Audit checks and external research queries needed to adapt to the
+specific project's stack and domain — fixed checks produce irrelevant noise.
+
+**Decision:** Phase 1 builds `research_profile` (languages, frameworks, domain,
+deps, special_ctx) from manifests. All downstream phases use it to run
+stack-aware checks and build WebSearch queries dynamically. Always-deep, no
+quick mode. Evidence saved locally (gitignored). Human selects which findings
+become backlog items.
+
+**Consequences:** Audit is generically useful across project types. Adding a
+new domain only requires extending the Phase 3 query template. Phase 1 is a
+sequential prerequisite — not parallelizable.
+
+---
+
 ## D-009: Reviewer Phase 1/2/3 with Context Bundles (ADR-006)
 
 **Date:** 2026-03-23
