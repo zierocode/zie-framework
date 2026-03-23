@@ -60,7 +60,7 @@ class TestAutoTestGuardrails:
 
 class TestAutoTestDebounce:
     @pytest.fixture(autouse=True)
-    def _cleanup_debounce(self, tmp_path):
+    def _cleanup_debounce_debounce(self, tmp_path):
         yield
         p = project_tmp_path("last-test", tmp_path.name)
         if p.exists():
@@ -117,7 +117,7 @@ class TestFindMatchingTest:
 
 class TestAutoTestRunnerSelection:
     @pytest.fixture(autouse=True)
-    def _cleanup_debounce(self, tmp_path):
+    def _cleanup_debounce_runner(self, tmp_path):
         yield
         p = project_tmp_path("last-test", tmp_path.name)
         if p.exists():
@@ -134,7 +134,7 @@ class TestAutoTestRunnerSelection:
 
 class TestAutoTestDebounceBoundary:
     @pytest.fixture(autouse=True)
-    def _cleanup_debounce(self, tmp_path):
+    def _cleanup_debounce_boundary(self, tmp_path):
         yield
         p = project_tmp_path("last-test", tmp_path.name)
         if p.exists():

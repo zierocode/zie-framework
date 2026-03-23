@@ -22,6 +22,8 @@
 - [x] Silent config parse warning — [plan](plans/2026-03-24-audit-silent-config-parse-failures.md)
 - [x] Exception handling convention — [plan](plans/2026-03-24-audit-exception-handling-inconsistency.md)
 - [x] intent-detect module-level regex — [plan](plans/2026-03-24-audit-intent-detect-regex-recompile.md)
+- [x] Tests use pytest tmp_path — [plan](plans/2026-03-24-audit-tests-tmp-path.md)
+- [ ] Fixture naming collision fix — [plan](plans/2026-03-24-audit-fixture-naming-collision.md)
 
 ---
 
@@ -39,8 +41,6 @@
 <!-- MEDIUM — Security/Arch -->
 
 <!-- MEDIUM — Quality -->
-- [ ] Tests use pytest tmp_path — [plan](plans/2026-03-24-audit-tests-tmp-path.md) ✓
-- [ ] Fixture naming collision fix — [plan](plans/2026-03-24-audit-fixture-naming-collision.md) ✓
 - [ ] Strengthen no-crash assertions — [plan](plans/2026-03-24-audit-weak-nocrash-assertions.md) ✓
 - [ ] parse_roadmap_now edge cases — [plan](plans/2026-03-24-audit-parse-roadmap-edge-cases.md) ✓
 - [ ] project_tmp_path edge cases — [plan](plans/2026-03-24-audit-project-tmp-path-edge-cases.md) ✓
