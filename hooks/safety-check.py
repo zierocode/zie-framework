@@ -17,12 +17,12 @@ command = (event.get("tool_input") or {}).get("command", "")
 if not command:
     sys.exit(0)
 
-cmd = command.strip().lower()
+cmd = re.sub(r'\s+', ' ', command.strip().lower())
 
 BLOCKS = [
     # Filesystem destruction
     (r"rm\s+-rf\s+(/\s|/\b|/$)", "rm -rf / is blocked — this would destroy the system"),
-    (r"rm\s+-rf\s+~\b", "rm -rf ~ is blocked — this would destroy your home directory"),
+    (r"rm\s+-rf\s+~", "rm -rf ~ is blocked — this would destroy your home directory"),
     (r"rm\s+-rf\s+\.", "rm -rf . blocked — use explicit paths"),
 
     # Database destruction
@@ -33,8 +33,8 @@ BLOCKS = [
     # Force push
     (r"git\s+push\s+.*--force\b", "Force push blocked — use 'git push' normally or ask Zie explicitly"),
     (r"git\s+push\s+.*-f\b", "Force push blocked — use 'git push' normally"),
-    (r"git\s+push\s+origin\s+main\b", "Direct push to main blocked — use 'make ship' instead"),
-    (r"git\s+push\s+origin\s+master\b", "Direct push to master blocked — use 'make ship' instead"),
+    (r"git\s+push\s+.*origin\s+main\b", "Direct push to main blocked — use 'make ship' instead"),
+    (r"git\s+push\s+.*origin\s+master\b", "Direct push to master blocked — use 'make ship' instead"),
 
     # Hard reset
     (r"git\s+reset\s+--hard\b", "git reset --hard blocked — this discards uncommitted work. Use 'git stash' instead"),

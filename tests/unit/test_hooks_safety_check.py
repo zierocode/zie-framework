@@ -97,3 +97,52 @@ class TestSafetyCheckPassThrough:
         r = subprocess.run([sys.executable, hook], input="not json",
                            capture_output=True, text=True)
         assert r.returncode == 0
+
+
+class TestSafetyCheckRegexBypass:
+    """Whitespace bypass variants — must all be blocked after normalization."""
+
+    def test_rm_rf_double_space_dot_is_blocked(self):
+        r = run_hook("Bash", "rm  -rf  .")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout
+
+    def test_rm_rf_double_space_dotslash_is_blocked(self):
+        r = run_hook("Bash", "rm  -rf  ./")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout
+
+    def test_rm_rf_double_space_root_is_blocked(self):
+        r = run_hook("Bash", "rm  -rf  /")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout
+
+    def test_rm_rf_double_space_home_is_blocked(self):
+        r = run_hook("Bash", "rm  -rf  ~")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout
+
+    def test_git_push_origin_main_double_space_is_blocked(self):
+        r = run_hook("Bash", "git push  origin  main")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout
+
+    def test_git_push_u_origin_main_extra_space_is_blocked(self):
+        r = run_hook("Bash", "git push -u  origin  main")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout
+
+    def test_git_push_force_double_space_is_blocked(self):
+        r = run_hook("Bash", "git  push  --force  origin  dev")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout
+
+    def test_git_reset_hard_double_space_is_blocked(self):
+        r = run_hook("Bash", "git  reset  --hard  HEAD~1")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout
+
+    def test_multiline_rm_rf_is_blocked(self):
+        r = run_hook("Bash", "rm\n-rf\n./")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout

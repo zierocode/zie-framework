@@ -10,6 +10,8 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [x] safety-check regex bypass — [plan](plans/2026-03-24-audit-safety-check-regex-bypass.md)
+
 ---
 
 ## Ready — Approved Plans
@@ -19,8 +21,7 @@
 <!-- Dependency order: toctou before symlink; redos before recompile; -->
 <!--   session-learn-concurrent before urllib-dedup; dependabot before signed-releases -->
 
-<!-- CRITICAL -->
-- [ ] safety-check regex bypass — [plan](plans/2026-03-24-audit-safety-check-regex-bypass.md) ✓
+<!-- CRITICAL — moved to Now -->
 
 <!-- HIGH -->
 - [ ] TOCTOU race on /tmp debounce file — [plan](plans/2026-03-24-audit-toctou-tmp-race.md) ✓
