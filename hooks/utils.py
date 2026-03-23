@@ -78,6 +78,25 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
     urllib.request.urlopen(req, timeout=timeout)  # nosec B310 — URL validated as https:// by caller
 
 
+def read_event() -> dict:
+    """Read and parse the hook event from stdin.
+
+    Exits with code 0 on any parse failure — hooks must never crash.
+    """
+    try:
+        return json.loads(sys.stdin.read())
+    except Exception:
+        sys.exit(0)
+
+
+def get_cwd() -> Path:
+    """Return the working directory for the current Claude Code session.
+
+    Prefers CLAUDE_CWD env var (set by Claude Code) over os.getcwd().
+    """
+    return Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
+
+
 def safe_write_tmp(path: Path, content: str) -> bool:
     """Atomically write content to path, refusing to follow symlinks.
 

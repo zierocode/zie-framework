@@ -6,6 +6,9 @@ import os
 import re
 from pathlib import Path
 
+sys.path.insert(0, os.path.dirname(__file__))
+from utils import read_event, get_cwd
+
 # ── Module-level constants (compiled once, cached in .pyc) ──────────────────
 
 MAX_MESSAGE_LEN = 1000
@@ -76,10 +79,7 @@ SUGGESTIONS = {
 
 # ── Hook execution ───────────────────────────────────────────────────────────
 
-try:
-    event = json.loads(sys.stdin.read())
-except Exception:
-    sys.exit(0)
+event = read_event()
 
 message = (event.get("prompt") or "").lower().strip()
 
@@ -95,7 +95,7 @@ if message.startswith("---") or len(message) > 500:
     sys.exit(0)
 
 # Only run if zie-framework is initialized in cwd
-cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
+cwd = get_cwd()
 if not (cwd / "zie-framework").exists():
     sys.exit(0)
 

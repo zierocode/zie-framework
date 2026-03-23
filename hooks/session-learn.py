@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
 """Stop hook — store session learnings in zie-memory and write pending_learn."""
 import sys
-import json
 import os
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now, atomic_write, call_zie_memory_api
+from utils import parse_roadmap_now, atomic_write, call_zie_memory_api, read_event, get_cwd
 
-try:
-    event = json.loads(sys.stdin.read())
-except Exception:  # intentional — malformed event must not crash hook
-    sys.exit(0)
+event = read_event()
 
 api_key = os.environ.get("ZIE_MEMORY_API_KEY", "")
 api_url = os.environ.get("ZIE_MEMORY_API_URL", "")
-cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
+cwd = get_cwd()
 zf = cwd / "zie-framework"
 
 if not zf.exists():

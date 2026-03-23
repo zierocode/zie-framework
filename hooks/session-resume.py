@@ -6,14 +6,11 @@ import os
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now
+from utils import parse_roadmap_now, read_event, get_cwd
 
-try:
-    event = json.loads(sys.stdin.read())
-except Exception:  # intentional — malformed event must not crash hook
-    sys.exit(0)
+event = read_event()
 
-cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
+cwd = get_cwd()
 zf = cwd / "zie-framework"
 
 if not zf.exists():

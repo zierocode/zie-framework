@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import project_tmp_path, safe_write_tmp
+from utils import project_tmp_path, safe_write_tmp, read_event, get_cwd
 
 
 def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None:
@@ -44,10 +44,7 @@ def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None
 
 
 if __name__ == "__main__":
-    try:
-        event = json.loads(sys.stdin.read())
-    except Exception:  # intentional — malformed event must not crash hook
-        sys.exit(0)
+    event = read_event()
 
     # Only trigger on Edit/Write
     tool_name = event.get("tool_name", "")
@@ -58,7 +55,7 @@ if __name__ == "__main__":
     if not file_path:
         sys.exit(0)
 
-    cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
+    cwd = get_cwd()
     zf = cwd / "zie-framework"
 
     if not zf.exists():

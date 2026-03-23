@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """PreToolUse:Bash hook — block destructive commands and enforce git workflow."""
 import sys
-import json
+import os
 import re
 
-try:
-    event = json.loads(sys.stdin.read())
-except Exception:
-    sys.exit(0)
+sys.path.insert(0, os.path.dirname(__file__))
+from utils import read_event
+
+event = read_event()
 
 tool_name = event.get("tool_name", "")
 if tool_name != "Bash":

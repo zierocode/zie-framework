@@ -1,20 +1,15 @@
 #!/usr/bin/env python3
 """Stop hook — remove project-scoped /tmp files on session end."""
-import json
 import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import safe_project_name
+from utils import safe_project_name, read_event, get_cwd
 
-try:
-    event = json.loads(sys.stdin.read())
-except Exception:
-    # intentional — malformed event must not crash hook
-    sys.exit(0)
+event = read_event()
 
-cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
+cwd = get_cwd()
 safe_project = safe_project_name(cwd.name)
 
 for tmp_file in Path("/tmp").glob(f"zie-{safe_project}-*"):  # nosec B108 — project-scoped /tmp paths by design

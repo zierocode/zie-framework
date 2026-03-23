@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 """PostToolUse:Edit/Write hook — checkpoint WIP to zie-memory every 5 edits."""
 import sys
-import json
 import os
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now, project_tmp_path, safe_write_tmp, call_zie_memory_api
+from utils import parse_roadmap_now, project_tmp_path, safe_write_tmp, call_zie_memory_api, read_event, get_cwd
 
-try:
-    event = json.loads(sys.stdin.read())
-except Exception:  # intentional — malformed event must not crash hook
-    sys.exit(0)
+event = read_event()
 
 tool_name = event.get("tool_name", "")
 if tool_name not in ("Edit", "Write"):
@@ -25,7 +21,7 @@ if not api_key:
 if not api_url.startswith("https://"):
     sys.exit(0)
 
-cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
+cwd = get_cwd()
 zf = cwd / "zie-framework"
 if not zf.exists():
     sys.exit(0)

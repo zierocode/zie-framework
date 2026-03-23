@@ -8,7 +8,9 @@ import pytest
 REPO_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
-from utils import parse_roadmap_now, project_tmp_path
+import json
+from unittest.mock import patch
+from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd
 
 
 class TestParseRoadmapNow:
@@ -356,3 +358,42 @@ class TestParseRoadmapNowEdgeCases:
         f.write_text("## Now\n- [ ] **bold link** — [spec](specs/foo.md)\n")
         result = parse_roadmap_now(f)
         assert result == ["**bold link** — spec"]
+
+
+class TestReadEvent:
+    def test_valid_json_returns_dict(self):
+        payload = json.dumps({"tool": "Write", "input": {}})
+        with patch("sys.stdin") as mock_stdin:
+            mock_stdin.read.return_value = payload
+            result = read_event()
+        assert result == {"tool": "Write", "input": {}}
+
+    def test_invalid_json_exits_zero(self):
+        with patch("sys.stdin") as mock_stdin:
+            mock_stdin.read.return_value = "not-json"
+            with pytest.raises(SystemExit) as exc:
+                read_event()
+        assert exc.value.code == 0
+
+    def test_empty_stdin_exits_zero(self):
+        with patch("sys.stdin") as mock_stdin:
+            mock_stdin.read.return_value = ""
+            with pytest.raises(SystemExit) as exc:
+                read_event()
+        assert exc.value.code == 0
+
+
+class TestGetCwd:
+    def test_returns_claude_cwd_when_set(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("CLAUDE_CWD", str(tmp_path))
+        result = get_cwd()
+        assert result == Path(str(tmp_path))
+
+    def test_returns_getcwd_when_env_unset(self, monkeypatch):
+        monkeypatch.delenv("CLAUDE_CWD", raising=False)
+        result = get_cwd()
+        assert result == Path(os.getcwd())
+
+    def test_returns_path_object(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("CLAUDE_CWD", str(tmp_path))
+        assert isinstance(get_cwd(), Path)
