@@ -69,6 +69,43 @@ class TestProjectTmpPath:
         assert isinstance(result, Path)
 
 
+class TestAtomicWrite:
+    def test_writes_content_to_target(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "pending_learn.txt"
+        atomic_write(target, "project=foo\nwip=bar\n")
+        assert target.read_text() == "project=foo\nwip=bar\n"
+
+    def test_no_tmp_file_left_on_success(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "pending_learn.txt"
+        atomic_write(target, "hello")
+        tmp_file = target.with_suffix(".tmp")
+        assert not tmp_file.exists(), ".tmp file must be cleaned up after successful rename"
+
+    def test_overwrites_existing_file(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "pending_learn.txt"
+        target.write_text("old content")
+        atomic_write(target, "new content")
+        assert target.read_text() == "new content"
+
+    def test_handles_empty_content(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "out.txt"
+        atomic_write(target, "")
+        assert target.read_text() == ""
+
+    def test_stale_tmp_overwritten(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "out.txt"
+        stale_tmp = target.with_suffix(".tmp")
+        stale_tmp.write_text("stale")
+        atomic_write(target, "fresh")
+        assert target.read_text() == "fresh"
+        assert not stale_tmp.exists()
+
+
 class TestSafeProjectName:
     def test_alphanumeric_unchanged(self):
         from utils import safe_project_name

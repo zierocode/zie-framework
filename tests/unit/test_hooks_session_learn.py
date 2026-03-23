@@ -59,6 +59,22 @@ class TestSessionLearnPendingLearnFile:
         assert "project=" in content
         assert "wip=" in content
 
+    def test_no_tmp_file_left_after_write(self, tmp_path):
+        """atomic_write must not leave a .tmp sibling file."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        run_hook(cwd)
+        pending = Path.home() / ".claude" / "projects" / tmp_path.name / "pending_learn.txt"
+        tmp_file = pending.with_suffix(".tmp")
+        assert not tmp_file.exists(), f".tmp file left behind at {tmp_file}"
+
+    def test_uses_atomic_write(self):
+        """session-learn.py must call atomic_write, not write_text directly."""
+        source = Path(HOOK).read_text()
+        assert "atomic_write" in source, "session-learn.py must use atomic_write"
+        assert "pending_learn_file.write_text" not in source, (
+            "pending_learn_file.write_text must be replaced by atomic_write"
+        )
+
 
 class TestSessionLearnGuardrails:
     def test_no_action_when_no_zf_dir(self, tmp_path):

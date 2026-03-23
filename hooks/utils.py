@@ -30,6 +30,17 @@ def parse_roadmap_now(roadmap_path) -> list:
     return lines
 
 
+def atomic_write(path: Path, content: str) -> None:
+    """Write content to path atomically using a sibling .tmp file and rename.
+
+    On POSIX, os.rename() (called by Path.rename()) is atomic at the filesystem
+    level, preventing partial reads from concurrent writers.
+    """
+    tmp_path = path.with_suffix(".tmp")
+    tmp_path.write_text(content)
+    tmp_path.rename(path)
+
+
 def safe_project_name(project: str) -> str:
     """Sanitize a project name to alphanumeric-and-dash only.
 

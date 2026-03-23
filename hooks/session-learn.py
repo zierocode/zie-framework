@@ -8,7 +8,7 @@ import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now
+from utils import parse_roadmap_now, atomic_write
 
 try:
     event = json.loads(sys.stdin.read())
@@ -34,9 +34,10 @@ roadmap_file = zf / "ROADMAP.md"
 lines = parse_roadmap_now(roadmap_file)
 wip_context = "; ".join(lines[:3]) if lines else ""
 
-pending_learn_file.write_text(
+atomic_write(
+    pending_learn_file,
     f"project={project}\n"
-    f"wip={wip_context}\n"
+    f"wip={wip_context}\n",
 )
 
 # If zie-memory enabled, call session-stop endpoint
