@@ -136,10 +136,12 @@ class TestCommandsNoSuperpowersDependency:
         assert "Skill(zie-framework:verify)" in content, \
             "zie-fix must invoke Skill(zie-framework:verify)"
 
-    def test_zie_release_calls_zie_framework_verify(self):
+    def test_zie_release_has_todo_and_secrets_check(self):
         content = read("commands/zie-release.md")
-        assert "Skill(zie-framework:verify)" in content, \
-            "zie-release must invoke Skill(zie-framework:verify)"
+        assert "TODO" in content, \
+            "zie-release must include inline TODO scan (verify skill removed — tests covered by Gates 1-3)"
+        assert "secrets" in content.lower() or "credentials" in content.lower(), \
+            "zie-release must include secrets check"
 
     def test_zie_plan_no_superpowers_enabled(self):
         content = read("commands/zie-plan.md")

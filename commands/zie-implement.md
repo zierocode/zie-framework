@@ -25,8 +25,8 @@ plan from ROADMAP.md and guides through RED → GREEN → REFACTOR per task.
      Running /zie-plan first..."
      → run `/zie-plan` (show Next list, Zie selects) → get approval → continue.
    - If Next is also empty during fallback → print "No backlog items.
-     Run /zie-backlog to capture a new feature, or
-     /zie-plan \"idea\" to skip backlog and plan inline." and STOP.
+     Run /zie-backlog to start a new feature, or
+     /zie-spec to write a quick spec inline." and STOP.
    - Read plan file → check frontmatter for `approved: true`.
    - If `approved: true` absent → treat as unapproved → trigger auto-fallback
      above.
@@ -107,7 +107,16 @@ Before starting tasks:
 2. Invoke `Skill(zie-framework:verify)` — checks TODOs, docs sync, secrets,
    and confirms feature is release-ready before leaving implementation context.
 
-3. Print:
+3. Mark feature complete and commit to dev:
+   - Update `zie-framework/ROADMAP.md` Now lane: change feature from `[ ]`
+     to `[x]` (complete, pending release — see D-005 batch release pattern).
+   - Commit all feature code and updated plan/ROADMAP to dev:
+
+     ```bash
+     make push m="feat: <feature-slug>"
+     ```
+
+4. Print:
 
    ```text
    All tasks complete for: <feature name>
@@ -135,7 +144,7 @@ Before starting tasks:
 
 - Works for any language — test runner detected from `.config`
 - If no active plan in ROADMAP.md → suggest `/zie-backlog` (full flow) or
-  `/zie-plan "idea"` (quick plan, no backlog file needed)
+  `/zie-spec` (quick spec, no backlog file needed)
 - Can be run mid-task to resume after a break
 - The PostToolUse:auto-test hook fires on every file save — this command sets
   the strategic direction, hooks handle the feedback loop
