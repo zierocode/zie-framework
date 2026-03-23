@@ -22,30 +22,34 @@ def make_cwd_with_zf(tmp_path):
 
 
 class TestIntentDetectHappyPath:
+    def _parse_command(self, r):
+        assert r.stdout.strip() != ""
+        return json.loads(r.stdout)["additionalContext"]
+
     def test_fix_intent_detected(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
         r = run_hook({"prompt": "there is a bug in the auth module"}, tmp_cwd=cwd)
-        assert "/zie-fix" in r.stdout
+        assert "/zie-fix" in self._parse_command(r)
 
     def test_implement_intent_detected(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
         r = run_hook({"prompt": "start coding this task now"}, tmp_cwd=cwd)
-        assert "/zie-implement" in r.stdout
+        assert "/zie-implement" in self._parse_command(r)
 
     def test_release_intent_detected(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
         r = run_hook({"prompt": "ready to deploy and release now"}, tmp_cwd=cwd)
-        assert "/zie-release" in r.stdout
+        assert "/zie-release" in self._parse_command(r)
 
     def test_plan_intent_thai(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
         r = run_hook({"prompt": "อยากวางแผน feature ใหม่"}, tmp_cwd=cwd)
-        assert "/zie-plan" in r.stdout
+        assert "/zie-plan" in self._parse_command(r)
 
     def test_backlog_intent_thai(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
         r = run_hook({"prompt": "อยากเพิ่ม feature ใหม่"}, tmp_cwd=cwd)
-        assert "/zie-backlog" in r.stdout
+        assert "/zie-backlog" in self._parse_command(r)
 
 
 class TestIntentDetectGuardrails:
@@ -81,3 +85,54 @@ class TestIntentDetectGuardrails:
         (cwd / "zie-framework" / ".config").write_text('{}')
         r = run_hook({"prompt": "init the project bootstrap setup"}, tmp_cwd=cwd)
         assert "/zie-init" not in r.stdout
+
+
+class TestIntentDetectCompiledPatterns:
+    def test_compiled_patterns_exist_at_module_level(self, tmp_path):
+        """Verify COMPILED_PATTERNS is built at import time, not in the scoring loop."""
+        import importlib.util
+        import io
+        # Create zie-framework dir so the hook passes the cwd guard and reaches
+        # COMPILED_PATTERNS. Use a prompt that matches nothing so it exits after
+        # COMPILED_PATTERNS is defined (at the "if not scores" guard).
+        (tmp_path / "zie-framework").mkdir()
+        hook = os.path.join(REPO_ROOT, "hooks", "intent-detect.py")
+        spec = importlib.util.spec_from_file_location("intent_detect", hook)
+        mod = importlib.util.module_from_spec(spec)
+        original_stdin = sys.stdin
+        original_env = os.environ.copy()
+        try:
+            sys.stdin = io.StringIO('{"prompt": "hello world this is a neutral message"}')
+            os.environ["CLAUDE_CWD"] = str(tmp_path)
+            try:
+                spec.loader.exec_module(mod)
+            except SystemExit:
+                pass
+        finally:
+            sys.stdin = original_stdin
+            os.environ.clear()
+            os.environ.update(original_env)
+        assert hasattr(mod, "COMPILED_PATTERNS")
+        # All values should be lists of compiled patterns
+        import re as re_mod
+        for cat, pats in mod.COMPILED_PATTERNS.items():
+            for p in pats:
+                assert isinstance(p, re_mod.Pattern), f"{cat}: {p!r} is not a compiled pattern"
+
+
+class TestIntentDetectSkipGuards:
+    def test_frontmatter_prompt_produces_empty_stdout(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path)
+        r = run_hook({"prompt": "---\ntitle: My Note\n---\nsome content"}, tmp_cwd=cwd)
+        assert r.stdout.strip() == ""
+
+    def test_long_message_produces_empty_stdout(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path)
+        r = run_hook({"prompt": "x" * 501}, tmp_cwd=cwd)
+        assert r.stdout.strip() == ""
+
+    def test_500_char_message_not_suppressed(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path)
+        # 500 chars total with clear bug/fix keywords — should NOT be suppressed
+        r = run_hook({"prompt": "fix the bug " + "x" * 488}, tmp_cwd=cwd)
+        assert r.stdout.strip() != ""
