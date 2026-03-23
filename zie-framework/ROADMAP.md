@@ -73,6 +73,7 @@
 - [ ] type:"agent" hooks for smart safety validation — [backlog](backlog/agent-type-hooks.md) | [spec](specs/2026-03-24-agent-type-hooks-design.md)
 
 <!-- LOW — Polish -->
+- [ ] Velocity tracking — `/zie-status` shows throughput from git tags — [backlog](backlog/velocity-tracking.md)
 - [ ] Skills advanced features ($ARGUMENTS[N], session vars, supporting files)
   — [backlog](backlog/skills-advanced-features.md) | [spec](specs/2026-03-24-skills-advanced-features-design.md)
 - [ ] StopFailure API error logging — [backlog](backlog/stopfailure-logging.md) | [spec](specs/2026-03-24-stopfailure-logging-design.md)
