@@ -57,9 +57,19 @@ make test-e2e
   - If no → STOP. Fix and re-run.
 - If `has_frontend=false` → skip this gate.
 
-### ตรวจสอบ: Checklist ก่อน release
+### ตรวจสอบ: TODOs และ Secrets
 
-- Invoke `Skill(zie-framework:verify)`.
+- Scan for leftover stubs:
+
+  ```bash
+  grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
+  ```
+
+  Any hits in new code? Fix or create a tracked backlog item before
+  proceeding.
+
+- Scan for hardcoded secrets in changed files: no API keys, tokens,
+  passwords, or credentials in any file being committed.
 
 ### ตรวจสอบ: Docs sync
 

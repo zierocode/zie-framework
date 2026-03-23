@@ -23,6 +23,7 @@ claude plugin install zierocode/zie-framework
 | `/zie-release` | 5 — Release | Test gates → readiness → `make release` |
 | `/zie-retro` | 6 — Learn | Retrospective + ADRs + brain storage |
 | `/zie-fix` | Debug | Bug path — skip to systematic fix |
+| `/zie-audit` | Health | 9-dimension audit + external research → backlog |
 
 ## Pipeline
 

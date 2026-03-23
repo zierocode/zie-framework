@@ -134,3 +134,41 @@ superpowers from the optional dependencies list in docs.
 **Consequences:** zie-framework no longer depends on the superpowers plugin
 in any form. The `superpowers_enabled` field in existing `.config` files is
 silently ignored (backward compatible — no migration needed).
+
+---
+
+## D-008: Hybrid Release — SDLC Gates + Project-Defined Publish (ADR-005)
+
+**Date:** 2026-03-23
+**Status:** Accepted
+
+**Context:** `/zie-release` previously did git ops directly, making it
+impossible for projects with custom publish steps to integrate properly.
+
+**Decision:** Split into SDLC layer (`/zie-release` — gates + VERSION +
+CHANGELOG + ROADMAP commit) and project layer (`make release NEW=<v>` — git
+merge, tag, push, project-specific publish). Makefile templates ship a
+`ZIE-NOT-READY` skeleton; `/zie-init` negotiates the skeleton on first run.
+
+**Consequences:** Projects must implement `make release` before first
+release. All git ops live in `make release`. SDLC layer is portable; publish
+layer is project-specific.
+
+---
+
+## D-009: Reviewer Phase 1/2/3 with Context Bundles (ADR-006)
+
+**Date:** 2026-03-23
+**Status:** Accepted
+
+**Context:** Reviewers previously reviewed docs in isolation — no
+cross-referencing against actual files, ADR history, or ROADMAP.
+
+**Decision:** All three reviewer skills (spec/plan/impl) load a context
+bundle before reviewing (Phase 1: named files + ADRs + context.md + ROADMAP),
+run the existing checklist (Phase 2), then do cross-reference checks (Phase 3:
+file existence, ADR conflict, ROADMAP conflict, pattern match). `impl-reviewer`
+omits ROADMAP conflict check. Graceful skip if any source is missing.
+
+**Consequences:** Reviewers catch real-world issues. Bundle adds latency per
+review. Phase 3 list numbering restarts at 1 per phase (markdownlint MD029).
