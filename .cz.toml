@@ -1,0 +1,31 @@
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "1.4.0"
+version_files = [
+    "VERSION",
+    ".claude-plugin/plugin.json:\"version\""
+]
+tag_format = "v$version"
+update_changelog_on_bump = true
+changelog_file = "CHANGELOG.md"
+changelog_incremental = true
+
+[tool.commitizen.customize]
+schema_pattern = "(feat|fix|chore|docs|refactor|test|ci|perf|revert)(\\(.+\\))?(!)?: .+"
+commit_parser = "cz_conventional_commits"
+
+[[tool.commitizen.customize.questions]]
+type = "list"
+name = "prefix"
+message = "Select the type of change"
+choices = [
+    {value = "feat",     name = "feat:     A new feature"},
+    {value = "fix",      name = "fix:      A bug fix"},
+    {value = "chore",    name = "chore:    Maintenance, no production code change"},
+    {value = "docs",     name = "docs:     Documentation changes only"},
+    {value = "refactor", name = "refactor: Code restructure, no feature/bug change"},
+    {value = "test",     name = "test:     Add or update tests"},
+    {value = "ci",       name = "ci:       CI/CD pipeline changes"},
+    {value = "perf",     name = "perf:     Performance improvement"},
+    {value = "revert",   name = "revert:   Revert a previous commit"}
+]

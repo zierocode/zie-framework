@@ -84,7 +84,7 @@ your-project/
 │   ├── project/
 │   │   ├── architecture.md  # system design, component relationships
 │   │   ├── components.md    # component registry
-│   │   └── decisions.md     # ADR log (append-only)
+│   │   └── project/context.md  # ADR log (append-only)
 │   ├── specs/               # design specs (output of /zie-spec)
 │   ├── plans/               # implementation plans (output of /zie-plan)
 │   ├── decisions/           # ADR files (output of /zie-retro)

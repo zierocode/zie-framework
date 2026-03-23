@@ -17,13 +17,14 @@
 - [x] Test hardening — /tmp fixtures, JSON assertions, edge cases
   — [plan](plans/2026-03-23-audit-test-hardening.md)
 
+- [x] Docs + standards sprint — plugin.json sync, README fixes, SECURITY.md
+  — [plan](plans/2026-03-23-audit-docs-standards.md)
+
 ---
 
 ## Ready — Approved Plans
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
-- [ ] Docs + standards sprint — plugin.json sync, README fixes, SECURITY.md
-  — [plan](plans/2026-03-23-audit-docs-standards.md) ✓
 
 ---
 
