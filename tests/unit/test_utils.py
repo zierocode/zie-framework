@@ -69,6 +69,36 @@ class TestProjectTmpPath:
         assert isinstance(result, Path)
 
 
+class TestSafeProjectName:
+    def test_alphanumeric_unchanged(self):
+        from utils import safe_project_name
+        assert safe_project_name("myproject") == "myproject"
+
+    def test_spaces_replaced_with_dash(self):
+        from utils import safe_project_name
+        assert safe_project_name("my project") == "my-project"
+
+    def test_special_chars_replaced(self):
+        from utils import safe_project_name
+        assert safe_project_name("my project!") == "my-project-"
+
+    def test_empty_string_returns_empty(self):
+        from utils import safe_project_name
+        assert safe_project_name("") == ""
+
+    def test_already_safe_no_change(self):
+        from utils import safe_project_name
+        assert safe_project_name("zie-framework") == "zie-framework"
+
+    def test_project_tmp_path_uses_safe_project_name(self):
+        """project_tmp_path output must equal /tmp/zie-{safe_project_name(p)}-{name}."""
+        from utils import safe_project_name
+        from pathlib import Path
+        p = "my project!"
+        expected = Path(f"/tmp/zie-{safe_project_name(p)}-last-test")
+        assert project_tmp_path("last-test", p) == expected
+
+
 class TestSafeWriteTmp:
     def test_normal_write_returns_true(self, tmp_path):
         from utils import safe_write_tmp

@@ -30,13 +30,21 @@ def parse_roadmap_now(roadmap_path) -> list:
     return lines
 
 
+def safe_project_name(project: str) -> str:
+    """Sanitize a project name to alphanumeric-and-dash only.
+
+    Single source of truth for the sanitization rule used in tmp paths and
+    session-cleanup globs. Replaces any non-alphanumeric character with '-'.
+    """
+    return re.sub(r'[^a-zA-Z0-9]', '-', project)
+
+
 def project_tmp_path(name: str, project: str) -> Path:
     """Return a project-scoped /tmp path to prevent cross-project collisions.
 
     Example: project_tmp_path("last-test", "my-project") -> Path("/tmp/zie-my-project-last-test")
     """
-    safe_project = re.sub(r'[^a-zA-Z0-9]', '-', project)
-    return Path(f"/tmp/zie-{safe_project}-{name}")  # nosec B108 — project-scoped /tmp paths by design
+    return Path(f"/tmp/zie-{safe_project_name(project)}-{name}")  # nosec B108 — project-scoped /tmp paths by design
 
 
 def safe_write_tmp(path: Path, content: str) -> bool:

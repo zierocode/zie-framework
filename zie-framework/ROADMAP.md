@@ -15,6 +15,7 @@
 - [x] Symlink attack on /tmp state files — [plan](plans/2026-03-24-audit-symlink-tmp-attack.md)
 - [x] Add Bandit SAST to CI — [plan](plans/2026-03-24-audit-bandit-sast-ci.md)
 - [x] file_path CWD boundary validation — [plan](plans/2026-03-24-audit-filepath-cwd-validation.md)
+- [x] safe_project_name() dedup — [plan](plans/2026-03-24-audit-safe-project-dedup.md)
 
 ---
 
@@ -30,7 +31,6 @@
 <!-- HIGH — moved to Now -->
 
 <!-- MEDIUM — Security/Arch -->
-- [ ] safe_project_name() dedup — [plan](plans/2026-03-24-audit-safe-project-dedup.md) ✓
 - [ ] intent-detect ReDoS guard — [plan](plans/2026-03-24-audit-intent-detect-redos.md) ✓
 - [ ] session-learn atomic write — [plan](plans/2026-03-24-audit-session-learn-concurrent-write.md) ✓
 - [ ] urllib POST helper dedup — [plan](plans/2026-03-24-audit-urllib-post-dedup.md) ✓
