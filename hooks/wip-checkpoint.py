@@ -7,7 +7,7 @@ import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now, project_tmp_path
+from utils import parse_roadmap_now, project_tmp_path, safe_write_tmp
 
 try:
     event = json.loads(sys.stdin.read())
@@ -41,7 +41,7 @@ if counter_file.exists():
         print(f"[zie-framework] wip-checkpoint: {e}", file=sys.stderr)
 
 count += 1
-counter_file.write_text(str(count))
+safe_write_tmp(counter_file, str(count))
 
 # Only checkpoint every 5 edits
 CHECKPOINT_EVERY = 5

@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import project_tmp_path
+from utils import project_tmp_path, safe_write_tmp
 
 
 def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None:
@@ -84,12 +84,7 @@ if __name__ == "__main__":
         last_run = debounce_file.stat().st_mtime
         if (time.time() - last_run) < (debounce_ms / 1000):
             sys.exit(0)
-    try:
-        tmp_write = debounce_file.parent / (debounce_file.name + ".tmp")
-        tmp_write.write_text(file_path)
-        os.replace(tmp_write, debounce_file)
-    except OSError:
-        pass  # /tmp full or unavailable — skip debounce, tests will run
+    safe_write_tmp(debounce_file, file_path)
 
     changed = Path(file_path)
 

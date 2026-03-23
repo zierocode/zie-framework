@@ -67,3 +67,63 @@ class TestProjectTmpPath:
     def test_returns_path_object(self):
         result = project_tmp_path("foo", "bar")
         assert isinstance(result, Path)
+
+
+class TestSafeWriteTmp:
+    def test_normal_write_returns_true(self, tmp_path):
+        from utils import safe_write_tmp
+        target = tmp_path / "zie-test-foo"
+        result = safe_write_tmp(target, "hello")
+        assert result is True
+        assert target.read_text() == "hello"
+
+    def test_normal_write_is_atomic(self, tmp_path):
+        """Content is written via a .tmp sibling then renamed."""
+        from utils import safe_write_tmp
+        target = tmp_path / "zie-test-atomic"
+        safe_write_tmp(target, "data")
+        tmp_sibling = tmp_path / "zie-test-atomic.tmp"
+        assert not tmp_sibling.exists()
+        assert target.read_text() == "data"
+
+    def test_symlink_returns_false(self, tmp_path):
+        from utils import safe_write_tmp
+        real_file = tmp_path / "real.txt"
+        real_file.write_text("secret")
+        link = tmp_path / "zie-test-link"
+        link.symlink_to(real_file)
+        result = safe_write_tmp(link, "overwrite")
+        assert result is False
+        assert real_file.read_text() == "secret"
+
+    def test_symlink_to_nonexistent_returns_false(self, tmp_path):
+        from utils import safe_write_tmp
+        link = tmp_path / "zie-test-dangling"
+        link.symlink_to(tmp_path / "does-not-exist")
+        result = safe_write_tmp(link, "data")
+        assert result is False
+
+    def test_symlink_blocked_emits_stderr_warning(self, tmp_path, capsys):
+        from utils import safe_write_tmp
+        link = tmp_path / "zie-test-warn"
+        link.symlink_to(tmp_path / "anything")
+        safe_write_tmp(link, "x")
+        captured = capsys.readouterr()
+        assert "WARNING" in captured.err
+        assert "symlink" in captured.err.lower()
+
+    def test_oserror_returns_false(self, tmp_path):
+        from utils import safe_write_tmp
+        from unittest import mock
+        target = tmp_path / "zie-test-err"
+        with mock.patch("os.replace", side_effect=OSError("disk full")):
+            result = safe_write_tmp(target, "data")
+        assert result is False
+
+    def test_path_not_exist_is_normal_write(self, tmp_path):
+        from utils import safe_write_tmp
+        target = tmp_path / "zie-test-new"
+        assert not target.exists()
+        result = safe_write_tmp(target, "first-run")
+        assert result is True
+        assert target.read_text() == "first-run"

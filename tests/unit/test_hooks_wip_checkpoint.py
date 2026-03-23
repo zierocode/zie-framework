@@ -139,6 +139,40 @@ class TestWipCheckpointRoadmapEdgeCases:
         assert r.returncode == 0
 
 
+class TestWipCheckpointSymlinkProtection:
+    @pytest.fixture(autouse=True)
+    def _cleanup_counter(self, tmp_path):
+        yield
+        p = counter_path(tmp_path.name)
+        if p.is_symlink() or p.exists():
+            p.unlink(missing_ok=True)
+
+    def test_counter_symlink_does_not_overwrite_target(self, tmp_path):
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        counter = counter_path(tmp_path.name)
+        real_file = tmp_path / "important.txt"
+        real_file.write_text("do not overwrite")
+        counter.symlink_to(real_file)
+
+        env = {
+            **os.environ,
+            "CLAUDE_CWD": str(cwd),
+            "ZIE_MEMORY_API_KEY": "test-key",
+            "ZIE_MEMORY_API_URL": "https://fake.example.com",
+        }
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input=json.dumps({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}}),
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr
+        assert real_file.read_text() == "do not overwrite"
+
+
 class TestWipCheckpointUrlSafety:
     def test_exits_zero_with_http_scheme_url(self, tmp_path):
         """Non-https URL must cause clean exit before any HTTP call."""

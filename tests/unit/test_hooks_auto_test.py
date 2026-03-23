@@ -179,13 +179,13 @@ class TestAutoTestAtomicDebounceWrite:
             elif p.exists():
                 p.unlink(missing_ok=True)
 
-    def test_debounce_write_uses_atomic_rename(self):
-        """Source must use os.replace (atomic rename), not bare write_text for debounce."""
+    def test_debounce_write_uses_safe_write_tmp(self):
+        """Source must delegate debounce write to safe_write_tmp, not bare write_text."""
         source = Path(HOOK).read_text()
-        assert "os.replace" in source, \
-            "atomic rename (os.replace) missing from hook source"
+        assert "safe_write_tmp" in source, \
+            "safe_write_tmp call missing from hook source"
         assert "debounce_file.write_text" not in source, \
-            "bare debounce_file.write_text found — must use atomic write-then-rename"
+            "bare debounce_file.write_text found — must use safe_write_tmp"
 
     def test_debounce_write_oserror_does_not_crash_hook(self, tmp_path):
         """If the debounce write raises OSError, hook must exit 0 (no crash)."""
@@ -200,3 +200,22 @@ class TestAutoTestAtomicDebounceWrite:
         )
         assert r.returncode == 0
         assert "Traceback" not in r.stderr
+
+    def test_debounce_symlink_does_not_block_hook(self, tmp_path):
+        """If debounce path is a symlink, hook skips write and continues."""
+        # debounce_ms=0 ensures debounce window doesn't suppress before the write
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest", "auto_test_debounce_ms": 0})
+        debounce = project_tmp_path("last-test", cwd.name)
+        real = tmp_path / "real-debounce-target.txt"
+        real.write_text("original")
+        debounce.symlink_to(real)
+
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(cwd / "hooks" / "utils.py")}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr
+        assert real.read_text() == "original"
+        assert "WARNING" in r.stderr
+        assert "symlink" in r.stderr.lower()

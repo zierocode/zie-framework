@@ -1,4 +1,5 @@
 """Shared utilities for zie-framework hooks. Not a hook — do not run directly."""
+import os
 import re
 import sys
 from pathlib import Path
@@ -36,3 +37,24 @@ def project_tmp_path(name: str, project: str) -> Path:
     """
     safe_project = re.sub(r'[^a-zA-Z0-9]', '-', project)
     return Path(f"/tmp/zie-{safe_project}-{name}")
+
+
+def safe_write_tmp(path: Path, content: str) -> bool:
+    """Atomically write content to path, refusing to follow symlinks.
+
+    Returns True on success, False if path is a symlink or an OSError occurs.
+    Uses write-to-.tmp-sibling then os.replace() for atomicity.
+    """
+    if os.path.islink(path):
+        print(
+            f"[zie-framework] WARNING: tmp path is a symlink, skipping write: {path}",
+            file=sys.stderr,
+        )
+        return False
+    try:
+        tmp_path = path.parent / (path.name + ".tmp")
+        tmp_path.write_text(content)
+        os.replace(tmp_path, path)
+        return True
+    except OSError:
+        return False
