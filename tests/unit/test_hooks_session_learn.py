@@ -78,3 +78,24 @@ class TestSessionLearnGuardrails:
         r = run_hook(cwd)  # ZIE_MEMORY_API_KEY="" by default
         assert r.returncode == 0
         assert r.stdout.strip() == ""  # no output when key absent
+
+
+class TestSessionLearnUrlSafety:
+    def test_exits_zero_with_http_scheme_url(self, tmp_path):
+        """Non-https URL must cause clean exit before any HTTP call."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        env = {
+            **os.environ,
+            "CLAUDE_CWD": str(tmp_path),
+            "ZIE_MEMORY_API_KEY": "testkey",
+            "ZIE_MEMORY_API_URL": "http://evil.example.com",
+        }
+        hook = os.path.join(REPO_ROOT, "hooks", "session-learn.py")
+        r = subprocess.run(
+            [sys.executable, hook],
+            input=json.dumps({}),
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""

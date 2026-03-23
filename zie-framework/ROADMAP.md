@@ -10,11 +10,21 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [x] Safety hook fix — exit(2), URL hardening, dead code
+  — [plan](plans/2026-03-23-audit-fix-safety-hook.md)
+
 ---
 
 ## Ready — Approved Plans
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
+
+- [ ] Hook refactor — shared utils, /tmp isolation, silent exception cleanup
+  — [plan](plans/2026-03-23-audit-hook-refactor.md) ✓
+- [ ] Test hardening — /tmp fixtures, JSON assertions, edge cases
+  — [plan](plans/2026-03-23-audit-test-hardening.md) ✓
+- [ ] Docs + standards sprint — plugin.json sync, README fixes, SECURITY.md
+  — [plan](plans/2026-03-23-audit-docs-standards.md) ✓
 
 ---
 

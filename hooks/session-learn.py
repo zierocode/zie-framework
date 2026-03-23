@@ -12,7 +12,7 @@ except Exception:
     sys.exit(0)
 
 api_key = os.environ.get("ZIE_MEMORY_API_KEY", "")
-api_url = os.environ.get("ZIE_MEMORY_API_URL", "https://memory.zie-agent.cloud")
+api_url = os.environ.get("ZIE_MEMORY_API_URL", "")
 cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
 zf = cwd / "zie-framework"
 
@@ -51,6 +51,8 @@ pending_learn_file.write_text(
 
 # If zie-memory enabled, call session-stop endpoint
 if not api_key:
+    sys.exit(0)
+if not api_url.startswith("https://"):
     sys.exit(0)
 
 try:

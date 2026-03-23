@@ -43,9 +43,8 @@ BLOCKS = [
     (r"--no-verify\b", "--no-verify blocked — hooks exist for a reason. Fix the hook failure instead"),
 ]
 
+# WARNS: non-blocking notices. Do NOT add patterns already caught by BLOCKS above.
 WARNS = [
-    (r"git\s+push\s+.*--force-with-lease\b",
-     "Force-with-lease detected — make sure this is intentional"),
     (r"docker\s+compose\s+down\s+.*--volumes\b",
      "docker compose down --volumes will delete DB data — make sure you have a backup"),
     (r"alembic\s+downgrade\b",
@@ -56,7 +55,7 @@ WARNS = [
 for pattern, message in BLOCKS:
     if re.search(pattern, cmd):
         print(f"[zie-framework] BLOCKED: {message}")
-        sys.exit(1)  # Non-zero exit blocks the tool call (if Claude Code honors it)
+        sys.exit(2)  # exit(2) is the PreToolUse block signal per Claude Code protocol
 
 # Check warns (non-blocking)
 for pattern, message in WARNS:

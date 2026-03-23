@@ -17,8 +17,10 @@ if tool_name not in ("Edit", "Write"):
 
 # Only run if zie-memory is available
 api_key = os.environ.get("ZIE_MEMORY_API_KEY", "")
-api_url = os.environ.get("ZIE_MEMORY_API_URL", "https://memory.zie-agent.cloud")
+api_url = os.environ.get("ZIE_MEMORY_API_URL", "")
 if not api_key:
+    sys.exit(0)
+if not api_url.startswith("https://"):
     sys.exit(0)
 
 cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
