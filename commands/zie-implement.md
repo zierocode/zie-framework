@@ -104,13 +104,23 @@ Before starting tasks:
    ลด duplication ปรับชื่อให้ชัด ทำให้ง่ายขึ้น — รัน `make test-unit`
    เพื่อยืนยัน
 
-6. **Invoke `@agent-impl-reviewer`**:
-   <!-- fallback: Skill(zie-framework:impl-reviewer) -->
-   - Pass: task description, **Acceptance Criteria** from plan task header,
-     and list of files changed
-   - If ❌ Issues found → fix → re-run `make test-unit` → re-invoke
-     reviewer → repeat until ✅ APPROVED
-   - Max 3 iterations → surface to human
+6. **Spawn async impl-reviewer**:
+   - Invoke `@agent-impl-reviewer` (background: true):
+     pass task description, **Acceptance Criteria** from plan task header,
+     and list of files changed in this task.
+   - Record returned handle in the pending-reviewers list:
+     `{ task_id: <N>, reviewer_handle: <handle>, reviewer_status: pending }`
+   - Do NOT block — proceed immediately to announce the next task.
+   - **Deferred-check** (start of each task loop iteration): for each entry
+     in the pending-reviewers list, poll handle → check `reviewer_status`:
+     - `reviewer_status: pending` — still running; continue current task,
+       check again at the next iteration.
+     - `reviewer_status: approved` — clear entry from list; no action needed.
+     - `reviewer_status: issues_found` — halt current task; surface reviewer
+       feedback to human; apply fixes; re-run `make test-unit`; re-invoke
+       `@agent-impl-reviewer` synchronously (blocking).
+       Max 3 total iterations — background spawn counts as iteration 1.
+       On APPROVED: clear entry from list; resume current task.
 
 7. **บันทึก task เสร็จ**: Update `TaskUpdate` → completed. Update plan file:
    mark task as `[x]`. Update ROADMAP.md task counter if tracking.
@@ -125,6 +135,15 @@ Before starting tasks:
    supersedes replaces previous WIP memory — no duplicate WIPs accumulate.
 
 ### เมื่อทำครบทุก task
+
+0. **Final-wait for still-pending reviewers**:
+   - If the pending-reviewers list is non-empty, wait for any still-pending
+     background reviewer to return before proceeding.
+   - If any reviewer has not returned after 120s:
+     surface: "impl-reviewer did not return — review manually before committing."
+     and stop. Do not commit until all reviewers have returned or Zie explicitly
+     acknowledges the outstanding review.
+   - Apply the same `issues_found` fix-iterate loop as step 6 above.
 
 1. Run full test suite: `make test-unit` (required) + `make test-int` (if
    available).

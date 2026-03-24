@@ -22,38 +22,20 @@ class TestSpecReviewerAgent:
         fm = load_agent_frontmatter("spec-reviewer.md")
         assert isinstance(fm, dict)
 
-    def test_required_fields_present(self):
+    def test_has_isolation_worktree(self):
         fm = load_agent_frontmatter("spec-reviewer.md")
-        for field in ("name", "description", "model", "tools", "permissionMode", "memory", "user-invocable"):
-            assert field in fm, f"missing field: {field}"
+        assert fm.get("isolation") == "worktree", \
+            "spec-reviewer must declare isolation: worktree"
 
-    def test_model_is_haiku(self):
+    def test_has_allowed_tools(self):
         fm = load_agent_frontmatter("spec-reviewer.md")
-        assert fm["model"] == "haiku"
-
-    def test_memory_is_project(self):
-        fm = load_agent_frontmatter("spec-reviewer.md")
-        assert fm["memory"] == "project"
-
-    def test_permission_mode_is_plan(self):
-        fm = load_agent_frontmatter("spec-reviewer.md")
-        assert fm["permissionMode"] == "plan"
-
-    def test_user_invocable_is_false(self):
-        fm = load_agent_frontmatter("spec-reviewer.md")
-        assert fm["user-invocable"] is False
-
-    def test_tools_contains_required(self):
-        fm = load_agent_frontmatter("spec-reviewer.md")
-        tools = fm["tools"]
+        assert "allowed-tools" in fm, "spec-reviewer must have allowed-tools"
         for t in ("Read", "Grep", "Glob"):
-            assert t in tools, f"missing tool: {t}"
+            assert t in fm["allowed-tools"], f"missing tool: {t}"
 
-    def test_body_contains_phase_headings(self):
+    def test_delegates_to_skill(self):
         text = (AGENTS_DIR / "spec-reviewer.md").read_text()
-        assert "Phase 1" in text
-        assert "Phase 2" in text
-        assert "Phase 3" in text
+        assert "Skill(zie-framework:spec-reviewer)" in text
 
 
 class TestPlanReviewerAgent:
@@ -64,38 +46,20 @@ class TestPlanReviewerAgent:
         fm = load_agent_frontmatter("plan-reviewer.md")
         assert isinstance(fm, dict)
 
-    def test_required_fields_present(self):
+    def test_has_isolation_worktree(self):
         fm = load_agent_frontmatter("plan-reviewer.md")
-        for field in ("name", "description", "model", "tools", "permissionMode", "memory", "user-invocable"):
-            assert field in fm, f"missing field: {field}"
+        assert fm.get("isolation") == "worktree", \
+            "plan-reviewer must declare isolation: worktree"
 
-    def test_model_is_haiku(self):
+    def test_has_allowed_tools(self):
         fm = load_agent_frontmatter("plan-reviewer.md")
-        assert fm["model"] == "haiku"
-
-    def test_memory_is_project(self):
-        fm = load_agent_frontmatter("plan-reviewer.md")
-        assert fm["memory"] == "project"
-
-    def test_permission_mode_is_plan(self):
-        fm = load_agent_frontmatter("plan-reviewer.md")
-        assert fm["permissionMode"] == "plan"
-
-    def test_user_invocable_is_false(self):
-        fm = load_agent_frontmatter("plan-reviewer.md")
-        assert fm["user-invocable"] is False
-
-    def test_tools_contains_required(self):
-        fm = load_agent_frontmatter("plan-reviewer.md")
-        tools = fm["tools"]
+        assert "allowed-tools" in fm, "plan-reviewer must have allowed-tools"
         for t in ("Read", "Grep", "Glob"):
-            assert t in tools, f"missing tool: {t}"
+            assert t in fm["allowed-tools"], f"missing tool: {t}"
 
-    def test_body_contains_phase_headings(self):
+    def test_delegates_to_skill(self):
         text = (AGENTS_DIR / "plan-reviewer.md").read_text()
-        assert "Phase 1" in text
-        assert "Phase 2" in text
-        assert "Phase 3" in text
+        assert "Skill(zie-framework:plan-reviewer)" in text
 
 
 class TestImplReviewerAgent:
@@ -106,76 +70,38 @@ class TestImplReviewerAgent:
         fm = load_agent_frontmatter("impl-reviewer.md")
         assert isinstance(fm, dict)
 
-    def test_required_fields_present(self):
+    def test_has_background_true(self):
         fm = load_agent_frontmatter("impl-reviewer.md")
-        for field in ("name", "description", "model", "tools", "permissionMode", "memory", "user-invocable"):
-            assert field in fm, f"missing field: {field}"
+        assert fm.get("background") is True, \
+            "impl-reviewer must declare background: true"
 
-    def test_model_is_haiku(self):
+    def test_no_isolation_worktree(self):
         fm = load_agent_frontmatter("impl-reviewer.md")
-        assert fm["model"] == "haiku"
+        assert "isolation" not in fm, \
+            "impl-reviewer must NOT have isolation: worktree"
 
-    def test_memory_is_project(self):
+    def test_has_allowed_tools_with_bash(self):
         fm = load_agent_frontmatter("impl-reviewer.md")
-        assert fm["memory"] == "project"
-
-    def test_permission_mode_is_plan(self):
-        fm = load_agent_frontmatter("impl-reviewer.md")
-        assert fm["permissionMode"] == "plan"
-
-    def test_user_invocable_is_false(self):
-        fm = load_agent_frontmatter("impl-reviewer.md")
-        assert fm["user-invocable"] is False
-
-    def test_tools_contains_read_grep_glob(self):
-        fm = load_agent_frontmatter("impl-reviewer.md")
-        tools = fm["tools"]
-        for t in ("Read", "Grep", "Glob"):
+        assert "allowed-tools" in fm
+        tools = fm["allowed-tools"]
+        for t in ("Read", "Grep", "Glob", "Bash"):
             assert t in tools, f"missing tool: {t}"
 
-    def test_tools_contains_bash_scoped(self):
-        fm = load_agent_frontmatter("impl-reviewer.md")
-        tools = fm["tools"]
-        assert "Bash(make test*)" in tools, \
-            "impl-reviewer Bash tool must be scoped to 'make test*'"
-
-    def test_body_contains_phase_headings(self):
+    def test_delegates_to_skill(self):
         text = (AGENTS_DIR / "impl-reviewer.md").read_text()
-        assert "Phase 1" in text
-        assert "Phase 2" in text
-        assert "Phase 3" in text
+        assert "Skill(zie-framework:impl-reviewer)" in text
 
 
 class TestCallerUpdates:
-    def test_spec_design_skill_references_agent(self):
-        text = (Path(__file__).parents[2] / "skills" / "spec-design" / "SKILL.md").read_text()
-        assert "@agent-spec-reviewer" in text, \
-            "spec-design SKILL.md must reference @agent-spec-reviewer"
-
-    def test_spec_design_skill_has_fallback_comment(self):
-        text = (Path(__file__).parents[2] / "skills" / "spec-design" / "SKILL.md").read_text()
-        assert "fallback: Skill(zie-framework:spec-reviewer)" in text, \
-            "spec-design SKILL.md must have fallback comment"
-
-    def test_zie_plan_command_references_agent(self):
-        text = (Path(__file__).parents[2] / "commands" / "zie-plan.md").read_text()
-        assert "@agent-plan-reviewer" in text, \
-            "zie-plan.md must reference @agent-plan-reviewer"
-
-    def test_zie_plan_command_has_fallback_comment(self):
-        text = (Path(__file__).parents[2] / "commands" / "zie-plan.md").read_text()
-        assert "fallback: Skill(zie-framework:plan-reviewer)" in text, \
-            "zie-plan.md must have fallback comment"
-
     def test_zie_implement_command_references_agent(self):
         text = (Path(__file__).parents[2] / "commands" / "zie-implement.md").read_text()
         assert "@agent-impl-reviewer" in text, \
             "zie-implement.md must reference @agent-impl-reviewer"
 
-    def test_zie_implement_command_has_fallback_comment(self):
+    def test_zie_implement_no_inline_skill(self):
         text = (Path(__file__).parents[2] / "commands" / "zie-implement.md").read_text()
-        assert "fallback: Skill(zie-framework:impl-reviewer)" in text, \
-            "zie-implement.md must have fallback comment"
+        assert "Skill(zie-framework:impl-reviewer)" not in text, \
+            "zie-implement.md inline Skill call must be replaced by @agent-impl-reviewer"
 
 
 class TestComponentsRegistry:

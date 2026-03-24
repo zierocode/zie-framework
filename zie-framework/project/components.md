@@ -53,8 +53,23 @@
 
 ## Agents
 
-| Agent | Model | Memory | Invoked by |
+Agent files live in `agents/`. Each is a markdown file with a frontmatter block
+that controls Claude Code runtime behavior. The body instructs the agent to
+invoke the corresponding skill.
+
+| Agent | Frontmatter | Invoked by | Purpose |
 | --- | --- | --- | --- |
-| spec-reviewer | haiku | project | skills/spec-design (Step 5) |
-| plan-reviewer | haiku | project | commands/zie-plan (plan-reviewer gate) |
-| impl-reviewer | haiku | project | commands/zie-implement (Step 6) |
+| `agents/spec-reviewer.md` | `isolation: worktree` | `spec-design` skill | Review spec from clean committed snapshot |
+| `agents/plan-reviewer.md` | `isolation: worktree` | `write-plan` skill | Review plan from clean committed snapshot |
+| `agents/impl-reviewer.md` | `background: true` | `/zie-implement` step 6 | Review task impl asynchronously; deferred-check on next iteration |
+
+### Field reference
+
+**`isolation: worktree`** — Claude Code spawns the agent in a temporary git
+worktree pointing to `HEAD`. The agent sees only the last committed state;
+uncommitted working-tree changes are invisible.
+
+**`background: true`** — Claude Code spawns the agent asynchronously and returns
+a handle immediately. The caller continues without blocking. The caller is
+responsible for polling the handle and handling `approved` / `issues_found`
+states.
