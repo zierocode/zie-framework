@@ -1,6 +1,8 @@
 ---
 name: spec-reviewer
 description: Review a design spec for completeness, clarity, and YAGNI. Returns APPROVED or Issues Found with specific feedback.
+user-invocable: false
+allowed-tools: Read, Grep, Glob
 ---
 
 # spec-reviewer — Design Spec Review

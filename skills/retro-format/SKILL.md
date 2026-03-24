@@ -2,6 +2,7 @@
 name: retro-format
 description: Retrospective format and ADR structure for /zie-retro
 type: reference
+user-invocable: false
 ---
 
 # Retro Format — zie-framework

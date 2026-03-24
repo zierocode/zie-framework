@@ -3,6 +3,7 @@ name: write-plan
 description: Write a detailed implementation plan from an approved spec. Saves to zie-framework/plans/.
 metadata:
   zie_memory_enabled: true
+effort: high
 ---
 
 # write-plan — Spec → Implementation Plan

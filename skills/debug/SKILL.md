@@ -3,6 +3,7 @@ name: debug
 description: Systematic debugging — reproduce, isolate, fix, verify. Uses zie-memory to surface known failure patterns.
 metadata:
   zie_memory_enabled: true
+user-invocable: false
 ---
 
 # debug — Systematic Debugging

@@ -2,12 +2,13 @@
 name: tdd-loop
 description: TDD RED-GREEN-REFACTOR loop guide for zie-framework builds
 type: process
+user-invocable: false
 ---
 
 # TDD Loop — RED → GREEN → REFACTOR
 
-Use this skill during /zie-implement for every task. This is a rigid process skill —
-follow exactly.
+Use this skill during /zie-implement for every task. This is a rigid process
+skill — follow exactly.
 
 ## The Loop
 

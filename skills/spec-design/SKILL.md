@@ -3,6 +3,7 @@ name: spec-design
 description: Brainstorm and write a design spec for a new feature. Saves to zie-framework/specs/.
 metadata:
   zie_memory_enabled: true
+effort: high
 ---
 
 # spec-design — Brainstorm → Spec

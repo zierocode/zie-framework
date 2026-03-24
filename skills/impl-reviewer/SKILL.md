@@ -1,6 +1,8 @@
 ---
 name: impl-reviewer
 description: Review a completed task implementation against its acceptance criteria. Returns APPROVED or Issues Found with specific feedback.
+user-invocable: false
+allowed-tools: Read, Grep, Glob
 ---
 
 # impl-reviewer — Task Implementation Review
