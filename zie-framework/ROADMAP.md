@@ -10,7 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-<!-- -->
+- [x] Fix coverage measurement infrastructure — [plan](plans/2026-03-24-fix-coverage-measurement.md)
 
 ---
 
@@ -20,7 +20,6 @@
 <!-- Order: Critical → High → Medium → Low -->
 
 <!-- CRITICAL -->
-- [ ] Fix coverage measurement infrastructure — [plan](plans/2026-03-24-fix-coverage-measurement.md) ✓
 - [ ] Security: shell injection in input-sanitizer.py — [plan](plans/2026-03-24-security-shell-injection.md) ✓
 
 <!-- HIGH -->
