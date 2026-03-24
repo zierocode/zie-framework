@@ -187,3 +187,23 @@ Before starting tasks:
 - Can be run mid-task to resume after a break
 - The PostToolUse:auto-test hook fires on every file save — this command sets
   the strategic direction, hooks handle the feedback loop
+
+### Resume Subagent
+
+When a reviewer subagent completes, its agent ID is captured in the session
+subagent log (see `/zie-retro` Subagent Activity section). To continue a
+reviewer in the same context for a follow-up question, reference the agent
+by ID using `@agent:<id>` in a new message to that subagent via `SendMessage`.
+
+**Important:** Agent IDs are session-scoped. They are valid only within the
+current Claude Code session. If the session has ended (e.g., you closed the
+terminal or restarted Claude Code), the agent ID is no longer valid — start
+a fresh subagent instead. The subagent log in `/zie-retro` shows IDs from
+the current session only; previous sessions are cleaned up by
+`session-cleanup.py`.
+
+**When to resume vs. start fresh:**
+
+- Resume: same session, same context, follow-up question on the same artifact.
+- Start fresh: new session, new artifact, or the original agent's context
+  is no longer relevant.

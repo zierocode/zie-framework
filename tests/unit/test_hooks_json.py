@@ -41,3 +41,39 @@ class TestHooksJsonStructure:
         hooks = data["hooks"]
         for key in ["SessionStart", "UserPromptSubmit", "PostToolUse", "PreToolUse", "Stop"]:
             assert key in hooks, f"Existing hook key '{key}' was removed"
+
+
+class TestHooksJsonSubagentStop:
+    def _load(self):
+        with open(HOOKS_JSON) as f:
+            return json.load(f)
+
+    def test_hooks_json_is_valid_json(self):
+        self._load()  # must not raise
+
+    def test_subagent_stop_key_present(self):
+        data = self._load()
+        assert "SubagentStop" in data["hooks"], (
+            "hooks.json must contain a SubagentStop entry"
+        )
+
+    def test_subagent_stop_has_async_true(self):
+        data = self._load()
+        entries = data["hooks"]["SubagentStop"]
+        assert len(entries) == 1
+        hook = entries[0]["hooks"][0]
+        assert hook.get("async") is True, (
+            "SubagentStop hook must have async: true"
+        )
+
+    def test_subagent_stop_command_references_correct_script(self):
+        data = self._load()
+        hook = data["hooks"]["SubagentStop"][0]["hooks"][0]
+        assert "subagent-stop.py" in hook["command"]
+        assert "${CLAUDE_PLUGIN_ROOT}" in hook["command"]
+
+    def test_existing_hooks_still_present(self):
+        data = self._load()
+        hooks = data["hooks"]
+        for key in ("SessionStart", "UserPromptSubmit", "PostToolUse", "PreToolUse", "Stop"):
+            assert key in hooks, f"existing hook key missing: {key}"

@@ -33,7 +33,27 @@ Recent activity window:
    - `recall project=<project> tags=[wip, build-learning, shipped] limit=20`
    - Use recalled learnings and decisions as context for retro analysis.
 
-2. Count ADR files in `zie-framework/decisions/` → get next ADR number.
+2. **Subagent Activity** — read subagent log for this session:
+
+   - Resolve log path: `project_tmp_path("subagent-log", project)` →
+     `/tmp/zie-<project>-subagent-log`
+   - If file exists: read line-by-line, parse each JSON record, group by
+     `agent_type`. Print summary:
+
+     ```text
+     Subagent Activity This Session
+     ─────────────────────────────────────────────────────
+     Type              Count   Last Agent ID   Last Message
+     spec-reviewer     2       abc-123         "The spec lo..."
+     plan-reviewer     1       def-456         "Plan looks s..."
+     ─────────────────────────────────────────────────────
+     ```
+
+   - If file does not exist or `FileNotFoundError`: print
+     "No subagent activity recorded this session." and continue.
+   - If a line fails JSON parse: skip it silently (partial log is still useful).
+
+3. Count ADR files in `zie-framework/decisions/` → get next ADR number.
 
 ### วิเคราะห์และสรุป
 
