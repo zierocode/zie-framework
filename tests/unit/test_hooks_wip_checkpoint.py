@@ -308,3 +308,22 @@ class TestWipCheckpointUrlSafety:
         )
         assert r.returncode == 0
         assert r.stdout.strip() == ""
+
+    def test_memory_unreachable_http_url_exits_zero(self, tmp_path):
+        """http://localhost:19999 (nothing listening) — URL guard blocks before network call."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        env = {
+            **os.environ,
+            "CLAUDE_CWD": str(tmp_path),
+            "ZIE_MEMORY_API_KEY": "testkey",
+            "ZIE_MEMORY_API_URL": "http://localhost:19999",
+        }
+        hook = os.path.join(REPO_ROOT, "hooks", "wip-checkpoint.py")
+        r = subprocess.run(
+            [sys.executable, hook],
+            input=json.dumps({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}}),
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr

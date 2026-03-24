@@ -72,6 +72,22 @@ class TestOuterGuard:
         )
         assert r.returncode == 0
 
+    def test_missing_tool_name_exits_zero(self, tmp_path):
+        """Event with no tool_name key must exit 0."""
+        event = {"tool_input": {"command": "echo hello"}}
+        r = run_hook(event, cwd=str(tmp_path))
+        assert r.returncode == 0
+
+    def test_malformed_event_not_dict_exits_zero(self, tmp_path):
+        """stdin containing a JSON string (not a dict) must exit 0."""
+        env = {**os.environ, "CLAUDE_CWD": str(tmp_path)}
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input='"just a string"',
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+
 
 # ---------------------------------------------------------------------------
 # Clean git tree — no block
@@ -335,3 +351,28 @@ class TestComponentsDocumented:
         assert "stop-guard.py" in content, (
             "stop-guard.py must be documented in zie-framework/project/components.md"
         )
+
+
+class TestRenameArrowInFilename:
+    """stop-guard must not crash or misclassify a file whose name contains ' -> '."""
+
+    def _init_repo(self, tmp_path):
+        subprocess.run(["git", "init"], cwd=str(tmp_path), check=True,
+                       capture_output=True)
+        subprocess.run(
+            ["git", "commit", "--allow-empty", "-m", "init"],
+            cwd=str(tmp_path), check=True, capture_output=True,
+            env={**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t.com",
+                 "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t.com"},
+        )
+
+    def test_arrow_in_filename_does_not_crash(self, tmp_path):
+        """A file whose name contains ' -> ' must not cause the hook to crash."""
+        self._init_repo(tmp_path)
+        hooks_dir = tmp_path / "hooks"
+        hooks_dir.mkdir()
+        arrow_file = hooks_dir / "old -> new.py"
+        arrow_file.write_text("# arrow in filename\n")
+        r = run_hook({}, cwd=str(tmp_path))
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr

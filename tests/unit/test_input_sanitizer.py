@@ -236,6 +236,45 @@ class TestErrorResilience:
         assert r.returncode == 0
         assert r.stdout.strip() == ""
 
+    def test_missing_tool_name_exits_zero(self):
+        """Event with no tool_name key must exit 0."""
+        event = {"tool_input": {"file_path": "src/main.py"}}
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input=json.dumps(event),
+            capture_output=True, text=True,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_malformed_event_not_dict_exits_zero(self):
+        """stdin containing a JSON string (not a dict) must exit 0."""
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input='"just a string"',
+            capture_output=True, text=True,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_deeply_nested_tool_input_missing_file_path_exits_zero(self, tmp_path):
+        """Nested tool_input dict without file_path key must exit 0 without crash."""
+        event = {
+            "tool_name": "Write",
+            "tool_input": {
+                "nested": {"deeply": {"no_file_path": True}},
+                "content": "some content",
+            },
+        }
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input=json.dumps(event),
+            capture_output=True, text=True,
+            env={**os.environ, "CLAUDE_CWD": str(tmp_path)},
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
 
 # ---------------------------------------------------------------------------
 # hooks.json registration

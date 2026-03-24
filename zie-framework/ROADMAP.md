@@ -15,7 +15,7 @@
 - [x] Security: /tmp hardening (permissions, TOCTOU, predictable names) — [plan](plans/2026-03-24-security-tmp-hardening.md)
 - [x] Security: path traversal fix (startswith → is_relative_to) — [plan](plans/2026-03-24-security-path-traversal.md)
 - [x] Add subprocess timeouts to all hooks — [plan](plans/2026-03-24-add-subprocess-timeouts.md)
-- [ ] Test quality: fill edge case and error path gaps — [plan](plans/2026-03-24-test-quality-gaps.md)
+- [x] Test quality: fill edge case and error path gaps — [plan](plans/2026-03-24-test-quality-gaps.md)
 
 ---
 

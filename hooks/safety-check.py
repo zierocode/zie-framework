@@ -59,14 +59,15 @@ def evaluate(command: str) -> int:
 
 
 if __name__ == "__main__":
-    event = read_event()
-
-    tool_name = event.get("tool_name", "")
-    if tool_name != "Bash":
-        sys.exit(0)
-
-    command = (event.get("tool_input") or {}).get("command", "")
-    if not command:
+    try:
+        event = read_event()
+        tool_name = event.get("tool_name", "")
+        if tool_name != "Bash":
+            sys.exit(0)
+        command = (event.get("tool_input") or {}).get("command", "")
+        if not command:
+            sys.exit(0)
+    except Exception:
         sys.exit(0)
 
     cwd = get_cwd()

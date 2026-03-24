@@ -263,6 +263,27 @@ class TestUnknownNotificationType:
 # TestGuardrails
 # ---------------------------------------------------------------------------
 
+class TestCorruptLogMixedContent:
+    def test_mixed_valid_corrupt_log_exits_zero(self, tmp_path):
+        """Log with one valid JSON line + one corrupt line — hook exits 0 and recovers."""
+        project = f"testproj-mixed-{tmp_path.name}"
+        log = tmp_log_path("permission-log", project)
+        log.write_text(
+            '{"ts": "2026-01-01T00:00:00", "msg": "Read file /etc/hosts"}\n'
+            "{bad json line\n"
+        )
+        r = run_hook(
+            {"event": "Notification", "notification_type": "permission_prompt",
+             "message": "some permission"},
+            project,
+        )
+        assert r.returncode == 0
+        lines = [l for l in log.read_text().splitlines() if l.strip()]
+        for line in lines:
+            json.loads(line)  # must not raise
+        log.unlink(missing_ok=True)
+
+
 class TestGuardrails:
     def test_bad_stdin_exits_zero(self):
         """Malformed JSON on stdin must not crash the hook."""

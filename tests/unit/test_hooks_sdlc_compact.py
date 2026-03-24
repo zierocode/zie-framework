@@ -365,6 +365,22 @@ class TestSdlcCompactPostCompact:
         assert "sdlc-compact hook" in ctx
 
 
+    def test_postcompact_git_unavailable_exits_zero(self, tmp_path):
+        """PostCompact must exit 0 even when git is not on PATH."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        # No snapshot — forces live fallback which calls git
+        assert not snapshot_path(tmp_path).exists()
+        empty_bin = tmp_path / "empty_bin"
+        empty_bin.mkdir()
+        r = run_hook(
+            "PostCompact",
+            tmp_cwd=cwd,
+            env_overrides={"PATH": str(empty_bin)},
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr
+
+
 # ---------------------------------------------------------------------------
 # Error handling convention
 # ---------------------------------------------------------------------------
