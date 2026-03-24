@@ -27,6 +27,14 @@
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/intent-detect.py\""
         }
       ]
+    },
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-context.py\""
+        }
+      ]
     }
   ],
   "PostToolUse": [

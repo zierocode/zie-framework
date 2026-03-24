@@ -11,6 +11,7 @@
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
 - [x] PreCompact/PostCompact WIP preservation — [plan](plans/2026-03-24-prepostcompact-wip-preservation.md)
+- [x] UserPromptSubmit SDLC context injection — [plan](plans/2026-03-24-userpromptsubmit-sdlc-context.md)
 
 ---
 
@@ -20,7 +21,6 @@
 <!-- Order: Critical → High → Medium → Low -->
 
 <!-- CRITICAL -->
-- [ ] UserPromptSubmit SDLC context injection — [plan](plans/2026-03-24-userpromptsubmit-sdlc-context.md) ✓
 
 <!-- HIGH -->
 - [ ] Reviewer skills → custom agents with persistent memory — [plan](plans/2026-03-24-reviewer-agents-memory.md) ✓
