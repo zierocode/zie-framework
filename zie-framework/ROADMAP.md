@@ -10,6 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [x] type:"agent" hooks for smart safety validation — [plan](plans/2026-03-24-agent-type-hooks.md)
 - [x] TaskCompleted quality gate hook — [plan](plans/2026-03-24-taskcompleted-validation.md)
 - [x] Plugin settings.json defaults + CLAUDE_PLUGIN_DATA storage — [plan](plans/2026-03-24-plugin-settings-defaults.md)
 - [x] PreCompact/PostCompact WIP preservation — [plan](plans/2026-03-24-prepostcompact-wip-preservation.md)
@@ -39,7 +40,6 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [ ] type:"agent" hooks for smart safety validation — [plan](plans/2026-03-24-agent-type-hooks.md) ✓
 
 <!-- LOW -->
 - [ ] Skills advanced features ($ARGUMENTS[N], session vars, supporting files) — [plan](plans/2026-03-24-skills-advanced-features.md) ✓

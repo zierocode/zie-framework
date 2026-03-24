@@ -120,3 +120,57 @@ class TestHooksJsonSubagentStop:
         hooks = data["hooks"]
         for key in ("SessionStart", "UserPromptSubmit", "PostToolUse", "PreToolUse", "Stop"):
             assert key in hooks, f"existing hook key missing: {key}"
+
+
+class TestHooksJsonSafetyCheckAgent:
+    def _load(self):
+        with open(HOOKS_JSON) as f:
+            return json.load(f)
+
+    def _pretooluse_commands(self, data):
+        """Return all command strings from PreToolUse hooks."""
+        return [
+            hook["command"]
+            for entry in data["hooks"].get("PreToolUse", [])
+            for hook in entry.get("hooks", [])
+        ]
+
+    def test_safety_check_agent_in_pretooluse(self):
+        data = self._load()
+        commands = self._pretooluse_commands(data)
+        assert any("safety_check_agent.py" in cmd for cmd in commands), (
+            "safety_check_agent.py not registered in PreToolUse"
+        )
+
+    def test_safety_check_agent_uses_plugin_root(self):
+        data = self._load()
+        commands = self._pretooluse_commands(data)
+        agent_cmds = [c for c in commands if "safety_check_agent.py" in c]
+        assert agent_cmds, "safety_check_agent.py not found in PreToolUse"
+        assert "${CLAUDE_PLUGIN_ROOT}" in agent_cmds[0]
+
+    def test_safety_check_agent_type_is_command(self):
+        data = self._load()
+        for entry in data["hooks"].get("PreToolUse", []):
+            for hook in entry.get("hooks", []):
+                if "safety_check_agent.py" in hook.get("command", ""):
+                    assert hook["type"] == "command"
+                    return
+        raise AssertionError("safety_check_agent.py not found in PreToolUse hooks")
+
+    def test_safety_check_agent_script_exists(self):
+        script = os.path.join(REPO_ROOT, "hooks", "safety_check_agent.py")
+        assert os.path.exists(script), f"Hook script not found: {script}"
+
+    def test_safety_check_agent_matches_bash(self):
+        """Agent hook must only fire on Bash tool calls."""
+        data = self._load()
+        for entry in data["hooks"].get("PreToolUse", []):
+            for hook in entry.get("hooks", []):
+                if "safety_check_agent.py" in hook.get("command", ""):
+                    matcher = entry.get("matcher", "")
+                    assert "Bash" in matcher, (
+                        f"safety_check_agent.py entry has unexpected matcher: {matcher!r}"
+                    )
+                    return
+        raise AssertionError("safety_check_agent.py not found in PreToolUse hooks")
