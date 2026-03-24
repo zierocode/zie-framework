@@ -1,0 +1,4 @@
+# B108: hardcoded_tmp_directory — all /tmp usage in hooks/ is project-scoped
+# (zie-<project>-*) and intentional. Skip at scan level.
+skips:
+  - B108

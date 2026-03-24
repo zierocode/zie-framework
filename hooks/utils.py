@@ -79,7 +79,7 @@ def project_tmp_path(name: str, project: str) -> Path:
 
     Example: project_tmp_path("last-test", "my-project") -> Path("/tmp/zie-my-project-last-test")
     """
-    return Path(f"/tmp/zie-{safe_project_name(project)}-{name}")  # nosec B108
+    return Path(f"/tmp/zie-{safe_project_name(project)}-{name}")
 
 
 def get_plugin_data_dir(project: str) -> Path:
@@ -99,7 +99,7 @@ def get_plugin_data_dir(project: str) -> Path:
             "[zie-framework] CLAUDE_PLUGIN_DATA not set, using /tmp fallback",
             file=sys.stderr,
         )
-        path = Path(f"/tmp/zie-{safe_project_name(project)}-persistent")  # nosec B108
+        path = Path(f"/tmp/zie-{safe_project_name(project)}-persistent")
     path.mkdir(parents=True, exist_ok=True)
     return path
 

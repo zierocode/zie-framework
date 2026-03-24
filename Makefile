@@ -65,7 +65,7 @@ lint: lint-bandit ## Lint Python hooks (syntax + SAST)
 	python3 -m py_compile hooks/*.py && echo "All hooks compile OK"
 
 lint-bandit: ## Run Bandit SAST on hooks/ (medium severity + confidence)
-	python3 -m bandit -r hooks/ -ll -q
+	python3 -m bandit -r hooks/ -ll -q -c .bandit
 
 lint-md: ## Lint all Markdown files (markdownlint, no exceptions)
 	npx markdownlint-cli "**/*.md" --ignore node_modules
