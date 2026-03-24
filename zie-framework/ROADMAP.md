@@ -13,7 +13,8 @@
 - [x] Fix coverage measurement infrastructure — [plan](plans/2026-03-24-fix-coverage-measurement.md)
 - [x] Security: shell injection in input-sanitizer.py — [plan](plans/2026-03-24-security-shell-injection.md)
 - [x] Security: /tmp hardening (permissions, TOCTOU, predictable names) — [plan](plans/2026-03-24-security-tmp-hardening.md)
-- [ ] Security: path traversal fix (startswith → is_relative_to) — [plan](plans/2026-03-24-security-path-traversal.md)
+- [x] Security: path traversal fix (startswith → is_relative_to) — [plan](plans/2026-03-24-security-path-traversal.md)
+- [ ] Add subprocess timeouts to all hooks — [plan](plans/2026-03-24-add-subprocess-timeouts.md)
 
 ---
 
@@ -25,7 +26,6 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-- [ ] Add subprocess timeouts to all hooks — [plan](plans/2026-03-24-add-subprocess-timeouts.md) ✓
 - [ ] Test quality: fill edge case and error path gaps — [plan](plans/2026-03-24-test-quality-gaps.md) ✓
 
 <!-- MEDIUM -->

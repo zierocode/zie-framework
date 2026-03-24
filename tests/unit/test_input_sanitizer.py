@@ -267,3 +267,43 @@ class TestHooksJsonRegistration:
         assert any("safety-check.py" in cmd for cmd in all_commands), (
             "safety-check.py must remain registered in hooks.json PreToolUse"
         )
+
+
+# ---------------------------------------------------------------------------
+# Path traversal edge cases
+# ---------------------------------------------------------------------------
+
+class TestPathTraversalEdgeCases:
+    def test_path_traversal_user_evil_prefix(self, tmp_path):
+        """startswith() false-negative: /home/user-evil/ passes the old check.
+
+        With is_relative_to() this must be rejected — hook exits 0, stdout
+        empty, stderr contains 'escapes cwd'.
+        """
+        r = run_hook("Write", {"file_path": "../user-evil/evil.py"}, cwd_override=str(tmp_path))
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+        assert "escapes cwd" in r.stderr
+
+    def test_path_nul_byte_rejected(self, tmp_path):
+        """NUL byte in file_path must not crash the hook.
+
+        Python's Path() raises ValueError on NUL bytes; the inner except
+        block catches it and exits 0.
+        """
+        r = run_hook("Write", {"file_path": "foo\x00bar.py"}, cwd_override=str(tmp_path))
+        assert r.returncode == 0
+        if r.stdout.strip():
+            json.loads(r.stdout)  # raises if not valid JSON
+
+    def test_path_with_symlink_outside_cwd(self, tmp_path):
+        """Symlink inside cwd pointing outside cwd must be rejected.
+
+        .resolve() follows the symlink to its real path; is_relative_to()
+        then rejects it because the real path is outside tmp_path.
+        """
+        link = tmp_path / "link"
+        link.symlink_to("/etc")
+        r = run_hook("Write", {"file_path": "link/passwd"}, cwd_override=str(tmp_path))
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""

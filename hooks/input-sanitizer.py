@@ -55,8 +55,9 @@ if tool_name in {"Write", "Edit"}:
         abs_path = (cwd / p).resolve()
 
         # Boundary check — must stay inside project root.
-        # Both sides are .resolve()-ed (symlinks followed) for accurate prefix check.
-        if not str(abs_path).startswith(str(cwd)):
+        # Both sides are .resolve()-ed (symlinks followed) before is_relative_to()
+        # comparison, which checks path components (not string prefix).
+        if not abs_path.is_relative_to(cwd):
             print(
                 f"[zie-framework] input-sanitizer: relative path escapes cwd,"
                 f" skipping rewrite: {file_path}",
