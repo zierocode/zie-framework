@@ -93,7 +93,8 @@ Before starting tasks:
    ลด duplication ปรับชื่อให้ชัด ทำให้ง่ายขึ้น — รัน `make test-unit`
    เพื่อยืนยัน
 
-6. **Invoke `Skill(zie-framework:impl-reviewer)`**:
+6. **Invoke `@agent-impl-reviewer`**:
+   <!-- fallback: Skill(zie-framework:impl-reviewer) -->
    - Pass: task description, **Acceptance Criteria** from plan task header,
      and list of files changed
    - If ❌ Issues found → fix → re-run `make test-unit` → re-invoke

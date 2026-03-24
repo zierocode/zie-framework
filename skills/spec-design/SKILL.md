@@ -50,7 +50,8 @@ If `zie_memory_enabled=true`:
    **Out of Scope:** <list>
    ```
 
-5. **Spec reviewer loop** — dispatch `Skill(zie-framework:spec-reviewer)` with:
+5. **Spec reviewer loop** — dispatch `@agent-spec-reviewer` with:
+   <!-- fallback: Skill(zie-framework:spec-reviewer) -->
    - Path to spec file
    - Backlog item context
    - If ❌ Issues Found → fix issues → re-invoke reviewer → repeat until ✅ APPROVED

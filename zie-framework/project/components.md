@@ -43,4 +43,14 @@
 | session-learn.py | PostToolUse | สังเกต patterns, บันทึก micro-learnings |
 | wip-checkpoint.py | PeriodicTask | บันทึก WIP progress สู่ brain; counter ValueError recovery |
 | session-cleanup.py | Stop | ลบ project-scoped /tmp files on exit |
+| sdlc-compact.py | PreCompact / PostCompact | snapshot SDLC state before compaction; restore as additionalContext after |
+| sdlc-context.py | UserPromptSubmit | inject [sdlc] task/stage/next/tests context into every prompt |
 | utils.py | (shared library) | read_event(), get_cwd(), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write) |
+
+## Agents
+
+| Agent | Model | Memory | Invoked by |
+| --- | --- | --- | --- |
+| spec-reviewer | haiku | project | skills/spec-design (Step 5) |
+| plan-reviewer | haiku | project | commands/zie-plan (plan-reviewer gate) |
+| impl-reviewer | haiku | project | commands/zie-implement (Step 6) |

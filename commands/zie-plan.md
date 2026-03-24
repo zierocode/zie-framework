@@ -56,7 +56,8 @@ before building. Supports multiple items in parallel (max 4 agents).
 
 For each drafted plan, before showing to Zie:
 
-1. Invoke `Skill(zie-framework:plan-reviewer)` with:
+1. Invoke `@agent-plan-reviewer` with:
+   <!-- fallback: Skill(zie-framework:plan-reviewer) -->
    - Path to plan file
    - Path to spec file (`zie-framework/specs/*-<slug>-design.md`)
 2. If ❌ Issues Found → fix the plan → re-invoke reviewer → repeat.

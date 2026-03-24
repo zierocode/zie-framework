@@ -12,6 +12,7 @@
 
 - [x] PreCompact/PostCompact WIP preservation — [plan](plans/2026-03-24-prepostcompact-wip-preservation.md)
 - [x] UserPromptSubmit SDLC context injection — [plan](plans/2026-03-24-userpromptsubmit-sdlc-context.md)
+- [x] Reviewer skills → custom agents with persistent memory — [plan](plans/2026-03-24-reviewer-agents-memory.md)
 
 ---
 
@@ -23,7 +24,6 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-- [ ] Reviewer skills → custom agents with persistent memory — [plan](plans/2026-03-24-reviewer-agents-memory.md) ✓
 - [ ] Skills frontmatter hardening — [plan](plans/2026-03-24-skills-frontmatter-hardening.md) ✓
 - [ ] SessionStart CLAUDE_ENV_FILE config injection — [plan](plans/2026-03-24-sessionstart-env-file.md) ✓
 - [ ] SubagentStart SDLC context injection — [plan](plans/2026-03-24-subagentstart-sdlc-context.md) ✓
