@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-03-24
+**Last updated:** 2026-03-24 (v1.7.0)
 
 ## Commands
 
@@ -36,7 +36,7 @@
 
 | Hook | Event | ทำอะไร |
 | --- | --- | --- |
-| auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save (debounced); OSError-guarded rglob + c.exists() |
+| auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save (debounced, `debounce_ms=0` = disabled); OSError-guarded rglob + c.exists() |
 | safety-check.py | PreToolUse:Bash | บล็อก dangerous cmds (exit 2 = block); MAX_MESSAGE_LEN=500 ReDoS guard; whitespace normalised before match |
 | intent-detect.py | PreToolUse:Bash | ตรวจ intent → suggest cmd (JSON out) |
 | session-resume.py | SessionStart | แสดง project state + active feature |
