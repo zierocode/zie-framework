@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Claude Code Hook Event Envelope",
+  "description": "Common envelope for all zie-framework hook event inputs (stdin JSON)",
+  "type": "object",
+  "properties": {
+    "tool_name": {
+      "type": "string",
+      "description": "Name of the tool being invoked (PreToolUse/PostToolUse)"
+    },
+    "tool_input": {
+      "type": ["object", "null"],
+      "description": "Tool input parameters — shape varies by tool_name"
+    },
+    "tool_response": {
+      "type": ["object", "string", "null"],
+      "description": "Tool output (PostToolUse only)"
+    },
+    "is_interrupt": {
+      "type": "boolean",
+      "description": "True when Claude was interrupted mid-response"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Unique session identifier"
+    }
+  },
+  "additionalProperties": true
+}

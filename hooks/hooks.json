@@ -134,11 +134,13 @@
         },
         {
           "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-learn.py\""
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-learn.py\"",
+          "async": true
         },
         {
           "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-cleanup.py\""
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-cleanup.py\"",
+          "async": true
         }
       ]
     }

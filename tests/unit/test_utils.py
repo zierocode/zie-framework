@@ -738,3 +738,92 @@ class TestBlocksWarns:
         from utils import WARNS
         patterns = [p for p, _ in WARNS]
         assert any("docker" in p for p in patterns)
+
+
+class TestSdlcStages:
+    def test_sdlc_stages_is_exported(self):
+        from utils import SDLC_STAGES
+        assert SDLC_STAGES is not None
+
+    def test_sdlc_stages_is_list(self):
+        from utils import SDLC_STAGES
+        assert isinstance(SDLC_STAGES, list)
+
+    def test_sdlc_stages_contains_eight_entries(self):
+        from utils import SDLC_STAGES
+        assert len(SDLC_STAGES) == 8
+
+    def test_sdlc_stages_values(self):
+        from utils import SDLC_STAGES
+        assert SDLC_STAGES == [
+            "init", "backlog", "spec", "plan",
+            "implement", "fix", "release", "retro",
+        ]
+
+    def test_sdlc_stages_all_strings(self):
+        from utils import SDLC_STAGES
+        assert all(isinstance(s, str) for s in SDLC_STAGES)
+
+    def test_intent_detect_imports_sdlc_stages(self):
+        """intent-detect.py must reference SDLC_STAGES from utils."""
+        content = (REPO_ROOT / "hooks" / "intent-detect.py").read_text()
+        assert "SDLC_STAGES" in content, (
+            "intent-detect.py must import or reference SDLC_STAGES"
+        )
+
+    def test_sdlc_context_imports_sdlc_stages(self):
+        """sdlc-context.py must reference SDLC_STAGES from utils."""
+        content = (REPO_ROOT / "hooks" / "sdlc-context.py").read_text()
+        assert "SDLC_STAGES" in content, (
+            "sdlc-context.py must import or reference SDLC_STAGES"
+        )
+
+
+class TestParseRoadmapNowWarnOnEmpty:
+    def test_warn_false_default_no_stderr_when_empty(self, tmp_path, capsys):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n\n## Next\n- [ ] foo\n")
+        result = parse_roadmap_now(f)
+        assert result == []
+        captured = capsys.readouterr()
+        assert captured.err == ""
+
+    def test_warn_true_emits_stderr_when_now_empty(self, tmp_path, capsys):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n\n## Next\n- [ ] foo\n")
+        result = parse_roadmap_now(f, warn_on_empty=True)
+        assert result == []
+        captured = capsys.readouterr()
+        assert "[zie-framework]" in captured.err
+        assert "Now section" in captured.err
+
+    def test_warn_true_emits_stderr_when_now_absent(self, tmp_path, capsys):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Done\n- [x] something\n")
+        result = parse_roadmap_now(f, warn_on_empty=True)
+        assert result == []
+        captured = capsys.readouterr()
+        assert "[zie-framework]" in captured.err
+
+    def test_warn_true_no_stderr_when_file_missing(self, tmp_path, capsys):
+        result = parse_roadmap_now(tmp_path / "nonexistent.md", warn_on_empty=True)
+        assert result == []
+        captured = capsys.readouterr()
+        assert captured.err == ""
+
+    def test_warn_true_no_stderr_when_now_has_items(self, tmp_path, capsys):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] active task\n")
+        result = parse_roadmap_now(f, warn_on_empty=True)
+        assert result == ["active task"]
+        captured = capsys.readouterr()
+        assert captured.err == ""
+
+    def test_existing_callers_unaffected(self, tmp_path, capsys):
+        """Calling with no arguments must behave exactly as before."""
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n\n")
+        result = parse_roadmap_now(f)
+        assert result == []
+        captured = capsys.readouterr()
+        assert captured.err == ""

@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd
+from utils import get_cwd, parse_roadmap_now, project_tmp_path, read_event, SDLC_STAGES  # SDLC_STAGES: STAGE_KEYWORDS stage names are a subset
 
 # ── Stage keyword map (checked in order; first match wins) ──────────────────
 

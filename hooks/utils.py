@@ -19,6 +19,11 @@ import tempfile
 import urllib.request
 from pathlib import Path
 
+SDLC_STAGES: list = [
+    "init", "backlog", "spec", "plan",
+    "implement", "fix", "release", "retro",
+]
+
 
 def parse_roadmap_section(roadmap_path, section_name: str) -> list:
     """Extract cleaned items from a named ## section of ROADMAP.md.
@@ -46,13 +51,23 @@ def parse_roadmap_section(roadmap_path, section_name: str) -> list:
     return lines
 
 
-def parse_roadmap_now(roadmap_path) -> list:
+def parse_roadmap_now(roadmap_path, warn_on_empty: bool = False) -> list:
     """Extract cleaned items from the ## Now section of ROADMAP.md.
 
     Returns [] if the file is missing, the Now section is absent, or it is empty.
     Accepts Path or str.
+
+    If warn_on_empty=True and the file exists but the Now section is absent
+    or empty, prints a warning to stderr.
     """
-    return parse_roadmap_section(roadmap_path, "now")
+    path = Path(roadmap_path)
+    items = parse_roadmap_section(path, "now")
+    if warn_on_empty and path.exists() and not items:
+        print(
+            "[zie-framework] WARNING: ROADMAP.md Now section is empty or missing",
+            file=sys.stderr,
+        )
+    return items
 
 
 def atomic_write(path: Path, content: str) -> None:
