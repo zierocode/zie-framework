@@ -89,7 +89,20 @@ if __name__ == "__main__":
     if not test_runner:
         sys.exit(0)
 
-    # Debounce: skip if same file was tested recently (within debounce window)
+    changed = Path(file_path).resolve()
+    cwd_resolved = cwd.resolve()
+    if not changed.is_relative_to(cwd_resolved):
+        sys.exit(0)
+
+    # additionalContext injection — fires before debounce so Claude always gets the hint
+    _ctx_test = find_matching_test(changed, test_runner, cwd)
+    if _ctx_test:
+        _additional_context = f"Affected test: {_ctx_test}"
+    else:
+        _additional_context = f"No test file found for {changed.name} — write one"
+    print(json.dumps({"hookSpecificOutput": {"additionalContext": _additional_context}}))
+
+    # Debounce: skip test run if same file was tested recently (within debounce window)
     if _debounce_env:
         try:
             debounce_ms = int(_debounce_env)
@@ -103,11 +116,6 @@ if __name__ == "__main__":
         if (time.time() - last_run) < (debounce_ms / 1000):
             sys.exit(0)
     safe_write_tmp(debounce_file, file_path)
-
-    changed = Path(file_path).resolve()
-    cwd_resolved = cwd.resolve()
-    if not changed.is_relative_to(cwd_resolved):
-        sys.exit(0)
 
     timeout = config.get("auto_test_timeout_ms", 30000) // 1000
 

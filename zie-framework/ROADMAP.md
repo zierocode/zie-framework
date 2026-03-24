@@ -17,6 +17,7 @@
 - [x] SessionStart CLAUDE_ENV_FILE config injection — [plan](plans/2026-03-24-sessionstart-env-file.md)
 - [x] SubagentStart SDLC context injection — [plan](plans/2026-03-24-subagentstart-sdlc-context.md)
 - [x] PermissionRequest auto-approve safe SDLC operations — [plan](plans/2026-03-24-permission-request-auto-approve.md)
+- [x] PostToolUse additionalContext test file hints — [plan](plans/2026-03-24-posttooluse-additionalcontext.md)
 
 ---
 
@@ -30,7 +31,6 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [ ] PostToolUse additionalContext test file hints — [plan](plans/2026-03-24-posttooluse-additionalcontext.md) ✓
 - [ ] Stop hook uncommitted work guard — [plan](plans/2026-03-24-stop-uncommitted-guard.md) ✓
 - [ ] PreToolUse updatedInput path sanitization + rewriting — [plan](plans/2026-03-24-pretooluse-input-modification.md) ✓
 - [ ] PostToolUseFailure debugging context injection — [plan](plans/2026-03-24-posttoolusefailure-debug-context.md) ✓

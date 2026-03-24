@@ -443,3 +443,218 @@ class TestAutoTestEnvVarFastPath:
             env_overrides={"ZIE_TEST_RUNNER": "pytest", "ZIE_AUTO_TEST_DEBOUNCE_MS": "0"},
         )
         assert r.returncode == 0
+
+
+def parse_additional_context(stdout: str):
+    """Extract the additionalContext string from hook stdout, or None if absent."""
+    for line in stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+            hso = obj.get("hookSpecificOutput", {})
+            if "additionalContext" in hso:
+                return hso["additionalContext"]
+        except (json.JSONDecodeError, AttributeError):
+            continue
+    return None
+
+
+class TestAdditionalContextInjection:
+    """hookSpecificOutput.additionalContext must be emitted after Write/Edit."""
+
+    @pytest.fixture(autouse=True)
+    def _cleanup_debounce(self, tmp_path):
+        yield
+        p = project_tmp_path("last-test", tmp_path.name)
+        if p.exists():
+            p.unlink()
+
+    # --- match found ---
+
+    def test_context_emitted_with_matching_test(self, tmp_path):
+        """When a test file exists for the changed module, context names it."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        tests_dir = cwd / "tests" / "unit"
+        tests_dir.mkdir(parents=True)
+        test_file = tests_dir / "test_payments.py"
+        test_file.write_text("# test")
+        changed = str(cwd / "src" / "payments.py")
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        ctx = parse_additional_context(r.stdout)
+        assert ctx is not None, f"No additionalContext found in stdout: {r.stdout!r}"
+        assert ctx.startswith("Affected test: "), f"Unexpected context prefix: {ctx!r}"
+        assert "test_payments.py" in ctx
+
+    def test_context_contains_absolute_path(self, tmp_path):
+        """Matched test path in context must be absolute."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        tests_dir = cwd / "tests" / "unit"
+        tests_dir.mkdir(parents=True)
+        test_file = tests_dir / "test_utils.py"
+        test_file.write_text("# test")
+        changed = str(cwd / "src" / "utils.py")
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        ctx = parse_additional_context(r.stdout)
+        assert ctx is not None
+        path_part = ctx.removeprefix("Affected test: ")
+        assert Path(path_part).is_absolute(), f"Path is not absolute: {path_part!r}"
+
+    def test_context_emitted_for_write_tool(self, tmp_path):
+        """Context injection fires on Write tool, not only Edit."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        tests_dir = cwd / "tests" / "unit"
+        tests_dir.mkdir(parents=True)
+        (tests_dir / "test_models.py").write_text("# test")
+        changed = str(cwd / "src" / "models.py")
+        r = run_hook({"tool_name": "Write", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        ctx = parse_additional_context(r.stdout)
+        assert ctx is not None
+        assert "test_models.py" in ctx
+
+    # --- no match ---
+
+    def test_context_write_one_when_no_test_found(self, tmp_path):
+        """When no matching test exists, context prompts Claude to write one."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        (cwd / "tests").mkdir()
+        changed = str(cwd / "src" / "billing.py")
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        ctx = parse_additional_context(r.stdout)
+        assert ctx is not None, f"No additionalContext found in stdout: {r.stdout!r}"
+        assert "billing.py" in ctx
+        assert "write one" in ctx
+
+    def test_context_write_one_message_format(self, tmp_path):
+        """'write one' message must match exact format from spec."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        (cwd / "tests").mkdir()
+        changed = str(cwd / "src" / "stripe.py")
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        ctx = parse_additional_context(r.stdout)
+        assert ctx == "No test file found for stripe.py — write one", (
+            f"Message format mismatch: {ctx!r}"
+        )
+
+    # --- debounce does not suppress context ---
+
+    def test_context_emitted_even_when_debounced(self, tmp_path):
+        """Context injection fires before debounce check — hint always reaches Claude."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest",
+                                         "auto_test_debounce_ms": 999999})
+        tests_dir = cwd / "tests" / "unit"
+        tests_dir.mkdir(parents=True)
+        test_file = tests_dir / "test_payments.py"
+        test_file.write_text("# test")
+        # Write a fresh debounce file to activate the debounce window
+        debounce = project_tmp_path("last-test", cwd.name)
+        debounce.write_text("payments.py")
+        changed = str(cwd / "src" / "payments.py")
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        # Test run must be suppressed
+        assert "[zie-framework] Tests" not in r.stdout
+        # But context must still be present
+        ctx = parse_additional_context(r.stdout)
+        assert ctx is not None, (
+            f"Context missing when debounced — must be emitted before debounce check. "
+            f"stdout: {r.stdout!r}"
+        )
+        assert "test_payments.py" in ctx
+
+    def test_no_match_context_emitted_even_when_debounced(self, tmp_path):
+        """'write one' context also fires when debounced."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest",
+                                         "auto_test_debounce_ms": 999999})
+        (cwd / "tests").mkdir()
+        debounce = project_tmp_path("last-test", cwd.name)
+        debounce.write_text("billing.py")
+        changed = str(cwd / "src" / "billing.py")
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        ctx = parse_additional_context(r.stdout)
+        assert ctx is not None
+        assert "write one" in ctx
+
+    # --- no context on early exits ---
+
+    def test_no_context_when_no_test_runner(self, tmp_path):
+        """No context emitted when test_runner is absent — hook exits early."""
+        cwd = make_cwd(tmp_path, config={})
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
+                     tmp_cwd=cwd)
+        assert parse_additional_context(r.stdout) is None
+
+    def test_no_context_when_not_edit_or_write(self, tmp_path):
+        """No context emitted for non-Edit/Write tools."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        r = run_hook({"tool_name": "Bash", "tool_input": {"command": "ls"}}, tmp_cwd=cwd)
+        assert parse_additional_context(r.stdout) is None
+
+    def test_no_context_when_path_outside_cwd(self, tmp_path):
+        """No context emitted when file_path is outside cwd."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/etc/passwd"}},
+                     tmp_cwd=cwd)
+        assert parse_additional_context(r.stdout) is None
+
+    # --- JSON structure ---
+
+    def test_additional_context_valid_json_line(self, tmp_path):
+        """The hookSpecificOutput line must be valid JSON parseable independently."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        (cwd / "tests").mkdir()
+        changed = str(cwd / "src" / "auth.py")
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        json_lines = []
+        for line in r.stdout.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+                if "hookSpecificOutput" in obj:
+                    json_lines.append(obj)
+            except json.JSONDecodeError:
+                pass
+        assert len(json_lines) == 1, (
+            f"Expected exactly one hookSpecificOutput JSON line, found {len(json_lines)}: "
+            f"{r.stdout!r}"
+        )
+        assert "additionalContext" in json_lines[0]["hookSpecificOutput"]
+
+    def test_additional_context_is_string(self, tmp_path):
+        """additionalContext value must be a string, not a dict or list."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        (cwd / "tests").mkdir()
+        changed = str(cwd / "src" / "auth.py")
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        ctx = parse_additional_context(r.stdout)
+        assert isinstance(ctx, str), (
+            f"additionalContext must be str, got {type(ctx)}: {ctx!r}"
+        )
+
+    # --- vitest runner ---
+
+    def test_context_emitted_for_vitest_match(self, tmp_path):
+        """Context injection works for vitest runner when .test.ts file exists."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "vitest"})
+        src_dir = cwd / "src"
+        src_dir.mkdir()
+        test_file = src_dir / "button.test.ts"
+        test_file.write_text("// test")
+        changed = str(src_dir / "button.tsx")
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        ctx = parse_additional_context(r.stdout)
+        assert ctx is not None
+        assert "button.test.ts" in ctx
+
+    def test_context_write_one_for_vitest_no_match(self, tmp_path):
+        """'write one' context emitted for vitest when no .test.ts found."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "vitest"})
+        (cwd / "src").mkdir()
+        changed = str(cwd / "src" / "modal.tsx")
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        ctx = parse_additional_context(r.stdout)
+        assert ctx is not None
+        assert "modal.tsx" in ctx
+        assert "write one" in ctx
