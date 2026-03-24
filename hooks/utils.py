@@ -79,7 +79,7 @@ def project_tmp_path(name: str, project: str) -> Path:
 
     Example: project_tmp_path("last-test", "my-project") -> Path("/tmp/zie-my-project-last-test")
     """
-    return Path(f"/tmp/zie-{safe_project_name(project)}-{name}")  # nosec B108 — project-scoped /tmp paths by design
+    return Path(f"/tmp/zie-{safe_project_name(project)}-{name}")  # nosec B108
 
 
 def get_plugin_data_dir(project: str) -> Path:
@@ -150,7 +150,7 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
         },
         method="POST",
     )
-    urllib.request.urlopen(req, timeout=timeout)  # nosec B310 — URL validated as https:// by caller
+    urllib.request.urlopen(req, timeout=timeout)  # nosec B310
 
 
 def load_config(cwd: Path) -> dict:
