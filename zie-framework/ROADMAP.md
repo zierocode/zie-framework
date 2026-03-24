@@ -58,6 +58,37 @@
 
 <!-- (All 25 Claude Code deep integration items moved to Ready — 2026-03-24) -->
 
+<!-- PIPELINE QUALITY -->
+- [ ] impl-reviewer risk-based invocation — skip reviewer on low-risk tasks — [backlog](backlog/impl-reviewer-risk-based.md)
+- [ ] Reviewer fail-fast — all issues in one pass, 2 total iterations — [backlog](backlog/reviewer-fail-fast.md)
+- [ ] Reviewer terse output — approved = 1 line, issues = bullets only — [backlog](backlog/reviewer-terse-output.md)
+- [ ] Reviewer shared context bundle — load ADRs + context.md once per session — [backlog](backlog/reviewer-shared-context.md)
+- [ ] plan-reviewer dependency hints — suggest depends_on annotations for independent tasks — [backlog](backlog/plan-reviewer-dependency-hints.md)
+
+<!-- IMPLEMENT LOOP -->
+- [ ] Implement loop inline guidance + parallel tasks — remove per-task skill calls, parallelize by default — [backlog](backlog/implement-guidance-inline.md)
+- [ ] Plan lazy loading — read task detail only when that task starts — [backlog](backlog/plan-lazy-loading.md)
+- [ ] Progress visibility — phase/step counters for all long-running commands — [backlog](backlog/progress-visibility.md)
+
+<!-- SPEC / PLAN -->
+- [ ] spec-design fast path — skip clarifying questions for complete backlog items — [backlog](backlog/spec-design-fast-path.md)
+- [ ] spec-design batch section approval — write all sections once, single review — [backlog](backlog/spec-design-batch-approval.md)
+- [ ] verify scoped mode — tests-only scope for bug fix path — [backlog](backlog/verify-scoped-mode.md)
+
+<!-- TOKEN / CONTEXT REDUCTION -->
+- [ ] Skill content pruning — remove examples + prose from all 10 skills — [backlog](backlog/skill-content-pruning.md)
+- [ ] ROADMAP.md section-aware reads — each command reads only needed sections — [backlog](backlog/roadmap-section-aware-reads.md)
+- [ ] Session-resume compression — hook output 20+ lines → 4 lines — [backlog](backlog/session-resume-compression.md)
+
+<!-- AUDIT -->
+- [ ] /zie-audit enhancements — hard data (coverage/CVE/complexity) + historical diff + auto-fix — [backlog](backlog/zie-audit-enhancements.md)
+- [ ] /zie-audit parallel external research — parallelize 15 WebSearch calls in Phase 3 — [backlog](backlog/audit-parallel-research.md)
+
+<!-- WORKFLOW / SDLC -->
+- [ ] Velocity tracking — `/zie-status` shows throughput from git tags — [backlog](backlog/velocity-tracking.md)
+- [ ] Retro → Next active loop — surface top backlog candidate after retro — [backlog](backlog/retro-next-active-loop.md)
+- [ ] Retro living docs sync — retro systematically updates CLAUDE.md + README.md — [backlog](backlog/retro-living-docs-sync.md)
+
 ## Later — Someday / Maybe
 
 <!-- Good ideas, not yet prioritized. -->
