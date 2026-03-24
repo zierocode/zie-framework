@@ -1,6 +1,8 @@
 ---
 description: Deep project audit — 9-dimension analysis with external research. Produces scored findings for backlog.
 allowed-tools: Read, Bash, Glob, Grep, Skill, Agent, WebSearch, WebFetch
+model: opus
+effort: high
 ---
 
 # /zie-audit — Deep Project Audit

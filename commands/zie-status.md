@@ -1,6 +1,8 @@
 ---
 description: Show current SDLC state — active feature, ROADMAP summary, test health, and next suggested command.
 allowed-tools: Read, Bash, Glob
+model: haiku
+effort: low
 ---
 
 # /zie-status — Show current SDLC state
@@ -9,6 +11,14 @@ Show a concise snapshot of where the project is right now. No LLM reasoning
 needed — just read files and print.
 
 ## Steps
+
+**Live context (injected at command load):**
+
+ROADMAP snapshot (first 30 lines):
+!`cat zie-framework/ROADMAP.md | head -30`
+
+Knowledge hash:
+!`python3 hooks/knowledge-hash.py 2>/dev/null || echo "knowledge-hash: unavailable"`
 
 1. **Check initialization**: if `zie-framework/` does not exist → print "Not
    initialized. Run /zie-init first." and stop.

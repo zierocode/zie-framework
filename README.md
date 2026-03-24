@@ -67,7 +67,7 @@ starting the next feature.
 | --- | --- | --- |
 | Claude Code | Yes | — |
 | Python 3.x | Yes | Hooks need Python |
-| zie-memory plugin | No | Local-only, no brain |
+| zie-memory plugin | No | Auto-bundled via .mcp.json; local-only if absent |
 | playwright | No | `/zie-release` skips e2e gate |
 | pytest / vitest | No | auto-test hook disabled |
 
@@ -99,6 +99,73 @@ your-project/
 
 Works alongside zie-memory plugin. Both install hooks independently — no
 conflicts.
+
+## Brain Integration
+
+zie-memory is bundled in the plugin — zero-setup, no per-project configuration needed.
+
+**Zero-setup path:**
+
+1. Install the plugin: `claude plugin install zierocode/zie-framework`
+2. Set environment variables (once, in your shell profile):
+
+   ```bash
+   export ZIE_MEMORY_API_URL=https://your-zie-memory-instance.example.com
+   export ZIE_MEMORY_API_KEY=your_api_key_here
+   ```
+
+3. Start a session — zie-memory MCP server starts automatically via
+   `.claude-plugin/.mcp.json`. No manual `claude mcp add` step required.
+
+**How it works:**
+
+The plugin ships `.claude-plugin/.mcp.json` declaring the `zie-memory` MCP
+server (stdio transport, `npx zie-memory`). Claude Code discovers this file
+at plugin load time and registers the server. If `ZIE_MEMORY_API_URL` is not
+set the server exits immediately and the session continues normally — the same
+graceful degradation as before.
+
+**Prerequisite:** `zie-memory` npm package must be installed globally:
+
+```bash
+npm install -g zie-memory
+```
+
+**Manual install (no plugin):** If you run zie-framework without the plugin
+install (local `.claude/` copy), add the server manually:
+
+```bash
+claude mcp add zie-memory -- npx zie-memory
+```
+
+Then set `zie_memory_enabled=true` in `zie-framework/.config`.
+
+## Agent Modes
+
+Start a fully configured session without per-operation approval prompts:
+
+| Agent | Mode | Tools | Invocation |
+| --- | --- | --- | --- |
+| `zie-implement-mode` | TDD-focused, full access | all | `claude --plugin-dir <path> --agent zie-framework:zie-implement-mode` |
+| `zie-audit-mode` | Read-only analysis | Read, Grep, Glob, WebSearch | `claude --plugin-dir <path> --agent zie-framework:zie-audit-mode` |
+
+**`zie-implement-mode`** — `permissionMode: acceptEdits`. File writes and shell
+commands run without confirmation. Session system prompt injects SDLC pipeline
+context, WIP=1 rule, and skill preload hints for `tdd-loop` and `test-pyramid`.
+
+**`zie-audit-mode`** — `permissionMode: plan`. Tool restriction hard-blocks any
+write or shell mutation at the Claude Code runtime layer. Findings are surfaced
+as backlog candidates; no changes are applied.
+
+Run from any host project directory where the plugin is available:
+
+```bash
+# Active development session — TDD mode, no confirmation prompts
+claude --plugin-dir /path/to/zie-framework --agent zie-framework:zie-implement-mode
+
+# Codebase audit — read-only, analysis focused
+claude --plugin-dir /path/to/zie-framework --agent zie-framework:zie-audit-mode
+```
 
 ## Troubleshooting
 

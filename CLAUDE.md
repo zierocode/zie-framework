@@ -47,6 +47,16 @@ make test        # full test suite
 make push m="msg"  # commit + push to dev
 ```
 
+## Agent Mode Sessions
+
+```bash
+# TDD-focused session — permissionMode: acceptEdits, all tools
+claude --plugin-dir . --agent zie-framework:zie-implement-mode
+
+# Read-only audit session — permissionMode: plan, restricted tools
+claude --plugin-dir . --agent zie-framework:zie-audit-mode
+```
+
 ## Key Rules
 
 - **Never commit secrets** — hooks, templates, commands are all public

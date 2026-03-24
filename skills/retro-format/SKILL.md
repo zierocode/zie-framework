@@ -2,6 +2,10 @@
 name: retro-format
 description: Retrospective format and ADR structure for /zie-retro
 type: reference
+user-invocable: false
+argument-hint: ""
+model: haiku
+effort: low
 ---
 
 # Retro Format — zie-framework

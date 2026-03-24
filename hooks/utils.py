@@ -1,4 +1,16 @@
-"""Shared utilities for zie-framework hooks. Not a hook — do not run directly."""
+"""Shared utilities for zie-framework hooks. Not a hook — do not run directly.
+
+Storage tiers
+-------------
+/tmp paths (project_tmp_path / safe_write_tmp):
+    Session-scoped state. Cleared by session-cleanup.py on Stop.
+    Use for: debounce timestamps, ephemeral counters that reset each session.
+
+Persistent paths (get_plugin_data_dir / persistent_project_path / safe_write_persistent):
+    Cross-session state backed by $CLAUDE_PLUGIN_DATA (set by Claude Code).
+    Falls back to /tmp with a warning when the env var is absent.
+    Use for: edit counters that survive restart, pending_learn markers.
+"""
 import json
 import os
 import re
@@ -70,6 +82,59 @@ def project_tmp_path(name: str, project: str) -> Path:
     return Path(f"/tmp/zie-{safe_project_name(project)}-{name}")  # nosec B108 — project-scoped /tmp paths by design
 
 
+def get_plugin_data_dir(project: str) -> Path:
+    """Return the persistent data directory for a project.
+
+    Reads $CLAUDE_PLUGIN_DATA (set by Claude Code at hook invocation time).
+    If the env var is absent or empty, falls back to a /tmp path and logs a
+    warning to stderr so the caller is not silently degraded.
+
+    Always creates the directory before returning.
+    """
+    base = os.environ.get("CLAUDE_PLUGIN_DATA", "")
+    if base:
+        path = Path(base) / safe_project_name(project)
+    else:
+        print(
+            "[zie-framework] CLAUDE_PLUGIN_DATA not set, using /tmp fallback",
+            file=sys.stderr,
+        )
+        path = Path(f"/tmp/zie-{safe_project_name(project)}-persistent")  # nosec B108
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def safe_write_persistent(path: Path, content: str) -> bool:
+    """Atomically write content to a persistent path, refusing to follow symlinks.
+
+    Identical contract to safe_write_tmp(): returns True on success, False if
+    path is a symlink or an OSError occurs. Uses os.replace() for atomicity.
+    """
+    if os.path.islink(path):
+        print(
+            f"[zie-framework] WARNING: persistent path is a symlink, skipping write: {path}",
+            file=sys.stderr,
+        )
+        return False
+    try:
+        tmp_path = path.parent / (path.name + ".tmp")
+        tmp_path.write_text(content)
+        os.replace(tmp_path, path)
+        return True
+    except OSError:
+        return False
+
+
+def persistent_project_path(name: str, project: str) -> Path:
+    """Return a project-scoped persistent path under CLAUDE_PLUGIN_DATA.
+
+    Mirrors project_tmp_path() but uses get_plugin_data_dir() instead of /tmp.
+    Example: persistent_project_path("edit-count", "my-proj")
+             -> Path("<CLAUDE_PLUGIN_DATA>/my-proj/edit-count")
+    """
+    return get_plugin_data_dir(project) / name
+
+
 def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeout: int = 5) -> None:
     """POST payload as JSON to a zie-memory API endpoint. Re-raises on network error.
 
@@ -86,6 +151,27 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
         method="POST",
     )
     urllib.request.urlopen(req, timeout=timeout)  # nosec B310 — URL validated as https:// by caller
+
+
+def load_config(cwd: Path) -> dict:
+    """Read zie-framework/.config and return a dict of key=value pairs.
+
+    Ignores section headers, blank lines, and comments (#). Returns {} on
+    any error (missing file, parse failure, permission denied, etc.).
+    """
+    config_path = cwd / "zie-framework" / ".config"
+    try:
+        result = {}
+        for line in config_path.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or line.startswith("["):
+                continue
+            if "=" in line:
+                key, _, val = line.partition("=")
+                result[key.strip()] = val.strip()
+        return result
+    except Exception:
+        return {}
 
 
 def read_event() -> dict:

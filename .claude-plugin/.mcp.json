@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "zie-memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["zie-memory"],
+      "env": {
+        "ZIE_MEMORY_API_URL": "${ZIE_MEMORY_API_URL}",
+        "ZIE_MEMORY_API_KEY": "${ZIE_MEMORY_API_KEY}"
+      }
+    }
+  }
+}

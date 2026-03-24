@@ -1,6 +1,8 @@
 ---
 description: Implement the active feature using TDD — RED/GREEN/REFACTOR loop per task. Reads active plan from ROADMAP.md.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill, TaskCreate, TaskUpdate
+model: sonnet
+effort: medium
 ---
 
 # /zie-implement — TDD Feature Implementation Loop
@@ -9,6 +11,17 @@ Implement the active feature using Test-Driven Development. Reads the active
 plan from ROADMAP.md and guides through RED → GREEN → REFACTOR per task.
 
 ## ตรวจสอบก่อนเริ่ม
+
+**Live context (injected at command load):**
+
+Recent commits:
+!`git log -5 --oneline`
+
+Working tree:
+!`git status --short`
+
+Knowledge hash:
+!`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now 2>/dev/null || echo "knowledge-hash: unavailable"`
 
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
 
@@ -50,7 +63,7 @@ plan from ROADMAP.md and guides through RED → GREEN → REFACTOR per task.
 
 7. If `zie_memory_enabled=true`:
    - If **resuming** (feature was already in Now lane):
-     `recall project=<project> tags=[wip] feature=<slug> limit=1`
+     Call `mcp__plugin_zie-memory_zie-memory__recall` with `project=<project> tags=[wip] feature=<slug> limit=1`
      to restore in-progress context.
    - If **starting fresh** (just pulled from Ready): skip WIP recall — no WIP
      memory exists yet.
@@ -93,26 +106,47 @@ Before starting tasks:
    ลด duplication ปรับชื่อให้ชัด ทำให้ง่ายขึ้น — รัน `make test-unit`
    เพื่อยืนยัน
 
-6. **Invoke `Skill(zie-framework:impl-reviewer)`**:
-   - Pass: task description, **Acceptance Criteria** from plan task header,
-     and list of files changed
-   - If ❌ Issues found → fix → re-run `make test-unit` → re-invoke
-     reviewer → repeat until ✅ APPROVED
-   - Max 3 iterations → surface to human
+6. **Spawn async impl-reviewer**:
+   - Invoke `@agent-impl-reviewer` (background: true):
+     pass task description, **Acceptance Criteria** from plan task header,
+     and list of files changed in this task.
+   - Record returned handle in the pending-reviewers list:
+     `{ task_id: <N>, reviewer_handle: <handle>, reviewer_status: pending }`
+   - Do NOT block — proceed immediately to announce the next task.
+   - **Deferred-check** (start of each task loop iteration): for each entry
+     in the pending-reviewers list, poll handle → check `reviewer_status`:
+     - `reviewer_status: pending` — still running; continue current task,
+       check again at the next iteration.
+     - `reviewer_status: approved` — clear entry from list; no action needed.
+     - `reviewer_status: issues_found` — halt current task; surface reviewer
+       feedback to human; apply fixes; re-run `make test-unit`; re-invoke
+       `@agent-impl-reviewer` synchronously (blocking).
+       Max 3 total iterations — background spawn counts as iteration 1.
+       On APPROVED: clear entry from list; resume current task.
 
 7. **บันทึก task เสร็จ**: Update `TaskUpdate` → completed. Update plan file:
    mark task as `[x]`. Update ROADMAP.md task counter if tracking.
-   If task had unexpected friction: `remember "Task harder than estimated:
-   <why>. Next time: <tip>." tags=[build-learning, <project>, <domain>]` —
-   conditional write only, not every task.
+   If task had unexpected friction: Call
+   `mcp__plugin_zie-memory_zie-memory__remember` with
+   `"Task harder than estimated: <why>. Next time: <tip>." tags=[build-learning, <project>, <domain>]`
+   — conditional write only, not every task.
 
 8. **Brain checkpoint** (every 5 tasks or on natural stopping point): If
    `zie_memory_enabled=true`:
-   `remember "WIP: <feature> — T<N>/<total> done." tags=[wip, <project>,
-   <feature-slug>] supersedes=[wip, <project>, <feature-slug>]`
+   Call `mcp__plugin_zie-memory_zie-memory__remember` with
+   `"WIP: <feature> — T<N>/<total> done." tags=[wip, <project>, <feature-slug>] supersedes=[wip, <project>, <feature-slug>]`
    supersedes replaces previous WIP memory — no duplicate WIPs accumulate.
 
 ### เมื่อทำครบทุก task
+
+0. **Final-wait for still-pending reviewers**:
+   - If the pending-reviewers list is non-empty, wait for any still-pending
+     background reviewer to return before proceeding.
+   - If any reviewer has not returned after 120s:
+     surface: "impl-reviewer did not return — review manually before committing."
+     and stop. Do not commit until all reviewers have returned or Zie explicitly
+     acknowledges the outstanding review.
+   - Apply the same `issues_found` fix-iterate loop as step 6 above.
 
 1. Run full test suite: `make test-unit` (required) + `make test-int` (if
    available).
@@ -175,3 +209,23 @@ Before starting tasks:
 - Can be run mid-task to resume after a break
 - The PostToolUse:auto-test hook fires on every file save — this command sets
   the strategic direction, hooks handle the feedback loop
+
+### Resume Subagent
+
+When a reviewer subagent completes, its agent ID is captured in the session
+subagent log (see `/zie-retro` Subagent Activity section). To continue a
+reviewer in the same context for a follow-up question, reference the agent
+by ID using `@agent:<id>` in a new message to that subagent via `SendMessage`.
+
+**Important:** Agent IDs are session-scoped. They are valid only within the
+current Claude Code session. If the session has ended (e.g., you closed the
+terminal or restarted Claude Code), the agent ID is no longer valid — start
+a fresh subagent instead. The subagent log in `/zie-retro` shows IDs from
+the current session only; previous sessions are cleaned up by
+`session-cleanup.py`.
+
+**When to resume vs. start fresh:**
+
+- Resume: same session, same context, follow-up question on the same artifact.
+- Start fresh: new session, new artifact, or the original agent's context
+  is no longer relevant.

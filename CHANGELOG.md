@@ -1,5 +1,69 @@
 # Changelog
 
+## v1.6.0 — 2026-03-24
+
+### Features
+
+- **Session-wide agent modes** — `zie-implement-mode` (permissionMode: acceptEdits,
+  all tools) and `zie-audit-mode` (permissionMode: plan, read-only) agents for
+  one-command session setup with SDLC context pre-loaded
+- **Plugin MCP bundle** — `.claude-plugin/.mcp.json` auto-registers the zie-memory
+  MCP server at plugin load time; brain integration now requires zero per-project setup
+- **Agent isolation** — reviewer agents gain `isolation: worktree` (clean committed
+  snapshot) and `background: true` (async spawn with deferred-check polling pattern)
+- **Notification hook** — logs `permission_prompt` and `idle_prompt` events; injects
+  `additionalContext` after 3+ repeated permission requests to help Claude self-unblock
+- **ConfigChange drift detection** — detects CLAUDE.md, settings.json, and
+  zie-framework/.config changes at session start; warns on config drift
+- **Safety check agent type** — `type: "agent"` hook mode with A/B testing support
+  via `safety_check_mode` config flag (regex / agent / both)
+- **TaskCompleted quality gate** — blocks task completion on failing tests; warns on
+  uncommitted files when a task is marked done
+- **StopFailure hook** — captures API errors and rate-limit notifications to a
+  per-project tmp file for post-session review
+- **Plugin settings.json + CLAUDE_PLUGIN_DATA** — persistent storage path for
+  plugin-level data; plugin ships reference `settings.json` with defaults
+- **PreCompact/PostCompact WIP preservation** — saves active WIP context before
+  context compaction and restores it immediately after
+- **UserPromptSubmit SDLC context** — injects current feature name and active plan
+  into every user prompt turn
+- **SubagentStart SDLC context** — injects zie-framework pipeline context into every
+  Explore and Plan subagent spawn
+- **SubagentStop lifecycle hooks** — captures subagent completion with ID; enables
+  resume-by-ID pattern for follow-up questions in the same session
+- **SessionStart env file** — reads `CLAUDE_ENV_FILE` at session start for config
+  injection and env var fast-paths
+- **PermissionRequest auto-approve** — automatically approves safe SDLC Bash
+  operations (make test-unit, git status, etc.) without interrupting Claude
+- **PostToolUse test file hints** — emits `additionalContext` with the matching test
+  file path on every source file save
+- **PostToolUseFailure debug context** — injects SDLC debug context into the next
+  turn when a tool fails, surfacing likely root causes
+- **PreToolUse input sanitizer** — resolves relative paths to absolute; rewrites
+  dangerous Bash patterns to require confirmation
+- **Stop hook uncommitted guard** — warns before session end when uncommitted
+  implementation files are detected
+- **Skills context:fork** — spec-reviewer, plan-reviewer, and impl-reviewer now run
+  in isolated fork context, preventing reviewer contamination of main context
+- **Skills bash injection** — `` !`cmd` `` syntax in skill content injects live shell
+  output at invocation time (git log, git status, knowledge hash)
+- **Skills frontmatter hardening** — all skills gain `user-invocable`, `allowed-tools`,
+  and `effort` fields; Claude Code enforces tool restrictions at runtime
+- **Reviewer agents with persistent memory** — reviewer skills converted to custom
+  agent definitions with `isolation: worktree` / `background: true` frontmatter
+- **Skills advanced features** — `$ARGUMENTS[N]` indexed argument access; zie-audit
+  promoted to first-class skill with `reference.md` supporting file
+
+### Changed
+
+- **Full model+effort routing** — all 22 commands and skills now have explicit
+  `model` and `effort` frontmatter: `opus` for zie-audit (9-dim analysis),
+  `sonnet` for design/build/release, `haiku` for mechanical/checklist tasks
+- **MCP canonical tool names** — all zie-memory calls in commands and skills updated
+  to canonical `mcp__plugin_zie-memory_zie-memory__*` tool names
+- **1101 unit tests** — up from 400 in v1.5.0; full coverage across all new hooks,
+  skills, agents, and frontmatter contracts
+
 ## v1.5.0 — 2026-03-24
 
 ### Security

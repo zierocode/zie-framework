@@ -1,10 +1,17 @@
 {
   "_hook_output_protocol": {
+    "TaskCompleted": "exit(2) + stderr message to block; stdout warning for non-blocking notices",
     "SessionStart": "plain text printed to stdout — injected as session context",
     "UserPromptSubmit": "JSON {\"additionalContext\": \"...\"} printed to stdout",
     "PostToolUse": "plain text warnings/status printed to stdout",
-    "PreToolUse": "plain text BLOCKED/WARNING printed to stdout; exit(2) to block",
-    "Stop": "no output required; side-effects only (file writes, API calls)"
+    "PreToolUse": "plain text BLOCKED/WARNING printed to stdout; exit(2) to block; OR {\"updatedInput\": {...}, \"permissionDecision\": \"allow\"} to rewrite input",
+    "Stop": "JSON {\"decision\": \"block\", \"reason\": \"...\"} to stdout to re-invoke Claude; or no output for side-effect-only hooks",
+    "PreCompact": "no output required; side-effects only (snapshot write)",
+    "SubagentStart": "JSON {\"additionalContext\": \"...\"} printed to stdout for Explore|Plan agents",
+    "PermissionRequest": "JSON {\"decision\": {\"behavior\": \"allow\", \"updatedPermissions\": {...}}} printed to stdout",
+    "PostCompact": "JSON {\"hookSpecificOutput\": {\"additionalContext\": \"...\"}} printed to stdout",
+    "PostToolUseFailure": "JSON {\"additionalContext\": \"...\"} printed to stdout",
+    "Notification": "JSON {\"additionalContext\": \"...\"} printed to stdout to inject context; empty stdout to pass through"
   },
   "hooks": {
   "SessionStart": [
@@ -23,6 +30,36 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/intent-detect.py\""
+        }
+      ]
+    },
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-context.py\""
+        }
+      ]
+    }
+  ],
+  "ConfigChange": [
+    {
+      "matcher": "project_settings|user_settings",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/config-drift.py\""
+        }
+      ]
+    }
+  ],
+  "SubagentStart": [
+    {
+      "matcher": "Explore|Plan",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-context.py\""
         }
       ]
     }
@@ -49,6 +86,41 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety-check.py\""
+        },
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety_check_agent.py\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/input-sanitizer.py\""
+        }
+      ]
+    }
+  ],
+  "PostToolUseFailure": [
+    {
+      "matcher": "Bash|Write|Edit",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/failure-context.py\""
+        }
+      ]
+    }
+  ],
+  "PermissionRequest": [
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-permissions.py\""
         }
       ]
     }
@@ -58,11 +130,86 @@
       "hooks": [
         {
           "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-guard.py\""
+        },
+        {
+          "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-learn.py\""
         },
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-cleanup.py\""
+        }
+      ]
+    }
+  ],
+  "TaskCompleted": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/task-completed-gate.py\""
+        }
+      ]
+    }
+  ],
+  "SubagentStop": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-stop.py\"",
+          "async": true
+        }
+      ]
+    }
+  ],
+  "PreCompact": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-compact.py\""
+        }
+      ]
+    }
+  ],
+  "PostCompact": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-compact.py\""
+        }
+      ]
+    }
+  ],
+  "StopFailure": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stopfailure-log.py\""
+        }
+      ]
+    }
+  ],
+  "Notification": [
+    {
+      "matcher": "permission_prompt",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/notification-log.py\""
+        }
+      ]
+    },
+    {
+      "matcher": "idle_prompt",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/notification-log.py\""
         }
       ]
     }

@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-03-23
+**Last updated:** 2026-03-24
 
 ## Commands
 
@@ -36,11 +36,42 @@
 
 | Hook | Event | ทำอะไร |
 | --- | --- | --- |
-| auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save (debounced) |
-| safety-check.py | PreToolUse:Bash | บล็อก dangerous cmds (exit 2 = block) |
+| auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save (debounced); OSError-guarded rglob + c.exists() |
+| safety-check.py | PreToolUse:Bash | บล็อก dangerous cmds (exit 2 = block); MAX_MESSAGE_LEN=500 ReDoS guard; whitespace normalised before match |
 | intent-detect.py | PreToolUse:Bash | ตรวจ intent → suggest cmd (JSON out) |
 | session-resume.py | SessionStart | แสดง project state + active feature |
+| failure-context.py | PostToolUseFailure:Bash/Write/Edit | inject SDLC debug context (active task, branch, last commit, quick-fix hint); is_interrupt guard |
+| stop-guard.py | Stop | บล็อก session หาก uncommitted implementation files ถูกตรวจพบ (hooks, tests, commands, skills, templates); stop_hook_active infinite-loop guard |
 | session-learn.py | PostToolUse | สังเกต patterns, บันทึก micro-learnings |
-| wip-checkpoint.py | PeriodicTask | บันทึก WIP progress สู่ brain |
+| wip-checkpoint.py | PeriodicTask | บันทึก WIP progress สู่ brain; counter ValueError recovery |
 | session-cleanup.py | Stop | ลบ project-scoped /tmp files on exit |
-| utils.py | (shared library) | parse_roadmap_now() + project_tmp_path() |
+| sdlc-compact.py | PreCompact / PostCompact | snapshot SDLC state before compaction; restore as additionalContext after |
+| sdlc-context.py | UserPromptSubmit | inject [sdlc] task/stage/next/tests context into every prompt |
+| subagent-context.py | SubagentStart:Explore/Plan | inject active feature slug, first incomplete task, ADR count into research subagents |
+| config-drift.py | ConfigChange:project_settings\|user_settings | ตรวจ CLAUDE.md / settings.json / zie-framework/.config drift → inject additionalContext to re-read |
+| utils.py | (shared library) | read_event(), get_cwd(), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write) |
+
+## Agents
+
+Agent files live in `agents/`. Each is a markdown file with a frontmatter block
+that controls Claude Code runtime behavior. The body instructs the agent to
+invoke the corresponding skill.
+
+| Agent | Frontmatter | Invoked by | Purpose |
+| --- | --- | --- | --- |
+| `agents/spec-reviewer.md` | `isolation: worktree` | `spec-design` skill | Review spec from clean committed snapshot |
+| `agents/plan-reviewer.md` | `isolation: worktree` | `write-plan` skill | Review plan from clean committed snapshot |
+| `agents/impl-reviewer.md` | `background: true` | `/zie-implement` step 6 | Review task impl asynchronously; deferred-check on next iteration |
+| `agents/zie-implement-mode.md` | `permissionMode: acceptEdits`, `tools: all` | `--agent zie-framework:zie-implement-mode` | TDD session agent — SDLC context, WIP=1, tdd-loop + test-pyramid preload |
+| `agents/zie-audit-mode.md` | `permissionMode: plan`, `tools: [Read, Grep, Glob, WebSearch]` | `--agent zie-framework:zie-audit-mode` | Read-only analysis session; findings surfaced as backlog candidates |
+
+### Field reference
+
+**`isolation: worktree`** — Claude Code spawns the agent in a temporary git
+worktree pointing to `HEAD`. The agent sees only the last committed state;
+uncommitted working-tree changes are invisible.
+
+**`background: true`** — Claude Code spawns the agent asynchronously and returns
+a handle immediately. The caller continues without blocking. The caller is
+responsible for polling the handle and handling `approved` / `issues_found`
+states.

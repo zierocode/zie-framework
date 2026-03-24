@@ -154,3 +154,125 @@ class TestSessionResumeConfigParseWarning:
         zf.mkdir()
         r = run_hook(tmp_cwd=tmp_path)
         assert "[zie] warning" not in r.stderr
+
+
+def run_hook_with_env_file(tmp_cwd, env_file_path=None, extra_env=None):
+    """Run session-resume.py with an optional CLAUDE_ENV_FILE set."""
+    env = {**os.environ, "ZIE_MEMORY_API_KEY": ""}
+    if tmp_cwd:
+        env["CLAUDE_CWD"] = str(tmp_cwd)
+    if env_file_path is not None:
+        env["CLAUDE_ENV_FILE"] = str(env_file_path)
+    else:
+        env.pop("CLAUDE_ENV_FILE", None)
+    if extra_env:
+        env.update(extra_env)
+    return subprocess.run(
+        [sys.executable, HOOK],
+        input=json.dumps({}),
+        capture_output=True, text=True, env=env,
+    )
+
+
+class TestSessionResumeEnvFile:
+    def test_writes_four_export_lines(self, tmp_path):
+        """When CLAUDE_ENV_FILE is set, four export lines must be written."""
+        env_file = tmp_path / "claude_env"
+        cwd = make_cwd(tmp_path / "proj", config={
+            "test_runner": "pytest",
+            "zie_memory_enabled": True,
+            "auto_test_debounce_ms": 5000,
+        }, roadmap=SAMPLE_ROADMAP)
+        run_hook_with_env_file(cwd, env_file_path=env_file)
+        assert env_file.exists(), "CLAUDE_ENV_FILE was not created"
+        content = env_file.read_text()
+        assert "export ZIE_PROJECT=" in content
+        assert "export ZIE_TEST_RUNNER=" in content
+        assert "export ZIE_MEMORY_ENABLED=" in content
+        assert "export ZIE_AUTO_TEST_DEBOUNCE_MS=" in content
+
+    def test_correct_values_written(self, tmp_path):
+        """Written values must match config entries."""
+        env_file = tmp_path / "claude_env"
+        proj_dir = tmp_path / "myproject"
+        cwd = make_cwd(proj_dir, config={
+            "test_runner": "pytest",
+            "zie_memory_enabled": True,
+            "auto_test_debounce_ms": 5000,
+        }, roadmap=SAMPLE_ROADMAP)
+        run_hook_with_env_file(cwd, env_file_path=env_file)
+        content = env_file.read_text()
+        assert "ZIE_PROJECT='myproject'" in content
+        assert "ZIE_TEST_RUNNER='pytest'" in content
+        assert "ZIE_MEMORY_ENABLED='1'" in content
+        assert "ZIE_AUTO_TEST_DEBOUNCE_MS='5000'" in content
+
+    def test_memory_disabled_writes_zero(self, tmp_path):
+        """zie_memory_enabled=False must produce ZIE_MEMORY_ENABLED='0'."""
+        env_file = tmp_path / "claude_env"
+        cwd = make_cwd(tmp_path / "proj2", config={
+            "zie_memory_enabled": False,
+        }, roadmap=SAMPLE_ROADMAP)
+        run_hook_with_env_file(cwd, env_file_path=env_file)
+        content = env_file.read_text()
+        assert "ZIE_MEMORY_ENABLED='0'" in content
+
+    def test_defaults_when_config_missing(self, tmp_path):
+        """Missing .config must produce default values in env file."""
+        env_file = tmp_path / "claude_env"
+        cwd = make_cwd(tmp_path / "proj3", roadmap=SAMPLE_ROADMAP)
+        run_hook_with_env_file(cwd, env_file_path=env_file)
+        content = env_file.read_text()
+        assert "ZIE_TEST_RUNNER=''" in content
+        assert "ZIE_MEMORY_ENABLED='0'" in content
+        assert "ZIE_AUTO_TEST_DEBOUNCE_MS='3000'" in content
+
+    def test_no_write_when_claude_env_file_absent(self, tmp_path):
+        """No CLAUDE_ENV_FILE set — hook must exit 0 and write nothing."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"}, roadmap=SAMPLE_ROADMAP)
+        r = run_hook_with_env_file(cwd, env_file_path=None)
+        assert r.returncode == 0
+        env_files = list(tmp_path.glob("claude_env*"))
+        assert env_files == []
+
+    def test_no_write_when_claude_env_file_empty_string(self, tmp_path):
+        """CLAUDE_ENV_FILE='' must be treated as absent — no write, exits 0."""
+        cwd = make_cwd(tmp_path / "proj5", config={}, roadmap=SAMPLE_ROADMAP)
+        r = run_hook_with_env_file(cwd, env_file_path="")
+        assert r.returncode == 0
+
+    def test_symlink_skipped_with_warning(self, tmp_path):
+        """CLAUDE_ENV_FILE pointing to a symlink must log WARNING and skip write."""
+        real_file = tmp_path / "real_target"
+        real_file.write_text("original")
+        symlink = tmp_path / "claude_env_link"
+        symlink.symlink_to(real_file)
+        cwd = make_cwd(tmp_path / "proj6", config={}, roadmap=SAMPLE_ROADMAP)
+        r = run_hook_with_env_file(cwd, env_file_path=symlink)
+        assert r.returncode == 0
+        assert "WARNING" in r.stderr
+        assert real_file.read_text() == "original", "symlink target must not be modified"
+
+    def test_debounce_non_integer_falls_back_to_3000(self, tmp_path):
+        """Non-integer auto_test_debounce_ms must fall back to '3000' in env file."""
+        env_file = tmp_path / "claude_env"
+        cwd = make_cwd(tmp_path / "proj7", config={
+            "auto_test_debounce_ms": "not-a-number",
+        }, roadmap=SAMPLE_ROADMAP)
+        run_hook_with_env_file(cwd, env_file_path=env_file)
+        content = env_file.read_text()
+        assert "ZIE_AUTO_TEST_DEBOUNCE_MS='3000'" in content
+
+    def test_exit_0_when_env_file_not_writable(self, tmp_path):
+        """Unwritable CLAUDE_ENV_FILE path must log to stderr and exit 0."""
+        bad_path = tmp_path / "no_such_dir" / "claude_env"
+        cwd = make_cwd(tmp_path / "proj8", config={}, roadmap=SAMPLE_ROADMAP)
+        r = run_hook_with_env_file(cwd, env_file_path=bad_path)
+        assert r.returncode == 0
+
+    def test_returncode_0_when_zf_missing(self, tmp_path):
+        """No zie-framework dir — hook exits 0 before env-file write; no write."""
+        env_file = tmp_path / "claude_env"
+        r = run_hook_with_env_file(tmp_path, env_file_path=env_file)
+        assert r.returncode == 0
+        assert not env_file.exists()

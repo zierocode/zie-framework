@@ -2,6 +2,8 @@
 description: Capture a new backlog item — problem, motivation, rough scope. First stage of the SDLC pipeline.
 argument-hint: Optional idea title (e.g. "add CSV export")
 allowed-tools: Read, Write, Glob
+model: haiku
+effort: low
 ---
 
 # /zie-backlog — Capture Backlog Item
@@ -14,7 +16,8 @@ problem and motivation. Output lives in `zie-framework/backlog/`.
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
 2. Read `zie-framework/.config` → zie_memory_enabled.
 3. If `zie_memory_enabled=true`:
-   - `recall project=<project> domain=<domain> tags=[backlog, <project>] limit=10`
+   - Call `mcp__plugin_zie-memory_zie-memory__recall`
+     with `project=<project> domain=<domain> tags=[backlog, <project>] limit=10`
    - Check for duplicates — warn if similar item already exists.
 
 ## Steps
@@ -55,7 +58,7 @@ problem and motivation. Output lives in `zie-framework/backlog/`.
    ```
 
 7. If `zie_memory_enabled=true`:
-   - `remember "Backlog: <title>. Problem: <one-line>." tags=[backlog, <project>]`
+   - Call `mcp__plugin_zie-memory_zie-memory__remember` with `"Backlog: <title>. Problem: <one-line>." tags=[backlog, <project>]`
 
 8. Print:
 

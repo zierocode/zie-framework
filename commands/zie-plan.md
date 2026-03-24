@@ -2,6 +2,8 @@
 description: Plan a backlog item — draft implementation plan, present for approval, move to Ready lane.
 argument-hint: "[slug...] — one or more backlog item slugs (e.g. zie-plan feature-x feature-y)"
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill, Agent, TaskCreate
+model: sonnet
+effort: high
 ---
 
 # /zie-plan — Spec → Draft Plan → Review → Approve → Ready
@@ -33,7 +35,7 @@ before building. Supports multiple items in parallel (max 4 agents).
 ## ร่าง plan สำหรับ slug ที่เลือก
 
 1. If `zie_memory_enabled=true` — READ (1 batch query per slug):
-   - `recall project=<project> tags=[shipped,retro,bug,decision] limit=20`
+   - Call `mcp__plugin_zie-memory_zie-memory__recall` with `project=<project> tags=[shipped,retro,bug,decision] limit=20`
    - Returns approaches, pain points, ADRs, known bugs in one round-trip.
    - Bake key findings into plan as a "## Context from brain" section.
    - /zie-implement will read this section — no need to re-recall at build time.
@@ -56,7 +58,8 @@ before building. Supports multiple items in parallel (max 4 agents).
 
 For each drafted plan, before showing to Zie:
 
-1. Invoke `Skill(zie-framework:plan-reviewer)` with:
+1. Invoke `@agent-plan-reviewer` with:
+   <!-- fallback: Skill(zie-framework:plan-reviewer) -->
    - Path to plan file
    - Path to spec file (`zie-framework/specs/*-<slug>-design.md`)
 2. If ❌ Issues Found → fix the plan → re-invoke reviewer → repeat.
@@ -97,8 +100,8 @@ For each drafted plan, before showing to Zie:
 
 2. If `zie_memory_enabled=true` — WRITE after approval:
    - Complexity: ≤3 tasks = S, 4–7 = M, 8+ = L
-   - `remember "Plan approved: <feature>. Tasks: N. Complexity: <S|M|L>. Key
-     decisions: [<d1>]." tags=[plan, <project>, <domain>]`
+   - Call `mcp__plugin_zie-memory_zie-memory__remember`
+     with `"Plan approved: <feature>. Tasks: N. Complexity: <S|M|L>. Key decisions: [<d1>]." tags=[plan, <project>, <domain>]`
 
 ## สรุปผล
 

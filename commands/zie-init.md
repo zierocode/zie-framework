@@ -2,6 +2,8 @@
 description: Initialize zie-framework in the current project. Run once per project to create SDLC structure, ROADMAP, Makefile, and VERSION.
 argument-hint: (no arguments needed)
 allowed-tools: Read, Write, Bash, Glob, Grep, Agent
+model: sonnet
+effort: medium
 ---
 
 # /zie-init — Initialize zie-framework in current project
@@ -278,8 +280,8 @@ then re-run /zie-init."`
 
 12. **If `zie_memory_enabled=true`**:
     - Store project bootstrap memory:
-      `remember "Project <name> initialized with zie-framework. Type:
-      <project_type>. Stack: <tech_stack>. Test runner: <test_runner>."
+      Call `mcp__plugin_zie-memory_zie-memory__remember` with
+      `"Project <name> initialized with zie-framework. Type: <project_type>. Stack: <tech_stack>. Test runner: <test_runner>."
       tags=[zie-framework, init, <project_name>]`
 
 13. **Print summary**:
