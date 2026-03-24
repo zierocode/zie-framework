@@ -82,6 +82,14 @@ Before starting tasks:
 Tasks annotated with `<!-- depends_on: T1, T2 -->` run sequentially after all
 listed dependencies complete.
 
+**Max parallel tasks: 4.** If more than 4 tasks are ready simultaneously,
+queue excess tasks and start them as slots become available.
+
+**File conflict check:** Before launching parallel tasks, verify that no two
+tasks write to the same output file. If conflict detected:
+1. Add implicit `<!-- depends_on: TN -->` to serialize conflicting tasks
+2. Print warning: "Task N and Task M both write to X.py — serializing"
+
 - Parse all tasks in plan for `<!-- depends_on: TN -->` comments
 - Tasks without `depends_on` → **parallel** (default path) — spawn up to 4 concurrent agents
 - Tasks with `depends_on` → **sequential** — start only after each listed task ID is complete
@@ -234,8 +242,15 @@ If tdd: deep is set in the plan frontmatter, invoke Skill(zie-framework:tdd-loop
    available). Capture output to `test_output`. If any suite fails → STOP,
    invoke `Skill(zie-framework:debug)` before retrying.
 
-2. **Fork verify immediately** — do NOT wait:
-   Fork `Skill(zie-framework:verify)` with captured output:
+2. **TaskCreate + verify** — create task and run verify:
+
+   **TaskCreate:**
+   ```python
+   TaskCreate(subject="Pre-ship verification", description="Run verify skill before commit", activeForm="Verifying changes")
+   ```
+
+   **Invoke Skill (expected <30s, inline):**
+   `Skill(zie-framework:verify)` with captured output:
 
    ```json
    {
@@ -243,6 +258,11 @@ If tdd: deep is set in the plan frontmatter, invoke Skill(zie-framework:tdd-loop
      "changed_files": "<git status --short output>",
      "scope": "tests-only"
    }
+   ```
+
+   **TaskUpdate:**
+   ```python
+   TaskUpdate(taskId="<task_id_from_create>", status="completed")
    ```
 
 3. **Commit prep (runs while verify fork is running)**:

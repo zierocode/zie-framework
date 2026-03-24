@@ -81,16 +81,21 @@ Print: `[Gate 4/5] Visual Check`
   - If no → STOP. Fix and re-run.
 - If `has_frontend=false` → skip this gate.
 
-### Fork: Quality Checks (concurrent with Gate 2/3)
+### Quality Checks (background Agents + Bash)
 
 Start **immediately after Gate 1 passes** — do NOT wait before running Gate 2.
 
-Invoke simultaneously:
+**TaskCreate** — create task before launching Agent:
+```python
+TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md against changed files", activeForm="Checking docs sync")
+```
 
-1. Fork `Skill(zie-framework:docs-sync-check)` with changed files:
-   Pass `git diff main..HEAD --name-only` output as `$ARGUMENTS.changed_files`.
+**Invoke simultaneously:**
 
-2. Bash: TODOs and secrets scan (run in parallel with Gate 2):
+1. `Agent(subagent_type="zie-framework:docs-sync-check", run_in_background=True, prompt="Check docs sync for changed files: {changed_files}")`
+   - Pass `git diff main..HEAD --name-only` output as the `changed_files` argument.
+
+2. Bash: TODOs and secrets scan (runs in parallel with Agent):
 
    ```bash
    grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
@@ -98,7 +103,14 @@ Invoke simultaneously:
 
    Also check changed files for hardcoded API keys, tokens, or credentials.
 
+**Wait for Agent completion:**
+- Wait for docs-sync-check Agent to complete (via task notification or TaskOutput)
+- **TaskUpdate** — mark task as "completed" when Agent finishes
+
 Results are collected in the section below after Gate 3 completes.
+
+<!-- fallback: if Agent tool unavailable or subagent_type not found,
+     call Skill(zie-framework:docs-sync-check) inline (blocking) -->
 
 ### รวมผลลัพธ์ Quality Forks
 

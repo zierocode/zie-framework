@@ -66,7 +66,12 @@ Read the plan and check each item:
    neither, and neither task has a `depends_on` annotation, output a
    suggestion (not a blocking issue):
    "Tasks N and M appear independent — consider adding `<!-- depends_on: -->` to enable parallel execution"
-   Suggestions do not prevent an APPROVED verdict.
+
+   **File conflict detection:** If two tasks write to the same output file
+   but lack `depends_on` annotation, flag as a blocking issue:
+   "Tasks N and M both write to X.py — add `<!-- depends_on: TN -->` to prevent file conflict"
+
+   Suggestions do not prevent an APPROVED verdict, but file conflict warnings do.
 
 ## Phase 3 — Context Checks
 

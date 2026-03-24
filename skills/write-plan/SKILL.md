@@ -98,6 +98,14 @@ Each task follows TDD RED → GREEN → REFACTOR:
 Use `<!-- depends_on: Task N, Task M -->` to express task dependencies. Tasks
 without depends_on can run in parallel.
 
+**File conflict check:** Before assigning `depends_on: none` to multiple tasks,
+verify that no two tasks write to the same output file. If tasks share an output
+file, add `<!-- depends_on: TN -->` to serialize them.
+
+**Max parallel tasks: 4.** When many tasks are independent, group them into
+batches of 4 for parallel execution. Queue excess tasks and start them as
+slots become available.
+
 ## บันทึกไว้ที่
 
 Save plan to: `zie-framework/plans/YYYY-MM-DD-<feature-slug>.md`

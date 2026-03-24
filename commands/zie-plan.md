@@ -42,6 +42,10 @@ before building. Supports multiple items in parallel (max 4 agents).
 
 2. If multiple slugs → spawn parallel agents (max 4) to draft plans
    simultaneously:
+   - **Max parallel Agents: 4.** If more than 4 slugs, queue excess and start
+     them as Agents complete.
+   - **Dependency hint:** If multiple slugs share a common output directory
+     or file pattern, add `<!-- depends_on: slug-1 -->` to serialize them.
    - Each agent receives:
      - `zie-framework/backlog/<slug>.md` — problem + motivation
      - `zie-framework/specs/*-<slug>-design.md` — approved spec (exact glob
