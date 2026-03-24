@@ -27,8 +27,6 @@
 
 <!-- LOW -->
 
-- [ ] parallel-model-effort-optimization — [plan](plans/2026-03-24-parallel-model-effort-optimization.md) ✓
-
 ---
 
 ## Next — Prioritized Backlog
@@ -49,6 +47,8 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] parallel-model-effort-optimization — model routing + context:fork + parallel execution
+  in retro/implement/release, new docs-sync-check skill — v1.8.0 2026-03-24
 - [x] Performance + quality sprint — 23 features: pipeline speed (inline guidance,
   lazy loading, parallel audit research, terse skills), tooling (CI/CD, pre-commit,
   semver bump gate, integration tests), workflow (velocity tracking, retro sync,

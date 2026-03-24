@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-03-24 (v1.7.0)
+**Last updated:** 2026-03-24 (v1.8.0)
 
 ## Commands
 
@@ -26,11 +26,12 @@
 | write-plan | Spec → task plan + plan-reviewer loop | /zie-plan, spec-design |
 | plan-reviewer | Phase 1-3 review with context bundle | write-plan |
 | tdd-loop | RED/GREEN/REFACTOR guide | /zie-implement |
-| impl-reviewer | Phase 1-3 review with context bundle | /zie-implement |
+| impl-reviewer | Phase 1-3 review with context bundle; `model: sonnet, effort: medium, context: fork` | /zie-implement |
 | test-pyramid | Choose test level (unit/int/e2e) | /zie-implement (RED phase) |
 | debug | Reproduce → isolate → fix | /zie-implement, /zie-fix |
-| verify | Pre-release verification checklist | /zie-fix, /zie-release |
-| retro-format | ADR + retro structure | /zie-retro |
+| verify | Pre-release verification checklist; `context: fork` with optional captured `test_output` | /zie-fix, /zie-release, /zie-implement |
+| retro-format | ADR + retro structure; `context: fork` with compact JSON `$ARGUMENTS` | /zie-retro |
+| docs-sync-check | Verify CLAUDE.md/README.md match commands/skills/hooks on disk; `context: fork` | /zie-retro, /zie-release |
 
 ## Hooks
 
