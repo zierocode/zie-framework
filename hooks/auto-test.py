@@ -67,21 +67,36 @@ if __name__ == "__main__":
     if not zf.exists():
         sys.exit(0)
 
-    # Read config
-    config = {}
-    config_file = zf / ".config"
-    if config_file.exists():
-        try:
-            config = json.loads(config_file.read_text())
-        except Exception as e:
-            print(f"[zie] warning: .config unreadable ({e}), using defaults", file=sys.stderr)
+    # Fast-path: read from session env vars injected by session-resume.py
+    test_runner = os.environ.get("ZIE_TEST_RUNNER", "").strip()
+    _debounce_env = os.environ.get("ZIE_AUTO_TEST_DEBOUNCE_MS", "").strip()
 
-    test_runner = config.get("test_runner", "")
+    # Fallback: read .config when env vars are absent
+    config = {}
+    if not test_runner or not _debounce_env:
+        config_file = zf / ".config"
+        if config_file.exists():
+            try:
+                config = json.loads(config_file.read_text())
+            except Exception as e:
+                print(
+                    f"[zie] warning: .config unreadable ({e}), using defaults",
+                    file=sys.stderr,
+                )
+
+    if not test_runner:
+        test_runner = config.get("test_runner", "")
     if not test_runner:
         sys.exit(0)
 
     # Debounce: skip if same file was tested recently (within debounce window)
-    debounce_ms = config.get("auto_test_debounce_ms", 3000)
+    if _debounce_env:
+        try:
+            debounce_ms = int(_debounce_env)
+        except (TypeError, ValueError):
+            debounce_ms = config.get("auto_test_debounce_ms", 3000)
+    else:
+        debounce_ms = config.get("auto_test_debounce_ms", 3000)
     debounce_file = project_tmp_path("last-test", cwd.name)
     if debounce_file.exists():
         last_run = debounce_file.stat().st_mtime

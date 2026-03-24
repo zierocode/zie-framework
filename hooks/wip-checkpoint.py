@@ -21,6 +21,11 @@ if not api_key:
 if not api_url.startswith("https://"):
     sys.exit(0)
 
+# Fast-path: honour ZIE_MEMORY_ENABLED=0 injected by session-resume.py
+_mem_enabled = os.environ.get("ZIE_MEMORY_ENABLED", "").strip()
+if _mem_enabled == "0":
+    sys.exit(0)
+
 cwd = get_cwd()
 zf = cwd / "zie-framework"
 if not zf.exists():

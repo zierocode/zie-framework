@@ -378,3 +378,68 @@ class TestFindMatchingTestEdgeCases:
         changed = tmp_path / "src" / "payments.py"
         result = load_module.find_matching_test(changed, "pytest", tmp_path)
         assert result is None
+
+
+class TestAutoTestEnvVarFastPath:
+    """auto-test.py reads ZIE_TEST_RUNNER/ZIE_AUTO_TEST_DEBOUNCE_MS from env
+    when available, falling back to .config only when the env vars are absent."""
+
+    @pytest.fixture(autouse=True)
+    def _cleanup_debounce(self, tmp_path):
+        yield
+        p = project_tmp_path("last-test", tmp_path.name)
+        if p.exists():
+            p.unlink()
+
+    def test_uses_env_var_test_runner_without_config(self, tmp_path):
+        """ZIE_TEST_RUNNER env var set — hook must not need .config to get runner."""
+        cwd = make_cwd(tmp_path)  # no config written
+        target_file = cwd / "hooks" / "utils.py"
+        target_file.parent.mkdir(parents=True, exist_ok=True)
+        target_file.write_text("# stub")
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(target_file)}},
+            tmp_cwd=cwd,
+            env_overrides={"ZIE_TEST_RUNNER": "pytest", "ZIE_AUTO_TEST_DEBOUNCE_MS": "0"},
+        )
+        assert r.returncode == 0
+        assert "[zie] warning" not in r.stderr
+
+    def test_env_var_absent_falls_back_to_config(self, tmp_path):
+        """No ZIE_TEST_RUNNER env var — hook must fall back to .config."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        target_file = cwd / "hooks" / "utils.py"
+        target_file.parent.mkdir(parents=True, exist_ok=True)
+        target_file.write_text("# stub")
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(target_file)}},
+            tmp_cwd=cwd,
+            env_overrides={"ZIE_TEST_RUNNER": "", "ZIE_AUTO_TEST_DEBOUNCE_MS": ""},
+        )
+        assert r.returncode == 0
+
+    def test_empty_env_var_falls_back_to_config(self, tmp_path):
+        """ZIE_TEST_RUNNER='' must be treated as absent — .config fallback applies."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        target_file = cwd / "dummy.py"
+        target_file.write_text("x = 1")
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(target_file)}},
+            tmp_cwd=cwd,
+            env_overrides={"ZIE_TEST_RUNNER": "", "ZIE_AUTO_TEST_DEBOUNCE_MS": ""},
+        )
+        assert r.returncode == 0
+        assert "[zie] warning" not in r.stderr
+
+    def test_debounce_ms_from_env_var(self, tmp_path):
+        """ZIE_AUTO_TEST_DEBOUNCE_MS env var must override .config debounce value."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest", "auto_test_debounce_ms": 99999})
+        target_file = cwd / "dummy.py"
+        target_file.write_text("x = 1")
+        # debounce_ms=0 via env → hook must not skip due to debounce
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(target_file)}},
+            tmp_cwd=cwd,
+            env_overrides={"ZIE_TEST_RUNNER": "pytest", "ZIE_AUTO_TEST_DEBOUNCE_MS": "0"},
+        )
+        assert r.returncode == 0

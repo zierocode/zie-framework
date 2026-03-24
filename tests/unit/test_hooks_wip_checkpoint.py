@@ -235,6 +235,46 @@ class TestWipCheckpointUsesSharedHelper:
         )
 
 
+class TestWipCheckpointMemoryEnabledFastPath:
+    @pytest.fixture(autouse=True)
+    def _cleanup_counter(self, tmp_path):
+        yield
+        p = project_tmp_path("edit-count", tmp_path.name)
+        if p.exists():
+            p.unlink()
+
+    def test_exits_early_when_zie_memory_enabled_is_zero(self, tmp_path):
+        """ZIE_MEMORY_ENABLED=0 must cause hook to exit 0 without counter I/O."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        r = run_hook(tmp_cwd=cwd, env_overrides={
+            "ZIE_MEMORY_ENABLED": "0",
+            "ZIE_MEMORY_API_KEY": "real-key",
+            "ZIE_MEMORY_API_URL": "https://example.com",
+        })
+        assert r.returncode == 0
+        counter = project_tmp_path("edit-count", tmp_path.name)
+        assert not counter.exists()
+
+    def test_proceeds_normally_when_zie_memory_enabled_is_one(self, tmp_path):
+        """ZIE_MEMORY_ENABLED=1 must not short-circuit the hook."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        r = run_hook(tmp_cwd=cwd, env_overrides={
+            "ZIE_MEMORY_ENABLED": "1",
+            "ZIE_MEMORY_API_KEY": "",
+            "ZIE_MEMORY_API_URL": "",
+        })
+        assert r.returncode == 0
+
+    def test_absent_env_var_falls_back_to_normal_flow(self, tmp_path):
+        """ZIE_MEMORY_ENABLED absent — hook must proceed to api_key guard as before."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        r = run_hook(tmp_cwd=cwd, env_overrides={
+            "ZIE_MEMORY_API_KEY": "",
+            "ZIE_MEMORY_API_URL": "",
+        })
+        assert r.returncode == 0
+
+
 class TestWipCheckpointUrlSafety:
     def test_exits_zero_with_http_scheme_url(self, tmp_path):
         """Non-https URL must cause clean exit before any HTTP call."""

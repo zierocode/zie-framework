@@ -34,6 +34,11 @@ atomic_write(
     f"wip={wip_context}\n",
 )
 
+# Fast-path: honour ZIE_MEMORY_ENABLED=0 injected by session-resume.py
+_mem_enabled = os.environ.get("ZIE_MEMORY_ENABLED", "").strip()
+if _mem_enabled == "0":
+    sys.exit(0)
+
 # If zie-memory enabled, call session-stop endpoint
 if not api_key:
     sys.exit(0)

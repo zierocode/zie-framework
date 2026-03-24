@@ -112,6 +112,40 @@ class TestSessionLearnUsesSharedHelper:
         )
 
 
+class TestSessionLearnMemoryEnabledFastPath:
+    def test_skips_api_call_when_zie_memory_enabled_is_zero(self, tmp_path):
+        """ZIE_MEMORY_ENABLED=0 must skip the API call; pending_learn still written."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        r = run_hook(cwd, env_overrides={
+            "ZIE_MEMORY_ENABLED": "0",
+            "ZIE_MEMORY_API_KEY": "real-key",
+            "ZIE_MEMORY_API_URL": "https://example.com",
+        })
+        assert r.returncode == 0
+        pending = Path.home() / ".claude" / "projects" / tmp_path.name / "pending_learn.txt"
+        assert pending.exists(), "pending_learn.txt must be written regardless of ZIE_MEMORY_ENABLED"
+        assert "session-learn:" not in r.stderr
+
+    def test_proceeds_to_api_when_zie_memory_enabled_is_one(self, tmp_path):
+        """ZIE_MEMORY_ENABLED=1 with no valid key must fall through to api_key guard."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        r = run_hook(cwd, env_overrides={
+            "ZIE_MEMORY_ENABLED": "1",
+            "ZIE_MEMORY_API_KEY": "",
+            "ZIE_MEMORY_API_URL": "",
+        })
+        assert r.returncode == 0
+
+    def test_absent_env_var_falls_back_to_normal_flow(self, tmp_path):
+        """ZIE_MEMORY_ENABLED absent — hook must proceed normally."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        r = run_hook(cwd, env_overrides={
+            "ZIE_MEMORY_API_KEY": "",
+            "ZIE_MEMORY_API_URL": "",
+        })
+        assert r.returncode == 0
+
+
 class TestSessionLearnUrlSafety:
     def test_exits_zero_with_http_scheme_url(self, tmp_path):
         """Non-https URL must cause clean exit before any HTTP call."""
