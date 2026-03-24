@@ -75,6 +75,10 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] async-skills-background-execution — convert long-running skills to Agent + run_in_background,
+  TaskCreate for progress tracking, TaskOutput for completion notification — v1.8.0 2026-03-24
+- [x] parallel-execution-patterns — max 4 parallel tasks/Agents, file conflict detection,
+  depends_on annotation syntax, documentation + unit tests — v1.8.0 2026-03-24
 - [x] parallel-model-effort-optimization — model routing + context:fork + parallel execution
   in retro/implement/release, new docs-sync-check skill — v1.8.0 2026-03-24
 - [x] Performance + quality sprint — 23 features: pipeline speed (inline guidance,
