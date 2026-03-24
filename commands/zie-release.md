@@ -194,9 +194,10 @@ merging.
      fix make release and re-run /zie-release."
 
 9. **Store release in brain** (if `zie_memory_enabled=true`):
-   - First READ: `recall project=<project> tags=[wip, plan] feature=<slug> limit=5`
-   - Then WRITE: `remember "Shipped: <feature> v<NEW_VERSION>. Tasks: N.
-     Actual: <vs estimate>." tags=[shipped, <project>, <domain>]`
+   - First READ: Call `mcp__plugin_zie-memory_zie-memory__recall`
+     with `project=<project> tags=[wip, plan] feature=<slug> limit=5`
+   - Then WRITE: Call `mcp__plugin_zie-memory_zie-memory__remember`
+     with `"Shipped: <feature> v<NEW_VERSION>. Tasks: N. Actual: <vs estimate>." tags=[shipped, <project>, <domain>]`
 
 10. **Auto-run `/zie-retro`**.
 

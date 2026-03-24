@@ -67,7 +67,7 @@ starting the next feature.
 | --- | --- | --- |
 | Claude Code | Yes | — |
 | Python 3.x | Yes | Hooks need Python |
-| zie-memory plugin | No | Local-only, no brain |
+| zie-memory plugin | No | Auto-bundled via .mcp.json; local-only if absent |
 | playwright | No | `/zie-release` skips e2e gate |
 | pytest / vitest | No | auto-test hook disabled |
 
@@ -99,6 +99,46 @@ your-project/
 
 Works alongside zie-memory plugin. Both install hooks independently — no
 conflicts.
+
+## Brain Integration
+
+zie-memory is bundled in the plugin — zero-setup, no per-project configuration needed.
+
+**Zero-setup path:**
+
+1. Install the plugin: `claude plugin install zierocode/zie-framework`
+2. Set environment variables (once, in your shell profile):
+
+   ```bash
+   export ZIE_MEMORY_API_URL=https://your-zie-memory-instance.example.com
+   export ZIE_MEMORY_API_KEY=your_api_key_here
+   ```
+
+3. Start a session — zie-memory MCP server starts automatically via
+   `.claude-plugin/.mcp.json`. No manual `claude mcp add` step required.
+
+**How it works:**
+
+The plugin ships `.claude-plugin/.mcp.json` declaring the `zie-memory` MCP
+server (stdio transport, `npx zie-memory`). Claude Code discovers this file
+at plugin load time and registers the server. If `ZIE_MEMORY_API_URL` is not
+set the server exits immediately and the session continues normally — the same
+graceful degradation as before.
+
+**Prerequisite:** `zie-memory` npm package must be installed globally:
+
+```bash
+npm install -g zie-memory
+```
+
+**Manual install (no plugin):** If you run zie-framework without the plugin
+install (local `.claude/` copy), add the server manually:
+
+```bash
+claude mcp add zie-memory -- npx zie-memory
+```
+
+Then set `zie_memory_enabled=true` in `zie-framework/.config`.
 
 ## Troubleshooting
 

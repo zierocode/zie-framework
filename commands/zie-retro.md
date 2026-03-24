@@ -30,7 +30,7 @@ Recent activity window:
 ### รวบรวม context
 
 1. If `zie_memory_enabled=true`:
-   - `recall project=<project> tags=[wip, build-learning, shipped] limit=20`
+   - Call `mcp__plugin_zie-memory_zie-memory__recall` with `project=<project> tags=[wip, build-learning, shipped] limit=20`
    - Use recalled learnings and decisions as context for retro analysis.
 
 2. **Subagent Activity** — read subagent log for this session:
@@ -101,10 +101,9 @@ For each significant architectural decision identified:
 - เขียน ADR ใหม่แต่ละอันเป็นไฟล์แยกใน `zie-framework/decisions/ADR-NNN-<slug>.md`
   (ใช้ NNN = running number ถัดจากไฟล์ล่าสุดใน decisions/)
 - ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
-- ถ้า `zie_memory_enabled=true`: `remember "Project snapshot: <version>.
-  Components changed: <list>. Decisions: <new ADR slugs>."
-  tags=[project-knowledge, zie-framework, <version>]
-  supersedes=[project-knowledge, zie-framework]`
+- ถ้า `zie_memory_enabled=true`: Call `mcp__plugin_zie-memory_zie-memory__remember`
+  with `"Project snapshot: <version>. Components changed: <list>. Decisions: <new ADR slugs>."`
+  `tags=[project-knowledge, zie-framework, <version>] supersedes=[project-knowledge, zie-framework]`
 
 ### อัปเดต ROADMAP
 
@@ -122,13 +121,11 @@ Update `zie-framework/ROADMAP.md`:
 
 If `zie_memory_enabled=true`:
 
-- Store P1 preferences (what worked): `remember "<what worked>. Preference:
-  always use this approach for <context>." priority=preference tags=[retro,
-  <slug>]`
-- Store P2 project learnings: `remember "Retro <version>: <key learning>.
-  Decision: <ADR slug>." priority=project tags=[retro, <project>]
-  project=<project>`
-- Downvote any memories that turned out to be incorrect via `downvote_memory`.
+- Store P1 preferences (what worked): Call `mcp__plugin_zie-memory_zie-memory__remember`
+  with `"<what worked>. Preference: always use this approach for <context>." priority=preference tags=[retro, <slug>]`
+- Store P2 project learnings: Call `mcp__plugin_zie-memory_zie-memory__remember`
+  with `"Retro <version>: <key learning>. Decision: <ADR slug>." priority=project tags=[retro, <project>] project=<project>`
+- Downvote incorrect memories via `mcp__plugin_zie-memory_zie-memory__downvote_memory`.
 
 ### สรุปผล
 

@@ -61,7 +61,7 @@ Knowledge hash:
 
 7. If `zie_memory_enabled=true`:
    - If **resuming** (feature was already in Now lane):
-     `recall project=<project> tags=[wip] feature=<slug> limit=1`
+     Call `mcp__plugin_zie-memory_zie-memory__recall` with `project=<project> tags=[wip] feature=<slug> limit=1`
      to restore in-progress context.
    - If **starting fresh** (just pulled from Ready): skip WIP recall — no WIP
      memory exists yet.
@@ -124,14 +124,15 @@ Before starting tasks:
 
 7. **บันทึก task เสร็จ**: Update `TaskUpdate` → completed. Update plan file:
    mark task as `[x]`. Update ROADMAP.md task counter if tracking.
-   If task had unexpected friction: `remember "Task harder than estimated:
-   <why>. Next time: <tip>." tags=[build-learning, <project>, <domain>]` —
-   conditional write only, not every task.
+   If task had unexpected friction: Call
+   `mcp__plugin_zie-memory_zie-memory__remember` with
+   `"Task harder than estimated: <why>. Next time: <tip>." tags=[build-learning, <project>, <domain>]`
+   — conditional write only, not every task.
 
 8. **Brain checkpoint** (every 5 tasks or on natural stopping point): If
    `zie_memory_enabled=true`:
-   `remember "WIP: <feature> — T<N>/<total> done." tags=[wip, <project>,
-   <feature-slug>] supersedes=[wip, <project>, <feature-slug>]`
+   Call `mcp__plugin_zie-memory_zie-memory__remember` with
+   `"WIP: <feature> — T<N>/<total> done." tags=[wip, <project>, <feature-slug>] supersedes=[wip, <project>, <feature-slug>]`
    supersedes replaces previous WIP memory — no duplicate WIPs accumulate.
 
 ### เมื่อทำครบทุก task

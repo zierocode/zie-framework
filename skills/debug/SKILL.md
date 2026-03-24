@@ -15,7 +15,7 @@ Reproduce → Isolate → Fix → Verify. No guessing.
 
 If `zie_memory_enabled=true`:
 
-- `recall project=<project> domain=<failing-area> tags=[bug, debug] limit=10`
+- Call `mcp__plugin_zie-memory_zie-memory__recall` with `project=<project> domain=<failing-area> tags=[bug, debug] limit=10`
 - Look for: known fragile areas, prior root causes, recurring failure patterns.
 
 ## Steps
@@ -59,8 +59,8 @@ If `zie_memory_enabled=true`:
 
 If `zie_memory_enabled=true`:
 
-- `remember "Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern:
-  <recurring|one-off>." tags=[bug, <project>, <domain>]`
+- Call `mcp__plugin_zie-memory_zie-memory__remember`
+  with `"Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern: <recurring|one-off>." tags=[bug, <project>, <domain>]`
 
 ## กฎที่ต้องทำตาม
 

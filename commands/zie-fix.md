@@ -19,7 +19,8 @@ for bugs and regressions.
      a separate commit outside the current feature. Proceed? (yes/no)"
    - If no → stop.
 4. If `zie_memory_enabled=true`:
-   - `recall project=<project> domain=<domain> tags=[bug, build-learning] limit=10`
+   - Call `mcp__plugin_zie-memory_zie-memory__recall`
+     with `project=<project> domain=<domain> tags=[bug, build-learning] limit=10`
    - → detect recurring patterns, surface known fragile areas
 
 ## Steps
@@ -62,8 +63,8 @@ for bugs and regressions.
    If not tracked → no ROADMAP update needed.
 
 2. If `zie_memory_enabled=true`:
-   - `remember "Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern:
-     <recurring|one-off>." tags=[bug, <project>, <domain>]`
+   - Call `mcp__plugin_zie-memory_zie-memory__remember`
+     with `"Bug: <desc>. Root cause: <why>. Fix: <how>. Pattern: <recurring|one-off>." tags=[bug, <project>, <domain>]`
 
 3. Print:
 

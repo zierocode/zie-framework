@@ -33,7 +33,8 @@ reviewer loop. Output lives in `zie-framework/specs/`.
 
 2. **Slug mode** (existing flow): pass backlog file content to
    `Skill(zie-framework:spec-design)` with `zie_memory_enabled` from
-   .config. Spec saved to `zie-framework/specs/YYYY-MM-DD-<slug>-design.md`
+   .config. Skill calls `mcp__plugin_zie-memory_zie-memory__recall` for context when brain is enabled.
+   Spec saved to `zie-framework/specs/YYYY-MM-DD-<slug>-design.md`
    with `approved: true` in frontmatter once reviewed.
 
    Commit spec after approval:

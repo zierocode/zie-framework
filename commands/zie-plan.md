@@ -33,7 +33,7 @@ before building. Supports multiple items in parallel (max 4 agents).
 ## ร่าง plan สำหรับ slug ที่เลือก
 
 1. If `zie_memory_enabled=true` — READ (1 batch query per slug):
-   - `recall project=<project> tags=[shipped,retro,bug,decision] limit=20`
+   - Call `mcp__plugin_zie-memory_zie-memory__recall` with `project=<project> tags=[shipped,retro,bug,decision] limit=20`
    - Returns approaches, pain points, ADRs, known bugs in one round-trip.
    - Bake key findings into plan as a "## Context from brain" section.
    - /zie-implement will read this section — no need to re-recall at build time.
@@ -98,8 +98,8 @@ For each drafted plan, before showing to Zie:
 
 2. If `zie_memory_enabled=true` — WRITE after approval:
    - Complexity: ≤3 tasks = S, 4–7 = M, 8+ = L
-   - `remember "Plan approved: <feature>. Tasks: N. Complexity: <S|M|L>. Key
-     decisions: [<d1>]." tags=[plan, <project>, <domain>]`
+   - Call `mcp__plugin_zie-memory_zie-memory__remember`
+     with `"Plan approved: <feature>. Tasks: N. Complexity: <S|M|L>. Key decisions: [<d1>]." tags=[plan, <project>, <domain>]`
 
 ## สรุปผล
 

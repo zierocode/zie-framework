@@ -34,7 +34,7 @@ an error for a missing second argument.
 
 If `zie_memory_enabled=true`:
 
-- `recall project=<project> domain=<feature-area> tags=[spec, design] limit=10`
+- Call `mcp__plugin_zie-memory_zie-memory__recall` with `project=<project> domain=<feature-area> tags=[spec, design] limit=10`
 - Use recalled context to inform design decisions and avoid repeating past
   mistakes.
 
@@ -88,9 +88,14 @@ If `zie_memory_enabled=true`:
    ---
    ```
 
-7. **Ask user to review** the written spec before proceeding.
+7. **Store spec approval in brain** — if `zie_memory_enabled=true`:
 
-8. Print handoff — do NOT auto-invoke write-plan:
+   - Call `mcp__plugin_zie-memory_zie-memory__remember`
+     with `"Spec approved: <feature>. Key decisions: [<d1>]." tags=[spec, <project>, <feature-area>]`
+
+8. **Ask user to review** the written spec before proceeding.
+
+9. Print handoff — do NOT auto-invoke write-plan:
 
    ```text
    Spec approved ✓ → zie-framework/specs/YYYY-MM-DD-<slug>-design.md

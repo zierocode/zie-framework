@@ -34,8 +34,8 @@ known flag names.
 
 If `zie_memory_enabled=true`:
 
-- `recall project=<project> domain=<feature-area> tags=[plan, implementation]
-  limit=10`
+- Call `mcp__plugin_zie-memory_zie-memory__recall`
+  with `project=<project> domain=<feature-area> tags=[plan, implementation] limit=10`
 - Surface past plan patterns, known pitfalls, and relevant architectural
   decisions.
 
