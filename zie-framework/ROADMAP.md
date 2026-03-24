@@ -3,23 +3,12 @@
 > Single source of truth for what's being built and why.
 > Updated by /zie-backlog (Next), /zie-plan (Ready), /zie-implement (Now),
 > /zie-release (Done), /zie-retro (reprioritization).
-- [x] Consolidate duplicate patterns into utils.py — [plan](plans/2026-03-24-consolidate-utils-patterns.md)
-- [x] Docs sync and completeness — [plan](plans/2026-03-24-docs-sync-and-completeness.md)
-- [x] Architecture cleanup — [plan](plans/2026-03-24-architecture-cleanup.md)
-- [x] Standards compliance — [plan](plans/2026-03-24-standards-compliance.md)
 
 ---
 
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-
-- [x] Fix coverage measurement infrastructure — [plan](plans/2026-03-24-fix-coverage-measurement.md)
-- [x] Security: shell injection in input-sanitizer.py — [plan](plans/2026-03-24-security-shell-injection.md)
-- [x] Security: /tmp hardening (permissions, TOCTOU, predictable names) — [plan](plans/2026-03-24-security-tmp-hardening.md)
-- [x] Security: path traversal fix (startswith → is_relative_to) — [plan](plans/2026-03-24-security-path-traversal.md)
-- [x] Add subprocess timeouts to all hooks — [plan](plans/2026-03-24-add-subprocess-timeouts.md)
-- [x] Test quality: fill edge case and error path gaps — [plan](plans/2026-03-24-test-quality-gaps.md)
 
 ---
 
@@ -33,11 +22,8 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [ ] Docs: sync and completeness pass — [plan](plans/2026-03-24-docs-sync-and-completeness.md) ✓
 
 <!-- LOW -->
-- [ ] Architecture cleanup and structural improvements — [plan](plans/2026-03-24-architecture-cleanup.md) ✓
-- [ ] Standards: compliance and consistency gaps — [plan](plans/2026-03-24-standards-compliance.md) ✓
 
 ---
 
@@ -59,6 +45,13 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] Security + code quality sprint — 10 features: coverage measurement fix,
+  shell injection + /tmp hardening + path traversal security fixes, subprocess
+  timeouts, test quality edge cases, utils consolidation (normalize_command,
+  BLOCKS/WARNS, SDLC_STAGES, configurable TEST_INDICATORS), docs sync, async
+  Stop hooks, hook-events JSON schema, standards compliance (log prefix audit,
+  safe_project_name in notification-log) — 1513 unit + 63 integration tests
+  — v1.9.0 2026-03-25
 - [x] async-skills-background-execution — convert long-running skills to Agent + run_in_background,
   TaskCreate for progress tracking, TaskOutput for completion notification — v1.8.0 2026-03-24
 - [x] parallel-execution-patterns — max 4 parallel tasks/Agents, file conflict detection,

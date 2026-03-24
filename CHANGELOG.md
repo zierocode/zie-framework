@@ -1,5 +1,52 @@
 # Changelog
 
+## v1.9.0 — 2026-03-25
+
+### Features
+
+- **hook-events JSON schema** (`hooks/hook-events.schema.json`): formal JSON
+  Schema for the Claude Code hook event envelope — documents `tool_name`,
+  `tool_input`, `tool_response`, `is_interrupt`, `session_id` fields with types
+- **SDLC_STAGES canonical list** in `utils.py`: single source of truth for
+  stage names used by `intent-detect` and `sdlc-context`
+- **`normalize_command()` utility**: deduped whitespace-normalization used by
+  `safety-check`, `safety_check_agent`, and `sdlc-permissions` — no more
+  inline `re.sub` copies
+- **Configurable TEST_INDICATORS** in `task-completed-gate`: project can set
+  `test_indicators` in `.config` to override which file patterns are considered
+  test files (e.g. `.spec.`, `.test.`, `_test.`)
+- **Async Stop hooks**: `session-learn.py` and `session-cleanup.py` now run
+  with `"async": true` — session end no longer blocks on slow network calls
+
+### Fixed
+
+- **`load_config()` now parses JSON** (was silently broken — `.config` is
+  JSON but old code used a KEY=VALUE parser, so `safety_check_mode` was never
+  read from config)
+- **Shell injection in `input-sanitizer.py`**: restricted allowed characters
+  in path rewrite to prevent injected shell metacharacters
+- **`/tmp` hardening**: atomic write-then-rename for all tmp files, O_EXCL
+  creation, mode `0o600` — eliminates TOCTOU race and predictable-name attacks
+- **Path traversal**: replaced `startswith()` with `is_relative_to()` in
+  `input-sanitizer.py` — prevents `../` escape from cwd
+- **Subprocess timeouts on git calls** in `sdlc-compact.py`: all `git` calls
+  now have `timeout=5` to prevent hooks hanging indefinitely
+- **Coverage measurement**: `.coveragerc` added; `make test-unit` now correctly
+  measures subprocess coverage via `COVERAGE_PROCESS_START`
+- **`BLOCKS`/`WARNS` moved to `utils.py`**: `safety_check_agent` no longer
+  needs an `importlib` workaround — imports directly; 39-line reduction
+- **`safe_project_name()` in `notification-log`**: consistent with all other
+  hooks that sanitize project name for use in tmp file paths
+- **Log prefix audit**: all deprecated `[zie] warning:` prefixes replaced
+  with `[zie-framework] <hook-name>:` across all hooks
+
+### Changed
+
+- `make test-unit` comment clarified to explicitly say "excludes integration tests"
+- CLAUDE.md Optional Dependencies table added (pytest, coverage, playwright, zie-memory)
+- README.md Skills section added (11 skills documented)
+- architecture.md version history updated through v1.9.0
+
 ## v1.8.0 — 2026-03-24
 
 ### Features
