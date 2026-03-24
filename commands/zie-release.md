@@ -163,6 +163,14 @@ merging.
    - Move all `[x]` items from "Now" → "Done" with date and version tag.
    - Clear Now lane (leave `<!-- -->` comment).
 
+3.5. **Cleanup shipped SDLC artifacts** — for each shipped slug derived from Now lane:
+   - Delete `zie-framework/backlog/<slug>.md` (if exists)
+   - Delete `zie-framework/specs/*-<slug>-design.md` (glob first match, if exists)
+   - Delete `zie-framework/plans/*-<slug>.md` (glob first match, if exists)
+   - These deletions are staged and included in the release commit.
+   - Rationale: git history preserves all content — working tree contains only
+     active work. `zie-framework/decisions/` is never cleaned (ADRs are permanent).
+
 4. **Draft CHANGELOG entry**:
    - Run: `git log $(git describe --tags --abbrev=0 2>/dev/null || git
      rev-list --max-parents=0 HEAD)..HEAD --oneline --no-merges`

@@ -20,22 +20,17 @@
 <!-- Order: Critical → High → Medium → Low -->
 
 <!-- CRITICAL -->
-- [x] Fix coverage measurement infrastructure — [audit finding](backlog/fix-coverage-measurement.md)
-- [x] Security: shell injection in input-sanitizer.py — [audit finding](backlog/security-shell-injection.md)
+- [ ] Security: shell injection in input-sanitizer.py — [plan](plans/2026-03-24-security-shell-injection.md) ✓
 
 <!-- HIGH -->
-- [x] Security: /tmp hardening (permissions, TOCTOU, predictable names) — [audit finding](backlog/security-tmp-hardening.md)
-- [x] Security: path traversal fix (startswith → is_relative_to) — [audit finding](backlog/security-path-traversal.md)
-- [x] Add subprocess timeouts to all hooks — [audit finding](backlog/add-subprocess-timeouts.md)
-- [x] Test quality: fill edge case and error path gaps — [audit finding](backlog/test-quality-gaps.md)
+- [ ] Add subprocess timeouts to all hooks — [plan](plans/2026-03-24-add-subprocess-timeouts.md) ✓
 
 <!-- MEDIUM -->
-- [x] Consolidate duplicate patterns into utils.py — [audit finding](backlog/consolidate-utils-patterns.md)
-- [x] Docs: sync and completeness pass — [audit finding](backlog/docs-sync-and-completeness.md)
+- [ ] Docs: sync and completeness pass — [plan](plans/2026-03-24-docs-sync-and-completeness.md) ✓
 
 <!-- LOW -->
-- [x] Architecture cleanup and structural improvements — [audit finding](backlog/architecture-cleanup.md)
-- [x] Standards: compliance and consistency gaps — [audit finding](backlog/standards-compliance.md)
+- [ ] Architecture cleanup and structural improvements — [plan](plans/2026-03-24-architecture-cleanup.md) ✓
+- [ ] Standards: compliance and consistency gaps — [plan](plans/2026-03-24-standards-compliance.md) ✓
 
 ---
 
@@ -44,22 +39,15 @@
 <!-- Ready to start. Ordered by priority. -->
 
 <!-- CRITICAL -->
-- [ ] Fix coverage measurement infrastructure — [audit finding](backlog/fix-coverage-measurement.md)
-- [ ] Security: shell injection in input-sanitizer.py — [audit finding](backlog/security-shell-injection.md)
+- [ ] Fix coverage measurement infrastructure — [backlog](backlog/fix-coverage-measurement.md)
 
 <!-- HIGH -->
-- [ ] Security: /tmp hardening (permissions, TOCTOU, predictable names) — [audit finding](backlog/security-tmp-hardening.md)
-- [ ] Security: path traversal fix (startswith → is_relative_to) — [audit finding](backlog/security-path-traversal.md)
-- [ ] Add subprocess timeouts to all hooks — [audit finding](backlog/add-subprocess-timeouts.md)
-- [ ] Test quality: fill edge case and error path gaps — [audit finding](backlog/test-quality-gaps.md)
+- [ ] Security: /tmp hardening (permissions, TOCTOU, predictable names) — [backlog](backlog/security-tmp-hardening.md)
+- [ ] Security: path traversal fix (startswith → is_relative_to) — [backlog](backlog/security-path-traversal.md)
+- [ ] Test quality: fill edge case and error path gaps — [backlog](backlog/test-quality-gaps.md)
 
 <!-- MEDIUM -->
-- [ ] Consolidate duplicate patterns into utils.py — [audit finding](backlog/consolidate-utils-patterns.md)
-- [ ] Docs: sync and completeness pass — [audit finding](backlog/docs-sync-and-completeness.md)
-
-<!-- LOW -->
-- [ ] Architecture cleanup and structural improvements — [audit finding](backlog/architecture-cleanup.md)
-- [ ] Standards: compliance and consistency gaps — [audit finding](backlog/standards-compliance.md)
+- [ ] Consolidate duplicate patterns into utils.py — [backlog](backlog/consolidate-utils-patterns.md)
 
 <!-- (All items from v1.7.0 sprint shipped — 2026-03-24) -->
 
