@@ -13,7 +13,7 @@ SAMPLE_ROADMAP = """## Now
 
 
 def run_hook(tool_name="Edit", tmp_cwd=None, env_overrides=None):
-    env = {**os.environ, "ZIE_MEMORY_API_KEY": ""}
+    env = {**os.environ, "ZIE_MEMORY_API_KEY": "", "ZIE_MEMORY_ENABLED": ""}
     if tmp_cwd:
         env["CLAUDE_CWD"] = str(tmp_cwd)
     if env_overrides:

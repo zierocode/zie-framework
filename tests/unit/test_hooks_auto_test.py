@@ -10,7 +10,8 @@ HOOK = os.path.join(REPO_ROOT, "hooks", "auto-test.py")
 
 
 def run_hook(event, tmp_cwd=None, env_overrides=None):
-    env = {**os.environ, "ZIE_MEMORY_API_KEY": ""}
+    env = {**os.environ, "ZIE_MEMORY_API_KEY": "",
+           "ZIE_AUTO_TEST_DEBOUNCE_MS": "", "ZIE_TEST_RUNNER": ""}
     if tmp_cwd:
         env["CLAUDE_CWD"] = str(tmp_cwd)
     if env_overrides:
