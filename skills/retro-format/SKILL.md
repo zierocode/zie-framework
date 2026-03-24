@@ -5,7 +5,7 @@ type: reference
 user-invocable: false
 argument-hint: ""
 model: haiku
-effort: medium
+effort: low
 ---
 
 # Retro Format — zie-framework
