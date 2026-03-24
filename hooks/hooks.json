@@ -10,7 +10,8 @@
     "SubagentStart": "JSON {\"additionalContext\": \"...\"} printed to stdout for Explore|Plan agents",
     "PermissionRequest": "JSON {\"decision\": {\"behavior\": \"allow\", \"updatedPermissions\": {...}}} printed to stdout",
     "PostCompact": "JSON {\"hookSpecificOutput\": {\"additionalContext\": \"...\"}} printed to stdout",
-    "PostToolUseFailure": "JSON {\"additionalContext\": \"...\"} printed to stdout"
+    "PostToolUseFailure": "JSON {\"additionalContext\": \"...\"} printed to stdout",
+    "Notification": "JSON {\"additionalContext\": \"...\"} printed to stdout to inject context; empty stdout to pass through"
   },
   "hooks": {
   "SessionStart": [
@@ -189,6 +190,26 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stopfailure-log.py\""
+        }
+      ]
+    }
+  ],
+  "Notification": [
+    {
+      "matcher": "permission_prompt",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/notification-log.py\""
+        }
+      ]
+    },
+    {
+      "matcher": "idle_prompt",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/notification-log.py\""
         }
       ]
     }
