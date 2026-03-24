@@ -1,5 +1,6 @@
 {
   "_hook_output_protocol": {
+    "TaskCompleted": "exit(2) + stderr message to block; stdout warning for non-blocking notices",
     "SessionStart": "plain text printed to stdout — injected as session context",
     "UserPromptSubmit": "JSON {\"additionalContext\": \"...\"} printed to stdout",
     "PostToolUse": "plain text warnings/status printed to stdout",
@@ -122,6 +123,16 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-cleanup.py\""
+        }
+      ]
+    }
+  ],
+  "TaskCompleted": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/task-completed-gate.py\""
         }
       ]
     }

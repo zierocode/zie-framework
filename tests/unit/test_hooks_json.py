@@ -43,6 +43,49 @@ class TestHooksJsonStructure:
             assert key in hooks, f"Existing hook key '{key}' was removed"
 
 
+class TestHooksJsonTaskCompleted:
+    def _load(self):
+        with open(HOOKS_JSON) as f:
+            return json.load(f)
+
+    def test_taskcompleted_key_present(self):
+        data = self._load()
+        assert "TaskCompleted" in data["hooks"], \
+            "TaskCompleted entry missing from hooks.json"
+
+    def test_taskcompleted_command_uses_plugin_root(self):
+        data = self._load()
+        entry = data["hooks"]["TaskCompleted"]
+        command = entry[0]["hooks"][0]["command"]
+        assert "${CLAUDE_PLUGIN_ROOT}" in command
+
+    def test_taskcompleted_command_references_correct_script(self):
+        data = self._load()
+        entry = data["hooks"]["TaskCompleted"]
+        command = entry[0]["hooks"][0]["command"]
+        assert "task-completed-gate.py" in command
+
+    def test_taskcompleted_hook_type_is_command(self):
+        data = self._load()
+        entry = data["hooks"]["TaskCompleted"]
+        assert entry[0]["hooks"][0]["type"] == "command"
+
+    def test_hook_output_protocol_has_taskcompleted(self):
+        data = self._load()
+        assert "TaskCompleted" in data["_hook_output_protocol"]
+
+    def test_hook_output_protocol_taskcompleted_mentions_exit2(self):
+        data = self._load()
+        annotation = data["_hook_output_protocol"]["TaskCompleted"]
+        assert "exit(2)" in annotation or "2" in annotation
+
+    def test_existing_hooks_unchanged(self):
+        data = self._load()
+        hooks = data["hooks"]
+        for key in ("SessionStart", "UserPromptSubmit", "PostToolUse", "PreToolUse", "Stop"):
+            assert key in hooks, f"Existing hook key missing: {key}"
+
+
 class TestHooksJsonSubagentStop:
     def _load(self):
         with open(HOOKS_JSON) as f:

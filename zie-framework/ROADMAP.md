@@ -10,6 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [x] TaskCompleted quality gate hook — [plan](plans/2026-03-24-taskcompleted-validation.md)
 - [x] Plugin settings.json defaults + CLAUDE_PLUGIN_DATA storage — [plan](plans/2026-03-24-plugin-settings-defaults.md)
 - [x] PreCompact/PostCompact WIP preservation — [plan](plans/2026-03-24-prepostcompact-wip-preservation.md)
 - [x] UserPromptSubmit SDLC context injection — [plan](plans/2026-03-24-userpromptsubmit-sdlc-context.md)
@@ -38,7 +39,6 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [ ] TaskCompleted quality gate hook — [plan](plans/2026-03-24-taskcompleted-validation.md) ✓
 - [ ] type:"agent" hooks for smart safety validation — [plan](plans/2026-03-24-agent-type-hooks.md) ✓
 
 <!-- LOW -->
