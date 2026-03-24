@@ -37,17 +37,18 @@ dev→main, tags, and updates ROADMAP. Nothing ships without passing every gate.
 
 ### ตรวจสอบ: Unit Tests
 
-Print: `[Gate 1/7] Unit Tests`
+Print: `[Gate 1/5] Unit Tests`
 
 ```bash
 make test-unit
 ```
 
 - Must exit 0. On failure → STOP: "Gate 1 FAILED: unit tests. Run /zie-fix before releasing."
+- **On pass:** immediately start Fork: Quality Checks (see section below — runs concurrently with Gates 2/3).
 
 ### ตรวจสอบ: Integration Tests
 
-Print: `[Gate 2/7] Integration Tests`
+Print: `[Gate 2/5] Integration Tests`
 
 ```bash
 make test-int
@@ -58,7 +59,7 @@ make test-int
 
 ### ตรวจสอบ: E2E Tests (ถ้า playwright_enabled=true)
 
-Print: `[Gate 3/7] E2E Tests`
+Print: `[Gate 3/5] E2E Tests`
 
 ```bash
 make test-e2e
@@ -70,7 +71,7 @@ make test-e2e
 
 ### ตรวจสอบ: Visual (ถ้า has_frontend=true)
 
-Print: `[Gate 4/7] Visual Check`
+Print: `[Gate 4/5] Visual Check`
 
 - If `has_frontend=true` AND `playwright_enabled=true`:
   - E2E gate above already covers this — skip.
@@ -80,38 +81,41 @@ Print: `[Gate 4/7] Visual Check`
   - If no → STOP. Fix and re-run.
 - If `has_frontend=false` → skip this gate.
 
-### ตรวจสอบ: TODOs และ Secrets
+### Fork: Quality Checks (concurrent with Gate 2/3)
 
-Print: `[Gate 5/7] TODOs and Secrets`
+Start **immediately after Gate 1 passes** — do NOT wait before running Gate 2.
 
-- Scan for leftover stubs:
+Invoke simultaneously:
 
-  ```bash
-  grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
-  ```
+1. Fork `Skill(zie-framework:docs-sync-check)` with changed files:
+   Pass `git diff main..HEAD --name-only` output as `$ARGUMENTS.changed_files`.
 
-  Any hits in new code? Fix or create a tracked backlog item before
-  proceeding.
+2. Bash: TODOs and secrets scan (run in parallel with Gate 2):
 
-- Scan for hardcoded secrets in changed files: no API keys, tokens,
-  passwords, or credentials in any file being committed.
+   ```bash
+   grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
+   ```
 
-### ตรวจสอบ: Docs sync
+   Also check changed files for hardcoded API keys, tokens, or credentials.
 
-Print: `[Gate 6/7] Docs Sync`
+Results are collected in the section below after Gate 3 completes.
 
-Scan `git diff main..HEAD --name-only` → ถ้ามี new/changed commands, skills,
-hooks, or project structure:
+### รวมผลลัพธ์ Quality Forks
 
-- `CLAUDE.md` — project structure + tech stack ยังถูกต้องไหม?
-- `README.md` — commands table + pipeline section ยังถูกต้องไหม?
-- `zie-framework/PROJECT.md` — commands/skills/hooks list ยังถูกต้องไหม?
+Print: `[Quality Forks] Collecting results`
 
-ถ้า out of sync → อัปเดตก่อน commit
+Collect results from the parallel forks started after Gate 1:
+
+- **Docs sync**: if `claude_md_stale=true` or `readme_stale=true` → update
+  stale docs now, before version bump. If in sync → print "Docs in sync".
+  (`CLAUDE.md` and `README.md` must reflect current commands/skills/hooks.)
+- **TODOs/secrets**: any hits in new code? Fix or create a tracked backlog
+  item before proceeding. Any secrets detected → STOP immediately.
+- If either fork did not complete → run inline (blocking) before continuing.
 
 ### ตรวจสอบ: Code diff ก่อน merge
 
-Print: `[Gate 7/7] Code Diff`
+Print: `[Gate 5/5] Code Diff`
 
 Run `git diff main..HEAD --stat` and scan for anything unexpected before
 merging.

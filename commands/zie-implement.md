@@ -231,12 +231,21 @@ If tdd: deep is set in the plan frontmatter, invoke Skill(zie-framework:tdd-loop
      wait step is a no-op for plans composed entirely of LOW-risk tasks.
 
 1. Run full test suite: `make test-unit` (required) + `make test-int` (if
-   available).
+   available). Capture output to `test_output`. If any suite fails → STOP,
+   invoke `Skill(zie-framework:debug)` before retrying.
 
-2. Invoke `Skill(zie-framework:verify)` — checks TODOs, docs sync, secrets,
-   and confirms feature is release-ready before leaving implementation context.
+2. **Fork verify immediately** — do NOT wait:
+   Fork `Skill(zie-framework:verify)` with captured output:
 
-3. Mark feature complete and commit to dev:
+   ```json
+   {
+     "test_output": "<captured make test-unit output>",
+     "changed_files": "<git status --short output>",
+     "scope": "tests-only"
+   }
+   ```
+
+3. **Commit prep (runs while verify fork is running)**:
    - Update `zie-framework/ROADMAP.md` Now lane: change feature from `[ ]`
      to `[x]` (complete, pending release — see D-005 batch release pattern).
    - Review what will be committed:
@@ -247,17 +256,26 @@ If tdd: deep is set in the plan frontmatter, invoke Skill(zie-framework:tdd-loop
 
      Expected: implementation files (code, tests, hooks, commands) +
      `zie-framework/ROADMAP.md`. If backlog/spec/plan files appear here they
-     were not committed at their stage — commit them now too.
+     were not committed at their stage — include them.
 
-   - Commit all feature code to dev:
+   - Run `git add -A`
 
-     ```bash
-     git add -A
-     git commit -m "feat: <feature-slug>"
-     git push origin dev
-     ```
+4. **Collect verify fork result**:
+   - ✅ APPROVED → proceed to commit
+   - ❌ Issues Found → `git reset HEAD` (unstage), fix issues, re-run
+     `make test-unit`, re-invoke `Skill(zie-framework:verify)` synchronously,
+     then re-stage and proceed
+   - Fork error/timeout → print warning and proceed with manual note:
+     "Verify fork failed — proceeding. Review manually."
 
-     **ห้าม** commit ระหว่าง task loop — commit ครั้งเดียวตอนนี้เท่านั้น.
+5. Commit all feature code to dev:
+
+   ```bash
+   git commit -m "feat: <feature-slug>"
+   git push origin dev
+   ```
+
+   **ห้าม** commit ระหว่าง task loop — commit ครั้งเดียวตอนนี้เท่านั้น.
 
 4. Print:
 

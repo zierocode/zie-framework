@@ -6,6 +6,7 @@ metadata:
 argument-hint: "scope=full|tests-only (default: full)"
 model: haiku
 effort: low
+context: fork
 ---
 
 # verify — Pre-Ship Verification
@@ -15,6 +16,27 @@ effort: low
 | Parameter | Values | Default | Description |
 | --- | --- | --- | --- |
 | `scope` | `full`, `tests-only` | `full` | Controls which checks run. `tests-only` runs checks 1, 2, and secrets scan from 4 only — skips TODOs (3), full code review (4), and docs sync (5). |
+
+## Input
+
+`$ARGUMENTS` (optional JSON from caller):
+
+```json
+{
+  "test_output": "===== 1234 passed in 5.23s =====",
+  "changed_files": ["hooks/auto-test.py"],
+  "scope": "tests-only"
+}
+```
+
+- `test_output`: if provided and non-empty, use as the test result — skip
+  re-running `make test-unit`. If `test_output` contains `failed` or `error` →
+  treat tests as failed.
+- `scope`: overrides the skill's scope parameter if provided.
+- `changed_files`: restrict TODO/secrets scan to these files if provided.
+
+**Fallback:** if `$ARGUMENTS` is empty or unparseable → run all checks normally,
+including `make test-unit` (existing behavior — fully backward compatible).
 
 ## Scope: tests-only
 

@@ -6,8 +6,8 @@ context: fork
 agent: general-purpose
 allowed-tools: Read, Grep, Glob, Bash
 argument-hint: ""
-model: haiku
-effort: low
+model: sonnet
+effort: medium
 ---
 
 # impl-reviewer — Task Implementation Review

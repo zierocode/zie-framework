@@ -62,15 +62,28 @@ Recent activity window:
 
 3. Count ADR files in `zie-framework/decisions/` → get next ADR number.
 
-### วิเคราะห์และสรุป
+### สร้าง compact summary
 
-Invoke `Skill(zie-framework:retro-format)` to structure the retrospective:
+Build compact JSON bundle for retro-format fork:
 
-- **What shipped**: list of features/fixes in this release or session.
-- **What worked well**: patterns, approaches, tools that helped.
-- **What was painful**: friction points, unexpected complexity.
-- **Key decisions made**: any significant architectural or design choices.
-- **Patterns to remember**: techniques, approaches worth storing in brain.
+```json
+{
+  "shipped": ["<commit message 1>", "<commit message 2>"],
+  "commits_since_tag": "<count from git log>",
+  "pain_points": [],
+  "decisions": [],
+  "roadmap_done_tail": "<last 5 lines of Done section>"
+}
+```
+
+### Fork ทั้งสองพร้อมกัน
+
+Invoke both forks **simultaneously** — do NOT wait for either before starting:
+
+1. Fork `Skill(zie-framework:retro-format)` — pass compact summary as `$ARGUMENTS`
+2. Fork `Skill(zie-framework:docs-sync-check)` — pass output of
+   `git diff main..HEAD --name-only` as `$ARGUMENTS.changed_files`
+   (full scan if command fails)
 
 ### บันทึก ADRs
 
@@ -111,28 +124,17 @@ Print: "Updating knowledge docs..."
   (ใช้ NNN = running number ถัดจากไฟล์ล่าสุดใน decisions/)
 - ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
 
-#### Living docs sync — CLAUDE.md + README.md
+### รวมผลลัพธ์ forks
 
-- Read `CLAUDE.md` (project root).
-- Read `README.md` (project root).
-- Enumerate actual codebase state:
-  - `commands/` — list all `*.md` filenames → these are the slash commands.
-  - `hooks/` — list all `*.py` filenames → these are the hook scripts.
-  - `skills/` — list all subdirectory names → these are the skills.
-  - `VERSION` file (if present) → current version string.
-- Compare actual vs. documented in each file:
-  - Commands section in `CLAUDE.md` / `README.md` — add any commands not listed,
-    remove any listed commands whose file no longer exists.
-  - Hooks section — same: add new, remove deleted.
-  - Skills section — same: add new, remove deleted.
-  - Build commands / tech stack — flag any obvious drift (e.g. test runner changed).
-- Apply all updates in the same session.
-- Log what changed:
-  - If changes were made: print `"Updated CLAUDE.md: added <X>, removed <Y>"` and/or
-    `"Updated README.md: added <X>, removed <Y>"` for each file touched.
-  - If no changes needed: print `"CLAUDE.md in sync"` and `"README.md in sync"`.
-- This step runs even when no changes are found — the "in sync" confirmation is
-  itself useful signal.
+Collect both fork results (forks ran while ADRs were being written above):
+
+- **retro-format result** → print the five structured retro sections.
+- **docs-sync-check result** → if `claude_md_stale=true`: update `CLAUDE.md` now
+  and print `"Updated CLAUDE.md: added <X>, removed <Y>"`. If `readme_stale=true`:
+  update `README.md` and print `"Updated README.md: added <X>, removed <Y>"`.
+  If both in sync → print "CLAUDE.md in sync | README.md in sync".
+- If either fork returned an error → print the error and continue.
+  Retro is not blocked by fork failures.
 
 - ถ้า `zie_memory_enabled=true`: Call `mcp__plugin_zie-memory_zie-memory__remember`
   with `"Project snapshot: <version>. Components changed: <list>. Decisions: <new ADR slugs>."`

@@ -1,5 +1,37 @@
 # Changelog
 
+## v1.8.0 — 2026-03-24
+
+### Features
+
+- **docs-sync-check skill**: new `haiku + context:fork` skill that verifies
+  `CLAUDE.md` and `README.md` match actual commands/skills/hooks on disk;
+  returns structured JSON verdict for callers to act on
+- **Parallel quality gates in `/zie-release`**: TODOs/secrets scan and
+  docs-sync-check fork immediately after Gate 1 passes, running concurrently
+  with Gate 2/3 (integration + e2e) — serial gate count drops from 7 to 5
+- **Verify overlap in `/zie-implement`**: `verify` is now forked with captured
+  test output immediately after the final `make test-unit`, running in parallel
+  with ROADMAP update and `git add` prep — eliminates a full test re-run
+- **Parallel forks in `/zie-retro`**: `retro-format` and `docs-sync-check` are
+  forked simultaneously while the parent writes ADRs, then results are collected
+
+### Changed
+
+- **impl-reviewer upgraded**: `model: haiku, effort: low` → `model: sonnet,
+  effort: medium` — code review is reasoning-heavy; fork already bounds context
+  to the changed-files bundle so cost increase is well-bounded
+- **verify and retro-format get `context: fork`**: both skills now declare
+  `context: fork` with documented `$ARGUMENTS` input format; fall back to
+  full inline mode when called without arguments (backward compatible)
+- **zie-spec and zie-plan effort lowered**: `effort: high` → `effort: medium`
+  — heavy reasoning is delegated to spec-design/write-plan skills; these
+  commands are orchestration-only
+- **Unofficial `type:` fields removed**: `tdd-loop` (`type: process`),
+  `test-pyramid` (`type: reference`), and `retro-format` (`type: reference`)
+  — these were non-standard fields not in the Claude Code spec; tests now
+  enforce their absence
+
 ## v1.7.0 — 2026-03-24
 
 ### Features
