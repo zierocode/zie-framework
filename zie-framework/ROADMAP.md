@@ -15,6 +15,9 @@
 - [x] StopFailure API error logging — [plan](plans/2026-03-24-stopfailure-logging.md)
 - [x] ConfigChange CLAUDE.md drift detection — [plan](plans/2026-03-24-configchange-drift-detection.md)
 - [x] Agent isolation:worktree + background:true parallel review — [plan](plans/2026-03-24-agent-worktree-isolation.md)
+- [x] Plugin .mcp.json bundle zie-memory server — [plan](plans/2026-03-24-plugin-mcp-bundle.md)
+- [x] Notification hook permission dialog intercept — [plan](plans/2026-03-24-notification-hook-intercept.md)
+- [x] model:haiku + effort:low for fast skills — [plan](plans/2026-03-24-model-haiku-fast-skills.md)
 - [x] TaskCompleted quality gate hook — [plan](plans/2026-03-24-taskcompleted-validation.md)
 - [x] Plugin settings.json defaults + CLAUDE_PLUGIN_DATA storage — [plan](plans/2026-03-24-plugin-settings-defaults.md)
 - [x] PreCompact/PostCompact WIP preservation — [plan](plans/2026-03-24-prepostcompact-wip-preservation.md)
@@ -49,10 +52,7 @@
 
 
 
-- [x] Plugin .mcp.json bundle zie-memory server — [plan](plans/2026-03-24-plugin-mcp-bundle.md) ✓
-- [x] Notification hook permission dialog intercept — [plan](plans/2026-03-24-notification-hook-intercept.md) ✓
 - [ ] Session-wide agent mode (--agent integration) — [plan](plans/2026-03-24-session-agent-mode.md) ✓
-- [x] model:haiku + effort:low for fast skills — [plan](plans/2026-03-24-model-haiku-fast-skills.md) ✓
 
 ---
 
