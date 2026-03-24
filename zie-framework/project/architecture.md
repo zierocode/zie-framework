@@ -76,3 +76,9 @@ User runs /zie-command
   Bandit B108 suppressions via config; pre-existing test pollution fixes.
 - **v1.8.0** (2026-03-24) — Parallel model-effort optimization; faster skill
   execution via parallel model selection; model:haiku for fast-path reviewers.
+- **v1.9.0** (2026-03-25) — Security + quality hardening: coverage measurement
+  fix (.coveragerc + subprocess coverage); shell injection, /tmp hardening,
+  path traversal fixes; subprocess timeouts; utils.py consolidation
+  (normalize_command, BLOCKS/WARNS/SDLC_STAGES canonical); load_config() fixed
+  to JSON-only; async Stop hooks; hook-events.schema.json; 1513 unit + 63
+  integration tests. ADR-018–020.

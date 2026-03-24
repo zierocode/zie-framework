@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-03-24 (v1.8.0)
+**Last updated:** 2026-03-25 (v1.9.0)
 
 ## Commands
 
@@ -57,7 +57,7 @@
 | stopfailure-log.py | StopFailure | capture API errors and rate-limit notifications to per-project tmp log |
 | subagent-stop.py | SubagentStop | capture subagent completion with ID; enables resume-by-ID pattern in same session |
 | task-completed-gate.py | TaskCompleted | block on failing tests; warn on uncommitted files at task completion |
-| utils.py | (shared library) | read_event(), get_cwd(), load_config(), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write) |
+| utils.py | (shared library) | read_event(), get_cwd(), load_config() (JSON), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write), normalize_command(), safe_project_name(), BLOCKS, WARNS, SDLC_STAGES |
 
 ## Agents
 
