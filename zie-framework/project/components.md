@@ -48,6 +48,7 @@
 | sdlc-compact.py | PreCompact / PostCompact | snapshot SDLC state before compaction; restore as additionalContext after |
 | sdlc-context.py | UserPromptSubmit | inject [sdlc] task/stage/next/tests context into every prompt |
 | subagent-context.py | SubagentStart:Explore/Plan | inject active feature slug, first incomplete task, ADR count into research subagents |
+| config-drift.py | ConfigChange:project_settings\|user_settings | ตรวจ CLAUDE.md / settings.json / zie-framework/.config drift → inject additionalContext to re-read |
 | utils.py | (shared library) | read_event(), get_cwd(), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write) |
 
 ## Agents

@@ -41,6 +41,17 @@
       ]
     }
   ],
+  "ConfigChange": [
+    {
+      "matcher": "project_settings|user_settings",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/config-drift.py\""
+        }
+      ]
+    }
+  ],
   "SubagentStart": [
     {
       "matcher": "Explore|Plan",
