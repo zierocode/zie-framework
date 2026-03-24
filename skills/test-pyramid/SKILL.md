@@ -3,6 +3,7 @@ name: test-pyramid
 description: Testing strategy by project type — which tests to write, when to run them
 type: reference
 user-invocable: false
+argument-hint: ""
 ---
 
 # Test Pyramid — zie-framework

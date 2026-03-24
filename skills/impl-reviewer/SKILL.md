@@ -5,6 +5,7 @@ user-invocable: false
 context: fork
 agent: general-purpose
 allowed-tools: Read, Grep, Glob, Bash
+argument-hint: ""
 ---
 
 # impl-reviewer — Task Implementation Review

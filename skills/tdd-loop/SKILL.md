@@ -3,6 +3,7 @@ name: tdd-loop
 description: TDD RED-GREEN-REFACTOR loop guide for zie-framework builds
 type: process
 user-invocable: false
+argument-hint: ""
 ---
 
 # TDD Loop — RED → GREEN → REFACTOR

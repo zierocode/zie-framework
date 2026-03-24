@@ -3,6 +3,7 @@ name: verify
 description: Pre-ship verification checklist — tests, lint, no regressions, no TODOs left open.
 metadata:
   zie_memory_enabled: true
+argument-hint: ""
 ---
 
 # verify — Pre-Ship Verification

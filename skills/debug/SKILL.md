@@ -4,6 +4,7 @@ description: Systematic debugging — reproduce, isolate, fix, verify. Uses zie-
 metadata:
   zie_memory_enabled: true
 user-invocable: false
+argument-hint: ""
 ---
 
 # debug — Systematic Debugging

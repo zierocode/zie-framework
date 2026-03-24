@@ -5,6 +5,7 @@ user-invocable: false
 context: fork
 agent: Explore
 allowed-tools: Read, Grep, Glob
+argument-hint: ""
 ---
 
 # spec-reviewer — Design Spec Review

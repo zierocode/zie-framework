@@ -1,6 +1,7 @@
 ---
 name: write-plan
 description: Write a detailed implementation plan from an approved spec. Saves to zie-framework/plans/.
+argument-hint: "<slug> [--no-memory]"
 metadata:
   zie_memory_enabled: true
 effort: high
@@ -10,6 +11,24 @@ effort: high
 
 Write a comprehensive, task-by-task implementation plan. Output lives in
 `zie-framework/plans/`.
+
+## Arguments
+
+| Position | Variable | Description | Default |
+| --- | --- | --- | --- |
+| 0 | `$ARGUMENTS[0]` | Backlog slug — used to locate the spec file (`zie-framework/specs/YYYY-MM-DD-<slug>-design.md`) | absent → prompt user for slug |
+| 1 | `$ARGUMENTS[1]` | Optional flags string (e.g. `--no-memory` to skip zie-memory recall) | absent/empty → all defaults apply |
+
+When `$ARGUMENTS[0]` is absent, prompt the user to provide the slug or select
+from the approved specs in `zie-framework/specs/`. Never block or error.
+
+When `$ARGUMENTS[1]` is absent or empty, treat as no flags — all default
+behaviour applies. Parse flags by splitting on whitespace and checking for
+known flag names.
+
+> **Note for future skill authors:** if this skill bundles helper scripts,
+> reference them via `${CLAUDE_SKILL_DIR}/scripts/<script-name>` — Claude Code
+> resolves this to the skill's own directory regardless of CWD.
 
 ## เตรียม context
 

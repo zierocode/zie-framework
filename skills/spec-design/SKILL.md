@@ -1,6 +1,7 @@
 ---
 name: spec-design
 description: Brainstorm and write a design spec for a new feature. Saves to zie-framework/specs/.
+argument-hint: "<slug> [full|quick]"
 metadata:
   zie_memory_enabled: true
 effort: high
@@ -10,6 +11,24 @@ effort: high
 
 Turn an idea into a written spec through collaborative dialogue. Output lives in
 `zie-framework/specs/`.
+
+## Arguments
+
+| Position | Variable | Description | Default |
+| --- | --- | --- | --- |
+| 0 | `$ARGUMENTS[0]` | Backlog slug (e.g. `my-feature`) | absent → prompt user for slug |
+| 1 | `$ARGUMENTS[1]` | Mode: `full` (full dialogue) or `quick` (skip clarification, draft directly) | absent/empty → `full` |
+
+When `$ARGUMENTS[0]` is absent, fall back to listing the backlog menu and
+prompting the user to choose — matching the behaviour of `/zie-spec` with no
+argument.
+
+When `$ARGUMENTS[1]` is absent or empty, default to `full` mode. Never raise
+an error for a missing second argument.
+
+> **Note for future skill authors:** if this skill bundles helper scripts,
+> reference them via `${CLAUDE_SKILL_DIR}/scripts/<script-name>` — Claude Code
+> resolves this to the skill's own directory regardless of CWD.
 
 ## เตรียม context
 
