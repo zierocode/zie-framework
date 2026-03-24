@@ -1,6 +1,7 @@
 ---
 description: Implement the active feature using TDD — RED/GREEN/REFACTOR loop per task. Reads active plan from ROADMAP.md.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill, TaskCreate, TaskUpdate
+model: sonnet
 effort: medium
 ---
 

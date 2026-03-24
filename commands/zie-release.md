@@ -1,6 +1,8 @@
 ---
 description: Full release gate — run all test gates, bump version, merge dev→main, tag, and trigger retrospective.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
+model: sonnet
+effort: medium
 ---
 
 # /zie-release — Release Gate → Merge dev→main → Tag

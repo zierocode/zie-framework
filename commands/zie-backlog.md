@@ -2,6 +2,8 @@
 description: Capture a new backlog item — problem, motivation, rough scope. First stage of the SDLC pipeline.
 argument-hint: Optional idea title (e.g. "add CSV export")
 allowed-tools: Read, Write, Glob
+model: haiku
+effort: low
 ---
 
 # /zie-backlog — Capture Backlog Item

@@ -4,6 +4,8 @@ description: Pre-ship verification checklist — tests, lint, no regressions, no
 metadata:
   zie_memory_enabled: true
 argument-hint: ""
+model: haiku
+effort: low
 ---
 
 # verify — Pre-Ship Verification

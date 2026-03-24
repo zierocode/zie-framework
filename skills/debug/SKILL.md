@@ -5,6 +5,8 @@ metadata:
   zie_memory_enabled: true
 user-invocable: false
 argument-hint: ""
+model: sonnet
+effort: medium
 ---
 
 # debug — Systematic Debugging

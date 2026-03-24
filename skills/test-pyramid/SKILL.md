@@ -4,6 +4,8 @@ description: Testing strategy by project type — which tests to write, when to 
 type: reference
 user-invocable: false
 argument-hint: ""
+model: haiku
+effort: low
 ---
 
 # Test Pyramid — zie-framework

@@ -4,6 +4,8 @@ description: TDD RED-GREEN-REFACTOR loop guide for zie-framework builds
 type: process
 user-invocable: false
 argument-hint: ""
+model: haiku
+effort: low
 ---
 
 # TDD Loop — RED → GREEN → REFACTOR

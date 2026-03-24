@@ -1,232 +1,169 @@
-"""Tests for model: and effort: frontmatter fields in skills and commands."""
+"""Tests for model: and effort: frontmatter fields in skills and commands.
+
+Policy: every command and skill must have both model and effort pinned.
+Valid model values: haiku | sonnet | opus
+Valid effort values: low | medium | high
+"""
 import re
 import yaml
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 
+# Complete model+effort map for every command and skill.
+# Format: relative_path -> (model, effort)
+EXPECTED = {
+    # Commands
+    "commands/zie-status.md":    ("haiku",  "low"),
+    "commands/zie-backlog.md":   ("haiku",  "low"),
+    "commands/zie-spec.md":      ("sonnet", "high"),
+    "commands/zie-plan.md":      ("sonnet", "high"),
+    "commands/zie-implement.md": ("sonnet", "medium"),
+    "commands/zie-fix.md":       ("sonnet", "medium"),
+    "commands/zie-release.md":   ("sonnet", "medium"),
+    "commands/zie-retro.md":     ("sonnet", "high"),
+    "commands/zie-init.md":      ("sonnet", "medium"),
+    "commands/zie-resync.md":    ("sonnet", "medium"),
+    "commands/zie-audit.md":     ("opus",   "high"),
+    # Skills
+    "skills/spec-design/SKILL.md":   ("sonnet", "high"),
+    "skills/write-plan/SKILL.md":    ("sonnet", "high"),
+    "skills/debug/SKILL.md":         ("sonnet", "medium"),
+    "skills/spec-reviewer/SKILL.md": ("haiku",  "low"),
+    "skills/plan-reviewer/SKILL.md": ("haiku",  "low"),
+    "skills/impl-reviewer/SKILL.md": ("haiku",  "low"),
+    "skills/verify/SKILL.md":        ("haiku",  "low"),
+    "skills/tdd-loop/SKILL.md":      ("haiku",  "low"),
+    "skills/test-pyramid/SKILL.md":  ("haiku",  "low"),
+    "skills/retro-format/SKILL.md":  ("haiku",  "low"),
+    "skills/zie-audit/SKILL.md":     ("opus",   "high"),
+}
+
+VALID_MODELS = {"haiku", "sonnet", "opus"}
+VALID_EFFORTS = {"low", "medium", "high"}
+
 
 def parse_frontmatter(rel_path: str) -> dict:
-    """Extract and parse YAML frontmatter from a markdown file.
-
-    Returns the parsed dict. Raises AssertionError if no frontmatter block
-    is found, or yaml.YAMLError if the block is malformed.
-    """
+    """Extract and parse YAML frontmatter from a markdown file."""
     text = (REPO_ROOT / rel_path).read_text()
     match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
     assert match, f"No frontmatter block found in {rel_path}"
     return yaml.safe_load(match.group(1))
 
 
-class TestHaikuLowFrontmatter:
-    """Task 1 — model:haiku + effort:low on reviewer skills and zie-status."""
+class TestAllFilesHaveBothKeys:
+    """Every command and skill in EXPECTED must have model and effort."""
 
-    def test_zie_status_model_haiku(self):
-        fm = parse_frontmatter("commands/zie-status.md")
-        assert fm.get("model") == "haiku", (
-            "commands/zie-status.md must have model: haiku"
-        )
+    def test_all_have_model_key(self):
+        missing = []
+        for rel_path in EXPECTED:
+            fm = parse_frontmatter(rel_path)
+            if "model" not in fm:
+                missing.append(rel_path)
+        assert missing == [], f"Missing 'model' key in:\n" + "\n".join(missing)
 
-    def test_zie_status_effort_low(self):
-        fm = parse_frontmatter("commands/zie-status.md")
-        assert fm.get("effort") == "low", (
-            "commands/zie-status.md must have effort: low"
-        )
+    def test_all_have_effort_key(self):
+        missing = []
+        for rel_path in EXPECTED:
+            fm = parse_frontmatter(rel_path)
+            if "effort" not in fm:
+                missing.append(rel_path)
+        assert missing == [], f"Missing 'effort' key in:\n" + "\n".join(missing)
 
-    def test_spec_reviewer_model_haiku(self):
-        fm = parse_frontmatter("skills/spec-reviewer/SKILL.md")
-        assert fm.get("model") == "haiku", (
-            "skills/spec-reviewer/SKILL.md must have model: haiku"
-        )
+    def test_all_model_values_are_valid(self):
+        errors = []
+        for rel_path in EXPECTED:
+            fm = parse_frontmatter(rel_path)
+            val = fm.get("model")
+            if val not in VALID_MODELS:
+                errors.append(f"{rel_path}: model={val!r}")
+        assert errors == [], "Invalid model values:\n" + "\n".join(errors)
 
-    def test_spec_reviewer_effort_low(self):
-        fm = parse_frontmatter("skills/spec-reviewer/SKILL.md")
-        assert fm.get("effort") == "low", (
-            "skills/spec-reviewer/SKILL.md must have effort: low"
-        )
-
-    def test_plan_reviewer_model_haiku(self):
-        fm = parse_frontmatter("skills/plan-reviewer/SKILL.md")
-        assert fm.get("model") == "haiku", (
-            "skills/plan-reviewer/SKILL.md must have model: haiku"
-        )
-
-    def test_plan_reviewer_effort_low(self):
-        fm = parse_frontmatter("skills/plan-reviewer/SKILL.md")
-        assert fm.get("effort") == "low", (
-            "skills/plan-reviewer/SKILL.md must have effort: low"
-        )
-
-    def test_impl_reviewer_model_haiku(self):
-        fm = parse_frontmatter("skills/impl-reviewer/SKILL.md")
-        assert fm.get("model") == "haiku", (
-            "skills/impl-reviewer/SKILL.md must have model: haiku"
-        )
-
-    def test_impl_reviewer_effort_low(self):
-        fm = parse_frontmatter("skills/impl-reviewer/SKILL.md")
-        assert fm.get("effort") == "low", (
-            "skills/impl-reviewer/SKILL.md must have effort: low"
-        )
+    def test_all_effort_values_are_valid(self):
+        errors = []
+        for rel_path in EXPECTED:
+            fm = parse_frontmatter(rel_path)
+            val = fm.get("effort")
+            if val not in VALID_EFFORTS:
+                errors.append(f"{rel_path}: effort={val!r}")
+        assert errors == [], "Invalid effort values:\n" + "\n".join(errors)
 
 
-class TestSonnetHighFrontmatter:
-    """Task 2 — model:sonnet + effort:high on spec-design, write-plan, zie-spec, zie-plan."""
+class TestExpectedValues:
+    """Each file must have the exact model+effort pair defined in EXPECTED."""
 
-    def test_spec_design_model_sonnet(self):
-        fm = parse_frontmatter("skills/spec-design/SKILL.md")
-        assert fm.get("model") == "sonnet", (
-            "skills/spec-design/SKILL.md must have model: sonnet"
-        )
+    def test_correct_model_values(self):
+        errors = []
+        for rel_path, (expected_model, _) in EXPECTED.items():
+            fm = parse_frontmatter(rel_path)
+            actual = fm.get("model")
+            if actual != expected_model:
+                errors.append(
+                    f"{rel_path}: expected model={expected_model!r}, got {actual!r}"
+                )
+        assert errors == [], "Wrong model values:\n" + "\n".join(errors)
 
-    def test_spec_design_effort_high(self):
-        fm = parse_frontmatter("skills/spec-design/SKILL.md")
-        assert fm.get("effort") == "high", (
-            "skills/spec-design/SKILL.md must have effort: high"
-        )
-
-    def test_write_plan_model_sonnet(self):
-        fm = parse_frontmatter("skills/write-plan/SKILL.md")
-        assert fm.get("model") == "sonnet", (
-            "skills/write-plan/SKILL.md must have model: sonnet"
-        )
-
-    def test_write_plan_effort_high(self):
-        fm = parse_frontmatter("skills/write-plan/SKILL.md")
-        assert fm.get("effort") == "high", (
-            "skills/write-plan/SKILL.md must have effort: high"
-        )
-
-    def test_zie_spec_effort_high(self):
-        fm = parse_frontmatter("commands/zie-spec.md")
-        assert fm.get("effort") == "high", (
-            "commands/zie-spec.md must have effort: high"
-        )
-
-    def test_zie_plan_effort_high(self):
-        fm = parse_frontmatter("commands/zie-plan.md")
-        assert fm.get("effort") == "high", (
-            "commands/zie-plan.md must have effort: high"
-        )
+    def test_correct_effort_values(self):
+        errors = []
+        for rel_path, (_, expected_effort) in EXPECTED.items():
+            fm = parse_frontmatter(rel_path)
+            actual = fm.get("effort")
+            if actual != expected_effort:
+                errors.append(
+                    f"{rel_path}: expected effort={expected_effort!r}, got {actual!r}"
+                )
+        assert errors == [], "Wrong effort values:\n" + "\n".join(errors)
 
 
-class TestMediumFrontmatter:
-    """Task 3 — effort:medium on zie-implement and zie-fix."""
+class TestOpusFiles:
+    """Opus is reserved for the most complex, infrequent tasks."""
 
-    def test_zie_implement_effort_medium(self):
-        fm = parse_frontmatter("commands/zie-implement.md")
-        assert fm.get("effort") == "medium", (
-            "commands/zie-implement.md must have effort: medium"
-        )
+    def test_zie_audit_command_is_opus(self):
+        fm = parse_frontmatter("commands/zie-audit.md")
+        assert fm.get("model") == "opus", "commands/zie-audit.md must use opus"
 
-    def test_zie_implement_no_model_pin(self):
-        fm = parse_frontmatter("commands/zie-implement.md")
-        assert "model" not in fm, (
-            "commands/zie-implement.md must not have a model pin (session default)"
-        )
+    def test_zie_audit_skill_is_opus(self):
+        fm = parse_frontmatter("skills/zie-audit/SKILL.md")
+        assert fm.get("model") == "opus", "skills/zie-audit/SKILL.md must use opus"
 
-    def test_zie_fix_effort_medium(self):
-        fm = parse_frontmatter("commands/zie-fix.md")
-        assert fm.get("effort") == "medium", (
-            "commands/zie-fix.md must have effort: medium"
-        )
-
-    def test_zie_fix_no_model_pin(self):
-        fm = parse_frontmatter("commands/zie-fix.md")
-        assert "model" not in fm, (
-            "commands/zie-fix.md must not have a model pin (session default)"
-        )
+    def test_only_audit_files_use_opus(self):
+        """No other file should quietly gain an opus pin."""
+        opus_files = [
+            rel for rel, (model, _) in EXPECTED.items() if model == "opus"
+        ]
+        assert set(opus_files) == {
+            "commands/zie-audit.md",
+            "skills/zie-audit/SKILL.md",
+        }, f"Unexpected opus files: {opus_files}"
 
 
-class TestFrontmatterValidity:
-    """Task 4 — YAML parse guard: all 10 modified files must have valid frontmatter."""
+class TestHaikuFiles:
+    """Haiku is for mechanical, checklist, and reference tasks."""
 
-    MODIFIED_FILES = [
+    EXPECTED_HAIKU = [
         "commands/zie-status.md",
+        "commands/zie-backlog.md",
         "skills/spec-reviewer/SKILL.md",
         "skills/plan-reviewer/SKILL.md",
         "skills/impl-reviewer/SKILL.md",
-        "skills/spec-design/SKILL.md",
-        "skills/write-plan/SKILL.md",
-        "commands/zie-spec.md",
-        "commands/zie-plan.md",
-        "commands/zie-implement.md",
-        "commands/zie-fix.md",
-    ]
-
-    def test_all_modified_files_have_valid_frontmatter(self):
-        errors = []
-        for rel_path in self.MODIFIED_FILES:
-            try:
-                parse_frontmatter(rel_path)
-            except Exception as exc:
-                errors.append(f"{rel_path}: {exc}")
-        assert errors == [], "Frontmatter parse errors:\n" + "\n".join(errors)
-
-    def test_all_modified_files_have_effort_key(self):
-        errors = []
-        for rel_path in self.MODIFIED_FILES:
-            fm = parse_frontmatter(rel_path)
-            if "effort" not in fm:
-                errors.append(rel_path)
-        assert errors == [], f"Missing 'effort' key in: {errors}"
-
-    def test_effort_values_are_valid(self):
-        valid = {"low", "medium", "high"}
-        errors = []
-        for rel_path in self.MODIFIED_FILES:
-            fm = parse_frontmatter(rel_path)
-            val = fm.get("effort")
-            if val not in valid:
-                errors.append(f"{rel_path}: effort={val!r}")
-        assert errors == [], f"Invalid effort values: {errors}"
-
-    def test_model_values_are_valid_when_present(self):
-        valid = {"haiku", "sonnet"}
-        errors = []
-        for rel_path in self.MODIFIED_FILES:
-            fm = parse_frontmatter(rel_path)
-            val = fm.get("model")
-            if val is not None and val not in valid:
-                errors.append(f"{rel_path}: model={val!r}")
-        assert errors == [], f"Invalid model values: {errors}"
-
-
-class TestUnchangedSkillsHaveNoModelPin:
-    """Task 4 — regression guard: skills marked 'No change' must not gain model/effort keys."""
-
-    NO_CHANGE_SKILLS = [
-        "skills/tdd-loop/SKILL.md",
-        "skills/debug/SKILL.md",
-        "skills/retro-format/SKILL.md",
-        "skills/test-pyramid/SKILL.md",
         "skills/verify/SKILL.md",
+        "skills/tdd-loop/SKILL.md",
+        "skills/test-pyramid/SKILL.md",
+        "skills/retro-format/SKILL.md",
     ]
 
-    def test_no_change_skills_have_no_model_key(self):
-        for rel_path in self.NO_CHANGE_SKILLS:
-            path = REPO_ROOT / rel_path
-            if not path.exists():
-                continue  # skill may not have frontmatter at all — safe to skip
-            text = path.read_text()
-            match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
-            if not match:
-                continue  # no frontmatter block — fine
-            fm = yaml.safe_load(match.group(1)) or {}
-            assert "model" not in fm, (
-                f"{rel_path} must not have a model pin (out-of-scope per spec)"
-            )
+    def test_haiku_files_have_correct_model(self):
+        errors = []
+        for rel_path in self.EXPECTED_HAIKU:
+            fm = parse_frontmatter(rel_path)
+            if fm.get("model") != "haiku":
+                errors.append(f"{rel_path}: got model={fm.get('model')!r}")
+        assert errors == [], "Wrong model for haiku files:\n" + "\n".join(errors)
 
-    def test_no_change_skills_have_no_effort_key(self):
-        for rel_path in self.NO_CHANGE_SKILLS:
-            path = REPO_ROOT / rel_path
-            if not path.exists():
-                continue
-            text = path.read_text()
-            match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
-            if not match:
-                continue
-            fm = yaml.safe_load(match.group(1)) or {}
-            assert "effort" not in fm, (
-                f"{rel_path} must not have an effort key (out-of-scope per spec)"
-            )
+    def test_haiku_files_have_low_effort(self):
+        errors = []
+        for rel_path in self.EXPECTED_HAIKU:
+            fm = parse_frontmatter(rel_path)
+            if fm.get("effort") != "low":
+                errors.append(f"{rel_path}: got effort={fm.get('effort')!r}")
+        assert errors == [], "Wrong effort for haiku files:\n" + "\n".join(errors)

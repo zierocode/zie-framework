@@ -2,6 +2,7 @@
 description: Plan a backlog item — draft implementation plan, present for approval, move to Ready lane.
 argument-hint: "[slug...] — one or more backlog item slugs (e.g. zie-plan feature-x feature-y)"
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill, Agent, TaskCreate
+model: sonnet
 effort: high
 ---
 
