@@ -6,6 +6,7 @@
     "PreToolUse": "plain text BLOCKED/WARNING printed to stdout; exit(2) to block",
     "Stop": "no output required; side-effects only (file writes, API calls)",
     "PreCompact": "no output required; side-effects only (snapshot write)",
+    "SubagentStart": "JSON {\"additionalContext\": \"...\"} printed to stdout for Explore|Plan agents",
     "PostCompact": "JSON {\"hookSpecificOutput\": {\"additionalContext\": \"...\"}} printed to stdout"
   },
   "hooks": {
@@ -33,6 +34,17 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-context.py\""
+        }
+      ]
+    }
+  ],
+  "SubagentStart": [
+    {
+      "matcher": "Explore|Plan",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-context.py\""
         }
       ]
     }

@@ -15,6 +15,7 @@
 - [x] Reviewer skills → custom agents with persistent memory — [plan](plans/2026-03-24-reviewer-agents-memory.md)
 - [x] Skills frontmatter hardening — [plan](plans/2026-03-24-skills-frontmatter-hardening.md)
 - [x] SessionStart CLAUDE_ENV_FILE config injection — [plan](plans/2026-03-24-sessionstart-env-file.md)
+- [x] SubagentStart SDLC context injection — [plan](plans/2026-03-24-subagentstart-sdlc-context.md)
 
 ---
 
@@ -26,7 +27,6 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-- [ ] SubagentStart SDLC context injection — [plan](plans/2026-03-24-subagentstart-sdlc-context.md) ✓
 - [ ] PermissionRequest auto-approve safe SDLC operations — [plan](plans/2026-03-24-permission-request-auto-approve.md) ✓
 
 <!-- MEDIUM -->
