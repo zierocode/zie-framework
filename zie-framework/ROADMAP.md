@@ -21,6 +21,7 @@
 - [x] Stop hook uncommitted work guard — [plan](plans/2026-03-24-stop-uncommitted-guard.md)
 - [x] PreToolUse updatedInput path sanitization + rewriting — [plan](plans/2026-03-24-pretooluse-input-modification.md)
 - [x] PostToolUseFailure debugging context injection — [plan](plans/2026-03-24-posttoolusefailure-debug-context.md)
+- [x] Skills context:fork for isolated reviewer execution — [plan](plans/2026-03-24-skills-fork-context.md)
 
 ---
 
@@ -34,7 +35,6 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [ ] Skills context:fork for isolated reviewer execution — [plan](plans/2026-03-24-skills-fork-context.md) ✓
 - [ ] Skills !`cmd` bash injection for live context — [plan](plans/2026-03-24-skills-bash-injection.md) ✓
 - [ ] SubagentStop capture + resume subagent pattern — [plan](plans/2026-03-24-subagent-lifecycle-hooks.md) ✓
 - [ ] Plugin settings.json defaults + CLAUDE_PLUGIN_DATA storage — [plan](plans/2026-03-24-plugin-settings-defaults.md) ✓

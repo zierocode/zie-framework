@@ -2,6 +2,8 @@
 name: plan-reviewer
 description: Review an implementation plan for completeness, TDD structure, and task granularity. Returns APPROVED or Issues Found with specific feedback.
 user-invocable: false
+context: fork
+agent: Explore
 allowed-tools: Read, Grep, Glob
 ---
 

@@ -2,6 +2,8 @@
 name: spec-reviewer
 description: Review a design spec for completeness, clarity, and YAGNI. Returns APPROVED or Issues Found with specific feedback.
 user-invocable: false
+context: fork
+agent: Explore
 allowed-tools: Read, Grep, Glob
 ---
 

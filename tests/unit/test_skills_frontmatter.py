@@ -47,8 +47,8 @@ class TestReviewerSkillsFrontmatter:
 
     def test_impl_reviewer_allowed_tools(self):
         fm = read_frontmatter("impl-reviewer")
-        assert fm.get("allowed-tools") == "Read, Grep, Glob", \
-            "impl-reviewer must have allowed-tools: Read, Grep, Glob"
+        assert fm.get("allowed-tools") == "Read, Grep, Glob, Bash", \
+            "impl-reviewer must have allowed-tools: Read, Grep, Glob, Bash"
 
 
 class TestInternalProcessSkillsFrontmatter:
