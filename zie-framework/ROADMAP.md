@@ -34,6 +34,7 @@
 - [x] Skills context:fork for isolated reviewer execution — [plan](plans/2026-03-24-skills-fork-context.md)
 - [x] Skills !`cmd` bash injection for live context — [plan](plans/2026-03-24-skills-bash-injection.md)
 - [x] SubagentStop capture + resume subagent pattern — [plan](plans/2026-03-24-subagent-lifecycle-hooks.md)
+- [x] Session-wide agent mode (--agent integration) — [plan](plans/2026-03-24-session-agent-mode.md)
 
 ---
 
@@ -49,10 +50,6 @@
 <!-- MEDIUM -->
 
 <!-- LOW -->
-
-
-
-- [ ] Session-wide agent mode (--agent integration) — [plan](plans/2026-03-24-session-agent-mode.md) ✓
 
 ---
 

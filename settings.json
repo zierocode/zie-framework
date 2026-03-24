@@ -1,0 +1,9 @@
+{
+  "defaultAgent": "zie-implement-mode",
+  "note": "This file is a reference document, not machine-read by Claude Code for session config. It records the recommended agent for active development sessions.",
+  "invocation": {
+    "implement_mode": "claude --plugin-dir . --agent zie-framework:zie-implement-mode",
+    "audit_mode": "claude --plugin-dir . --agent zie-framework:zie-audit-mode",
+    "description": "Run from any host project directory. --plugin-dir must point to the zie-framework plugin root."
+  }
+}

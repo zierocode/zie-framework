@@ -212,3 +212,58 @@ class TestSafetyCheckPerformance:
         elapsed = time.time() - start
         assert r.returncode == 0
         assert elapsed < 0.5, f"Hook took {elapsed:.2f}s on empty command"
+
+
+class TestSafetyCheckModeDispatch:
+    def _make_config(self, tmp_path, mode: str):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir(exist_ok=True)
+        (zf / ".config").write_text(f"[zie-framework]\nsafety_check_mode = {mode}\n")
+        return tmp_path
+
+    def _run(self, tmp_path, command: str):
+        env = {**os.environ, "CLAUDE_CWD": str(tmp_path)}
+        return subprocess.run(
+            [sys.executable, os.path.join(REPO_ROOT, "hooks", "safety-check.py")],
+            input=json.dumps({"tool_name": "Bash", "tool_input": {"command": command}}),
+            capture_output=True, text=True, env=env,
+        )
+
+    def test_agent_mode_exits_0_on_blocked_command(self, tmp_path):
+        """In agent mode, safety-check.py must exit 0 (defers to agent hook)."""
+        cwd = self._make_config(tmp_path, "agent")
+        r = self._run(cwd, "rm -rf /")
+        assert r.returncode == 0, (
+            f"safety-check.py must exit 0 in agent mode, got {r.returncode}"
+        )
+
+    def test_both_mode_still_blocks_dangerous_command(self, tmp_path):
+        """In both mode, regex evaluation still runs and can block."""
+        cwd = self._make_config(tmp_path, "both")
+        r = self._run(cwd, "rm -rf /")
+        assert r.returncode == 2, (
+            f"safety-check.py must block (exit 2) in both mode for dangerous commands"
+        )
+
+    def test_both_mode_writes_ab_log(self, tmp_path):
+        """In both mode, an A/B record must be written after evaluation."""
+        import re
+        cwd = self._make_config(tmp_path, "both")
+        safe = re.sub(r"[^a-zA-Z0-9]", "-", tmp_path.name)
+        log_path = Path(f"/tmp/zie-{safe}-safety-ab")
+        log_path.unlink(missing_ok=True)
+        self._run(cwd, "echo hello")
+        assert log_path.exists(), f"A/B log not created at {log_path}"
+        record = json.loads(log_path.read_text().strip().splitlines()[-1])
+        assert record.get("agent") == "regex"
+        assert "command" in record and "ts" in record
+
+    def test_regex_mode_does_not_write_ab_log(self, tmp_path):
+        """In regex mode (default), no A/B log must be written."""
+        import re
+        cwd = self._make_config(tmp_path, "regex")
+        safe = re.sub(r"[^a-zA-Z0-9]", "-", tmp_path.name)
+        log_path = Path(f"/tmp/zie-{safe}-safety-ab")
+        log_path.unlink(missing_ok=True)
+        self._run(cwd, "echo hello")
+        assert not log_path.exists(), "A/B log must not be written in regex mode"

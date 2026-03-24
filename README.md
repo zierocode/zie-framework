@@ -140,6 +140,33 @@ claude mcp add zie-memory -- npx zie-memory
 
 Then set `zie_memory_enabled=true` in `zie-framework/.config`.
 
+## Agent Modes
+
+Start a fully configured session without per-operation approval prompts:
+
+| Agent | Mode | Tools | Invocation |
+| --- | --- | --- | --- |
+| `zie-implement-mode` | TDD-focused, full access | all | `claude --plugin-dir <path> --agent zie-framework:zie-implement-mode` |
+| `zie-audit-mode` | Read-only analysis | Read, Grep, Glob, WebSearch | `claude --plugin-dir <path> --agent zie-framework:zie-audit-mode` |
+
+**`zie-implement-mode`** — `permissionMode: acceptEdits`. File writes and shell
+commands run without confirmation. Session system prompt injects SDLC pipeline
+context, WIP=1 rule, and skill preload hints for `tdd-loop` and `test-pyramid`.
+
+**`zie-audit-mode`** — `permissionMode: plan`. Tool restriction hard-blocks any
+write or shell mutation at the Claude Code runtime layer. Findings are surfaced
+as backlog candidates; no changes are applied.
+
+Run from any host project directory where the plugin is available:
+
+```bash
+# Active development session — TDD mode, no confirmation prompts
+claude --plugin-dir /path/to/zie-framework --agent zie-framework:zie-implement-mode
+
+# Codebase audit — read-only, analysis focused
+claude --plugin-dir /path/to/zie-framework --agent zie-framework:zie-audit-mode
+```
+
 ## Troubleshooting
 
 | Symptom | Fix |

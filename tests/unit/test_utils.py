@@ -573,6 +573,57 @@ class TestReadEvent:
         assert exc.value.code == 0
 
 
+class TestLoadConfig:
+    def test_returns_dict_for_valid_config(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text("[zie-framework]\nsafety_check_mode = agent\n")
+        from utils import load_config
+        result = load_config(tmp_path)
+        assert result.get("safety_check_mode") == "agent"
+
+    def test_returns_empty_dict_when_no_config(self, tmp_path):
+        from utils import load_config
+        assert load_config(tmp_path) == {}
+
+    def test_ignores_comments_and_blanks(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text(
+            "# comment\n\n[section]\nkey = value\n"
+        )
+        from utils import load_config
+        assert load_config(tmp_path).get("key") == "value"
+
+    def test_returns_empty_on_parse_error(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text(":::\ninvalid::content\n")
+        from utils import load_config
+        # must not raise; may return {} or partial dict
+        result = load_config(tmp_path)
+        assert isinstance(result, dict)
+
+
+class TestConfigTemplate:
+    def test_template_contains_safety_check_mode(self):
+        template = Path(REPO_ROOT) / "templates" / ".config.template"
+        assert "safety_check_mode" in template.read_text(), (
+            "templates/.config.template must contain safety_check_mode key"
+        )
+
+    def test_template_default_is_regex(self):
+        template = Path(REPO_ROOT) / "templates" / ".config.template"
+        content = template.read_text()
+        # default must be "regex", not "agent" or "both"
+        for line in content.splitlines():
+            if "safety_check_mode" in line and "=" in line:
+                _, _, val = line.partition("=")
+                assert val.strip() == "regex", (
+                    f"safety_check_mode default must be 'regex', got '{val.strip()}'"
+                )
+
+
 class TestGetCwd:
     def test_returns_claude_cwd_when_set(self, monkeypatch, tmp_path):
         monkeypatch.setenv("CLAUDE_CWD", str(tmp_path))

@@ -62,6 +62,8 @@ invoke the corresponding skill.
 | `agents/spec-reviewer.md` | `isolation: worktree` | `spec-design` skill | Review spec from clean committed snapshot |
 | `agents/plan-reviewer.md` | `isolation: worktree` | `write-plan` skill | Review plan from clean committed snapshot |
 | `agents/impl-reviewer.md` | `background: true` | `/zie-implement` step 6 | Review task impl asynchronously; deferred-check on next iteration |
+| `agents/zie-implement-mode.md` | `permissionMode: acceptEdits`, `tools: all` | `--agent zie-framework:zie-implement-mode` | TDD session agent — SDLC context, WIP=1, tdd-loop + test-pyramid preload |
+| `agents/zie-audit-mode.md` | `permissionMode: plan`, `tools: [Read, Grep, Glob, WebSearch]` | `--agent zie-framework:zie-audit-mode` | Read-only analysis session; findings surfaced as backlog candidates |
 
 ### Field reference
 

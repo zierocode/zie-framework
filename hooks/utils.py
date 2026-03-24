@@ -153,6 +153,27 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
     urllib.request.urlopen(req, timeout=timeout)  # nosec B310 — URL validated as https:// by caller
 
 
+def load_config(cwd: Path) -> dict:
+    """Read zie-framework/.config and return a dict of key=value pairs.
+
+    Ignores section headers, blank lines, and comments (#). Returns {} on
+    any error (missing file, parse failure, permission denied, etc.).
+    """
+    config_path = cwd / "zie-framework" / ".config"
+    try:
+        result = {}
+        for line in config_path.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or line.startswith("["):
+                continue
+            if "=" in line:
+                key, _, val = line.partition("=")
+                result[key.strip()] = val.strip()
+        return result
+    except Exception:
+        return {}
+
+
 def read_event() -> dict:
     """Read and parse the hook event from stdin.
 
