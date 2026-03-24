@@ -4,7 +4,7 @@
     "UserPromptSubmit": "JSON {\"additionalContext\": \"...\"} printed to stdout",
     "PostToolUse": "plain text warnings/status printed to stdout",
     "PreToolUse": "plain text BLOCKED/WARNING printed to stdout; exit(2) to block",
-    "Stop": "no output required; side-effects only (file writes, API calls)",
+    "Stop": "JSON {\"decision\": \"block\", \"reason\": \"...\"} to stdout to re-invoke Claude; or no output for side-effect-only hooks",
     "PreCompact": "no output required; side-effects only (snapshot write)",
     "SubagentStart": "JSON {\"additionalContext\": \"...\"} printed to stdout for Explore|Plan agents",
     "PermissionRequest": "JSON {\"decision\": {\"behavior\": \"allow\", \"updatedPermissions\": {...}}} printed to stdout",
@@ -90,6 +90,10 @@
   "Stop": [
     {
       "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-guard.py\""
+        },
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-learn.py\""
