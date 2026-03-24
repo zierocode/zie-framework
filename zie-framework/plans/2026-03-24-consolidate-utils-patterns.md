@@ -1,5 +1,6 @@
 ---
-approved: false
+approved: true
+approved_at: 2026-03-24
 backlog: backlog/consolidate-utils-patterns.md
 spec: specs/2026-03-24-consolidate-utils-patterns-design.md
 ---
@@ -262,6 +263,7 @@ spec: specs/2026-03-24-consolidate-utils-patterns-design.md
 ---
 
 ## Task 3: Move BLOCKS/WARNS to utils + remove importlib workaround
+<!-- depends_on: Task 2 -->
 
 **Acceptance Criteria:**
 - `BLOCKS` and `WARNS` lists are defined in `utils.py`
@@ -545,8 +547,8 @@ spec: specs/2026-03-24-consolidate-utils-patterns-design.md
           """input-sanitizer.py must have a comment explaining why normalize_command is not used."""
           sanitizer = REPO_ROOT / "hooks" / "input-sanitizer.py"
           content = sanitizer.read_text()
-          assert "preserve case" in content.lower(), (
-              "input-sanitizer.py must have a 'preserve case' comment near the re.sub normalization"
+          assert "do not use normalize_command" in content.lower(), (
+              "input-sanitizer.py must have a 'do not use normalize_command' comment near the re.sub normalization"
           )
   ```
 

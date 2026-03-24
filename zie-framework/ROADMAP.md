@@ -20,12 +20,17 @@
 <!-- Order: Critical → High → Medium → Low -->
 
 <!-- CRITICAL -->
+- [ ] Fix coverage measurement infrastructure — [plan](plans/2026-03-24-fix-coverage-measurement.md) ✓
 - [ ] Security: shell injection in input-sanitizer.py — [plan](plans/2026-03-24-security-shell-injection.md) ✓
 
 <!-- HIGH -->
+- [ ] Security: /tmp hardening (permissions, TOCTOU, predictable names) — [plan](plans/2026-03-24-security-tmp-hardening.md) ✓
+- [ ] Security: path traversal fix (startswith → is_relative_to) — [plan](plans/2026-03-24-security-path-traversal.md) ✓
 - [ ] Add subprocess timeouts to all hooks — [plan](plans/2026-03-24-add-subprocess-timeouts.md) ✓
+- [ ] Test quality: fill edge case and error path gaps — [plan](plans/2026-03-24-test-quality-gaps.md) ✓
 
 <!-- MEDIUM -->
+- [ ] Consolidate duplicate patterns into utils.py — [plan](plans/2026-03-24-consolidate-utils-patterns.md) ✓
 - [ ] Docs: sync and completeness pass — [plan](plans/2026-03-24-docs-sync-and-completeness.md) ✓
 
 <!-- LOW -->
@@ -38,18 +43,7 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
-<!-- CRITICAL -->
-- [ ] Fix coverage measurement infrastructure — [backlog](backlog/fix-coverage-measurement.md)
-
-<!-- HIGH -->
-- [ ] Security: /tmp hardening (permissions, TOCTOU, predictable names) — [backlog](backlog/security-tmp-hardening.md)
-- [ ] Security: path traversal fix (startswith → is_relative_to) — [backlog](backlog/security-path-traversal.md)
-- [ ] Test quality: fill edge case and error path gaps — [backlog](backlog/test-quality-gaps.md)
-
-<!-- MEDIUM -->
-- [ ] Consolidate duplicate patterns into utils.py — [backlog](backlog/consolidate-utils-patterns.md)
-
-<!-- (All items from v1.7.0 sprint shipped — 2026-03-24) -->
+<!-- (All items approved and moved to Ready — 2026-03-24) -->
 
 ## Later — Someday / Maybe
 

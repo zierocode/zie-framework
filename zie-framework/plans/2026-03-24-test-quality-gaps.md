@@ -1,5 +1,6 @@
 ---
-approved: false
+approved: true
+approved_at: 2026-03-24
 spec: specs/2026-03-24-test-quality-gaps-design.md
 backlog: backlog/test-quality-gaps.md
 ---

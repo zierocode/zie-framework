@@ -1,6 +1,6 @@
 ---
-approved: false
-approved_at: null
+approved: true
+approved_at: 2026-03-24
 backlog: backlog/fix-coverage-measurement.md
 spec: specs/2026-03-24-fix-coverage-measurement-design.md
 ---
@@ -228,11 +228,11 @@ spec: specs/2026-03-24-fix-coverage-measurement-design.md
 
   # AFTER:
   test-unit: ## Fast unit tests with subprocess coverage measurement
-  	coverage erase
+  	python3 -m coverage erase
   	COVERAGE_PROCESS_START=$(CURDIR)/.coveragerc \
   	    python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
-  	coverage combine 2>/dev/null || true
-  	coverage report --show-missing --fail-under=50
+  	python3 -m coverage combine 2>/dev/null || true
+  	python3 -m coverage report --show-missing --fail-under=50
   ```
 
   Run: `make test-unit` — must PASS

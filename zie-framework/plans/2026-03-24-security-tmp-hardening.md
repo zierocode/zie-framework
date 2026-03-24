@@ -1,6 +1,6 @@
 ---
-approved: false
-approved_at:
+approved: true
+approved_at: 2026-03-24
 backlog: backlog/security-tmp-hardening.md
 spec: specs/2026-03-24-security-tmp-hardening-design.md
 ---
