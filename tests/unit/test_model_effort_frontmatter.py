@@ -16,8 +16,8 @@ EXPECTED = {
     # Commands
     "commands/zie-status.md":    ("haiku",  "low"),
     "commands/zie-backlog.md":   ("haiku",  "low"),
-    "commands/zie-spec.md":      ("sonnet", "high"),
-    "commands/zie-plan.md":      ("sonnet", "high"),
+    "commands/zie-spec.md":      ("sonnet", "medium"),
+    "commands/zie-plan.md":      ("sonnet", "medium"),
     "commands/zie-implement.md": ("sonnet", "medium"),
     "commands/zie-fix.md":       ("sonnet", "medium"),
     "commands/zie-release.md":   ("sonnet", "medium"),
@@ -31,12 +31,13 @@ EXPECTED = {
     "skills/debug/SKILL.md":         ("sonnet", "medium"),
     "skills/spec-reviewer/SKILL.md": ("haiku",  "low"),
     "skills/plan-reviewer/SKILL.md": ("haiku",  "low"),
-    "skills/impl-reviewer/SKILL.md": ("haiku",  "low"),
+    "skills/impl-reviewer/SKILL.md": ("sonnet", "medium"),
     "skills/verify/SKILL.md":        ("haiku",  "low"),
     "skills/tdd-loop/SKILL.md":      ("haiku",  "low"),
     "skills/test-pyramid/SKILL.md":  ("haiku",  "low"),
     "skills/retro-format/SKILL.md":  ("haiku",  "low"),
-    "skills/zie-audit/SKILL.md":     ("opus",   "high"),
+    "skills/zie-audit/SKILL.md":         ("opus",   "high"),
+    "skills/docs-sync-check/SKILL.md":  ("haiku",  "low"),
 }
 
 VALID_MODELS = {"haiku", "sonnet", "opus"}
@@ -61,6 +62,15 @@ class TestAllFilesHaveBothKeys:
             if "model" not in fm:
                 missing.append(rel_path)
         assert missing == [], f"Missing 'model' key in:\n" + "\n".join(missing)
+
+    def test_no_unofficial_type_field(self):
+        unofficial = []
+        for rel_path in EXPECTED:
+            fm = parse_frontmatter(rel_path)
+            if "type" in fm:
+                unofficial.append(rel_path)
+        assert unofficial == [], \
+            "Unofficial 'type' field found in:\n" + "\n".join(unofficial)
 
     def test_all_have_effort_key(self):
         missing = []
@@ -145,7 +155,6 @@ class TestHaikuFiles:
         "commands/zie-backlog.md",
         "skills/spec-reviewer/SKILL.md",
         "skills/plan-reviewer/SKILL.md",
-        "skills/impl-reviewer/SKILL.md",
         "skills/verify/SKILL.md",
         "skills/tdd-loop/SKILL.md",
         "skills/test-pyramid/SKILL.md",

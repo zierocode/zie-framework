@@ -3,7 +3,7 @@ description: Turn a backlog item into a written spec with Acceptance Criteria. S
 argument-hint: "[slug|\"idea\"] — backlog slug or inline idea string (e.g. zie-spec add-csv-export OR zie-spec \"add rate limiting\")"
 allowed-tools: Read, Write, Edit, Glob, Skill
 model: sonnet
-effort: high
+effort: medium
 ---
 
 # /zie-spec — Backlog → Spec

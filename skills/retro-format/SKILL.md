@@ -1,14 +1,31 @@
 ---
 name: retro-format
 description: Retrospective format and ADR structure for /zie-retro
-type: reference
 user-invocable: false
 argument-hint: ""
 model: haiku
 effort: low
+context: fork
 ---
 
 # Retro Format — zie-framework
+
+## Input
+
+`$ARGUMENTS` (optional compact JSON bundle from `/zie-retro`):
+
+```json
+{
+  "shipped": ["feat: foo", "fix: bar"],
+  "commits_since_tag": 5,
+  "pain_points": [],
+  "decisions": [],
+  "roadmap_done_tail": "- [x] Previous feature — v1.0.0 2026-01-01"
+}
+```
+
+If `$ARGUMENTS` is empty or unparseable: generate all sections using whatever
+context is available. All five retro sections must still be produced.
 
 ## โครงสร้าง Retrospective
 

@@ -3,7 +3,7 @@ description: Plan a backlog item — draft implementation plan, present for appr
 argument-hint: "[slug...] — one or more backlog item slugs (e.g. zie-plan feature-x feature-y)"
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill, Agent, TaskCreate
 model: sonnet
-effort: high
+effort: medium
 ---
 
 # /zie-plan — Spec → Draft Plan → Review → Approve → Ready

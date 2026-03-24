@@ -55,13 +55,13 @@ class TestAuditProgress:
 class TestReleaseProgress:
     def test_gate_1_counter_present(self):
         text = (COMMANDS_DIR / "zie-release.md").read_text()
-        assert "[Gate 1/7]" in text, \
-            "zie-release.md must contain [Gate 1/7] counter"
+        assert "[Gate 1/5]" in text, \
+            "zie-release.md must contain [Gate 1/5] counter"
 
     def test_gate_2_counter_present(self):
         text = (COMMANDS_DIR / "zie-release.md").read_text()
-        assert "[Gate 2/7]" in text, \
-            "zie-release.md must contain [Gate 2/7] counter"
+        assert "[Gate 2/5]" in text, \
+            "zie-release.md must contain [Gate 2/5] counter"
 
     def test_step_counter_present(self):
         text = (COMMANDS_DIR / "zie-release.md").read_text()
