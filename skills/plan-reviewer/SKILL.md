@@ -6,6 +6,8 @@ context: fork
 agent: Explore
 allowed-tools: Read, Grep, Glob
 argument-hint: ""
+model: haiku
+effort: low
 ---
 
 # plan-reviewer — Implementation Plan Review

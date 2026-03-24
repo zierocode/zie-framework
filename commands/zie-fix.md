@@ -2,6 +2,7 @@
 description: Debug path — skip ideation, go straight to systematic bug investigation and fix.
 argument-hint: Optional bug description or error message
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
+effort: medium
 ---
 
 # /zie-fix — Bug Fix Path

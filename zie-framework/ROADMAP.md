@@ -52,7 +52,7 @@
 - [x] Plugin .mcp.json bundle zie-memory server — [plan](plans/2026-03-24-plugin-mcp-bundle.md) ✓
 - [x] Notification hook permission dialog intercept — [plan](plans/2026-03-24-notification-hook-intercept.md) ✓
 - [ ] Session-wide agent mode (--agent integration) — [plan](plans/2026-03-24-session-agent-mode.md) ✓
-- [ ] model:haiku + effort:low for fast skills — [plan](plans/2026-03-24-model-haiku-fast-skills.md) ✓
+- [x] model:haiku + effort:low for fast skills — [plan](plans/2026-03-24-model-haiku-fast-skills.md) ✓
 
 ---
 

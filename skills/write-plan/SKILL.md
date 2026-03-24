@@ -4,6 +4,7 @@ description: Write a detailed implementation plan from an approved spec. Saves t
 argument-hint: "<slug> [--no-memory]"
 metadata:
   zie_memory_enabled: true
+model: sonnet
 effort: high
 ---
 

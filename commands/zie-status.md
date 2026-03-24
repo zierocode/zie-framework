@@ -1,6 +1,8 @@
 ---
 description: Show current SDLC state — active feature, ROADMAP summary, test health, and next suggested command.
 allowed-tools: Read, Bash, Glob
+model: haiku
+effort: low
 ---
 
 # /zie-status — Show current SDLC state
