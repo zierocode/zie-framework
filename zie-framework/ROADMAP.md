@@ -6,7 +6,7 @@
 - [x] Consolidate duplicate patterns into utils.py — [plan](plans/2026-03-24-consolidate-utils-patterns.md)
 - [x] Docs sync and completeness — [plan](plans/2026-03-24-docs-sync-and-completeness.md)
 - [x] Architecture cleanup — [plan](plans/2026-03-24-architecture-cleanup.md)
-- [ ] Standards compliance — [plan](plans/2026-03-24-standards-compliance.md)
+- [x] Standards compliance — [plan](plans/2026-03-24-standards-compliance.md)
 
 ---
 

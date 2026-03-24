@@ -10,7 +10,7 @@ import sys
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, project_tmp_path, read_event, safe_write_tmp
+from utils import get_cwd, project_tmp_path, read_event, safe_project_name, safe_write_tmp
 
 # --- Outer guard: parse event; any failure exits 0 silently ---
 try:
@@ -62,7 +62,7 @@ def _append_and_write(log_path, message):
 # --- Inner operations: file I/O; errors are logged, hook still exits 0 ---
 try:
     message = event.get("message", "")
-    project = get_cwd().name
+    project = safe_project_name(get_cwd().name)
 
     if notification_type == "permission_prompt":
         log_path = project_tmp_path("permission-log", project)
