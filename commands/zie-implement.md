@@ -10,6 +10,17 @@ plan from ROADMAP.md and guides through RED → GREEN → REFACTOR per task.
 
 ## ตรวจสอบก่อนเริ่ม
 
+**Live context (injected at command load):**
+
+Recent commits:
+!`git log -5 --oneline`
+
+Working tree:
+!`git status --short`
+
+Knowledge hash:
+!`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now 2>/dev/null || echo "knowledge-hash: unavailable"`
+
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
 
 2. **ตรวจสอบ: งานที่ค้างอยู่** — อ่าน `zie-framework/ROADMAP.md` → ตรวจ Now

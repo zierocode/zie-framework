@@ -11,13 +11,19 @@ brain.
 
 ## ตรวจสอบก่อนเริ่ม
 
+**Live context (injected at command load):**
+
+Commits since last tag:
+!`git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline`
+
+Recent activity window:
+!`git log -20 --oneline`
+
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
 2. Read `zie-framework/.config` → project, zie_memory_enabled.
 3. Read `zie-framework/ROADMAP.md` → current state.
-4. Get git context:
-   - `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list
-     --max-parents=0 HEAD)..HEAD --oneline` → changes since last tag
-   - `git log -20 --oneline` → recent activity
+4. Git context is available in the injected snapshots above ("Commits since last
+   tag" and "Recent activity window"). No additional Bash call needed.
 
 ## Steps
 

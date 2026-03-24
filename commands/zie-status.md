@@ -10,6 +10,14 @@ needed — just read files and print.
 
 ## Steps
 
+**Live context (injected at command load):**
+
+ROADMAP snapshot (first 30 lines):
+!`cat zie-framework/ROADMAP.md | head -30`
+
+Knowledge hash:
+!`python3 hooks/knowledge-hash.py 2>/dev/null || echo "knowledge-hash: unavailable"`
+
 1. **Check initialization**: if `zie-framework/` does not exist → print "Not
    initialized. Run /zie-init first." and stop.
 
