@@ -12,6 +12,7 @@
 
 - [x] type:"agent" hooks for smart safety validation — [plan](plans/2026-03-24-agent-type-hooks.md)
 - [x] Skills advanced features ($ARGUMENTS[N], session vars, supporting files) — [plan](plans/2026-03-24-skills-advanced-features.md)
+- [x] StopFailure API error logging — [plan](plans/2026-03-24-stopfailure-logging.md)
 - [x] TaskCompleted quality gate hook — [plan](plans/2026-03-24-taskcompleted-validation.md)
 - [x] Plugin settings.json defaults + CLAUDE_PLUGIN_DATA storage — [plan](plans/2026-03-24-plugin-settings-defaults.md)
 - [x] PreCompact/PostCompact WIP preservation — [plan](plans/2026-03-24-prepostcompact-wip-preservation.md)
@@ -43,7 +44,7 @@
 <!-- MEDIUM -->
 
 <!-- LOW -->
-- [ ] StopFailure API error logging — [plan](plans/2026-03-24-stopfailure-logging.md) ✓
+
 - [ ] ConfigChange CLAUDE.md drift detection — [plan](plans/2026-03-24-configchange-drift-detection.md) ✓
 - [ ] Agent isolation:worktree + background:true parallel review — [plan](plans/2026-03-24-agent-worktree-isolation.md) ✓
 - [ ] Plugin .mcp.json bundle zie-memory server — [plan](plans/2026-03-24-plugin-mcp-bundle.md) ✓

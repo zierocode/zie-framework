@@ -171,6 +171,16 @@
         }
       ]
     }
+  ],
+  "StopFailure": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stopfailure-log.py\""
+        }
+      ]
+    }
   ]
   }
 }
