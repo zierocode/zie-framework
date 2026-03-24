@@ -1,5 +1,50 @@
 # Changelog
 
+## v1.7.0 — 2026-03-24
+
+### Features
+
+- **Pipeline speed**: implement loop now inlines guidance and parallelizes
+  independent tasks by default — no more per-task skill round-trips
+- **Lazy plan loading**: task detail is read only when that task starts,
+  cutting context overhead for large plans
+- **Terse reviewer output**: approved results in 1 line; issue reports use
+  bullets only — no narrative prose
+- **Reviewer shared context**: ADRs + context.md loaded once per session,
+  not re-read per review pass
+- **Reviewer fail-fast**: all issues surfaced in a single pass (max 2 iterations)
+- **Risk-based impl-reviewer**: low-risk tasks skip the reviewer gate entirely
+- **spec-design fast path**: complete backlog items skip clarifying questions
+- **spec-design batch approval**: all spec sections written at once, single review
+- **verify scoped mode**: `scope=tests-only` for bug-fix path skips full lint
+- **Skill content pruning**: tutorial prose and examples removed from all 10 skills
+- **Velocity tracking**: `/zie-status` now shows release throughput from git tags
+- **Retro → next loop**: retrospective surfaces top backlog candidate to act on next
+- **Retro living docs sync**: retro systematically diffs and updates CLAUDE.md + README.md
+- **Session-resume compression**: hook output compressed from 20+ lines to 4 lines
+- **Audit hard data**: Phase 1 now collects pytest coverage, radon complexity,
+  and pip audit CVE counts before research begins
+- **Audit historical diff**: each audit diffs scores against the previous run
+- **Audit parallel research**: all Phase 3 WebSearch queries dispatched in a
+  single parallel batch instead of a sequential loop
+- **Audit auto-fix offer**: low/medium findings trigger a scoped `/zie-fix` offer
+- **GitHub Actions CI**: pytest runs automatically on push/PR to main and dev
+- **pre-commit markdownlint gate**: `markdownlint-cli2` runs on every commit
+- **`make bump`**: atomically bumps VERSION + plugin.json with semver validation
+- **Version consistency gate**: `/zie-release` blocks if VERSION and plugin.json
+  are out of sync before any tests run
+- **63 integration tests**: every hook script tested as a subprocess with a
+  realistic Claude Code event payload on stdin
+
+### Fixed
+
+- Hook tests were inheriting session-injected env vars (`ZIE_AUTO_TEST_DEBOUNCE_MS`,
+  `ZIE_MEMORY_ENABLED`, `ZIE_TEST_RUNNER`) from the outer Claude Code process,
+  causing 9 pre-existing test failures — all test `run_hook()` helpers now
+  clear these vars so hooks read from config
+- `auto-test.py` debounce guard now correctly treats `debounce_ms=0` as
+  "no debounce" (was susceptible to filesystem clock rounding on APFS)
+
 ## v1.6.0 — 2026-03-24
 
 ### Features

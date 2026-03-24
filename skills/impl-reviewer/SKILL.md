@@ -24,6 +24,12 @@ Caller must provide:
 
 ## Phase 1 — Load Context Bundle
 
+**if context_bundle provided by caller** — use it for shared context:
+- `adrs_content` ← `context_bundle.adrs` (skip step 2 below)
+- `context_content` ← `context_bundle.context` (skip step 3 below)
+
+**If `context_bundle` absent** — read from disk as fallback (backward-compatible):
+
 Before reviewing, load the following context (skip gracefully if missing —
 never block review):
 
@@ -68,8 +74,6 @@ If all checks pass:
 
 ```text
 ✅ APPROVED
-
-Implementation satisfies AC. Tests present and passing.
 ```
 
 If issues found:
@@ -87,4 +91,5 @@ Fix these, re-run make test-unit, and re-invoke impl-reviewer.
 
 - Be specific about file and line when flagging issues
 - Don't nitpick style unless it causes real confusion
-- Max 3 review iterations before surfacing to human
+- Return ALL issues found in this single response — do not stop at the first issue.
+- Max 2 total iterations: initial scan (all issues at once) + confirm pass. If 0 issues → APPROVED immediately, no confirm pass needed.

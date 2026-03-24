@@ -42,8 +42,10 @@ zie-framework/              # self-managed SDLC state (this repo uses itself)
 ## Development Commands
 
 ```bash
-make test-unit   # run unit tests (pytest)
-make test        # full test suite
+make test-unit   # run unit tests (pytest, excludes integration)
+make test-int    # run integration tests (subprocess hook events)
+make test        # full test suite (unit + integration + md lint)
+make bump NEW=x.y.z  # atomically bump VERSION + plugin.json
 make push m="msg"  # commit + push to dev
 ```
 

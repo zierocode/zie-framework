@@ -19,7 +19,7 @@ All updates require user confirmation before writing.
 
 ## Steps
 
-1. Print: "Rescanning codebase..."
+1. Print: "Exploring codebase..."
 
 2. Invoke `Agent(subagent_type=Explore)`:
    - **Before scanning code**: read existing project docs as primary
@@ -34,6 +34,8 @@ All updates require user confirmation before writing.
    - Exclude: `node_modules/`, `.git/`, `build/`, `dist/`, `.next/`,
      `__pycache__/`, `coverage/`, `zie-framework/`
      (`*.pyc` is covered by `__pycache__/` exclusion)
+
+   Print: "✓ Explored. Building knowledge drafts..."
 
 3. Read Agent report and draft updated versions of all four knowledge files:
    - `zie-framework/PROJECT.md`

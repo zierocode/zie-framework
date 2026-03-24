@@ -31,3 +31,16 @@ with MD013 line length = 120 (relaxed from default 80).
 - `git add -A` on mixed repos requires selective staging to avoid legacy files
 - `make lint-md` target added for manual full-repo lint runs
 - Teams adopting zie-framework get the hook automatically via `/zie-init`
+
+## Amendment — 2026-03-24
+
+`markdownlint-cli@0.48.0` (used by the `.githooks/pre-commit` approach) has an
+argument-parsing regression that fails with absolute paths. The `.githooks`
+approach has also been superseded by the `pre-commit` framework
+(`.pre-commit-config.yaml`), which is more portable and standard.
+
+**New approach:** `.pre-commit-config.yaml` with `markdownlint-cli2@v0.13.0`
+(repo: `https://github.com/DavidAnson/markdownlint-cli2`). This version has no
+known equivalent breakage and correctly catches violations. The `pre-commit`
+framework must be installed (`pip install pre-commit`) and the hook must be
+activated (`pre-commit install`) after cloning.

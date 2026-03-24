@@ -111,7 +111,7 @@ if __name__ == "__main__":
     else:
         debounce_ms = config.get("auto_test_debounce_ms", 3000)
     debounce_file = project_tmp_path("last-test", cwd.name)
-    if debounce_file.exists():
+    if debounce_ms > 0 and debounce_file.exists():
         last_run = debounce_file.stat().st_mtime
         if (time.time() - last_run) < (debounce_ms / 1000):
             sys.exit(0)

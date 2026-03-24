@@ -24,8 +24,12 @@ Knowledge hash:
    initialized. Run /zie-init first." and stop.
 
 2. **Read files**: `zie-framework/.config` (including `knowledge_hash`,
-   `knowledge_synced_at`), `zie-framework/ROADMAP.md`,
-   `VERSION`, specs/plans dirs เพื่อ context
+   `knowledge_synced_at`), `VERSION`, specs/plans dirs เพื่อ context.
+   For ROADMAP.md — use targeted reads only:
+   - **Now section**: Grep `## Now` → Read from that line to next `---` separator.
+   - **Next count**: Grep `- [` lines between `## Next` and next `---` → count only.
+   - **Done count**: Grep `- [` lines between `## Done` and next `---` → count only.
+   Do not load full Next or Done section content.
 
 3. **Find active plan**: most recent file in `zie-framework/plans/` where
    ROADMAP.md "Now" section is not empty.
@@ -56,7 +60,21 @@ Knowledge hash:
    - Check `node_modules/.vitest/` or `.jest-cache/` last-run timestamp
    - If no cache dir → `? stale`
 
-6. **พิมพ์สถานะ** โดยใช้ markdown format:
+6. **Compute release velocity** via Bash:
+
+   ```bash
+   git tag --sort=-version:refname | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' | head -6
+   ```
+
+   - Collect the last 6 semver tags (to compute 5 intervals)
+   - For each consecutive pair, compute `days = (date(tag[n]) - date(tag[n+1])).days`
+     using `git log -1 --format=%ai <tag>`
+   - If fewer than 2 semver tags found → set velocity string to
+     `"Velocity: not enough releases yet"`
+   - Otherwise → format as `"Velocity (last N): Xd, Yd, Zd, ..."` where N is the
+     number of intervals computed (up to 5)
+
+7. **พิมพ์สถานะ** โดยใช้ markdown format:
 
    ## สถานะ zie-framework
 
@@ -64,6 +82,7 @@ Knowledge hash:
    | --- | --- |
    | โปรเจกต์ | \<directory name> (\<project_type>) |
    | Version | \<VERSION> |
+   | Velocity | \<velocity string> |
    | Brain | \<enabled\|disabled> |
    | Knowledge | \<✓ synced (date) \| ⚠ drift: /zie-resync \| ? no baseline> |
 
@@ -83,7 +102,7 @@ Knowledge hash:
 
    **ขั้นตอนถัดไป**: \<context-appropriate suggestion>
 
-7. **ตรรกะขั้นตอนถัดไป** (เลือกที่เกี่ยวข้องที่สุด):
+8. **ตรรกะขั้นตอนถัดไป** (เลือกที่เกี่ยวข้องที่สุด):
    - Nothing in ROADMAP Now → "Start a feature: /zie-backlog"
    - Active plan exists, tasks incomplete → "Continue: /zie-implement"
    - Tests stale or failing → "Fix tests: /zie-fix"

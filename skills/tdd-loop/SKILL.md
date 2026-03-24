@@ -54,11 +54,6 @@ skill — follow exactly.
   REFACTOR.
 - One failing test at a time. Don't write 5 failing tests before going GREEN.
 
-## Cycle Time Target
-
-Each RED→GREEN→REFACTOR cycle should take < 15 minutes.
-If stuck > 15 minutes on GREEN → stop, invoke systematic-debugging skill.
-
 ## Test Quality Checklist
 
 - [ ] Test name describes expected behavior, not implementation

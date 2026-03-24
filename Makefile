@@ -13,7 +13,7 @@ test-unit: ## Fast unit tests (run constantly during /zie-build)
 test-int: ## Integration tests (hook event simulation)
 	python3 -m pytest tests/ -v -m "integration" --tb=short
 
-test: test-unit lint-md ## Full test suite (unit + integration + md lint)
+test: test-unit test-int lint-md ## Full test suite (unit + integration + md lint)
 
 # ── Git workflow ──────────────────────────────────────────────────────────────
 push: ## Commit + push to dev branch (usage: make push m="commit message")
@@ -25,6 +25,16 @@ ship: ## Full release gate — use /zie-ship instead
 	@echo "All tests passed. Run /zie-ship for the full release gate."
 
 # ── Release ───────────────────────────────────────────────────────────────────
+bump: ## Atomically bump VERSION + plugin.json (usage: make bump NEW=1.2.3)
+ifndef NEW
+	$(error NEW is required — usage: make bump NEW=1.2.3)
+endif
+	@echo "$(NEW)" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$$' || \
+		(echo "ERROR: NEW must be a semver string (e.g. 1.2.3), got: $(NEW)" && exit 1)
+	@printf '%s\n' "$(NEW)" > VERSION
+	@sed -i '' 's/"version": "[^"]*"/"version": "$(NEW)"/' .claude-plugin/plugin.json
+	@echo "Bumped to v$(NEW)"
+
 release: ## Publish release (usage: make release NEW=1.2.3)
 ifndef NEW
 	$(error NEW is required — usage: make release NEW=1.2.3)
@@ -65,7 +75,7 @@ lint: lint-bandit ## Lint Python hooks (syntax + SAST)
 	python3 -m py_compile hooks/*.py && echo "All hooks compile OK"
 
 lint-bandit: ## Run Bandit SAST on hooks/ (medium severity + confidence)
-	python3 -m bandit -r hooks/ -ll -q
+	python3 -m bandit -r hooks/ -ll -q -c .bandit
 
 lint-md: ## Lint all Markdown files (markdownlint, no exceptions)
 	npx markdownlint-cli "**/*.md" --ignore node_modules

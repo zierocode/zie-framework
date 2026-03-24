@@ -40,7 +40,8 @@ Knowledge hash:
    - If Next is also empty during fallback → print "No backlog items.
      Run /zie-backlog to start a new feature, or
      /zie-spec to write a quick spec inline." and STOP.
-   - Read plan file → check frontmatter for `approved: true`.
+   - Read plan header only: everything up to (not including) the first `### Task` heading
+     — check frontmatter for `approved: true`.
    - If `approved: true` absent → treat as unapproved → trigger auto-fallback
      above.
 
@@ -77,39 +78,109 @@ Knowledge hash:
 
 Before starting tasks:
 
-- Parse all tasks in plan for `<!-- depends_on: T1, T2 -->` comments
-- Group tasks with no depends_on → **independent** (can run in parallel)
-- Tasks with depends_on → **dependent** (run after blocking tasks complete)
-- Spawn min(independent_count, 4) parallel agents for independent tasks
-- If 0 independent tasks → execute all sequentially in dependency order
+**Default: parallel.** Tasks with no `depends_on` annotation run in parallel.
+Tasks annotated with `<!-- depends_on: T1, T2 -->` run sequentially after all
+listed dependencies complete.
+
+- Parse all tasks in plan for `<!-- depends_on: TN -->` comments
+- Tasks without `depends_on` → **parallel** (default path) — spawn up to 4 concurrent agents
+- Tasks with `depends_on` → **sequential** — start only after each listed task ID is complete
+- If all tasks have `depends_on` chains → execute in full dependency order (no parallelism)
+
+## โหลด context bundle (ครั้งเดียวต่อ session)
+
+<!-- context-load: adrs + project context -->
+
+Before entering the task loop, load shared context once:
+
+1. Read all `zie-framework/decisions/*.md` → store as `adrs_content`
+   (list of `{filename, content}` pairs; empty list if directory missing)
+2. Read `zie-framework/project/context.md` → store as `context_content`
+   (string; empty string if file missing)
+3. Bundle as `context_bundle = { adrs: adrs_content, context: context_content }`
+
+Pass `context_bundle` to every impl-reviewer invocation in the task loop.
+
+### TDD Guidance (printed once at session start)
+
+Print this block before starting the task loop — do not repeat per task:
+
+```text
+TDD Cycle — RED → GREEN → REFACTOR
+- RED:     Write a failing test that captures the desired behavior. Run make test-unit to confirm it fails.
+- GREEN:   Write the minimum code to make the test pass. No speculation, no extras. Run make test-unit.
+- REFACTOR: Clean up — remove duplication, clarify names, simplify logic. Run make test-unit to confirm still passing.
+
+Test level selection:
+- unit        — isolated logic, pure functions, single-module behavior
+- integration — cross-module, file I/O, database, external config
+- e2e         — full UI flows, browser interactions, end-to-end user journeys
+
+If tdd: deep is set in the plan frontmatter, invoke Skill(zie-framework:tdd-loop) for each task instead of using this summary.
+```
 
 ## Steps
 
 ### วนรอบ task จนครบ
 
-1. **Announce task**: "Working on: [Task N] — {task description}"
+0. **Read task section**: Read this task's full section from the plan file (from its `### Task N` heading to the next `### Task` heading or EOF). This is the only time this task's detail enters context.
 
-2. Invoke `Skill(zie-framework:tdd-loop)` for RED/GREEN/REFACTOR guidance.
-   Skip only for pure documentation tasks (no code changes).
+1. **Announce task**: Print `[T{N}/{total}] {task description}` — where N is
+   the 1-based task index and total is the count of tasks in the plan.
 
-3. **เขียน test ที่ล้มเหลวก่อน (RED)**
-   Invoke `Skill(zie-framework:test-pyramid)` เพื่อเลือก test level (unit /
-   integration / e2e) ที่เหมาะสม แล้วเขียน test ที่ capture behavior ที่ต้องการ
+2. **เขียน test ที่ล้มเหลวก่อน (RED)**
+   Print: `→ RED`
+   เลือก test level จาก inline guidance ด้านบน (unit / integration / e2e)
+   แล้วเขียน test ที่ capture behavior ที่ต้องการ
    — test ต้อง fail ก่อนเสมอ รัน `make test-unit` เพื่อยืนยัน
    ถ้า test ผ่านแล้ว → feature มีอยู่แล้ว ข้ามไป task ถัดไป
+   If the plan frontmatter has `tdd: deep` → invoke `Skill(zie-framework:tdd-loop)` for this task instead.
 
-4. **เขียน code ให้ผ่าน test (GREEN)**
+3. **เขียน code ให้ผ่าน test (GREEN)**
+   Print: `→ GREEN`
    เขียน code น้อยที่สุดที่ทำให้ test ผ่าน — ไม่ over-engineer ไม่เดาล่วงหน้า
    รัน `make test-unit` เพื่อยืนยัน
 
-5. **ปรับปรุง code โดยไม่ทำให้ test พัง (REFACTOR)**
+4. **ปรับปรุง code โดยไม่ทำให้ test พัง (REFACTOR)**
+   Print: `→ REFACTOR`
    ลด duplication ปรับชื่อให้ชัด ทำให้ง่ายขึ้น — รัน `make test-unit`
    เพื่อยืนยัน
 
-6. **Spawn async impl-reviewer**:
+5. **Risk Classification** — Classify this task immediately after REFACTOR
+   completes, before deciding whether to invoke the reviewer.
+
+   **Signals → HIGH** (invoke reviewer):
+   - Task description contains: new function/class, changed behavior,
+     external API call, auth, file I/O, subprocess
+   - Files changed include non-test production code (i.e., not solely
+     `tests/` or `test_*.py` files)
+   - Task description or plan task header contains `<!-- review: required -->`
+     (forces HIGH regardless of other signals)
+
+   **Signals → LOW** (skip reviewer):
+   - Task is add/edit test only (all changed files are under `tests/` or
+     match `test_*.py`)
+   - Task is docs/config change only (changed files are `.md`, `.json`,
+     `.toml`, `.yaml`, `.cfg`, `.ini`, or similar non-code files)
+   - Task is rename/reformat only (no behavioral change — variable rename,
+     formatting fix, import reorder)
+   - Task is minor addition (new field in existing dict/list, extend existing
+     list constant, update string constant — no new function/class)
+
+   Set `risk_level = HIGH` or `risk_level = LOW` based on the above. When
+   signals are mixed (e.g., test added alongside a new function), default to
+   HIGH.
+
+   **If `risk_level == LOW`:**
+   - Run `make test-unit` to confirm tests still pass.
+   - Print: `[risk: LOW] Skipping impl-reviewer — make test-unit passed.`
+   - Proceed to Step 7 (task complete bookkeeping).
+
+6. **Spawn async impl-reviewer** (HIGH risk only):
+   - Skip this step entirely if `risk_level == LOW`.
    - Invoke `@agent-impl-reviewer` (background: true):
      pass task description, **Acceptance Criteria** from plan task header,
-     and list of files changed in this task.
+     list of files changed in this task, and `context_bundle`.
    - Record returned handle in the pending-reviewers list:
      `{ task_id: <N>, reviewer_handle: <handle>, reviewer_status: pending }`
    - Do NOT block — proceed immediately to announce the next task.
@@ -118,14 +189,23 @@ Before starting tasks:
      - `reviewer_status: pending` — still running; continue current task,
        check again at the next iteration.
      - `reviewer_status: approved` — clear entry from list; no action needed.
-     - `reviewer_status: issues_found` — halt current task; surface reviewer
-       feedback to human; apply fixes; re-run `make test-unit`; re-invoke
-       `@agent-impl-reviewer` synchronously (blocking).
-       Max 3 total iterations — background spawn counts as iteration 1.
-       On APPROVED: clear entry from list; resume current task.
+     - `reviewer_status: issues_found` — HIGH risk path: halt current task;
+       surface reviewer feedback to human; apply ALL fixes listed; re-run
+       `make test-unit`; re-invoke `@agent-impl-reviewer` synchronously as a
+       confirm pass (blocking).
+       Max 2 total iterations: background spawn = pass 1 (initial scan),
+       synchronous re-invoke = pass 2 (confirm pass).
+       If confirm pass returns ❌ Issues Found → surface to Zie: "Reviewer
+       found persistent issues after fix pass. Review manually."
+       If 0 issues on initial (background) pass → APPROVED immediately,
+       no confirm pass needed.
+       On APPROVED at any pass: clear entry from list; resume current task.
 
 7. **บันทึก task เสร็จ**: Update `TaskUpdate` → completed. Update plan file:
    mark task as `[x]`. Update ROADMAP.md task counter if tracking.
+   Print: `✓ done — {remaining} remaining`
+   Checkpoint (every 3 tasks or at halfway): Print:
+   `Checkpoint [{N}/{total}]: completed: {done_list} | remaining: {remaining_list}`
    If task had unexpected friction: Call
    `mcp__plugin_zie-memory_zie-memory__remember` with
    `"Task harder than estimated: <why>. Next time: <tip>." tags=[build-learning, <project>, <domain>]`
@@ -147,6 +227,8 @@ Before starting tasks:
      and stop. Do not commit until all reviewers have returned or Zie explicitly
      acknowledges the outstanding review.
    - Apply the same `issues_found` fix-iterate loop as step 6 above.
+   - Note: LOW-risk tasks never add to the pending-reviewers list, so this
+     wait step is a no-op for plans composed entirely of LOW-risk tasks.
 
 1. Run full test suite: `make test-unit` (required) + `make test-int` (if
    available).

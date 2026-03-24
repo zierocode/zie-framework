@@ -1,0 +1,5 @@
+{
+  "event": "ConfigChange",
+  "config_key": "model",
+  "new_value": "claude-opus-4-6"
+}

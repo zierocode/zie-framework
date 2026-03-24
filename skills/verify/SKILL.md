@@ -3,15 +3,41 @@ name: verify
 description: Pre-ship verification checklist — tests, lint, no regressions, no TODOs left open.
 metadata:
   zie_memory_enabled: true
-argument-hint: ""
+argument-hint: "scope=full|tests-only (default: full)"
 model: haiku
 effort: low
 ---
 
 # verify — Pre-Ship Verification
 
-Run this before claiming work is complete or opening a PR. Catch problems before
-they reach main.
+## Parameters
+
+| Parameter | Values | Default | Description |
+| --- | --- | --- | --- |
+| `scope` | `full`, `tests-only` | `full` | Controls which checks run. `tests-only` runs checks 1, 2, and secrets scan from 4 only — skips TODOs (3), full code review (4), and docs sync (5). |
+
+## Scope: tests-only
+
+When called with `scope=tests-only`, run only:
+
+1. **Check 1** — ตรวจ Tests (full, as below)
+2. **Check 2** — ไม่มี regressions (full, as below)
+3. **Check 4 — secrets scan only:** Are secrets or credentials in the code? → STOP, remove immediately. Skip all other check 4 items.
+
+Skip check 3 (TODOs), skip the remainder of check 4 (design match, simplifications), and skip check 5 (docs sync entirely).
+
+Print a scoped verification summary:
+
+```text
+Verification complete (scope: tests-only):
+
+Tests   : unit ✓ | integration ✓|n/a | e2e ✓|n/a
+Secrets : none detected
+
+Scope was tests-only — docs sync and full code review skipped.
+```
+
+When called with `scope=full` or with no scope argument → run all 5 checks as documented below.
 
 ## รายการตรวจสอบ
 

@@ -29,7 +29,7 @@ try:
 
     log_path = project_tmp_path("failure-log", safe_project_name(cwd.name))
     try:
-        with open(log_path, "a") as f:  # nosec B108 — project-scoped /tmp path
+        with open(log_path, "a") as f:
             f.write(log_entry)
     except Exception as e:
         print(f"[zie-framework] stopfailure-log: {e}", file=sys.stderr)

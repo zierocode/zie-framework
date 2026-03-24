@@ -1,0 +1,8 @@
+{
+  "event": "PreToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "hooks/test_output.py",
+    "content": "# placeholder"
+  }
+}

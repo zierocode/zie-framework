@@ -1,0 +1,10 @@
+{
+  "event": "PostToolUse",
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "/tmp/zie-integration-test-dummy.py"
+  },
+  "tool_response": {
+    "result": "ok"
+  }
+}

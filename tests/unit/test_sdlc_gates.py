@@ -181,26 +181,24 @@ class TestZieBacklogFirst:
 
 
 class TestZieImplementTestPyramid:
-    def test_build_invokes_test_pyramid_skill(self):
+    def test_build_has_inline_test_guidance(self):
         content = read("commands/zie-implement.md")
-        assert "test-pyramid" in content, \
-            "/zie-implement step 8 must invoke Skill(zie-framework:test-pyramid)"
+        assert "Test level selection" in content, \
+            "/zie-implement must contain inline Test level selection guidance"
 
-    def test_build_pyramid_skill_uses_correct_namespace(self):
+    def test_build_tdd_loop_skill_for_deep(self):
         content = read("commands/zie-implement.md")
-        assert "zie-framework:test-pyramid" in content, \
-            "/zie-implement must reference the skill with full namespace zie-framework:test-pyramid"
+        assert "zie-framework:tdd-loop" in content, \
+            "/zie-implement must reference zie-framework:tdd-loop for tdd: deep path"
 
-    def test_build_pyramid_invocation_is_in_red_phase(self):
+    def test_build_guidance_printed_before_red_phase(self):
         content = read("commands/zie-implement.md")
-        # Match Thai heading "(RED)" — renamed from "RED phase"
-        red_pos = content.find("(RED)")
-        pyramid_pos = content.find("test-pyramid")
-        assert red_pos != -1 and pyramid_pos != -1, \
-            "/zie-implement must have both a RED phase heading and test-pyramid reference"
-        green_pos = content.find("(GREEN)")
-        assert red_pos < pyramid_pos < green_pos, \
-            "test-pyramid skill invocation must be inside the RED section (between RED and GREEN)"
+        guidance_pos = content.find("Test level selection")
+        red_pos = content.find("→ RED")
+        assert guidance_pos != -1 and red_pos != -1, \
+            "/zie-implement must have both Test level selection guidance and → RED phase marker"
+        assert guidance_pos < red_pos, \
+            "Test level selection guidance must appear before the → RED phase marker"
 
     def test_build_pyramid_guides_test_level(self):
         content = read("commands/zie-implement.md")

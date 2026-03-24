@@ -24,6 +24,12 @@ Caller must provide:
 
 ## Phase 1 — Load Context Bundle
 
+**if context_bundle provided by caller** — use it directly:
+- `adrs_content` ← `context_bundle.adrs` (skip step 2 below)
+- `context_content` ← `context_bundle.context` (skip step 3 below)
+
+**If `context_bundle` absent** — read from disk as fallback (backward-compatible):
+
 Before reviewing, load the following context (skip gracefully if missing —
 never block review):
 
@@ -72,8 +78,6 @@ If all checks pass:
 
 ```text
 ✅ APPROVED
-
-Spec is complete, clear, and scoped correctly.
 ```
 
 If issues found:
@@ -91,4 +95,5 @@ Fix these and re-submit for review.
 
 - Be specific — don't approve vague specs
 - Be concise — don't invent requirements the user didn't ask for
-- Max 3 review iterations before surfacing to human
+- Return ALL issues found in this single response — do not stop at the first issue.
+- Max 2 total iterations: initial scan (all issues at once) + confirm pass. If 0 issues → APPROVED immediately, no confirm pass needed.

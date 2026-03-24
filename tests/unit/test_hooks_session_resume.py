@@ -55,16 +55,19 @@ class TestSessionResumeHappyPath:
         r = run_hook(tmp_cwd=cwd)
         assert "auth module" in r.stdout
 
-    def test_prints_backlog_count(self, tmp_path):
+    def test_active_feature_shown_in_active_line(self, tmp_path):
         cwd = make_cwd(tmp_path, config={}, roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
-        assert "2" in r.stdout  # 2 items in Next
+        lines = r.stdout.strip().splitlines()
+        assert any("Active:" in line for line in lines), \
+            "Output must contain an Active: line"
 
-    def test_prints_active_plan_when_present(self, tmp_path):
+    def test_output_is_4_lines(self, tmp_path):
         cwd = make_cwd(tmp_path, config={}, roadmap=SAMPLE_ROADMAP,
                        plans={"2026-03-22-my-feature.md": "# plan"})
         r = run_hook(tmp_cwd=cwd)
-        assert "2026-03-22-my-feature.md" in r.stdout
+        assert len(r.stdout.strip().splitlines()) == 4, \
+            "Output must always be exactly 4 lines (compressed format)"
 
     def test_brain_enabled_when_config_says_so(self, tmp_path):
         cwd = make_cwd(tmp_path, config={"zie_memory_enabled": True}, roadmap=SAMPLE_ROADMAP)

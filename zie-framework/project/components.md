@@ -49,7 +49,14 @@
 | sdlc-context.py | UserPromptSubmit | inject [sdlc] task/stage/next/tests context into every prompt |
 | subagent-context.py | SubagentStart:Explore/Plan | inject active feature slug, first incomplete task, ADR count into research subagents |
 | config-drift.py | ConfigChange:project_settings\|user_settings | ตรวจ CLAUDE.md / settings.json / zie-framework/.config drift → inject additionalContext to re-read |
-| utils.py | (shared library) | read_event(), get_cwd(), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write) |
+| input-sanitizer.py | PreToolUse:Bash | resolve relative paths → absolute; rewrite dangerous Bash patterns to require confirmation |
+| notification-log.py | Notification:permission_prompt\|idle_prompt | log permission + idle events; inject additionalContext on 3+ repeated permission requests |
+| safety_check_agent.py | PreToolUse:Bash | agent-based safety check (active when safety_check_mode=agent\|both in .config) |
+| sdlc-permissions.py | PermissionRequest | auto-approve safe SDLC Bash operations (make test-unit, git status, etc.) without interrupting Claude |
+| stopfailure-log.py | StopFailure | capture API errors and rate-limit notifications to per-project tmp log |
+| subagent-stop.py | SubagentStop | capture subagent completion with ID; enables resume-by-ID pattern in same session |
+| task-completed-gate.py | TaskCompleted | block on failing tests; warn on uncommitted files at task completion |
+| utils.py | (shared library) | read_event(), get_cwd(), load_config(), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write) |
 
 ## Agents
 

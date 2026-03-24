@@ -17,20 +17,37 @@ dev→main, tags, and updates ROADMAP. Nothing ships without passing every gate.
    context
 3. Read `VERSION` → current version.
 4. Check current git branch → should be `dev`. Warn if not.
+5. **Version Consistency Gate** — before running any tests, verify that `VERSION`
+   and `.claude-plugin/plugin.json` are in sync:
+
+   ```bash
+   VERSION_VAL=$(cat VERSION)
+   PLUGIN_VAL=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['version'])")
+   if [ "$VERSION_VAL" != "$PLUGIN_VAL" ]; then
+     echo "Version mismatch: VERSION=$VERSION_VAL, plugin.json=$PLUGIN_VAL — run \`make bump NEW=<v>\` to sync before releasing."
+     exit 1
+   fi
+   ```
+
+   - Exit 0 (versions match) → continue.
+   - Exit 1 (mismatch) → **STOP**. Print the error message from the script
+     and do not proceed to test gates.
 
 ## ลำดับการตรวจสอบ (ต้องผ่านทุกขั้น)
 
 ### ตรวจสอบ: Unit Tests
 
+Print: `[Gate 1/7] Unit Tests`
+
 ```bash
 make test-unit
 ```
 
-- Must exit 0.
-- On failure → STOP. Print: "Gate 1 FAILED: unit tests. Run /zie-fix before
-  releasing."
+- Must exit 0. On failure → STOP: "Gate 1 FAILED: unit tests. Run /zie-fix before releasing."
 
 ### ตรวจสอบ: Integration Tests
+
+Print: `[Gate 2/7] Integration Tests`
 
 ```bash
 make test-int
@@ -40,6 +57,8 @@ make test-int
 - On failure → STOP. Print: "Gate 2 FAILED: integration tests."
 
 ### ตรวจสอบ: E2E Tests (ถ้า playwright_enabled=true)
+
+Print: `[Gate 3/7] E2E Tests`
 
 ```bash
 make test-e2e
@@ -51,6 +70,8 @@ make test-e2e
 
 ### ตรวจสอบ: Visual (ถ้า has_frontend=true)
 
+Print: `[Gate 4/7] Visual Check`
+
 - If `has_frontend=true` AND `playwright_enabled=true`:
   - E2E gate above already covers this — skip.
 - If `has_frontend=true` AND `playwright_enabled=false`:
@@ -60,6 +81,8 @@ make test-e2e
 - If `has_frontend=false` → skip this gate.
 
 ### ตรวจสอบ: TODOs และ Secrets
+
+Print: `[Gate 5/7] TODOs and Secrets`
 
 - Scan for leftover stubs:
 
@@ -75,6 +98,8 @@ make test-e2e
 
 ### ตรวจสอบ: Docs sync
 
+Print: `[Gate 6/7] Docs Sync`
+
 Scan `git diff main..HEAD --name-only` → ถ้ามี new/changed commands, skills,
 hooks, or project structure:
 
@@ -86,12 +111,14 @@ hooks, or project structure:
 
 ### ตรวจสอบ: Code diff ก่อน merge
 
+Print: `[Gate 7/7] Code Diff`
+
 Run `git diff main..HEAD --stat` and scan for anything unexpected before
 merging.
 
 ## All Gates Passed — Release
 
-1. **Suggest version bump** based on what's in Now lane:
+1. **[Step 1/10] Suggest version bump** based on what's in Now lane:
    - Scan `[x]` items in Now + git log since last tag
    - Apply rule (take highest that applies):
      - **major** — breaking change: existing users/callers ต้องแก้ code/config
