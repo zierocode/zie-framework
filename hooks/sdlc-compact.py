@@ -55,6 +55,7 @@ if hook_event_name == "PreCompact":
             ["git", "-C", str(cwd), "branch", "--show-current"],
             capture_output=True,
             text=True,
+            timeout=5,
         )
         git_branch = result.stdout.strip()
     except Exception as e:
@@ -67,6 +68,7 @@ if hook_event_name == "PreCompact":
             ["git", "-C", str(cwd), "diff", "--name-only", "HEAD"],
             capture_output=True,
             text=True,
+            timeout=5,
         )
         changed_files = [f for f in result.stdout.splitlines() if f.strip()][:20]
     except Exception as e:
