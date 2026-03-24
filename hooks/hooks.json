@@ -4,7 +4,9 @@
     "UserPromptSubmit": "JSON {\"additionalContext\": \"...\"} printed to stdout",
     "PostToolUse": "plain text warnings/status printed to stdout",
     "PreToolUse": "plain text BLOCKED/WARNING printed to stdout; exit(2) to block",
-    "Stop": "no output required; side-effects only (file writes, API calls)"
+    "Stop": "no output required; side-effects only (file writes, API calls)",
+    "PreCompact": "no output required; side-effects only (snapshot write)",
+    "PostCompact": "JSON {\"hookSpecificOutput\": {\"additionalContext\": \"...\"}} printed to stdout"
   },
   "hooks": {
   "SessionStart": [
@@ -63,6 +65,26 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-cleanup.py\""
+        }
+      ]
+    }
+  ],
+  "PreCompact": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-compact.py\""
+        }
+      ]
+    }
+  ],
+  "PostCompact": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-compact.py\""
         }
       ]
     }
