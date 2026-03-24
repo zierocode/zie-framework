@@ -21,6 +21,15 @@ project:
 - **Skills**: Markdown files in `skills/` (invoked via Skill tool)
 - **Templates**: Reusable file templates in `templates/`
 
+### Optional Dependencies
+
+| Dependency | Purpose | Required? |
+| --- | --- | --- |
+| `pytest` + `pytest-cov` | Unit + integration test runner | For `make test` |
+| `coverage` | Subprocess coverage measurement | For `make test-unit` |
+| `playwright` | Browser automation for frontend hooks | Only if `playwright_enabled: true` |
+| zie-memory API | Cross-session memory persistence | Only if `zie_memory_enabled: true` |
+
 ## Project Structure
 
 ```text
@@ -42,10 +51,11 @@ zie-framework/              # self-managed SDLC state (this repo uses itself)
 ## Development Commands
 
 ```bash
-make test-unit   # run unit tests (pytest, excludes integration)
+make test-unit   # run unit tests only (pytest, excludes integration tests)
 make test-int    # run integration tests (subprocess hook events)
 make test        # full test suite (unit + integration + md lint)
-make bump NEW=x.y.z  # atomically bump VERSION + plugin.json
+make bump NEW=x.y.z  # atomically bump VERSION + plugin.json + PROJECT.md
+make sync-version    # sync plugin.json + PROJECT.md version to match VERSION file
 make push m="msg"  # commit + push to dev
 ```
 

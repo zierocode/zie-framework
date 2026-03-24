@@ -7,8 +7,12 @@ help:
 	  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
 # ── Tests ─────────────────────────────────────────────────────────────────────
-test-unit: ## Fast unit tests (run constantly during /zie-build)
-	python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
+test-unit: ## Fast unit tests with subprocess coverage measurement
+	python3 -m coverage erase
+	COVERAGE_PROCESS_START=$(CURDIR)/.coveragerc \
+	    python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
+	python3 -m coverage combine 2>/dev/null || true
+	python3 -m coverage report --show-missing --fail-under=50
 
 test-int: ## Integration tests (hook event simulation)
 	python3 -m pytest tests/ -v -m "integration" --tb=short
@@ -25,7 +29,7 @@ ship: ## Full release gate — use /zie-ship instead
 	@echo "All tests passed. Run /zie-ship for the full release gate."
 
 # ── Release ───────────────────────────────────────────────────────────────────
-bump: ## Atomically bump VERSION + plugin.json (usage: make bump NEW=1.2.3)
+bump: ## Atomically bump VERSION + plugin.json + PROJECT.md (usage: make bump NEW=1.2.3)
 ifndef NEW
 	$(error NEW is required — usage: make bump NEW=1.2.3)
 endif
@@ -33,6 +37,7 @@ endif
 		(echo "ERROR: NEW must be a semver string (e.g. 1.2.3), got: $(NEW)" && exit 1)
 	@printf '%s\n' "$(NEW)" > VERSION
 	@sed -i '' 's/"version": "[^"]*"/"version": "$(NEW)"/' .claude-plugin/plugin.json
+	@$(MAKE) sync-version
 	@echo "Bumped to v$(NEW)"
 
 release: ## Publish release (usage: make release NEW=1.2.3)
@@ -53,9 +58,12 @@ endif
 	git checkout dev
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
-setup: ## Install git hooks (run once after cloning)
+setup: ## Install git hooks and coverage sitecustomize (run once after cloning)
 	git config core.hooksPath .githooks
-	@echo "Git hooks installed from .githooks/"
+	pip3 install pytest-cov coverage
+	python3 -m coverage --version
+	python3 -m coverage sitecustomize
+	@echo "Git hooks + coverage sitecustomize installed"
 
 sync-version: ## Sync plugin.json version to match VERSION
 	jq --arg v "$$(cat VERSION)" '.version = $$v' .claude-plugin/plugin.json \

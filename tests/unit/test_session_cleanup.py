@@ -59,11 +59,12 @@ class TestSessionCleanupDeletes:
 
     def test_cleanup_uses_same_rule_as_utils(self):
         """Glob pattern used by session-cleanup must match safe_project_name() output."""
+        import tempfile
         sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
         from utils import safe_project_name
         project = "my project!"
         safe = safe_project_name(project)
-        tmp1 = Path(f"/tmp/zie-{safe}-last-test")
+        tmp1 = Path(tempfile.gettempdir()) / f"zie-{safe}-last-test"
         tmp1.write_text("x")
         r = run_hook(project)
         assert r.returncode == 0

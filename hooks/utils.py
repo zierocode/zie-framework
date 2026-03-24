@@ -2,21 +2,27 @@
 
 Storage tiers
 -------------
-/tmp paths (project_tmp_path / safe_write_tmp):
+Tmp paths (project_tmp_path / safe_write_tmp):
     Session-scoped state. Cleared by session-cleanup.py on Stop.
     Use for: debounce timestamps, ephemeral counters that reset each session.
 
 Persistent paths (get_plugin_data_dir / persistent_project_path / safe_write_persistent):
     Cross-session state backed by $CLAUDE_PLUGIN_DATA (set by Claude Code).
-    Falls back to /tmp with a warning when the env var is absent.
+    Falls back to tempfile.gettempdir() with a warning when the env var is absent.
     Use for: edit counters that survive restart, pending_learn markers.
 """
 import json
 import os
 import re
 import sys
+import tempfile
 import urllib.request
 from pathlib import Path
+
+SDLC_STAGES: list = [
+    "init", "backlog", "spec", "plan",
+    "implement", "fix", "release", "retro",
+]
 
 
 def parse_roadmap_section(roadmap_path, section_name: str) -> list:
@@ -45,24 +51,46 @@ def parse_roadmap_section(roadmap_path, section_name: str) -> list:
     return lines
 
 
-def parse_roadmap_now(roadmap_path) -> list:
+def parse_roadmap_now(roadmap_path, warn_on_empty: bool = False) -> list:
     """Extract cleaned items from the ## Now section of ROADMAP.md.
 
     Returns [] if the file is missing, the Now section is absent, or it is empty.
     Accepts Path or str.
+
+    If warn_on_empty=True and the file exists but the Now section is absent
+    or empty, prints a warning to stderr.
     """
-    return parse_roadmap_section(roadmap_path, "now")
+    path = Path(roadmap_path)
+    items = parse_roadmap_section(path, "now")
+    if warn_on_empty and path.exists() and not items:
+        print(
+            "[zie-framework] WARNING: ROADMAP.md Now section is empty or missing",
+            file=sys.stderr,
+        )
+    return items
 
 
 def atomic_write(path: Path, content: str) -> None:
-    """Write content to path atomically using a sibling .tmp file and rename.
+    """Write content to path atomically using an unpredictable temp file and rename.
 
-    On POSIX, os.rename() (called by Path.rename()) is atomic at the filesystem
-    level, preventing partial reads from concurrent writers.
+    Uses tempfile.NamedTemporaryFile to avoid predictable sibling names and
+    eliminate the TOCTOU window. Sets owner-only (0o600) permissions on the
+    final file after rename.
     """
-    tmp_path = path.with_suffix(".tmp")
-    tmp_path.write_text(content)
-    tmp_path.rename(path)
+    with tempfile.NamedTemporaryFile(
+        mode='w', dir=path.parent, delete=False, suffix='.tmp'
+    ) as f:
+        f.write(content)
+        tmp_name = f.name
+    try:
+        os.replace(tmp_name, path)
+        os.chmod(path, 0o600)
+    except OSError:
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
+        raise
 
 
 def safe_project_name(project: str) -> str:
@@ -75,11 +103,11 @@ def safe_project_name(project: str) -> str:
 
 
 def project_tmp_path(name: str, project: str) -> Path:
-    """Return a project-scoped /tmp path to prevent cross-project collisions.
+    """Return a project-scoped tmp path to prevent cross-project collisions.
 
-    Example: project_tmp_path("last-test", "my-project") -> Path("/tmp/zie-my-project-last-test")
+    Uses tempfile.gettempdir() for portability (resolves Bandit B108).
     """
-    return Path(f"/tmp/zie-{safe_project_name(project)}-{name}")
+    return Path(tempfile.gettempdir()) / f"zie-{safe_project_name(project)}-{name}"
 
 
 def get_plugin_data_dir(project: str) -> Path:
@@ -96,10 +124,10 @@ def get_plugin_data_dir(project: str) -> Path:
         path = Path(base) / safe_project_name(project)
     else:
         print(
-            "[zie-framework] CLAUDE_PLUGIN_DATA not set, using /tmp fallback",
+            "[zie-framework] CLAUDE_PLUGIN_DATA not set, using tempfile.gettempdir() fallback",
             file=sys.stderr,
         )
-        path = Path(f"/tmp/zie-{safe_project_name(project)}-persistent")
+        path = Path(tempfile.gettempdir()) / f"zie-{safe_project_name(project)}-persistent"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -107,8 +135,9 @@ def get_plugin_data_dir(project: str) -> Path:
 def safe_write_persistent(path: Path, content: str) -> bool:
     """Atomically write content to a persistent path, refusing to follow symlinks.
 
-    Identical contract to safe_write_tmp(): returns True on success, False if
-    path is a symlink or an OSError occurs. Uses os.replace() for atomicity.
+    Uses NamedTemporaryFile for an unpredictable intermediate name. Sets
+    owner-only (0o600) permissions on the final file. Returns True on success,
+    False if path is a symlink or an OSError occurs.
     """
     if os.path.islink(path):
         print(
@@ -117,11 +146,19 @@ def safe_write_persistent(path: Path, content: str) -> bool:
         )
         return False
     try:
-        tmp_path = path.parent / (path.name + ".tmp")
-        tmp_path.write_text(content)
-        os.replace(tmp_path, path)
+        with tempfile.NamedTemporaryFile(
+            mode='w', dir=path.parent, delete=False, suffix='.tmp'
+        ) as f:
+            f.write(content)
+            tmp_name = f.name
+        os.replace(tmp_name, path)
+        os.chmod(path, 0o600)
         return True
     except OSError:
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
         return False
 
 
@@ -154,24 +191,49 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
 
 
 def load_config(cwd: Path) -> dict:
-    """Read zie-framework/.config and return a dict of key=value pairs.
+    """Read zie-framework/.config as JSON and return a dict.
 
-    Ignores section headers, blank lines, and comments (#). Returns {} on
-    any error (missing file, parse failure, permission denied, etc.).
+    Returns {} on any error (missing file, parse failure, permission denied, etc.).
     """
     config_path = cwd / "zie-framework" / ".config"
     try:
-        result = {}
-        for line in config_path.read_text().splitlines():
-            line = line.strip()
-            if not line or line.startswith("#") or line.startswith("["):
-                continue
-            if "=" in line:
-                key, _, val = line.partition("=")
-                result[key.strip()] = val.strip()
-        return result
+        return json.loads(config_path.read_text())
     except Exception:
         return {}
+
+
+def normalize_command(cmd: str) -> str:
+    """Normalize whitespace and lowercase a shell command for pattern matching."""
+    return re.sub(r'\s+', ' ', cmd.strip().lower())
+
+
+BLOCKS = [
+    # Filesystem destruction
+    (r"rm\s+-rf\s+(/\s|/\b|/$)", "rm -rf / is blocked — this would destroy the system"),
+    (r"rm\s+-rf\s+~", "rm -rf ~ is blocked — this would destroy your home directory"),
+    (r"rm\s+-rf\s+\.", "rm -rf . blocked — use explicit paths"),
+    # Database destruction
+    (r"\bdrop\s+database\b", "DROP DATABASE blocked — use migrations to remove databases"),
+    (r"\bdrop\s+table\b", "DROP TABLE blocked — use alembic/migrations for schema changes"),
+    (r"\btruncate\s+table\b", "TRUNCATE TABLE blocked — be explicit with user before truncating"),
+    # Force push
+    (r"git\s+push\s+.*--force\b", "Force push blocked — use 'git push' normally or ask Zie explicitly"),
+    (r"git\s+push\s+.*-f\b", "Force push blocked — use 'git push' normally"),
+    (r"git\s+push\s+.*origin\s+main\b", "Direct push to main blocked — use 'make ship' instead"),
+    (r"git\s+push\s+.*origin\s+master\b", "Direct push to master blocked — use 'make ship' instead"),
+    # Hard reset
+    (r"git\s+reset\s+--hard\b", "git reset --hard blocked — this discards uncommitted work. Use 'git stash' instead"),
+    # Skip hooks
+    (r"--no-verify\b", "--no-verify blocked — hooks exist for a reason. Fix the hook failure instead"),
+]
+
+# Non-blocking notices. Do NOT add patterns already caught by BLOCKS above.
+WARNS = [
+    (r"docker\s+compose\s+down\s+.*--volumes\b",
+     "docker compose down --volumes will delete DB data — make sure you have a backup"),
+    (r"alembic\s+downgrade\b",
+     "Alembic downgrade detected — verify this won't lose production data"),
+]
 
 
 def read_event() -> dict:
@@ -196,8 +258,9 @@ def get_cwd() -> Path:
 def safe_write_tmp(path: Path, content: str) -> bool:
     """Atomically write content to path, refusing to follow symlinks.
 
-    Returns True on success, False if path is a symlink or an OSError occurs.
-    Uses write-to-.tmp-sibling then os.replace() for atomicity.
+    Uses NamedTemporaryFile for an unpredictable intermediate name. Sets
+    owner-only (0o600) permissions on the final file. Returns True on success,
+    False if path is a symlink or an OSError occurs.
     """
     if os.path.islink(path):
         print(
@@ -206,9 +269,17 @@ def safe_write_tmp(path: Path, content: str) -> bool:
         )
         return False
     try:
-        tmp_path = path.parent / (path.name + ".tmp")
-        tmp_path.write_text(content)
-        os.replace(tmp_path, path)
+        with tempfile.NamedTemporaryFile(
+            mode='w', dir=path.parent, delete=False, suffix='.tmp'
+        ) as f:
+            f.write(content)
+            tmp_name = f.name
+        os.replace(tmp_name, path)
+        os.chmod(path, 0o600)
         return True
     except OSError:
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
         return False

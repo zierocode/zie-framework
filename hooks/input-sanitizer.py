@@ -12,6 +12,7 @@ Exits 0 on all error paths (ADR-003).
 import json
 import os
 import re
+import shlex
 import sys
 from pathlib import Path
 
@@ -54,8 +55,9 @@ if tool_name in {"Write", "Edit"}:
         abs_path = (cwd / p).resolve()
 
         # Boundary check — must stay inside project root.
-        # Both sides are .resolve()-ed (symlinks followed) for accurate prefix check.
-        if not str(abs_path).startswith(str(cwd)):
+        # Both sides are .resolve()-ed (symlinks followed) before is_relative_to()
+        # comparison, which checks path components (not string prefix).
+        if not abs_path.is_relative_to(cwd):
             print(
                 f"[zie-framework] input-sanitizer: relative path escapes cwd,"
                 f" skipping rewrite: {file_path}",
@@ -82,13 +84,13 @@ if tool_name == "Bash":
         if "Would run:" in command:
             sys.exit(0)
 
-        # Preserve original casing (unlike safety-check which lowercases).
+        # preserve case — display only, not pattern matching (do NOT use normalize_command here)
         normalized = re.sub(r"\s+", " ", command.strip())
 
         for pattern in CONFIRM_PATTERNS:
             if re.search(pattern, normalized):
                 rewritten = (
-                    f'echo "Would run: {command}" '
+                    f'printf "Would run: %s\\n" {shlex.quote(command)} '
                     f'&& read -p "Confirm? [y/N] " _y '
                     f'&& [ "$_y" = "y" ] && {{ {command}; }}'
                 )

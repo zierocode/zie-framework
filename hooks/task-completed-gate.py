@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event, get_cwd
+from utils import get_cwd, load_config, read_event
 
 IMPL_EXTS = frozenset((
     ".py", ".ts", ".tsx", ".js", ".jsx",
@@ -21,10 +21,25 @@ IMPL_EXTS = frozenset((
     ".swift", ".c", ".cpp", ".h",
 ))
 
-TEST_INDICATORS = ("test_", "_test.", ".test.", ".spec.")
+_DEFAULT_TEST_INDICATORS = ("test_", "_test.", ".test.", ".spec.")
 
 
-def is_impl_file(path_str: str) -> bool:
+def _load_test_indicators(cwd: Path) -> tuple:
+    """Load TEST_INDICATORS from .config or fall back to hardcoded defaults.
+
+    Config key: test_indicators (comma-separated, e.g. "test_, _test., .test.")
+    Falls back to default tuple when key is absent or empty.
+
+    NOTE: load_config() parses JSON. Comma-split on a string value works correctly.
+    """
+    config = load_config(cwd)
+    raw = config.get("test_indicators", "")
+    if raw:
+        return tuple(s.strip() for s in raw.split(",") if s.strip())
+    return _DEFAULT_TEST_INDICATORS
+
+
+def is_impl_file(path_str: str, TEST_INDICATORS: tuple = _DEFAULT_TEST_INDICATORS) -> bool:
     """Return True if path_str looks like an implementation file (not a test file)."""
     p = path_str.lower()
     if not any(p.endswith(ext) for ext in IMPL_EXTS):
@@ -58,6 +73,7 @@ def check_pytest_cache(cwd: Path) -> tuple:
 def check_uncommitted_files(cwd: Path) -> tuple:
     """Run git status --short and detect uncommitted implementation files."""
     try:
+        TEST_INDICATORS = _load_test_indicators(cwd)
         result = subprocess.run(
             ["git", "-C", str(cwd), "status", "--short"],
             capture_output=True,
@@ -72,7 +88,7 @@ def check_uncommitted_files(cwd: Path) -> tuple:
             filename = line[3:].strip()
             if " -> " in filename:
                 filename = filename.split(" -> ")[-1].strip()
-            if is_impl_file(filename):
+            if is_impl_file(filename, TEST_INDICATORS):
                 impl_lines.append(line.strip())
         if not impl_lines:
             return False, ""

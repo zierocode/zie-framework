@@ -395,3 +395,35 @@ class TestSdlcContextNonInterference:
         r = run_hook({"prompt": "hello"}, tmp_cwd=cwd)
         parsed = json.loads(r.stdout)
         assert "updatedPrompt" not in parsed
+
+
+class TestSdlcContextStalenessBoundary:
+    """STALE_THRESHOLD_SECS=300 boundary tests — hook uses age > 300."""
+
+    @pytest.fixture(autouse=True)
+    def _cleanup(self, tmp_path):
+        yield
+        f = project_tmp_path("last-test", tmp_path.name)
+        if f.exists():
+            f.unlink()
+
+    def _run_with_mtime(self, tmp_path, age_secs):
+        cwd = make_cwd(tmp_path, roadmap=ROADMAP_WITH_IMPLEMENT)
+        tmp_file = project_tmp_path("last-test", tmp_path.name)
+        tmp_file.write_text("ok")
+        old_time = time.time() - age_secs
+        os.utime(tmp_file, (old_time, old_time))
+        return run_hook({"prompt": "hello"}, tmp_cwd=cwd)
+
+    def test_299_seconds_ago_is_recent(self, tmp_path):
+        """File 299 seconds old must report tests: recent (below threshold)."""
+        r = self._run_with_mtime(tmp_path, 299)
+        ctx = parse_context(r)
+        assert "tests: recent" in ctx, f"Expected 'tests: recent' for 299s-old file, got: {ctx!r}"
+
+    def test_301_seconds_ago_is_stale(self, tmp_path):
+        """File 301 seconds old must report tests: stale (above threshold)."""
+        r = self._run_with_mtime(tmp_path, 301)
+        ctx = parse_context(r)
+        assert "tests: stale" in ctx, f"Expected 'tests: stale' for 301s-old file, got: {ctx!r}"
+

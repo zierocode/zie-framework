@@ -9,6 +9,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(__file__))
 from utils import (
     get_cwd,
+    load_config,
     parse_roadmap_now,
     project_tmp_path,
     read_event,
@@ -55,6 +56,7 @@ if hook_event_name == "PreCompact":
             ["git", "-C", str(cwd), "branch", "--show-current"],
             capture_output=True,
             text=True,
+            timeout=5,
         )
         git_branch = result.stdout.strip()
     except Exception as e:
@@ -67,6 +69,7 @@ if hook_event_name == "PreCompact":
             ["git", "-C", str(cwd), "diff", "--name-only", "HEAD"],
             capture_output=True,
             text=True,
+            timeout=5,
         )
         changed_files = [f for f in result.stdout.splitlines() if f.strip()][:20]
     except Exception as e:
@@ -74,14 +77,7 @@ if hook_event_name == "PreCompact":
         changed_files = []
 
     # --- Read tdd_phase from .config ---
-    tdd_phase = ""
-    try:
-        config_path = zf / ".config"
-        if config_path.exists():
-            config = json.loads(config_path.read_text())
-            tdd_phase = config.get("tdd_phase", "")
-    except Exception as e:
-        print(f"[zie-framework] sdlc-compact: config read failed: {e}", file=sys.stderr)
+    tdd_phase = load_config(cwd).get("tdd_phase", "")
 
     # --- Build and write snapshot ---
     snapshot = {

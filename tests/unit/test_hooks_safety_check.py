@@ -218,7 +218,7 @@ class TestSafetyCheckModeDispatch:
     def _make_config(self, tmp_path, mode: str):
         zf = tmp_path / "zie-framework"
         zf.mkdir(exist_ok=True)
-        (zf / ".config").write_text(f"[zie-framework]\nsafety_check_mode = {mode}\n")
+        (zf / ".config").write_text(f'{{"safety_check_mode": "{mode}"}}')
         return tmp_path
 
     def _run(self, tmp_path, command: str):
@@ -248,9 +248,10 @@ class TestSafetyCheckModeDispatch:
     def test_both_mode_writes_ab_log(self, tmp_path):
         """In both mode, an A/B record must be written after evaluation."""
         import re
+        import tempfile
         cwd = self._make_config(tmp_path, "both")
         safe = re.sub(r"[^a-zA-Z0-9]", "-", tmp_path.name)
-        log_path = Path(f"/tmp/zie-{safe}-safety-ab")
+        log_path = Path(tempfile.gettempdir()) / f"zie-{safe}-safety-ab"
         log_path.unlink(missing_ok=True)
         self._run(cwd, "echo hello")
         assert log_path.exists(), f"A/B log not created at {log_path}"
@@ -261,9 +262,76 @@ class TestSafetyCheckModeDispatch:
     def test_regex_mode_does_not_write_ab_log(self, tmp_path):
         """In regex mode (default), no A/B log must be written."""
         import re
+        import tempfile
         cwd = self._make_config(tmp_path, "regex")
         safe = re.sub(r"[^a-zA-Z0-9]", "-", tmp_path.name)
-        log_path = Path(f"/tmp/zie-{safe}-safety-ab")
+        log_path = Path(tempfile.gettempdir()) / f"zie-{safe}-safety-ab"
         log_path.unlink(missing_ok=True)
         self._run(cwd, "echo hello")
         assert not log_path.exists(), "A/B log must not be written in regex mode"
+
+
+class TestSafetyCheckPassThroughMalformed:
+    def test_missing_tool_name_exits_zero(self):
+        """Event with no tool_name key must exit 0."""
+        hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
+        event = {"tool_input": {"command": "echo hello"}}
+        r = subprocess.run([sys.executable, hook], input=json.dumps(event),
+                          capture_output=True, text=True)
+        assert r.returncode == 0
+
+    def test_malformed_event_not_dict_exits_zero(self):
+        """stdin containing a JSON string (not a dict) must exit 0."""
+        hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
+        r = subprocess.run([sys.executable, hook], input='"just a string"',
+                          capture_output=True, text=True)
+        assert r.returncode == 0
+
+    def test_none_tool_input_exits_zero(self):
+        """Event with tool_input: null must exit 0."""
+        hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
+        event = {"tool_name": "Bash", "tool_input": None}
+        r = subprocess.run([sys.executable, hook], input=json.dumps(event),
+                          capture_output=True, text=True)
+        assert r.returncode == 0
+
+
+class TestSafetyCheckPatternCoverage:
+    """Parametrized sweep of canonical BLOCKS and WARNS patterns."""
+
+    @pytest.mark.parametrize("cmd", [
+        "rm -rf ~",
+        "rm -rf .",
+        "DROP DATABASE mydb",
+        "DROP TABLE users",
+        "TRUNCATE TABLE events",
+        "git push --force",
+        "git push -f origin dev",
+        "git push origin main",
+        "git push origin master",
+        "git reset --hard HEAD~1",
+        "git commit --no-verify -m skip",
+    ])
+    def test_blocks_pattern_exits_2(self, cmd):
+        r = run_hook("Bash", cmd)
+        assert r.returncode == 2, f"Expected returncode 2 for {cmd!r}, got {r.returncode}"
+        assert "BLOCKED" in r.stdout
+
+    @pytest.mark.parametrize("cmd", [
+        "docker compose down --volumes",
+        "alembic downgrade base",
+    ])
+    def test_warns_pattern_exits_0_with_warning(self, cmd):
+        r = run_hook("Bash", cmd)
+        assert r.returncode == 0, f"Expected returncode 0 for {cmd!r}, got {r.returncode}"
+        assert "WARNING" in r.stdout
+
+    def test_feature_branch_push_not_blocked(self):
+        r = run_hook("Bash", "git push origin feature-branch")
+        assert r.returncode == 0, "git push origin feature-branch must not be blocked"
+
+    def test_force_with_lease_is_blocked(self):
+        r"""--force-with-lease matches --force\b because '-' is a non-word char."""
+        r = run_hook("Bash", "git push --force-with-lease origin dev")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout

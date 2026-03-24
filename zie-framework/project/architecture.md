@@ -1,6 +1,6 @@
 # Architecture — zie-framework
 
-**Last updated:** 2026-03-23
+**Last updated:** 2026-03-25
 
 ## Overview
 
@@ -66,3 +66,13 @@ User runs /zie-command
 - **v1.4.0** (2026-03-23) — `/zie-audit` 9-dimension audit command with
   external research; `research_profile` dynamic intelligence layer; intent-detect
   skip command content.
+- **v1.5.0** (2026-03-23) — `parse_roadmap_section()` dedup; `knowledge-hash.py`
+  extracted as standalone utility; `read_event()`/`get_cwd()` boilerplate dedup
+  in utils; CHANGELOG annotations + SECURITY.md + Dependabot config.
+- **v1.6.0** (2026-03-23) — Session-wide agent modes (`zie-implement-mode`,
+  `zie-audit-mode`); `notification-log` hook for permission/idle events;
+  model+effort pinned on all skills and commands.
+- **v1.7.0** (2026-03-23) — 23-item sprint implementing v1.6.0 audit findings;
+  Bandit B108 suppressions via config; pre-existing test pollution fixes.
+- **v1.8.0** (2026-03-24) — Parallel model-effort optimization; faster skill
+  execution via parallel model selection; model:haiku for fast-path reviewers.

@@ -276,8 +276,8 @@ class TestAutoTestFilePathCwdValidation:
 
 
 class TestAutoTestConfigParseWarning:
-    def test_warns_on_corrupt_config(self, tmp_path):
-        """Corrupt .config must produce a [zie] warning on stderr."""
+    def test_exits_zero_on_corrupt_config(self, tmp_path):
+        """Corrupt .config must not crash the hook — load_config() silently returns {}."""
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text("this is not json {{{")
@@ -286,9 +286,6 @@ class TestAutoTestConfigParseWarning:
             tmp_cwd=tmp_path,
         )
         assert r.returncode == 0
-        assert "[zie] warning" in r.stderr, (
-            f"Expected '[zie] warning' in stderr, got: {r.stderr!r}"
-        )
 
     def test_no_warning_on_valid_config(self, tmp_path):
         """Valid .config must not produce any warning."""
@@ -659,3 +656,42 @@ class TestAdditionalContextInjection:
         assert ctx is not None
         assert "modal.tsx" in ctx
         assert "write one" in ctx
+
+
+class TestAutoTestGitTimeout:
+    def test_git_timeout_exits_zero(self, tmp_path):
+        """auto-test.py must exit 0 when git hangs (TimeoutExpired caught by hook)."""
+        import stat
+        bin_dir = tmp_path / "fakebin"
+        bin_dir.mkdir()
+        fake_git = bin_dir / "git"
+        fake_git.write_text("#!/bin/sh\nsleep 60\n")
+        fake_git.chmod(fake_git.stat().st_mode | stat.S_IEXEC)
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        env = {
+            **os.environ,
+            "CLAUDE_CWD": str(cwd),
+            "PATH": str(bin_dir) + ":" + os.environ.get("PATH", ""),
+            "ZIE_MEMORY_API_KEY": "",
+            "ZIE_AUTO_TEST_DEBOUNCE_MS": "0",
+            "ZIE_TEST_RUNNER": "",
+        }
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input=json.dumps({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}}),
+            capture_output=True, text=True, env=env, timeout=10,
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr
+
+
+class TestAutoTestEmptyConfig:
+    def test_empty_config_json_exits_zero(self, tmp_path):
+        """Empty {} config must exit 0, use all defaults, and emit no warning."""
+        cwd = make_cwd(tmp_path, config={})
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert "[zie] warning" not in r.stderr

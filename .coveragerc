@@ -1,0 +1,12 @@
+[run]
+source = hooks
+parallel = True
+sigterm = True
+
+[report]
+show_missing = True
+skip_covered = False
+
+[paths]
+hooks =
+    hooks/

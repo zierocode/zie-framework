@@ -10,8 +10,6 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-<!-- -->
-
 ---
 
 ## Ready — Approved Plans
@@ -33,7 +31,7 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
-<!-- (All items from v1.7.0 sprint shipped — 2026-03-24) -->
+<!-- (All items approved and moved to Ready — 2026-03-24) -->
 
 ## Later — Someday / Maybe
 
@@ -47,6 +45,17 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] Security + code quality sprint — 10 features: coverage measurement fix,
+  shell injection + /tmp hardening + path traversal security fixes, subprocess
+  timeouts, test quality edge cases, utils consolidation (normalize_command,
+  BLOCKS/WARNS, SDLC_STAGES, configurable TEST_INDICATORS), docs sync, async
+  Stop hooks, hook-events JSON schema, standards compliance (log prefix audit,
+  safe_project_name in notification-log) — 1513 unit + 63 integration tests
+  — v1.9.0 2026-03-25
+- [x] async-skills-background-execution — convert long-running skills to Agent + run_in_background,
+  TaskCreate for progress tracking, TaskOutput for completion notification — v1.8.0 2026-03-24
+- [x] parallel-execution-patterns — max 4 parallel tasks/Agents, file conflict detection,
+  depends_on annotation syntax, documentation + unit tests — v1.8.0 2026-03-24
 - [x] parallel-model-effort-optimization — model routing + context:fork + parallel execution
   in retro/implement/release, new docs-sync-check skill — v1.8.0 2026-03-24
 - [x] Performance + quality sprint — 23 features: pipeline speed (inline guidance,

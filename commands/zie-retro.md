@@ -76,14 +76,30 @@ Build compact JSON bundle for retro-format fork:
 }
 ```
 
-### Fork ทั้งสองพร้อมกัน
+### Invoke Background Agents (concurrent)
 
-Invoke both forks **simultaneously** — do NOT wait for either before starting:
+Invoke both Agents **simultaneously** with `run_in_background=true` — do NOT wait for either before starting:
 
-1. Fork `Skill(zie-framework:retro-format)` — pass compact summary as `$ARGUMENTS`
-2. Fork `Skill(zie-framework:docs-sync-check)` — pass output of
-   `git diff main..HEAD --name-only` as `$ARGUMENTS.changed_files`
-   (full scan if command fails)
+**TaskCreate** — create tasks before launching Agents:
+```python
+TaskCreate(subject="Format retrospective summary", description="Run retro-format to structure retro output", activeForm="Formatting retro summary")
+TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md against changed files", activeForm="Checking docs sync")
+```
+
+**Invoke Agents:**
+1. `Agent(subagent_type="zie-framework:retro-format", run_in_background=True, prompt="Format retrospective summary from: {compact_json}")`
+2. `Agent(subagent_type="zie-framework:docs-sync-check", run_in_background=True, prompt="Check docs sync for changed files: {changed_files}")`
+
+Print: "Running retro-format and docs-sync-check in background. Use /tasks to see progress."
+
+**Wait for completion:**
+- Wait for both Agents to complete (via task completion notifications or TaskOutput polling)
+- **TaskUpdate** — mark both tasks as "completed" when Agents finish
+
+Collect results and continue to "บันทึก ADRs" step.
+
+<!-- fallback: if Agent tool unavailable or subagent_type not found,
+     call Skill(zie-framework:retro-format) and Skill(zie-framework:docs-sync-check) inline (blocking) -->
 
 ### บันทึก ADRs
 

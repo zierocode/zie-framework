@@ -42,6 +42,10 @@ before building. Supports multiple items in parallel (max 4 agents).
 
 2. If multiple slugs → spawn parallel agents (max 4) to draft plans
    simultaneously:
+   - **Max parallel Agents: 4.** If more than 4 slugs, queue excess and start
+     them as Agents complete.
+   - **Dependency hint:** If multiple slugs share a common output directory
+     or file pattern, add `<!-- depends_on: slug-1 -->` to serialize them.
    - Each agent receives:
      - `zie-framework/backlog/<slug>.md` — problem + motivation
      - `zie-framework/specs/*-<slug>-design.md` — approved spec (exact glob
@@ -104,8 +108,13 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
      ---
      ```
 
-     Move item in `zie-framework/ROADMAP.md` from Next → Ready:
-     `- [ ] <feature name> — [plan](plans/YYYY-MM-DD-<slug>.md) ✓`
+     **Atomically move** item in `zie-framework/ROADMAP.md` from Next → Ready:
+     1. **Remove from Next**: find and DELETE the line matching `- [ ] <title>`
+        (or `- [x] <title>`) in the Next section — this line must be removed.
+     2. **Guard**: if a line matching `<title>` already exists in Ready →
+        skip add, print "Already in Ready: <slug>" and continue.
+     3. **Add to Ready**: insert `- [ ] <title> — [plan](plans/YYYY-MM-DD-<slug>.md) ✓`
+        in the correct priority group (CRITICAL / HIGH / MEDIUM / LOW).
 
      Commit plan + ROADMAP:
 

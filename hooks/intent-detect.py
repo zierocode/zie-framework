@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event, get_cwd
+from utils import get_cwd, read_event, SDLC_STAGES  # SDLC_STAGES: PATTERNS keys are a subset
 
 # ── Module-level constants (compiled once, cached in .pyc) ──────────────────
 

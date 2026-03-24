@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """SessionStart hook — inject current SDLC state for instant session orientation."""
 import sys
-import json
 import os
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now, read_event, get_cwd
+from utils import get_cwd, load_config, parse_roadmap_now, read_event
 
 event = read_event()
 
@@ -17,13 +16,7 @@ if not zf.exists():
     sys.exit(0)
 
 # Read config
-config = {}
-config_file = zf / ".config"
-if config_file.exists():
-    try:
-        config = json.loads(config_file.read_text())
-    except Exception as e:
-        print(f"[zie] warning: .config unreadable ({e}), using defaults", file=sys.stderr)
+config = load_config(cwd)
 
 roadmap_file = zf / "ROADMAP.md"
 now_items = parse_roadmap_now(roadmap_file)

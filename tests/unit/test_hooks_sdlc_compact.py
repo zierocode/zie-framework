@@ -365,6 +365,22 @@ class TestSdlcCompactPostCompact:
         assert "sdlc-compact hook" in ctx
 
 
+    def test_postcompact_git_unavailable_exits_zero(self, tmp_path):
+        """PostCompact must exit 0 even when git is not on PATH."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        # No snapshot — forces live fallback which calls git
+        assert not snapshot_path(tmp_path).exists()
+        empty_bin = tmp_path / "empty_bin"
+        empty_bin.mkdir()
+        r = run_hook(
+            "PostCompact",
+            tmp_cwd=cwd,
+            env_overrides={"PATH": str(empty_bin)},
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr
+
+
 # ---------------------------------------------------------------------------
 # Error handling convention
 # ---------------------------------------------------------------------------
@@ -443,3 +459,39 @@ class TestSdlcCompactErrorHandlingConvention:
                                 f"sys.exit({arg.value}) found at line {node.lineno} — "
                                 "hooks must only exit 0"
                             )
+
+
+class TestSubprocessTimeouts:
+    def test_git_timeout_exits_zero(self, tmp_path):
+        """Hook must exit 0 when both git calls hang beyond 5s.
+
+        Timing contract:
+          - Fake git sleeps 60s.
+          - Hook has timeout=5 per call (GREEN) → ~10s total → exits 0.
+          - Hook has no timeout (RED) → hangs 60s → outer test fires at 15s → TimeoutExpired (FAIL).
+        """
+        import stat
+        # Create a fake git that hangs
+        fake_bin = tmp_path / "fake_bin"
+        fake_bin.mkdir()
+        fake_git = fake_bin / "git"
+        fake_git.write_text("#!/bin/sh\nsleep 60\n")
+        fake_git.chmod(fake_git.stat().st_mode | stat.S_IEXEC)
+
+        # Build cwd with zie-framework/ so hook passes outer guard
+        cwd = make_cwd(tmp_path / "proj", roadmap=SAMPLE_ROADMAP)
+
+        env = {**os.environ}
+        env["CLAUDE_CWD"] = str(cwd)
+        env["PATH"] = str(fake_bin) + os.pathsep + env.get("PATH", "")
+        event = json.dumps({"hook_event_name": "PreCompact", "cwd": str(cwd)})
+
+        result = subprocess.run(
+            [sys.executable, HOOK],
+            input=event,
+            capture_output=True,
+            text=True,
+            timeout=15,  # > 2 × 5s (branch + diff) but < 60s (fake git sleep)
+            env=env,
+        )
+        assert result.returncode == 0

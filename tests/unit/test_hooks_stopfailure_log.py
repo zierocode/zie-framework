@@ -46,8 +46,9 @@ def make_cwd(tmp_path, roadmap=None):
 def failure_log_path(cwd):
     """Mirror the hook's log path calculation."""
     import re
+    import tempfile
     safe = re.sub(r"[^a-zA-Z0-9]", "-", cwd.name)
-    return Path(f"/tmp/zie-{safe}-failure-log")
+    return Path(tempfile.gettempdir()) / f"zie-{safe}-failure-log"
 
 
 class TestLogWritten:

@@ -177,6 +177,23 @@ class TestBashConfirmRewrite:
         out = json.loads(r.stdout)
         assert "Would run:" in out["updatedInput"]["command"]
 
+    @pytest.mark.parametrize("command", [
+        'rm -rf ./dist "quoted dir"',
+        "rm -rf ./it's-mine",
+        "rm -rf ./foo; evil",
+        "rm -rf ./a && evil",
+    ])
+    def test_confirm_rewrite_metacharacters_safe(self, command):
+        r = run_hook("Bash", {"command": command})
+        assert r.returncode == 0
+        out = json.loads(r.stdout)
+        assert "updatedInput" in out
+        assert "permissionDecision" in out
+        rewritten_cmd = out["updatedInput"]["command"]
+        assert 'printf "Would run: %s\\n"' in rewritten_cmd
+        assert f'echo "Would run: {command}"' not in rewritten_cmd
+        assert f'{{ {command}; }}' in rewritten_cmd
+
 
 # ---------------------------------------------------------------------------
 # Non-targeted tools
@@ -219,6 +236,45 @@ class TestErrorResilience:
         assert r.returncode == 0
         assert r.stdout.strip() == ""
 
+    def test_missing_tool_name_exits_zero(self):
+        """Event with no tool_name key must exit 0."""
+        event = {"tool_input": {"file_path": "src/main.py"}}
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input=json.dumps(event),
+            capture_output=True, text=True,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_malformed_event_not_dict_exits_zero(self):
+        """stdin containing a JSON string (not a dict) must exit 0."""
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input='"just a string"',
+            capture_output=True, text=True,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_deeply_nested_tool_input_missing_file_path_exits_zero(self, tmp_path):
+        """Nested tool_input dict without file_path key must exit 0 without crash."""
+        event = {
+            "tool_name": "Write",
+            "tool_input": {
+                "nested": {"deeply": {"no_file_path": True}},
+                "content": "some content",
+            },
+        }
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input=json.dumps(event),
+            capture_output=True, text=True,
+            env={**os.environ, "CLAUDE_CWD": str(tmp_path)},
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
 
 # ---------------------------------------------------------------------------
 # hooks.json registration
@@ -249,4 +305,54 @@ class TestHooksJsonRegistration:
                 all_commands.append(h.get("command", ""))
         assert any("safety-check.py" in cmd for cmd in all_commands), (
             "safety-check.py must remain registered in hooks.json PreToolUse"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Path traversal edge cases
+# ---------------------------------------------------------------------------
+
+class TestPathTraversalEdgeCases:
+    def test_path_traversal_user_evil_prefix(self, tmp_path):
+        """startswith() false-negative: /home/user-evil/ passes the old check.
+
+        With is_relative_to() this must be rejected — hook exits 0, stdout
+        empty, stderr contains 'escapes cwd'.
+        """
+        r = run_hook("Write", {"file_path": "../user-evil/evil.py"}, cwd_override=str(tmp_path))
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+        assert "escapes cwd" in r.stderr
+
+    def test_path_nul_byte_rejected(self, tmp_path):
+        """NUL byte in file_path must not crash the hook.
+
+        Python's Path() raises ValueError on NUL bytes; the inner except
+        block catches it and exits 0.
+        """
+        r = run_hook("Write", {"file_path": "foo\x00bar.py"}, cwd_override=str(tmp_path))
+        assert r.returncode == 0
+        if r.stdout.strip():
+            json.loads(r.stdout)  # raises if not valid JSON
+
+    def test_path_with_symlink_outside_cwd(self, tmp_path):
+        """Symlink inside cwd pointing outside cwd must be rejected.
+
+        .resolve() follows the symlink to its real path; is_relative_to()
+        then rejects it because the real path is outside tmp_path.
+        """
+        link = tmp_path / "link"
+        link.symlink_to("/etc")
+        r = run_hook("Write", {"file_path": "link/passwd"}, cwd_override=str(tmp_path))
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+
+class TestInputSanitizerComment:
+    def test_has_do_not_use_normalize_command_comment(self):
+        """input-sanitizer.py must have a comment explaining why normalize_command is not used."""
+        sanitizer = Path(REPO_ROOT) / "hooks" / "input-sanitizer.py"
+        content = sanitizer.read_text()
+        assert "do not use normalize_command" in content.lower(), (
+            "input-sanitizer.py must have a 'do not use normalize_command' comment"
         )

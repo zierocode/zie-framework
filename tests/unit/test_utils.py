@@ -1,6 +1,7 @@
 """Tests for hooks/utils.py"""
 import os
 import sys
+import tempfile
 from pathlib import Path
 import pytest
 
@@ -56,15 +57,18 @@ class TestParseRoadmapNow:
 class TestProjectTmpPath:
     def test_basic_name(self):
         result = project_tmp_path("last-test", "my-project")
-        assert result == Path("/tmp/zie-my-project-last-test")
+        expected = Path(tempfile.gettempdir()) / "zie-my-project-last-test"
+        assert result == expected
 
     def test_spaces_replaced(self):
         result = project_tmp_path("edit-count", "my project!")
-        assert str(result) == "/tmp/zie-my-project--edit-count"
+        expected = Path(tempfile.gettempdir()) / "zie-my-project--edit-count"
+        assert result == expected
 
     def test_case_preserved(self):
         result = project_tmp_path("x", "ABC")
-        assert result == Path("/tmp/zie-ABC-x")
+        expected = Path(tempfile.gettempdir()) / "zie-ABC-x"
+        assert result == expected
 
     def test_returns_path_object(self):
         result = project_tmp_path("foo", "bar")
@@ -78,12 +82,20 @@ class TestAtomicWrite:
         atomic_write(target, "project=foo\nwip=bar\n")
         assert target.read_text() == "project=foo\nwip=bar\n"
 
-    def test_no_tmp_file_left_on_success(self, tmp_path):
+    def test_atomic_write_no_predictable_tmp_sibling(self, tmp_path):
         from utils import atomic_write
         target = tmp_path / "pending_learn.txt"
         atomic_write(target, "hello")
-        tmp_file = target.with_suffix(".tmp")
-        assert not tmp_file.exists(), ".tmp file must be cleaned up after successful rename"
+        assert not target.with_suffix(".tmp").exists(), (
+            "atomic_write must not leave a predictable .tmp sibling"
+        )
+
+    def test_atomic_write_permissions(self, tmp_path):
+        from utils import atomic_write
+        target = tmp_path / "pending_learn.txt"
+        atomic_write(target, "hello")
+        mode = oct(os.stat(target).st_mode)[-3:]
+        assert mode == "600", f"Expected 600 permissions, got {mode}"
 
     def test_overwrites_existing_file(self, tmp_path):
         from utils import atomic_write
@@ -97,16 +109,6 @@ class TestAtomicWrite:
         target = tmp_path / "out.txt"
         atomic_write(target, "")
         assert target.read_text() == ""
-
-    def test_stale_tmp_overwritten(self, tmp_path):
-        from utils import atomic_write
-        target = tmp_path / "out.txt"
-        stale_tmp = target.with_suffix(".tmp")
-        stale_tmp.write_text("stale")
-        atomic_write(target, "fresh")
-        assert target.read_text() == "fresh"
-        assert not stale_tmp.exists()
-
 
 class TestSafeProjectName:
     def test_alphanumeric_unchanged(self):
@@ -130,11 +132,10 @@ class TestSafeProjectName:
         assert safe_project_name("zie-framework") == "zie-framework"
 
     def test_project_tmp_path_uses_safe_project_name(self):
-        """project_tmp_path output must equal /tmp/zie-{safe_project_name(p)}-{name}."""
+        """project_tmp_path output must equal <tmpdir>/zie-{safe_project_name(p)}-{name}."""
         from utils import safe_project_name
-        from pathlib import Path
         p = "my project!"
-        expected = Path(f"/tmp/zie-{safe_project_name(p)}-last-test")
+        expected = Path(tempfile.gettempdir()) / f"zie-{safe_project_name(p)}-last-test"
         assert project_tmp_path("last-test", p) == expected
 
 
@@ -219,7 +220,8 @@ class TestGetPluginDataDir:
         monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
         result = get_plugin_data_dir("myproject")
         safe = safe_project_name("myproject")
-        assert str(result) == f"/tmp/zie-{safe}-persistent"
+        expected = Path(tempfile.gettempdir()) / f"zie-{safe}-persistent"
+        assert result == expected
 
     def test_fallback_emits_stderr_warning(self, monkeypatch, capsys):
         from utils import get_plugin_data_dir
@@ -239,7 +241,7 @@ class TestGetPluginDataDir:
         from utils import get_plugin_data_dir
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", "")
         result = get_plugin_data_dir("myproject")
-        assert str(result).startswith("/tmp/")
+        assert str(result).startswith(str(tempfile.gettempdir()))
         captured = capsys.readouterr()
         assert "CLAUDE_PLUGIN_DATA" in captured.err
 
@@ -320,6 +322,13 @@ class TestSafeWritePersistent:
         result = safe_write_persistent(target, "first")
         assert result is True
         assert target.read_text() == "first"
+
+    def test_safe_write_persistent_permissions(self, tmp_path):
+        from utils import safe_write_persistent
+        target = tmp_path / "data.txt"
+        safe_write_persistent(target, "data")
+        mode = oct(os.stat(target).st_mode)[-3:]
+        assert mode == "600", f"Expected 600 permissions, got {mode}"
 
 
 class TestPersistentProjectPath:
@@ -409,6 +418,13 @@ class TestSafeWriteTmp:
         assert result is True
         assert target.read_text() == "first-run"
 
+    def test_safe_write_tmp_permissions(self, tmp_path):
+        from utils import safe_write_tmp
+        target = tmp_path / "zie-test-perms"
+        safe_write_tmp(target, "data")
+        mode = oct(os.stat(target).st_mode)[-3:]
+        assert mode == "600", f"Expected 600 permissions, got {mode}"
+
 
 class TestProjectTmpPathEdgeCases:
     """Contract tests for project_tmp_path() with pathological project names.
@@ -424,7 +440,8 @@ class TestProjectTmpPathEdgeCases:
         assert result_str.isascii(), f"Expected ASCII path, got: {result_str}"
         assert isinstance(result, Path)
         # 'é' → '-', so 'café' → 'caf-'
-        assert result_str == "/tmp/zie-mon-projet-caf--last-test"
+        expected = str(Path(tempfile.gettempdir()) / "zie-mon-projet-caf--last-test")
+        assert result_str == expected
 
     def test_emoji_project_name(self):
         # Each emoji code point is non-alphanumeric — replaced with single '-'
@@ -433,12 +450,14 @@ class TestProjectTmpPathEdgeCases:
         assert result_str.isascii(), f"Expected ASCII path, got: {result_str}"
         assert isinstance(result, Path)
         # 'my-app-' + '🚀'→'-' → 'my-app--'; path = zie- + my-app-- + -edit-count
-        assert result_str == "/tmp/zie-my-app---edit-count"
+        expected = str(Path(tempfile.gettempdir()) / "zie-my-app---edit-count")
+        assert result_str == expected
 
     def test_leading_dash_project_name(self):
         # '-' is not in [a-zA-Z0-9] but re.sub('-'→'-') is a no-op change
         result = project_tmp_path("last-test", "-myproject")
-        assert str(result) == "/tmp/zie--myproject-last-test"
+        expected = str(Path(tempfile.gettempdir()) / "zie--myproject-last-test")
+        assert str(result) == expected
         assert isinstance(result, Path)
 
     def test_very_long_project_name(self):
@@ -457,16 +476,16 @@ class TestProjectTmpPathEdgeCases:
         result = project_tmp_path("last-test", "../etc")
         result_str = str(result)
         assert ".." not in result_str
-        parts = Path(result_str).parts
-        assert parts[0] == "/"
-        assert parts[1] == "tmp"
-        assert result_str == "/tmp/zie----etc-last-test"
+        assert "tmp" in result_str.lower() or tempfile.gettempdir() in result_str
+        expected = str(Path(tempfile.gettempdir()) / "zie----etc-last-test")
+        assert result_str == expected
 
     def test_dot_only_project_name(self):
         # '.' → '-' via re.sub
         result = project_tmp_path("x", ".")
         result_str = str(result)
-        assert result_str == "/tmp/zie---x"
+        expected = str(Path(tempfile.gettempdir()) / "zie---x")
+        assert result_str == expected
         assert isinstance(result, Path)
         assert "/." not in result_str
 
@@ -574,10 +593,10 @@ class TestReadEvent:
 
 
 class TestLoadConfig:
-    def test_returns_dict_for_valid_config(self, tmp_path):
+    def test_returns_dict_for_valid_json_config(self, tmp_path):
         zf = tmp_path / "zie-framework"
         zf.mkdir()
-        (zf / ".config").write_text("[zie-framework]\nsafety_check_mode = agent\n")
+        (zf / ".config").write_text('{"safety_check_mode": "agent"}')
         from utils import load_config
         result = load_config(tmp_path)
         assert result.get("safety_check_mode") == "agent"
@@ -586,24 +605,45 @@ class TestLoadConfig:
         from utils import load_config
         assert load_config(tmp_path) == {}
 
-    def test_ignores_comments_and_blanks(self, tmp_path):
+    def test_returns_empty_on_invalid_json(self, tmp_path):
         zf = tmp_path / "zie-framework"
         zf.mkdir()
-        (zf / ".config").write_text(
-            "# comment\n\n[section]\nkey = value\n"
-        )
+        (zf / ".config").write_text("not valid json")
         from utils import load_config
-        assert load_config(tmp_path).get("key") == "value"
-
-    def test_returns_empty_on_parse_error(self, tmp_path):
-        zf = tmp_path / "zie-framework"
-        zf.mkdir()
-        (zf / ".config").write_text(":::\ninvalid::content\n")
-        from utils import load_config
-        # must not raise; may return {} or partial dict
         result = load_config(tmp_path)
-        assert isinstance(result, dict)
+        assert result == {}
 
+    def test_returns_empty_on_empty_file(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text("")
+        from utils import load_config
+        assert load_config(tmp_path) == {}
+
+    def test_boolean_value_preserved(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('{"playwright_enabled": false, "has_frontend": true}')
+        from utils import load_config
+        result = load_config(tmp_path)
+        assert result["playwright_enabled"] is False
+        assert result["has_frontend"] is True
+
+    def test_integer_value_preserved(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('{"debounce_ms": 3000}')
+        from utils import load_config
+        result = load_config(tmp_path)
+        assert result["debounce_ms"] == 3000
+
+    def test_string_value_preserved(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('{"test_runner": "pytest"}')
+        from utils import load_config
+        result = load_config(tmp_path)
+        assert result["test_runner"] == "pytest"
 
 class TestConfigTemplate:
     def test_template_contains_safety_check_mode(self):
@@ -638,3 +678,152 @@ class TestGetCwd:
     def test_returns_path_object(self, monkeypatch, tmp_path):
         monkeypatch.setenv("CLAUDE_CWD", str(tmp_path))
         assert isinstance(get_cwd(), Path)
+
+
+class TestNormalizeCommand:
+    @pytest.mark.parametrize("cmd,expected", [
+        ("git   add  .", "git add ."),
+        ("  GIT ADD .  ", "git add ."),
+        ("git\t\tadd\t.", "git add ."),
+        ("make\n test", "make test"),
+        ("git add .", "git add ."),
+        ("", ""),
+        ("   ", ""),
+        ("GIT PUSH ORIGIN MAIN", "git push origin main"),
+    ])
+    def test_normalize_command(self, cmd, expected):
+        from utils import normalize_command
+        assert normalize_command(cmd) == expected
+
+    def test_lowercases_command(self):
+        from utils import normalize_command
+        result = normalize_command("MAKE TEST")
+        assert result == "make test"
+
+    def test_collapses_tabs_and_newlines(self):
+        from utils import normalize_command
+        result = normalize_command("git\t\tcommit\n-m\r\nmsg")
+        assert result == "git commit -m msg"
+
+
+class TestBlocksWarns:
+    def test_blocks_importable_from_utils(self):
+        from utils import BLOCKS
+        assert isinstance(BLOCKS, list)
+        assert len(BLOCKS) > 0
+
+    def test_warns_importable_from_utils(self):
+        from utils import WARNS
+        assert isinstance(WARNS, list)
+        assert len(WARNS) > 0
+
+    def test_blocks_entries_are_tuples(self):
+        from utils import BLOCKS
+        for entry in BLOCKS:
+            assert isinstance(entry, tuple)
+            assert len(entry) == 2
+
+    def test_warns_entries_are_tuples(self):
+        from utils import WARNS
+        for entry in WARNS:
+            assert isinstance(entry, tuple)
+            assert len(entry) == 2
+
+    def test_blocks_contains_rm_rf_pattern(self):
+        from utils import BLOCKS
+        patterns = [p for p, _ in BLOCKS]
+        assert any("rm" in p for p in patterns)
+
+    def test_warns_contains_docker_compose_pattern(self):
+        from utils import WARNS
+        patterns = [p for p, _ in WARNS]
+        assert any("docker" in p for p in patterns)
+
+
+class TestSdlcStages:
+    def test_sdlc_stages_is_exported(self):
+        from utils import SDLC_STAGES
+        assert SDLC_STAGES is not None
+
+    def test_sdlc_stages_is_list(self):
+        from utils import SDLC_STAGES
+        assert isinstance(SDLC_STAGES, list)
+
+    def test_sdlc_stages_contains_eight_entries(self):
+        from utils import SDLC_STAGES
+        assert len(SDLC_STAGES) == 8
+
+    def test_sdlc_stages_values(self):
+        from utils import SDLC_STAGES
+        assert SDLC_STAGES == [
+            "init", "backlog", "spec", "plan",
+            "implement", "fix", "release", "retro",
+        ]
+
+    def test_sdlc_stages_all_strings(self):
+        from utils import SDLC_STAGES
+        assert all(isinstance(s, str) for s in SDLC_STAGES)
+
+    def test_intent_detect_imports_sdlc_stages(self):
+        """intent-detect.py must reference SDLC_STAGES from utils."""
+        content = (REPO_ROOT / "hooks" / "intent-detect.py").read_text()
+        assert "SDLC_STAGES" in content, (
+            "intent-detect.py must import or reference SDLC_STAGES"
+        )
+
+    def test_sdlc_context_imports_sdlc_stages(self):
+        """sdlc-context.py must reference SDLC_STAGES from utils."""
+        content = (REPO_ROOT / "hooks" / "sdlc-context.py").read_text()
+        assert "SDLC_STAGES" in content, (
+            "sdlc-context.py must import or reference SDLC_STAGES"
+        )
+
+
+class TestParseRoadmapNowWarnOnEmpty:
+    def test_warn_false_default_no_stderr_when_empty(self, tmp_path, capsys):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n\n## Next\n- [ ] foo\n")
+        result = parse_roadmap_now(f)
+        assert result == []
+        captured = capsys.readouterr()
+        assert captured.err == ""
+
+    def test_warn_true_emits_stderr_when_now_empty(self, tmp_path, capsys):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n\n## Next\n- [ ] foo\n")
+        result = parse_roadmap_now(f, warn_on_empty=True)
+        assert result == []
+        captured = capsys.readouterr()
+        assert "[zie-framework]" in captured.err
+        assert "Now section" in captured.err
+
+    def test_warn_true_emits_stderr_when_now_absent(self, tmp_path, capsys):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Done\n- [x] something\n")
+        result = parse_roadmap_now(f, warn_on_empty=True)
+        assert result == []
+        captured = capsys.readouterr()
+        assert "[zie-framework]" in captured.err
+
+    def test_warn_true_no_stderr_when_file_missing(self, tmp_path, capsys):
+        result = parse_roadmap_now(tmp_path / "nonexistent.md", warn_on_empty=True)
+        assert result == []
+        captured = capsys.readouterr()
+        assert captured.err == ""
+
+    def test_warn_true_no_stderr_when_now_has_items(self, tmp_path, capsys):
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n- [ ] active task\n")
+        result = parse_roadmap_now(f, warn_on_empty=True)
+        assert result == ["active task"]
+        captured = capsys.readouterr()
+        assert captured.err == ""
+
+    def test_existing_callers_unaffected(self, tmp_path, capsys):
+        """Calling with no arguments must behave exactly as before."""
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Now\n\n")
+        result = parse_roadmap_now(f)
+        assert result == []
+        captured = capsys.readouterr()
+        assert captured.err == ""

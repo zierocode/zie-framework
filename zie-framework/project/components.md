@@ -83,3 +83,11 @@ uncommitted working-tree changes are invisible.
 a handle immediately. The caller continues without blocking. The caller is
 responsible for polling the handle and handling `approved` / `issues_found`
 states.
+
+## Utility Scripts
+
+Scripts in `hooks/` that are not registered as hook event handlers.
+
+| Script | Purpose |
+| --- | --- |
+| `hooks/knowledge-hash.py` | Compute SHA-256 of project structure for drift detection. Called by `make resync` / `/zie-resync`. Not registered in hooks.json. |

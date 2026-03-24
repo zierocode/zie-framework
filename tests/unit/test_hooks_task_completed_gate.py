@@ -271,3 +271,28 @@ class TestPerformance:
         start = time.time()
         run_hook("Fix broken handler", cwd=tmp_path)
         assert time.time() - start < 2.0
+
+
+class TestGitTimeout:
+    def test_git_timeout_exits_zero(self, tmp_path):
+        """task-completed-gate.py must exit 0 when git hangs."""
+        import stat
+        bin_dir = tmp_path / "fakebin"
+        bin_dir.mkdir()
+        fake_git = bin_dir / "git"
+        fake_git.write_text("#!/bin/sh\nsleep 60\n")
+        fake_git.chmod(fake_git.stat().st_mode | stat.S_IEXEC)
+        env = os.environ.copy()
+        env["CLAUDE_CWD"] = str(tmp_path)
+        env["PATH"] = str(bin_dir) + ":" + os.environ.get("PATH", "")
+        event = {
+            "tool_name": "TaskUpdate",
+            "tool_input": {"id": "t1", "status": "completed", "title": "Implement feature X"},
+        }
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input=json.dumps(event),
+            capture_output=True, text=True, env=env, timeout=10,
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr
