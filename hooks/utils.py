@@ -2,19 +2,20 @@
 
 Storage tiers
 -------------
-/tmp paths (project_tmp_path / safe_write_tmp):
+Tmp paths (project_tmp_path / safe_write_tmp):
     Session-scoped state. Cleared by session-cleanup.py on Stop.
     Use for: debounce timestamps, ephemeral counters that reset each session.
 
 Persistent paths (get_plugin_data_dir / persistent_project_path / safe_write_persistent):
     Cross-session state backed by $CLAUDE_PLUGIN_DATA (set by Claude Code).
-    Falls back to /tmp with a warning when the env var is absent.
+    Falls back to tempfile.gettempdir() with a warning when the env var is absent.
     Use for: edit counters that survive restart, pending_learn markers.
 """
 import json
 import os
 import re
 import sys
+import tempfile
 import urllib.request
 from pathlib import Path
 
@@ -55,14 +56,26 @@ def parse_roadmap_now(roadmap_path) -> list:
 
 
 def atomic_write(path: Path, content: str) -> None:
-    """Write content to path atomically using a sibling .tmp file and rename.
+    """Write content to path atomically using an unpredictable temp file and rename.
 
-    On POSIX, os.rename() (called by Path.rename()) is atomic at the filesystem
-    level, preventing partial reads from concurrent writers.
+    Uses tempfile.NamedTemporaryFile to avoid predictable sibling names and
+    eliminate the TOCTOU window. Sets owner-only (0o600) permissions on the
+    final file after rename.
     """
-    tmp_path = path.with_suffix(".tmp")
-    tmp_path.write_text(content)
-    tmp_path.rename(path)
+    with tempfile.NamedTemporaryFile(
+        mode='w', dir=path.parent, delete=False, suffix='.tmp'
+    ) as f:
+        f.write(content)
+        tmp_name = f.name
+    try:
+        os.replace(tmp_name, path)
+        os.chmod(path, 0o600)
+    except OSError:
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
+        raise
 
 
 def safe_project_name(project: str) -> str:
@@ -75,11 +88,11 @@ def safe_project_name(project: str) -> str:
 
 
 def project_tmp_path(name: str, project: str) -> Path:
-    """Return a project-scoped /tmp path to prevent cross-project collisions.
+    """Return a project-scoped tmp path to prevent cross-project collisions.
 
-    Example: project_tmp_path("last-test", "my-project") -> Path("/tmp/zie-my-project-last-test")
+    Uses tempfile.gettempdir() for portability (resolves Bandit B108).
     """
-    return Path(f"/tmp/zie-{safe_project_name(project)}-{name}")
+    return Path(tempfile.gettempdir()) / f"zie-{safe_project_name(project)}-{name}"
 
 
 def get_plugin_data_dir(project: str) -> Path:
@@ -96,10 +109,10 @@ def get_plugin_data_dir(project: str) -> Path:
         path = Path(base) / safe_project_name(project)
     else:
         print(
-            "[zie-framework] CLAUDE_PLUGIN_DATA not set, using /tmp fallback",
+            "[zie-framework] CLAUDE_PLUGIN_DATA not set, using tempfile.gettempdir() fallback",
             file=sys.stderr,
         )
-        path = Path(f"/tmp/zie-{safe_project_name(project)}-persistent")
+        path = Path(tempfile.gettempdir()) / f"zie-{safe_project_name(project)}-persistent"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -107,8 +120,9 @@ def get_plugin_data_dir(project: str) -> Path:
 def safe_write_persistent(path: Path, content: str) -> bool:
     """Atomically write content to a persistent path, refusing to follow symlinks.
 
-    Identical contract to safe_write_tmp(): returns True on success, False if
-    path is a symlink or an OSError occurs. Uses os.replace() for atomicity.
+    Uses NamedTemporaryFile for an unpredictable intermediate name. Sets
+    owner-only (0o600) permissions on the final file. Returns True on success,
+    False if path is a symlink or an OSError occurs.
     """
     if os.path.islink(path):
         print(
@@ -117,11 +131,19 @@ def safe_write_persistent(path: Path, content: str) -> bool:
         )
         return False
     try:
-        tmp_path = path.parent / (path.name + ".tmp")
-        tmp_path.write_text(content)
-        os.replace(tmp_path, path)
+        with tempfile.NamedTemporaryFile(
+            mode='w', dir=path.parent, delete=False, suffix='.tmp'
+        ) as f:
+            f.write(content)
+            tmp_name = f.name
+        os.replace(tmp_name, path)
+        os.chmod(path, 0o600)
         return True
     except OSError:
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
         return False
 
 
@@ -196,8 +218,9 @@ def get_cwd() -> Path:
 def safe_write_tmp(path: Path, content: str) -> bool:
     """Atomically write content to path, refusing to follow symlinks.
 
-    Returns True on success, False if path is a symlink or an OSError occurs.
-    Uses write-to-.tmp-sibling then os.replace() for atomicity.
+    Uses NamedTemporaryFile for an unpredictable intermediate name. Sets
+    owner-only (0o600) permissions on the final file. Returns True on success,
+    False if path is a symlink or an OSError occurs.
     """
     if os.path.islink(path):
         print(
@@ -206,9 +229,17 @@ def safe_write_tmp(path: Path, content: str) -> bool:
         )
         return False
     try:
-        tmp_path = path.parent / (path.name + ".tmp")
-        tmp_path.write_text(content)
-        os.replace(tmp_path, path)
+        with tempfile.NamedTemporaryFile(
+            mode='w', dir=path.parent, delete=False, suffix='.tmp'
+        ) as f:
+            f.write(content)
+            tmp_name = f.name
+        os.replace(tmp_name, path)
+        os.chmod(path, 0o600)
         return True
     except OSError:
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
         return False

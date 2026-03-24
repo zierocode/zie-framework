@@ -177,6 +177,23 @@ class TestBashConfirmRewrite:
         out = json.loads(r.stdout)
         assert "Would run:" in out["updatedInput"]["command"]
 
+    @pytest.mark.parametrize("command", [
+        'rm -rf ./dist "quoted dir"',
+        "rm -rf ./it's-mine",
+        "rm -rf ./foo; evil",
+        "rm -rf ./a && evil",
+    ])
+    def test_confirm_rewrite_metacharacters_safe(self, command):
+        r = run_hook("Bash", {"command": command})
+        assert r.returncode == 0
+        out = json.loads(r.stdout)
+        assert "updatedInput" in out
+        assert "permissionDecision" in out
+        rewritten_cmd = out["updatedInput"]["command"]
+        assert 'printf "Would run: %s\\n"' in rewritten_cmd
+        assert f'echo "Would run: {command}"' not in rewritten_cmd
+        assert f'{{ {command}; }}' in rewritten_cmd
+
 
 # ---------------------------------------------------------------------------
 # Non-targeted tools

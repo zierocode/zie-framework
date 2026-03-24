@@ -248,9 +248,10 @@ class TestSafetyCheckModeDispatch:
     def test_both_mode_writes_ab_log(self, tmp_path):
         """In both mode, an A/B record must be written after evaluation."""
         import re
+        import tempfile
         cwd = self._make_config(tmp_path, "both")
         safe = re.sub(r"[^a-zA-Z0-9]", "-", tmp_path.name)
-        log_path = Path(f"/tmp/zie-{safe}-safety-ab")
+        log_path = Path(tempfile.gettempdir()) / f"zie-{safe}-safety-ab"
         log_path.unlink(missing_ok=True)
         self._run(cwd, "echo hello")
         assert log_path.exists(), f"A/B log not created at {log_path}"
@@ -261,9 +262,10 @@ class TestSafetyCheckModeDispatch:
     def test_regex_mode_does_not_write_ab_log(self, tmp_path):
         """In regex mode (default), no A/B log must be written."""
         import re
+        import tempfile
         cwd = self._make_config(tmp_path, "regex")
         safe = re.sub(r"[^a-zA-Z0-9]", "-", tmp_path.name)
-        log_path = Path(f"/tmp/zie-{safe}-safety-ab")
+        log_path = Path(tempfile.gettempdir()) / f"zie-{safe}-safety-ab"
         log_path.unlink(missing_ok=True)
         self._run(cwd, "echo hello")
         assert not log_path.exists(), "A/B log must not be written in regex mode"

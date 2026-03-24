@@ -12,6 +12,7 @@ Exits 0 on all error paths (ADR-003).
 import json
 import os
 import re
+import shlex
 import sys
 from pathlib import Path
 
@@ -88,7 +89,7 @@ if tool_name == "Bash":
         for pattern in CONFIRM_PATTERNS:
             if re.search(pattern, normalized):
                 rewritten = (
-                    f'echo "Would run: {command}" '
+                    f'printf "Would run: %s\\n" {shlex.quote(command)} '
                     f'&& read -p "Confirm? [y/N] " _y '
                     f'&& [ "$_y" = "y" ] && {{ {command}; }}'
                 )

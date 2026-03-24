@@ -31,8 +31,9 @@ def run_hook(event: dict, project_name: str, env_overrides: dict | None = None):
 def tmp_log_path(name: str, project: str) -> Path:
     """Mirror project_tmp_path logic for test assertions."""
     import re
+    import tempfile
     safe = re.sub(r"[^a-zA-Z0-9]", "-", project)
-    return Path(f"/tmp/zie-{safe}-{name}")
+    return Path(tempfile.gettempdir()) / f"zie-{safe}-{name}"
 
 
 # ---------------------------------------------------------------------------
