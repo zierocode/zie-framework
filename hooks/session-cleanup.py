@@ -12,6 +12,8 @@ event = read_event()
 cwd = get_cwd()
 safe_project = safe_project_name(cwd.name)
 
+# Session-scoped /tmp only. Persistent data under $CLAUDE_PLUGIN_DATA is
+# intentionally excluded — it must survive session restart.
 for tmp_file in Path("/tmp").glob(f"zie-{safe_project}-*"):  # nosec B108 — project-scoped /tmp paths by design
     try:
         tmp_file.unlink()

@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now, project_tmp_path, safe_write_tmp, call_zie_memory_api, read_event, get_cwd
+from utils import parse_roadmap_now, persistent_project_path, safe_write_persistent, call_zie_memory_api, read_event, get_cwd
 
 event = read_event()
 
@@ -31,8 +31,8 @@ zf = cwd / "zie-framework"
 if not zf.exists():
     sys.exit(0)
 
-# Edit counter via temp file
-counter_file = project_tmp_path("edit-count", cwd.name)
+# Edit counter via persistent file (survives session restart)
+counter_file = persistent_project_path("edit-count", cwd.name)
 count = 0
 if counter_file.exists():
     try:
@@ -41,7 +41,7 @@ if counter_file.exists():
         print(f"[zie-framework] wip-checkpoint: {e}", file=sys.stderr)
 
 count += 1
-safe_write_tmp(counter_file, str(count))
+safe_write_persistent(counter_file, str(count))
 
 # Only checkpoint every 5 edits
 CHECKPOINT_EVERY = 5

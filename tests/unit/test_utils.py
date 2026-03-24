@@ -195,6 +195,161 @@ class TestCallZieMemoryApi:
         assert captured["timeout"] == 5
 
 
+class TestGetPluginDataDir:
+    def test_uses_claude_plugin_data_when_set(self, tmp_path, monkeypatch):
+        from utils import get_plugin_data_dir
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        result = get_plugin_data_dir("my-project")
+        assert str(result).startswith(str(tmp_path))
+
+    def test_subdirectory_is_safe_project_name(self, tmp_path, monkeypatch):
+        from utils import get_plugin_data_dir, safe_project_name
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        result = get_plugin_data_dir("my project!")
+        assert result.name == safe_project_name("my project!")
+
+    def test_directory_is_created(self, tmp_path, monkeypatch):
+        from utils import get_plugin_data_dir
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        result = get_plugin_data_dir("newproject")
+        assert result.is_dir()
+
+    def test_fallback_to_tmp_when_env_unset(self, monkeypatch, capsys):
+        from utils import get_plugin_data_dir, safe_project_name
+        monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
+        result = get_plugin_data_dir("myproject")
+        safe = safe_project_name("myproject")
+        assert str(result) == f"/tmp/zie-{safe}-persistent"
+
+    def test_fallback_emits_stderr_warning(self, monkeypatch, capsys):
+        from utils import get_plugin_data_dir
+        monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
+        get_plugin_data_dir("myproject")
+        captured = capsys.readouterr()
+        assert "CLAUDE_PLUGIN_DATA" in captured.err
+        assert "fallback" in captured.err.lower() or "/tmp" in captured.err
+
+    def test_fallback_directory_is_created(self, monkeypatch):
+        from utils import get_plugin_data_dir
+        monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
+        result = get_plugin_data_dir("myproject")
+        assert result.is_dir()
+
+    def test_empty_env_var_treated_as_unset(self, monkeypatch, capsys):
+        from utils import get_plugin_data_dir
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", "")
+        result = get_plugin_data_dir("myproject")
+        assert str(result).startswith("/tmp/")
+        captured = capsys.readouterr()
+        assert "CLAUDE_PLUGIN_DATA" in captured.err
+
+    def test_returns_path_object(self, tmp_path, monkeypatch):
+        from utils import get_plugin_data_dir
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        assert isinstance(get_plugin_data_dir("proj"), Path)
+
+    def test_special_chars_in_project_name_sanitized(self, tmp_path, monkeypatch):
+        from utils import get_plugin_data_dir
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        result = get_plugin_data_dir("my/evil/../project")
+        # Path() must not escape tmp_path via traversal
+        assert str(result).startswith(str(tmp_path))
+        assert ".." not in str(result)
+
+
+class TestSafeWritePersistent:
+    def test_normal_write_returns_true(self, tmp_path):
+        from utils import safe_write_persistent
+        target = tmp_path / "data.txt"
+        result = safe_write_persistent(target, "hello")
+        assert result is True
+        assert target.read_text() == "hello"
+
+    def test_write_is_atomic_no_tmp_sibling(self, tmp_path):
+        from utils import safe_write_persistent
+        target = tmp_path / "data.txt"
+        safe_write_persistent(target, "content")
+        tmp_sibling = tmp_path / "data.txt.tmp"
+        assert not tmp_sibling.exists()
+
+    def test_symlink_returns_false(self, tmp_path):
+        from utils import safe_write_persistent
+        real = tmp_path / "real.txt"
+        real.write_text("protected")
+        link = tmp_path / "link.txt"
+        link.symlink_to(real)
+        result = safe_write_persistent(link, "attack")
+        assert result is False
+        assert real.read_text() == "protected"
+
+    def test_symlink_emits_stderr_warning(self, tmp_path, capsys):
+        from utils import safe_write_persistent
+        link = tmp_path / "link.txt"
+        link.symlink_to(tmp_path / "anything")
+        safe_write_persistent(link, "x")
+        captured = capsys.readouterr()
+        assert "WARNING" in captured.err
+        assert "symlink" in captured.err.lower()
+
+    def test_dangling_symlink_returns_false(self, tmp_path):
+        from utils import safe_write_persistent
+        link = tmp_path / "dangling.txt"
+        link.symlink_to(tmp_path / "does-not-exist")
+        result = safe_write_persistent(link, "data")
+        assert result is False
+
+    def test_oserror_returns_false(self, tmp_path):
+        from utils import safe_write_persistent
+        from unittest import mock
+        target = tmp_path / "err.txt"
+        with mock.patch("os.replace", side_effect=OSError("disk full")):
+            result = safe_write_persistent(target, "data")
+        assert result is False
+
+    def test_overwrites_existing_content(self, tmp_path):
+        from utils import safe_write_persistent
+        target = tmp_path / "data.txt"
+        target.write_text("old")
+        safe_write_persistent(target, "new")
+        assert target.read_text() == "new"
+
+    def test_path_not_existing_is_normal_write(self, tmp_path):
+        from utils import safe_write_persistent
+        target = tmp_path / "new.txt"
+        assert not target.exists()
+        result = safe_write_persistent(target, "first")
+        assert result is True
+        assert target.read_text() == "first"
+
+
+class TestPersistentProjectPath:
+    def test_returns_path_inside_plugin_data_dir(self, tmp_path, monkeypatch):
+        from utils import persistent_project_path
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        result = persistent_project_path("edit-count", "myproject")
+        assert result.parent.parent == tmp_path
+
+    def test_filename_matches_name_arg(self, tmp_path, monkeypatch):
+        from utils import persistent_project_path
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        result = persistent_project_path("pending_learn.txt", "myproject")
+        assert result.name == "pending_learn.txt"
+
+    def test_returns_path_object(self, tmp_path, monkeypatch):
+        from utils import persistent_project_path
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        assert isinstance(persistent_project_path("x", "y"), Path)
+
+    def test_mirrors_project_tmp_path_structure(self, tmp_path, monkeypatch):
+        """persistent_project_path and project_tmp_path must use the same
+        safe_project_name sanitization for the project segment."""
+        from utils import persistent_project_path, safe_project_name
+        monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
+        result = persistent_project_path("edit-count", "my project!")
+        safe = safe_project_name("my project!")
+        assert safe in str(result)
+
+
 class TestSafeWriteTmp:
     def test_normal_write_returns_true(self, tmp_path):
         from utils import safe_write_tmp

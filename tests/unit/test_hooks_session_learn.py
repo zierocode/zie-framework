@@ -4,6 +4,10 @@ from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "session-learn.py")
+import sys as _sys
+import os as _os
+_sys.path.insert(0, _os.path.join(REPO_ROOT, "hooks"))
+from utils import persistent_project_path
 
 SAMPLE_ROADMAP = """## Now
 - [ ] Implement login flow
@@ -34,27 +38,27 @@ class TestSessionLearnPendingLearnFile:
     def test_writes_pending_learn_file(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook(cwd)
-        pending = Path.home() / ".claude" / "projects" / tmp_path.name / "pending_learn.txt"
+        pending = persistent_project_path("pending_learn.txt", tmp_path.name)
         assert pending.exists(), f"pending_learn.txt not written at {pending}"
 
     def test_pending_learn_contains_project_name(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook(cwd)
-        pending = Path.home() / ".claude" / "projects" / tmp_path.name / "pending_learn.txt"
+        pending = persistent_project_path("pending_learn.txt", tmp_path.name)
         content = pending.read_text()
         assert f"project={tmp_path.name}" in content
 
     def test_pending_learn_contains_wip_context(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook(cwd)
-        pending = Path.home() / ".claude" / "projects" / tmp_path.name / "pending_learn.txt"
+        pending = persistent_project_path("pending_learn.txt", tmp_path.name)
         content = pending.read_text()
         assert "login flow" in content or "wip=" in content
 
     def test_pending_learn_empty_wip_when_no_roadmap(self, tmp_path):
         cwd = make_cwd(tmp_path)  # no ROADMAP.md
         run_hook(cwd)
-        pending = Path.home() / ".claude" / "projects" / tmp_path.name / "pending_learn.txt"
+        pending = persistent_project_path("pending_learn.txt", tmp_path.name)
         content = pending.read_text()
         assert "project=" in content
         assert "wip=" in content
@@ -63,7 +67,7 @@ class TestSessionLearnPendingLearnFile:
         """atomic_write must not leave a .tmp sibling file."""
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook(cwd)
-        pending = Path.home() / ".claude" / "projects" / tmp_path.name / "pending_learn.txt"
+        pending = persistent_project_path("pending_learn.txt", tmp_path.name)
         tmp_file = pending.with_suffix(".tmp")
         assert not tmp_file.exists(), f".tmp file left behind at {tmp_file}"
 
@@ -122,7 +126,7 @@ class TestSessionLearnMemoryEnabledFastPath:
             "ZIE_MEMORY_API_URL": "https://example.com",
         })
         assert r.returncode == 0
-        pending = Path.home() / ".claude" / "projects" / tmp_path.name / "pending_learn.txt"
+        pending = persistent_project_path("pending_learn.txt", tmp_path.name)
         assert pending.exists(), "pending_learn.txt must be written regardless of ZIE_MEMORY_ENABLED"
         assert "session-learn:" not in r.stderr
 
@@ -144,6 +148,22 @@ class TestSessionLearnMemoryEnabledFastPath:
             "ZIE_MEMORY_API_URL": "",
         })
         assert r.returncode == 0
+
+
+class TestSessionLearnUsesPersistentPath:
+    def test_uses_persistent_project_path(self):
+        """session-learn.py must use persistent_project_path, not hardcoded ~/.claude path."""
+        source = Path(HOOK).read_text()
+        assert "persistent_project_path" in source, (
+            "session-learn.py must use persistent_project_path from utils"
+        )
+
+    def test_no_hardcoded_dot_claude_path(self):
+        """session-learn.py must not manually construct ~/.claude/projects path."""
+        source = Path(HOOK).read_text()
+        assert '".claude"' not in source and "'.claude'" not in source, (
+            "session-learn.py must not hardcode .claude path — use persistent_project_path"
+        )
 
 
 class TestSessionLearnUrlSafety:

@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now, atomic_write, call_zie_memory_api, read_event, get_cwd
+from utils import parse_roadmap_now, persistent_project_path, atomic_write, call_zie_memory_api, read_event, get_cwd
 
 event = read_event()
 
@@ -19,9 +19,8 @@ if not zf.exists():
 
 project = cwd.name
 
-# Write pending_learn marker for next session
-pending_learn_file = Path.home() / ".claude" / "projects" / project / "pending_learn.txt"
-pending_learn_file.parent.mkdir(parents=True, exist_ok=True)
+# Write pending_learn marker for next session (persistent across restarts)
+pending_learn_file = persistent_project_path("pending_learn.txt", project)
 
 # Read ROADMAP for context
 roadmap_file = zf / "ROADMAP.md"
