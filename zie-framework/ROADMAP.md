@@ -27,6 +27,8 @@
 
 <!-- LOW -->
 
+- [ ] parallel-model-effort-optimization — [plan](plans/2026-03-24-parallel-model-effort-optimization.md) ✓
+
 ---
 
 ## Next — Prioritized Backlog
