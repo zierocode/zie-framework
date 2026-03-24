@@ -3,7 +3,7 @@
     "SessionStart": "plain text printed to stdout — injected as session context",
     "UserPromptSubmit": "JSON {\"additionalContext\": \"...\"} printed to stdout",
     "PostToolUse": "plain text warnings/status printed to stdout",
-    "PreToolUse": "plain text BLOCKED/WARNING printed to stdout; exit(2) to block",
+    "PreToolUse": "plain text BLOCKED/WARNING printed to stdout; exit(2) to block; OR {\"updatedInput\": {...}, \"permissionDecision\": \"allow\"} to rewrite input",
     "Stop": "JSON {\"decision\": \"block\", \"reason\": \"...\"} to stdout to re-invoke Claude; or no output for side-effect-only hooks",
     "PreCompact": "no output required; side-effects only (snapshot write)",
     "SubagentStart": "JSON {\"additionalContext\": \"...\"} printed to stdout for Explore|Plan agents",
@@ -72,6 +72,15 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety-check.py\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/input-sanitizer.py\""
         }
       ]
     }
