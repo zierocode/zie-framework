@@ -7,6 +7,7 @@
     "Stop": "no output required; side-effects only (file writes, API calls)",
     "PreCompact": "no output required; side-effects only (snapshot write)",
     "SubagentStart": "JSON {\"additionalContext\": \"...\"} printed to stdout for Explore|Plan agents",
+    "PermissionRequest": "JSON {\"decision\": {\"behavior\": \"allow\", \"updatedPermissions\": {...}}} printed to stdout",
     "PostCompact": "JSON {\"hookSpecificOutput\": {\"additionalContext\": \"...\"}} printed to stdout"
   },
   "hooks": {
@@ -71,6 +72,17 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety-check.py\""
+        }
+      ]
+    }
+  ],
+  "PermissionRequest": [
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-permissions.py\""
         }
       ]
     }
