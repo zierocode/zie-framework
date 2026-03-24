@@ -346,3 +346,13 @@ class TestPathTraversalEdgeCases:
         r = run_hook("Write", {"file_path": "link/passwd"}, cwd_override=str(tmp_path))
         assert r.returncode == 0
         assert r.stdout.strip() == ""
+
+
+class TestInputSanitizerComment:
+    def test_has_do_not_use_normalize_command_comment(self):
+        """input-sanitizer.py must have a comment explaining why normalize_command is not used."""
+        sanitizer = Path(REPO_ROOT) / "hooks" / "input-sanitizer.py"
+        content = sanitizer.read_text()
+        assert "do not use normalize_command" in content.lower(), (
+            "input-sanitizer.py must have a 'do not use normalize_command' comment"
+        )

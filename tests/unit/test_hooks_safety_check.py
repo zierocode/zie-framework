@@ -218,7 +218,7 @@ class TestSafetyCheckModeDispatch:
     def _make_config(self, tmp_path, mode: str):
         zf = tmp_path / "zie-framework"
         zf.mkdir(exist_ok=True)
-        (zf / ".config").write_text(f"[zie-framework]\nsafety_check_mode = {mode}\n")
+        (zf / ".config").write_text(f'{{"safety_check_mode": "{mode}"}}')
         return tmp_path
 
     def _run(self, tmp_path, command: str):

@@ -593,10 +593,10 @@ class TestReadEvent:
 
 
 class TestLoadConfig:
-    def test_returns_dict_for_valid_config(self, tmp_path):
+    def test_returns_dict_for_valid_json_config(self, tmp_path):
         zf = tmp_path / "zie-framework"
         zf.mkdir()
-        (zf / ".config").write_text("[zie-framework]\nsafety_check_mode = agent\n")
+        (zf / ".config").write_text('{"safety_check_mode": "agent"}')
         from utils import load_config
         result = load_config(tmp_path)
         assert result.get("safety_check_mode") == "agent"
@@ -605,24 +605,45 @@ class TestLoadConfig:
         from utils import load_config
         assert load_config(tmp_path) == {}
 
-    def test_ignores_comments_and_blanks(self, tmp_path):
+    def test_returns_empty_on_invalid_json(self, tmp_path):
         zf = tmp_path / "zie-framework"
         zf.mkdir()
-        (zf / ".config").write_text(
-            "# comment\n\n[section]\nkey = value\n"
-        )
+        (zf / ".config").write_text("not valid json")
         from utils import load_config
-        assert load_config(tmp_path).get("key") == "value"
-
-    def test_returns_empty_on_parse_error(self, tmp_path):
-        zf = tmp_path / "zie-framework"
-        zf.mkdir()
-        (zf / ".config").write_text(":::\ninvalid::content\n")
-        from utils import load_config
-        # must not raise; may return {} or partial dict
         result = load_config(tmp_path)
-        assert isinstance(result, dict)
+        assert result == {}
 
+    def test_returns_empty_on_empty_file(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text("")
+        from utils import load_config
+        assert load_config(tmp_path) == {}
+
+    def test_boolean_value_preserved(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('{"playwright_enabled": false, "has_frontend": true}')
+        from utils import load_config
+        result = load_config(tmp_path)
+        assert result["playwright_enabled"] is False
+        assert result["has_frontend"] is True
+
+    def test_integer_value_preserved(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('{"debounce_ms": 3000}')
+        from utils import load_config
+        result = load_config(tmp_path)
+        assert result["debounce_ms"] == 3000
+
+    def test_string_value_preserved(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('{"test_runner": "pytest"}')
+        from utils import load_config
+        result = load_config(tmp_path)
+        assert result["test_runner"] == "pytest"
 
 class TestConfigTemplate:
     def test_template_contains_safety_check_mode(self):
@@ -657,3 +678,63 @@ class TestGetCwd:
     def test_returns_path_object(self, monkeypatch, tmp_path):
         monkeypatch.setenv("CLAUDE_CWD", str(tmp_path))
         assert isinstance(get_cwd(), Path)
+
+
+class TestNormalizeCommand:
+    @pytest.mark.parametrize("cmd,expected", [
+        ("git   add  .", "git add ."),
+        ("  GIT ADD .  ", "git add ."),
+        ("git\t\tadd\t.", "git add ."),
+        ("make\n test", "make test"),
+        ("git add .", "git add ."),
+        ("", ""),
+        ("   ", ""),
+        ("GIT PUSH ORIGIN MAIN", "git push origin main"),
+    ])
+    def test_normalize_command(self, cmd, expected):
+        from utils import normalize_command
+        assert normalize_command(cmd) == expected
+
+    def test_lowercases_command(self):
+        from utils import normalize_command
+        result = normalize_command("MAKE TEST")
+        assert result == "make test"
+
+    def test_collapses_tabs_and_newlines(self):
+        from utils import normalize_command
+        result = normalize_command("git\t\tcommit\n-m\r\nmsg")
+        assert result == "git commit -m msg"
+
+
+class TestBlocksWarns:
+    def test_blocks_importable_from_utils(self):
+        from utils import BLOCKS
+        assert isinstance(BLOCKS, list)
+        assert len(BLOCKS) > 0
+
+    def test_warns_importable_from_utils(self):
+        from utils import WARNS
+        assert isinstance(WARNS, list)
+        assert len(WARNS) > 0
+
+    def test_blocks_entries_are_tuples(self):
+        from utils import BLOCKS
+        for entry in BLOCKS:
+            assert isinstance(entry, tuple)
+            assert len(entry) == 2
+
+    def test_warns_entries_are_tuples(self):
+        from utils import WARNS
+        for entry in WARNS:
+            assert isinstance(entry, tuple)
+            assert len(entry) == 2
+
+    def test_blocks_contains_rm_rf_pattern(self):
+        from utils import BLOCKS
+        patterns = [p for p, _ in BLOCKS]
+        assert any("rm" in p for p in patterns)
+
+    def test_warns_contains_docker_compose_pattern(self):
+        from utils import WARNS
+        patterns = [p for p, _ in WARNS]
+        assert any("docker" in p for p in patterns)

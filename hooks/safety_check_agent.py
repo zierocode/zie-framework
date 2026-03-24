@@ -4,7 +4,6 @@
 Named with underscores (safety_check_agent.py) to allow Python importlib
 to load it cleanly from tests and other hooks.
 """
-import importlib.util
 import os
 import re
 import subprocess
@@ -12,35 +11,10 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, load_config, read_event
+from utils import BLOCKS, get_cwd, load_config, normalize_command, read_event
 
-
-def _load_blocks() -> list:
-    """Load BLOCKS patterns from safety-check.py. Falls back to inline list on error."""
-    try:
-        spec_path = Path(__file__).parent / "safety-check.py"
-        spec = importlib.util.spec_from_file_location("safety_check", str(spec_path))
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        return list(mod.BLOCKS)
-    except Exception:
-        return [
-            (r"rm\s+-rf\s+(/\s|/\b|/$)", "rm -rf / blocked"),
-            (r"rm\s+-rf\s+~", "rm -rf ~ blocked"),
-            (r"rm\s+-rf\s+\.", "rm -rf . blocked"),
-            (r"\bdrop\s+database\b", "DROP DATABASE blocked"),
-            (r"\bdrop\s+table\b", "DROP TABLE blocked"),
-            (r"git\s+push\s+.*--force\b", "Force push blocked"),
-            (r"git\s+push\s+.*-f\b", "Force push blocked"),
-            (r"git\s+push\s+.*origin\s+main\b", "Direct push to main blocked"),
-            (r"git\s+push\s+.*origin\s+master\b", "Direct push to master blocked"),
-            (r"git\s+reset\s+--hard\b", "git reset --hard blocked"),
-            (r"--no-verify\b", "--no-verify blocked"),
-        ]
-
-
-# Base patterns from safety-check.py + agent-specific additions
-BLOCKS = _load_blocks() + [
+# Agent-specific additions beyond the shared BLOCKS list
+_AGENT_BLOCKS = BLOCKS + [
     (r"curl\s+.*\|\s*bash\b", "curl pipe to bash blocked — potential code injection"),
     (r"curl\s+.*\|\s*sh\b", "curl pipe to sh blocked — potential code injection"),
     (r"wget\s+.*\|\s*bash\b", "wget pipe to bash blocked — potential code injection"),
@@ -61,8 +35,8 @@ def parse_agent_response(text: str) -> str:
 
 def _regex_evaluate(command: str) -> int:
     """Regex safety check used as fallback when agent is unavailable."""
-    cmd = re.sub(r'\s+', ' ', command.strip().lower())
-    for pattern, message in BLOCKS:
+    cmd = normalize_command(command)
+    for pattern, message in _AGENT_BLOCKS:
         if re.search(pattern, cmd):
             print(f"[zie-framework] BLOCKED: {message}")
             return 2

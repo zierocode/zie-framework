@@ -176,24 +176,49 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
 
 
 def load_config(cwd: Path) -> dict:
-    """Read zie-framework/.config and return a dict of key=value pairs.
+    """Read zie-framework/.config as JSON and return a dict.
 
-    Ignores section headers, blank lines, and comments (#). Returns {} on
-    any error (missing file, parse failure, permission denied, etc.).
+    Returns {} on any error (missing file, parse failure, permission denied, etc.).
     """
     config_path = cwd / "zie-framework" / ".config"
     try:
-        result = {}
-        for line in config_path.read_text().splitlines():
-            line = line.strip()
-            if not line or line.startswith("#") or line.startswith("["):
-                continue
-            if "=" in line:
-                key, _, val = line.partition("=")
-                result[key.strip()] = val.strip()
-        return result
+        return json.loads(config_path.read_text())
     except Exception:
         return {}
+
+
+def normalize_command(cmd: str) -> str:
+    """Normalize whitespace and lowercase a shell command for pattern matching."""
+    return re.sub(r'\s+', ' ', cmd.strip().lower())
+
+
+BLOCKS = [
+    # Filesystem destruction
+    (r"rm\s+-rf\s+(/\s|/\b|/$)", "rm -rf / is blocked — this would destroy the system"),
+    (r"rm\s+-rf\s+~", "rm -rf ~ is blocked — this would destroy your home directory"),
+    (r"rm\s+-rf\s+\.", "rm -rf . blocked — use explicit paths"),
+    # Database destruction
+    (r"\bdrop\s+database\b", "DROP DATABASE blocked — use migrations to remove databases"),
+    (r"\bdrop\s+table\b", "DROP TABLE blocked — use alembic/migrations for schema changes"),
+    (r"\btruncate\s+table\b", "TRUNCATE TABLE blocked — be explicit with user before truncating"),
+    # Force push
+    (r"git\s+push\s+.*--force\b", "Force push blocked — use 'git push' normally or ask Zie explicitly"),
+    (r"git\s+push\s+.*-f\b", "Force push blocked — use 'git push' normally"),
+    (r"git\s+push\s+.*origin\s+main\b", "Direct push to main blocked — use 'make ship' instead"),
+    (r"git\s+push\s+.*origin\s+master\b", "Direct push to master blocked — use 'make ship' instead"),
+    # Hard reset
+    (r"git\s+reset\s+--hard\b", "git reset --hard blocked — this discards uncommitted work. Use 'git stash' instead"),
+    # Skip hooks
+    (r"--no-verify\b", "--no-verify blocked — hooks exist for a reason. Fix the hook failure instead"),
+]
+
+# Non-blocking notices. Do NOT add patterns already caught by BLOCKS above.
+WARNS = [
+    (r"docker\s+compose\s+down\s+.*--volumes\b",
+     "docker compose down --volumes will delete DB data — make sure you have a backup"),
+    (r"alembic\s+downgrade\b",
+     "Alembic downgrade detected — verify this won't lose production data"),
+]
 
 
 def read_event() -> dict:

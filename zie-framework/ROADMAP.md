@@ -3,6 +3,8 @@
 > Single source of truth for what's being built and why.
 > Updated by /zie-backlog (Next), /zie-plan (Ready), /zie-implement (Now),
 > /zie-release (Done), /zie-retro (reprioritization).
+- [x] Consolidate duplicate patterns into utils.py — [plan](plans/2026-03-24-consolidate-utils-patterns.md)
+- [ ] Docs sync and completeness — [plan](plans/2026-03-24-docs-sync-and-completeness.md)
 
 ---
 
@@ -29,7 +31,6 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [ ] Consolidate duplicate patterns into utils.py — [plan](plans/2026-03-24-consolidate-utils-patterns.md) ✓
 - [ ] Docs: sync and completeness pass — [plan](plans/2026-03-24-docs-sync-and-completeness.md) ✓
 
 <!-- LOW -->

@@ -6,7 +6,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event
+from utils import normalize_command, read_event
 
 # Ordered allowlist — anchored with re.match to prevent compound-command spoofing
 SAFE_PATTERNS = [
@@ -38,7 +38,7 @@ except Exception:
 # ── Inner operations ──────────────────────────────────────────────────────────
 
 try:
-    cmd = re.sub(r'\s+', ' ', command.strip())
+    cmd = normalize_command(command)
 
     matched_pattern = None
     for pattern in SAFE_PATTERNS:

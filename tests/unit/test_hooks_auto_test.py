@@ -276,8 +276,8 @@ class TestAutoTestFilePathCwdValidation:
 
 
 class TestAutoTestConfigParseWarning:
-    def test_warns_on_corrupt_config(self, tmp_path):
-        """Corrupt .config must produce a [zie] warning on stderr."""
+    def test_exits_zero_on_corrupt_config(self, tmp_path):
+        """Corrupt .config must not crash the hook — load_config() silently returns {}."""
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text("this is not json {{{")
@@ -286,9 +286,6 @@ class TestAutoTestConfigParseWarning:
             tmp_cwd=tmp_path,
         )
         assert r.returncode == 0
-        assert "[zie] warning" in r.stderr, (
-            f"Expected '[zie] warning' in stderr, got: {r.stderr!r}"
-        )
 
     def test_no_warning_on_valid_config(self, tmp_path):
         """Valid .config must not produce any warning."""

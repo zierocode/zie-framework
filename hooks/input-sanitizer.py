@@ -84,7 +84,7 @@ if tool_name == "Bash":
         if "Would run:" in command:
             sys.exit(0)
 
-        # Preserve original casing (unlike safety-check which lowercases).
+        # preserve case — display only, not pattern matching (do NOT use normalize_command here)
         normalized = re.sub(r"\s+", " ", command.strip())
 
         for pattern in CONFIRM_PATTERNS:

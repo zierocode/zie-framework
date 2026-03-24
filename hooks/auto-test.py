@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import project_tmp_path, safe_write_tmp, read_event, get_cwd
+from utils import get_cwd, load_config, project_tmp_path, read_event, safe_write_tmp
 
 
 def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None:
@@ -74,15 +74,7 @@ if __name__ == "__main__":
     # Fallback: read .config when env vars are absent
     config = {}
     if not test_runner or not _debounce_env:
-        config_file = zf / ".config"
-        if config_file.exists():
-            try:
-                config = json.loads(config_file.read_text())
-            except Exception as e:
-                print(
-                    f"[zie] warning: .config unreadable ({e}), using defaults",
-                    file=sys.stderr,
-                )
+        config = load_config(cwd)
 
     if not test_runner:
         test_runner = config.get("test_runner", "")
