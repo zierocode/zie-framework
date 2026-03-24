@@ -89,6 +89,7 @@
 - [ ] Skill content pruning — remove examples + prose from all 10 skills — [backlog](backlog/skill-content-pruning.md)
 - [ ] ROADMAP.md section-aware reads — each command reads only needed sections — [backlog](backlog/roadmap-section-aware-reads.md)
 - [ ] Session-resume compression — hook output 20+ lines → 4 lines — [backlog](backlog/session-resume-compression.md)
+- [ ] Progress visibility — phase/step counters for all long-running commands — [backlog](backlog/progress-visibility.md)
 - [ ] Retro living docs sync — retro systematically updates CLAUDE.md + README.md — [backlog](backlog/retro-living-docs-sync.md)
 - [ ] /zie-audit enhancements — hard data (coverage/CVE/complexity) + historical diff + auto-fix — [backlog](backlog/zie-audit-enhancements.md)
 - [ ] Skills advanced features ($ARGUMENTS[N], session vars, supporting files)
