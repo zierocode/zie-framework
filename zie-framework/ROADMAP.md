@@ -4,7 +4,8 @@
 > Updated by /zie-backlog (Next), /zie-plan (Ready), /zie-implement (Now),
 > /zie-release (Done), /zie-retro (reprioritization).
 - [x] Consolidate duplicate patterns into utils.py — [plan](plans/2026-03-24-consolidate-utils-patterns.md)
-- [ ] Docs sync and completeness — [plan](plans/2026-03-24-docs-sync-and-completeness.md)
+- [x] Docs sync and completeness — [plan](plans/2026-03-24-docs-sync-and-completeness.md)
+- [ ] Architecture cleanup — [plan](plans/2026-03-24-architecture-cleanup.md)
 
 ---
 

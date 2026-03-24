@@ -29,7 +29,7 @@ ship: ## Full release gate — use /zie-ship instead
 	@echo "All tests passed. Run /zie-ship for the full release gate."
 
 # ── Release ───────────────────────────────────────────────────────────────────
-bump: ## Atomically bump VERSION + plugin.json (usage: make bump NEW=1.2.3)
+bump: ## Atomically bump VERSION + plugin.json + PROJECT.md (usage: make bump NEW=1.2.3)
 ifndef NEW
 	$(error NEW is required — usage: make bump NEW=1.2.3)
 endif
@@ -37,6 +37,7 @@ endif
 		(echo "ERROR: NEW must be a semver string (e.g. 1.2.3), got: $(NEW)" && exit 1)
 	@printf '%s\n' "$(NEW)" > VERSION
 	@sed -i '' 's/"version": "[^"]*"/"version": "$(NEW)"/' .claude-plugin/plugin.json
+	@$(MAKE) sync-version
 	@echo "Bumped to v$(NEW)"
 
 release: ## Publish release (usage: make release NEW=1.2.3)
