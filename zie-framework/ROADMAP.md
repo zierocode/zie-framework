@@ -66,15 +66,17 @@
 - [ ] Retro → Next active loop — surface top backlog candidate after retro — [backlog](backlog/retro-next-active-loop.md)
 - [ ] Retro living docs sync — retro systematically updates CLAUDE.md + README.md — [backlog](backlog/retro-living-docs-sync.md)
 
+<!-- TOOLING / INFRA -->
+- [ ] Fix markdownlint-cli pre-commit hook — pin working version or switch to markdownlint-cli2 — [backlog](backlog/markdownlint-fix.md)
+- [ ] CI/CD via GitHub Actions — run pytest on push to main/dev — [backlog](backlog/github-actions-ci.md)
+- [ ] Plugin versioning strategy — semver auto-bump, VERSION + plugin.json sync gate — [backlog](backlog/plugin-versioning-strategy.md)
+- [ ] Integration tests for hook events — subprocess tests with realistic event payloads — [backlog](backlog/integration-test-hook-events.md)
+
 ## Later — Someday / Maybe
 
 <!-- Good ideas, not yet prioritized. -->
 
-- [ ] Fix markdownlint-cli@0.48.0 in pre-commit — currently broken (always
-  shows help, exits 0); pin to working version or switch to markdownlint-cli2
-- [ ] CI/CD via GitHub Actions (run pytest on push)
-- [ ] Plugin versioning strategy (semver auto-bump on ship)
-- [ ] Integration test: mock Claude Code hook events end-to-end
+<!-- (All 4 former Later items moved to Next — 2026-03-24) -->
 
 ---
 

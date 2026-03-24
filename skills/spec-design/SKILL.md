@@ -27,10 +27,6 @@ argument.
 When `$ARGUMENTS[1]` is absent or empty, default to `full` mode. Never raise
 an error for a missing second argument.
 
-> **Note for future skill authors:** if this skill bundles helper scripts,
-> reference them via `${CLAUDE_SKILL_DIR}/scripts/<script-name>` — Claude Code
-> resolves this to the skill's own directory regardless of CWD.
-
 ## เตรียม context
 
 If `zie_memory_enabled=true`:
@@ -38,6 +34,33 @@ If `zie_memory_enabled=true`:
 - Call `mcp__plugin_zie-memory_zie-memory__recall` with `project=<project> domain=<feature-area> tags=[spec, design] limit=10`
 - Use recalled context to inform design decisions and avoid repeating past
   mistakes.
+
+## Completeness Check (fast path)
+
+When `$ARGUMENTS[0]` is a backlog slug, read the backlog item at
+`zie-framework/backlog/<slug>.md` before starting the question flow.
+Evaluate the three sections:
+
+- **Problem** — is there substantive content? (≥2 sentences, not just "TBD"
+  or a single word)
+- **Motivation** — is there substantive content? (≥2 sentences, not just
+  "TBD" or a single word)
+- **Rough Scope** — is there substantive content? (≥2 sentences, not just
+  "TBD" or a single word)
+
+**Fast path:** If all three sections are substantive → skip Step 1
+(clarifying questions) entirely and go directly to Step 2 (propose 2-3
+approaches), using the backlog content to inform the proposals.
+
+**Normal path:** If any section is thin, missing, or absent → fall through
+to Step 1 (clarifying questions) as normal.
+
+This fast-path applies only when a backlog item is provided. When no backlog
+slug is given (inline idea path), always start at Step 1.
+
+**`$ARGUMENTS[1]` mode precedence:** When `$ARGUMENTS[1]` is `quick`, that
+mode takes effect and this check is skipped. When `full`, clarifying questions
+are always asked regardless of completeness.
 
 ## Steps
 
@@ -49,12 +72,25 @@ If `zie_memory_enabled=true`:
 
 2. **Propose 2-3 approaches** with trade-offs and a recommendation.
 
-3. **Present design sections** — get approval after each:
+3. **Draft all design sections** in one pass — no approval prompts between sections:
    - Problem & Motivation
    - Architecture & Components
    - Data Flow
    - Edge Cases
    - Out of Scope
+
+   Once all sections are written, present the complete draft to the user.
+
+   **Review the complete draft** — ask the user:
+   > "Here is the full spec draft. Does this look right, or would you like
+   > any changes?"
+
+   If the user requests changes: apply all requested changes to the draft
+   in one batch, re-present the updated draft once, then continue.
+   If the user accepts: proceed to Step 4.
+
+   Max one re-draft cycle. If further issues remain after one round of
+   edits, surface to the user for section-level guidance before continuing.
 
 4. **Write spec** to `zie-framework/specs/YYYY-MM-DD-<feature-slug>-design.md`
 

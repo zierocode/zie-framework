@@ -50,10 +50,10 @@ class TestSkillZieMemoryIntegration:
         assert "docs/superpowers/plans/" not in content, \
             "write-plan skill must not reference superpowers plan path"
 
-    def test_write_plan_has_context_from_brain_section(self):
+    def test_write_plan_has_memory_recall(self):
         content = read("skills/write-plan/SKILL.md")
-        assert "Context from brain" in content, \
-            "write-plan skill must include ## Context from brain section in plan template"
+        assert "recall" in content or "zie_memory_enabled" in content, \
+            "write-plan skill must include zie-memory recall integration"
 
     def test_write_plan_has_depends_on_docs(self):
         content = read("skills/write-plan/SKILL.md")

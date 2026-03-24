@@ -54,18 +54,39 @@ before building. Supports multiple items in parallel (max 4 agents).
 3. If single slug → invoke `Skill(zie-framework:write-plan)` inline with:
    - Backlog file + spec file + brain context
 
+## โหลด context bundle (ครั้งเดียวต่อ session)
+
+<!-- context-load: adrs + project context -->
+
+Before invoking any reviewer, load shared context once:
+
+1. Read all `zie-framework/decisions/*.md` → store as `adrs_content`
+   (list of `{filename, content}` pairs; empty list if directory missing)
+2. Read `zie-framework/project/context.md` → store as `context_content`
+   (string; empty string if file missing)
+3. Bundle as `context_bundle = { adrs: adrs_content, context: context_content }`
+
+Pass `context_bundle` to every reviewer invocation below.
+
 ## plan-reviewer gate (ทุก plan ต้องผ่าน)
 
-For each drafted plan, before showing to Zie:
+For each drafted plan `[Plan {N}/{total}]`, before showing to Zie:
+
+Print: `[Plan {N}/{total}] plan-reviewer pass`
 
 1. Invoke `@agent-plan-reviewer` with:
    <!-- fallback: Skill(zie-framework:plan-reviewer) -->
    - Path to plan file
    - Path to spec file (`zie-framework/specs/*-<slug>-design.md`)
-2. If ❌ Issues Found → fix the plan → re-invoke reviewer → repeat.
-   Max 3 iterations → surface to Zie: "Reviewer found persistent issues.
-   Review plan manually."
-3. If ✅ Approved → proceed to Zie approval below.
+   - `context_bundle` (pre-loaded ADRs + context.md)
+2. If ❌ Issues Found → fix ALL issues listed → invoke reviewer once more
+   as a confirm pass (pass 2 of 2).
+   - If confirm pass returns ✅ APPROVED → proceed to Zie approval below.
+   - If confirm pass returns ❌ Issues Found again → surface to Zie:
+     "Reviewer found persistent issues after fix pass. Review plan manually."
+   Max 2 total iterations: initial scan (pass 1) + confirm pass (pass 2).
+   If 0 issues on initial scan → APPROVED immediately, no confirm pass needed.
+3. If ✅ Approved on initial scan → proceed to Zie approval below.
 
 ## ขออนุมัติ plan (ทีละ plan)
 

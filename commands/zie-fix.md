@@ -53,8 +53,8 @@ for bugs and regressions.
 
 ### ยืนยันว่าแก้ถูกต้อง
 
-1. Invoke `Skill(zie-framework:verify)` with scope = tests only (bug fixes
-   do not require full docs-sync check).
+1. Invoke `Skill(zie-framework:verify)` with `scope=tests-only` (bug fixes
+   do not require full docs-sync check or code review).
 
 2. If `has_frontend=true` and bug is UI-related:
    - Start dev server and verify visually.

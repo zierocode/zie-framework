@@ -1,0 +1,4 @@
+{
+  "event": "StopFailure",
+  "error": "Response generation failed unexpectedly"
+}

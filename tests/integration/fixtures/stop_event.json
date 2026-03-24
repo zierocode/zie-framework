@@ -1,0 +1,5 @@
+{
+  "event": "Stop",
+  "stop_reason": "end_turn",
+  "stop_hook_active": false
+}

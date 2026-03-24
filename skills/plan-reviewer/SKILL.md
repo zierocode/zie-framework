@@ -24,6 +24,12 @@ Caller must provide:
 
 ## Phase 1 — Load Context Bundle
 
+**if context_bundle provided by caller** — use it directly:
+- `adrs_content` ← `context_bundle.adrs` (skip step 2 below)
+- `context_content` ← `context_bundle.context` (skip step 3 below)
+
+**If `context_bundle` absent** — read from disk as fallback (backward-compatible):
+
 Before reviewing, load the following context (skip gracefully if missing —
 never block review):
 
@@ -55,6 +61,12 @@ Read the plan and check each item:
    where needed?
 8. **Spec coverage** — Does the plan cover every requirement in the spec?
 9. **YAGNI** — Does the plan include anything the spec doesn't require?
+10. **Dependency hints** — For each pair of tasks, check whether they modify
+   any common files or share a sequential data dependency. If a pair has
+   neither, and neither task has a `depends_on` annotation, output a
+   suggestion (not a blocking issue):
+   "Tasks N and M appear independent — consider adding `<!-- depends_on: -->` to enable parallel execution"
+   Suggestions do not prevent an APPROVED verdict.
 
 ## Phase 3 — Context Checks
 
@@ -76,8 +88,6 @@ If all checks pass:
 
 ```text
 ✅ APPROVED
-
-Plan is complete, TDD-structured, and covers the spec.
 ```
 
 If issues found:
@@ -95,4 +105,5 @@ Fix these and re-submit for review.
 
 - Reject plans with vague steps like "implement the feature" or "add tests"
 - Reject plans where TDD steps are missing `make test-unit` verification
-- Max 3 review iterations before surfacing to human
+- Return ALL issues found in this single response — do not stop at the first issue.
+- Max 2 total iterations: initial scan (all issues at once) + confirm pass. If 0 issues → APPROVED immediately, no confirm pass needed.

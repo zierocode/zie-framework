@@ -1,0 +1,5 @@
+{
+  "event": "SubagentStop",
+  "subagent_id": "test-subagent-001",
+  "stop_reason": "end_turn"
+}

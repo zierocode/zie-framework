@@ -1,0 +1,4 @@
+{
+  "event": "PreCompact",
+  "trigger": "context_limit"
+}

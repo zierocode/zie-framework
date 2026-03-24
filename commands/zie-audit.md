@@ -20,6 +20,8 @@ backlog.
 
 ## Phase 1 — Project Intelligence
 
+Print: `[Phase 1/5] Project Intelligence`
+
 Build `research_profile` to drive all downstream phases:
 
 ```text
@@ -42,11 +44,42 @@ Detect from: `requirements.txt`, `pyproject.toml`, `package.json`, `go.mod`,
 If `--focus <dimension>` provided → note it; Phase 2 skips other dimensions;
 Phase 3 researches only that dimension (but deeply).
 
+### Hard Data Collection
+
+Before spawning agents, run toolchain instrumentation to produce hard numbers.
+Store results in `hard_data` and pass to relevant agents in Phase 2.
+
+```text
+hard_data = {
+  coverage_report: "",   # pytest --cov stdout (% per module)
+  complexity_report: "", # radon cc -s stdout (cyclomatic complexity per file)
+  vuln_report: "",       # pip audit / npm audit stdout (CVE list)
+}
+```
+
+Run each command if the tool is present; skip gracefully with a note if unavailable:
+
+- **Coverage** (Python): `pytest --cov --cov-report=term-missing -q`
+  - If pytest or coverage not installed → set `hard_data.coverage_report = "unavailable"`
+- **Complexity** (Python): `radon cc -s -a .`
+  - If radon not installed → set `hard_data.complexity_report = "unavailable"`
+- **Vulnerabilities**:
+  - Python: `pip audit` (if pip-audit installed)
+  - Node: `npm audit --json` (if package.json present)
+  - If neither available → set `hard_data.vuln_report = "unavailable"`
+
+Pass `hard_data.coverage_report` and `hard_data.complexity_report` to Agent C
+context. Pass `hard_data.vuln_report` to Agent A context. Agents must use these
+numbers directly in their findings rather than estimating from code patterns.
+
 ## Phase 2 — Parallel Internal Analysis
+
+Print: `[Phase 2/5] Parallel Internal Analysis`
 
 Spawn 5 parallel agents via `Agent` tool. Each receives `research_profile` and
 full codebase access. Each returns a findings list:
 `[{severity, dimension, description, location, effort}]`
+As each agent returns, print: `  Agent {X} ({Domain}) ✓`
 
 ### Agent A — Security
 
@@ -101,6 +134,8 @@ Sub-checks distributed across agents by relevance:
 
 ## Phase 3 — Dynamic External Research
 
+Print: `[Phase 3/5] Dynamic External Research`
+
 Research agent builds queries from `research_profile` — never hardcoded:
 
 ```text
@@ -131,18 +166,33 @@ if "processes-pii" in special_ctx:
 queries += ["OpenSSF best practices scorecard criteria",
             "SLSA supply chain security levels",
             "{project_type} github stars:>100 architecture patterns"]
+
+# Dependency version-specific queries (first 10 deps from manifest)
+top_deps = first 10 entries from research_profile.deps
+for each <dep>, <version> in top_deps:
+    if <version> is not empty:
+        add "{dep} {version} CVE" to queries
+        add "{dep} {version} security vulnerability" to queries
 ```
 
-Run `WebSearch` for each query (cap at 15 queries to keep latency manageable).
-Use `WebFetch` for high-value results to read the full document.
+Cap the query list at 25 entries. Then dispatch **all** WebSearch calls in a
+single parallel batch — do not loop sequentially. Collect results into a dict
+keyed by query string. Before the batch, print: `[Phase 3/5] Dynamic External
+Research — dispatching {N} queries in parallel`.
 
-If a query fails → skip gracefully, note "Research unavailable for this query"
-in the report section.
+If any individual query fails → record "Research unavailable" for that query
+and continue; do not abort the batch.
+
+After the parallel batch completes, use `WebFetch` sequentially for any
+high-value URLs returned by the search results (WebFetch depends on search
+output so it remains sequential).
 
 Synthesize into `external_standards_report`:
 each dimension → list of `{standard, finding, severity}` items.
 
 ## Phase 4 — Synthesis
+
+Print: `[Phase 4/5] Synthesis`
 
 Cross-reference Phase 2 (internal) + Phase 3 (external findings):
 
@@ -155,7 +205,37 @@ Cross-reference Phase 2 (internal) + Phase 3 (external findings):
   - Floor: 0
 - Overall score = weighted average across active dimensions
 
+## Historical Diff — Since Last Audit
+
+After scoring, compare against the most recent previous audit:
+
+1. Glob `zie-framework/evidence/audit-*.md` sorted descending by filename date.
+2. If no previous audit file exists → skip this section entirely; proceed to Phase 5.
+3. Parse the previous report's dimension score table (lines matching
+   `  <Dimension>  XX`) to extract last scores.
+4. For each active dimension compute delta: `current_score − last_score`.
+5. Prepend the following section to the Phase 5 report, immediately after the
+   Overall Score line:
+
+```text
+Since last audit (<YYYY-MM-DD>)
+
+  Security      +N / -N  (was XX → now XX)
+  Lean          +N / -N  (was XX → now XX)
+  Quality       +N / -N  (was XX → now XX)
+  Docs          +N / -N  (was XX → now XX)
+  Architecture  +N / -N  (was XX → now XX)
+  ...
+
+Improved: N dimensions  |  Regressed: N dimensions  |  Unchanged: N
+```
+
+If parsing fails for any dimension (format mismatch) → show "N/A" for that row.
+Never block Phase 5 due to historical diff errors.
+
 ## Phase 5 — Report + Backlog Selection
+
+Print: `[Phase 5/5] Report + Backlog Selection`
 
 Print full report in this format:
 
@@ -207,6 +287,37 @@ For each selected finding:
   from the finding description
 - Add to `zie-framework/ROADMAP.md` Next lane:
   `- [ ] <finding title> — [audit finding](backlog/<slug>.md)`
+
+### Auto-Fix Offer
+
+After writing backlog items, scan the selected findings for auto-fixable candidates:
+
+```text
+auto_fixable = [f for f in selected_findings
+                if f.severity in ("Low", "Medium")
+                and f.get("auto-fixable") is True]
+```
+
+- If `auto_fixable` is empty → skip this section entirely.
+- High and Critical findings are never offered for auto-fix — they require
+  deliberate SDLC treatment.
+
+For each qualifying finding, present:
+
+```text
+Auto-fix available: [Dimension] <description> (Low/Medium)
+Apply fix now? (y/n)
+```
+
+On "y":
+- Invoke `/zie-fix` with the finding description and file location as context.
+- Report result ("Fixed" or "Needs manual review") before offering the next item.
+
+On "n" → skip to the next item.
+
+After all items are processed (or skipped), close the audit session normally.
+
+Print: `5/5 phases complete.`
 
 ## Notes
 

@@ -26,12 +26,7 @@ If `zie_memory_enabled=true`:
 
 1. Read the full error message + stack trace.
 2. Identify the failing test or command.
-3. Run the failing test in isolation:
-
-   ```bash
-   python3 -m pytest tests/path/test_file.py::TestClass::test_method -v
-   ```
-
+3. Run the failing test in isolation.
 4. Confirm: can you reproduce it consistently?
    - Yes → proceed to Phase 2
    - No → intermittent failure, check for timing/ordering issues

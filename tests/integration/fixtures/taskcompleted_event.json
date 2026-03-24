@@ -1,0 +1,7 @@
+{
+  "event": "TaskCompleted",
+  "tool_name": "TaskCompleted",
+  "tool_input": {
+    "title": "add integration test fixtures"
+  }
+}

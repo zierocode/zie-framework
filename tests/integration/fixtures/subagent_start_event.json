@@ -1,0 +1,5 @@
+{
+  "event": "SubagentStart",
+  "subagent_id": "test-subagent-001",
+  "task": "implement feature X"
+}

@@ -20,51 +20,24 @@ points, not prose.
 List every feature, fix, or improvement that was completed. Include version if
 released.
 
-```text
-- csv-export feature (v1.0.11) — memories now exportable as CSV, MD, JSON
-- fix: hybrid search RRF scoring edge case with empty tags
-```
-
 ### สิ่งที่ทำงานได้ดี
 
 Patterns, approaches, tools that saved time or reduced friction.
 Only note things worth repeating — skip obvious basics.
-
-```text
-- TDD cycle kept feature scope tight — no scope creep
-- auto-test hook caught a regression in search.py within seconds
-- zie-memory recalled the RRF pattern from a previous project
-```
 
 ### สิ่งที่เจ็บปวด (Pain Points)
 
 Friction points, unexpected complexity, things that slowed down.
 Be specific — vague "communication" complaints are useless.
 
-```text
-- SQLAlchemy async session management with LLM calls = complex (3-phase pattern)
-- Playwright setup took longer than expected — browser install in CI
-```
-
 ### การตัดสินใจสำคัญ
 
 Decisions with lasting consequences — candidates for ADRs.
 Each decision: what → why → consequence.
 
-```text
-- Used HNSW LATERAL join for dedup instead of cross-join → O(n log n) vs O(n²)
-- Split LLM calls from DB sessions → never hold connection during async LLM
-```
-
 ### Pattern ที่ควรจำ
 
 Reusable techniques worth storing in the brain as P1/P2 memories.
-
-```text
-- asyncpg CAST syntax: always CAST(:param AS vector), never :param::vector
-- Pre-flight dedup in every write path prevents duplicates without extra API
-  calls
-```
 
 ## รูปแบบ ADR
 

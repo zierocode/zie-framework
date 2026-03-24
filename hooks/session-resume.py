@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import parse_roadmap_now, parse_roadmap_section, read_event, get_cwd
+from utils import parse_roadmap_now, read_event, get_cwd
 
 event = read_event()
 
@@ -27,21 +27,12 @@ if config_file.exists():
 
 roadmap_file = zf / "ROADMAP.md"
 now_items = parse_roadmap_now(roadmap_file)
-next_items = parse_roadmap_section(roadmap_file, "next")
 
 # Read VERSION
 version = "?"
 version_file = cwd / "VERSION"
 if version_file.exists():
     version = version_file.read_text().strip()
-
-# Get most recent plan
-plans_dir = zf / "plans"
-active_plan = None
-if plans_dir.exists():
-    plans = sorted(plans_dir.glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)
-    if plans:
-        active_plan = plans[0].name
 
 project_name = cwd.name
 project_type = config.get("project_type", "unknown")
@@ -77,20 +68,17 @@ if _env_file_path:
             file=sys.stderr,
         )
 
+# Active feature: first Now item, or fallback message
+if now_items:
+    active_label = now_items[0]
+else:
+    active_label = "No active feature — run /zie-backlog to start one"
+
 lines = [
     f"[zie-framework] {project_name} ({project_type}) v{version}",
+    f"  Active: {active_label}",
+    f"  Brain: {'enabled' if zie_memory else 'disabled'}",
+    "  → Run /zie-status for full state",
 ]
-
-if now_items:
-    active = now_items[0]
-    lines.append(f"  Active  : {active}")
-    if active_plan:
-        lines.append(f"  Plan    : zie-framework/plans/{active_plan}")
-    lines.append(f"  Backlog : {len(next_items)} items in Next")
-else:
-    lines.append("  No active feature — run /zie-backlog to start one")
-
-lines.append(f"  Brain   : {'enabled' if zie_memory else 'disabled'}")
-lines.append("  → Run /zie-status for full state")
 
 print("\n".join(lines))

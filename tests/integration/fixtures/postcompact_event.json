@@ -1,0 +1,5 @@
+{
+  "event": "PostCompact",
+  "trigger": "context_limit",
+  "summary": "Session compacted successfully"
+}

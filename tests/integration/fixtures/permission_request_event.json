@@ -1,0 +1,7 @@
+{
+  "event": "PermissionRequest",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "make test"
+  }
+}

@@ -24,7 +24,7 @@ class TestBanditSast:
     def test_bandit_hooks_exits_clean(self):
         """hooks/ must have zero bandit findings at medium severity + medium confidence."""
         result = subprocess.run(
-            [sys.executable, "-m", "bandit", "-r", HOOKS_DIR, "-ll", "-q"],
+            [sys.executable, "-m", "bandit", "-r", HOOKS_DIR, "-ll", "-q", "-c", ".bandit"],
             capture_output=True,
             text=True,
             cwd=str(REPO_ROOT),

@@ -1,0 +1,9 @@
+{
+  "event": "PostToolUseFailure",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "make test-unit"
+  },
+  "is_interrupt": false,
+  "error": "Command exited with code 1"
+}

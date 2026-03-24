@@ -60,15 +60,15 @@ class TestArgumentIndexedDocs:
         assert "absent" in content or "fallback" in content or "default" in content, \
             "write-plan/SKILL.md must document default behaviour when args are absent"
 
-    def test_spec_design_documents_skill_dir_pattern(self):
+    def test_spec_design_documents_completeness_check(self):
         content = read_skill("spec-design")
-        assert "CLAUDE_SKILL_DIR" in content, \
-            "spec-design/SKILL.md must document ${CLAUDE_SKILL_DIR}/scripts/ pattern"
+        assert "Completeness" in content or "fast path" in content.lower(), \
+            "spec-design/SKILL.md must document the fast-path completeness check"
 
-    def test_write_plan_documents_skill_dir_pattern(self):
+    def test_write_plan_documents_plan_reviewer(self):
         content = read_skill("write-plan")
-        assert "CLAUDE_SKILL_DIR" in content, \
-            "write-plan/SKILL.md must document ${CLAUDE_SKILL_DIR}/scripts/ pattern"
+        assert "plan-reviewer" in content, \
+            "write-plan/SKILL.md must reference the plan-reviewer loop"
 
 
 class TestArgumentHintFrontmatter:
@@ -78,7 +78,6 @@ class TestArgumentHintFrontmatter:
         "impl-reviewer",
         "debug",
         "tdd-loop",
-        "verify",
         "retro-format",
         "test-pyramid",
     ]

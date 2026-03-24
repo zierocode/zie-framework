@@ -42,3 +42,13 @@ a reviewer hangs.
 
 **Neutral:** The background spawn counts as iteration 1 toward the 3-iteration max,
 preserving the same quality gate depth as synchronous review.
+
+## Amendment
+
+Amended by `reviewer-fail-fast` (2026-03-24): iteration cap reduced from 3 to 2
+(initial scan + confirm pass) for `impl-reviewer` in `zie-implement.md`.
+
+The background spawn remains pass 1 (initial scan). If `issues_found`, a single
+synchronous confirm pass (pass 2) is invoked after fixes are applied. There is no
+third iteration — persistent issues after the confirm pass are surfaced directly to
+Zie. This replaces the previous "Max 3 total iterations" note in the Decision section.

@@ -27,10 +27,6 @@ When `$ARGUMENTS[1]` is absent or empty, treat as no flags — all default
 behaviour applies. Parse flags by splitting on whitespace and checking for
 known flag names.
 
-> **Note for future skill authors:** if this skill bundles helper scripts,
-> reference them via `${CLAUDE_SKILL_DIR}/scripts/<script-name>` — Claude Code
-> resolves this to the skill's own directory regardless of CWD.
-
 ## เตรียม context
 
 If `zie_memory_enabled=true`:
@@ -101,11 +97,6 @@ Each task follows TDD RED → GREEN → REFACTOR:
 
 Use `<!-- depends_on: Task N, Task M -->` to express task dependencies. Tasks
 without depends_on can run in parallel.
-
-## Context from brain
-
-_Prior memories relevant to this feature are surfaced here by /zie-plan before
-handing off to /zie-implement._
 
 ## บันทึกไว้ที่
 

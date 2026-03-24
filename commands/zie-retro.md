@@ -23,8 +23,13 @@ Recent activity window:
 
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
 2. Read `zie-framework/.config` → project, zie_memory_enabled.
-3. Read `zie-framework/ROADMAP.md` → current state.
-4. Git context is available in the injected snapshots above ("Commits since last
+3. Targeted ROADMAP reads (do not read full file):
+   - **Now section**: Grep `## Now` in `zie-framework/ROADMAP.md` → Read from
+     that line to next `---` separator.
+   - **Done section (recent)**: Grep `## Done` → Read from that line, limit
+     to ~20 lines (recent shipped items only — full Done history not needed).
+4. Print: "Analyzing git log..."
+   Git context is available in the injected snapshots above ("Commits since last
    tag" and "Recent activity window"). No additional Bash call needed.
 
 ## Steps
@@ -69,7 +74,7 @@ Invoke `Skill(zie-framework:retro-format)` to structure the retrospective:
 
 ### บันทึก ADRs
 
-For each significant architectural decision identified:
+For each significant architectural decision identified (`[ADR {N}/{total}]`):
 
 - Create `zie-framework/decisions/ADR-<NNN>-<slug>.md` from ADR template:
 
@@ -93,6 +98,8 @@ For each significant architectural decision identified:
 
 ### อัปเดต project knowledge
 
+Print: "Updating knowledge docs..."
+
 หลัง ADRs เขียนเสร็จ:
 
 - ตรวจก่อน: ถ้า `zie-framework/project/` ไม่มี → skip knowledge sync พร้อม note:
@@ -103,6 +110,30 @@ For each significant architectural decision identified:
 - เขียน ADR ใหม่แต่ละอันเป็นไฟล์แยกใน `zie-framework/decisions/ADR-NNN-<slug>.md`
   (ใช้ NNN = running number ถัดจากไฟล์ล่าสุดใน decisions/)
 - ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
+
+#### Living docs sync — CLAUDE.md + README.md
+
+- Read `CLAUDE.md` (project root).
+- Read `README.md` (project root).
+- Enumerate actual codebase state:
+  - `commands/` — list all `*.md` filenames → these are the slash commands.
+  - `hooks/` — list all `*.py` filenames → these are the hook scripts.
+  - `skills/` — list all subdirectory names → these are the skills.
+  - `VERSION` file (if present) → current version string.
+- Compare actual vs. documented in each file:
+  - Commands section in `CLAUDE.md` / `README.md` — add any commands not listed,
+    remove any listed commands whose file no longer exists.
+  - Hooks section — same: add new, remove deleted.
+  - Skills section — same: add new, remove deleted.
+  - Build commands / tech stack — flag any obvious drift (e.g. test runner changed).
+- Apply all updates in the same session.
+- Log what changed:
+  - If changes were made: print `"Updated CLAUDE.md: added <X>, removed <Y>"` and/or
+    `"Updated README.md: added <X>, removed <Y>"` for each file touched.
+  - If no changes needed: print `"CLAUDE.md in sync"` and `"README.md in sync"`.
+- This step runs even when no changes are found — the "in sync" confirmation is
+  itself useful signal.
+
 - ถ้า `zie_memory_enabled=true`: Call `mcp__plugin_zie-memory_zie-memory__remember`
   with `"Project snapshot: <version>. Components changed: <list>. Decisions: <new ADR slugs>."`
   `tags=[project-knowledge, zie-framework, <version>] supersedes=[project-knowledge, zie-framework]`
@@ -144,6 +175,41 @@ Learnings stored: <N memories>
 
 Next session: Run /zie-status to see current state.
 ```
+
+### Suggest next
+
+After printing the retrospective summary, read `zie-framework/ROADMAP.md` and
+extract all items in the **Next** lane.
+
+**Ranking order:**
+1. Priority: Critical first, then High, then Medium, then unlabelled.
+2. Retro-theme alignment: items whose title or description overlaps with pain
+   points or themes identified in the retro write-up rank higher within the
+   same priority tier.
+
+**Output — items found (print top 1–3):**
+
+```text
+Suggested next
+──────────────────────────────────────────
+1. <slug> — <title> [<priority>]
+   Run: /zie-plan <slug> to start
+
+2. <slug> — <title> [<priority>]
+   Run: /zie-plan <slug> to start
+
+3. <slug> — <title> [<priority>]
+   Run: /zie-plan <slug> to start
+──────────────────────────────────────────
+```
+
+**Output — Next lane is empty:**
+
+```text
+Backlog is empty — add items with /zie-backlog
+```
+
+This step is advisory only. Nothing is automatically started.
 
 ## Notes
 
