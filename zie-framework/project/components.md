@@ -40,6 +40,7 @@
 | safety-check.py | PreToolUse:Bash | บล็อก dangerous cmds (exit 2 = block); MAX_MESSAGE_LEN=500 ReDoS guard; whitespace normalised before match |
 | intent-detect.py | PreToolUse:Bash | ตรวจ intent → suggest cmd (JSON out) |
 | session-resume.py | SessionStart | แสดง project state + active feature |
+| failure-context.py | PostToolUseFailure:Bash/Write/Edit | inject SDLC debug context (active task, branch, last commit, quick-fix hint); is_interrupt guard |
 | stop-guard.py | Stop | บล็อก session หาก uncommitted implementation files ถูกตรวจพบ (hooks, tests, commands, skills, templates); stop_hook_active infinite-loop guard |
 | session-learn.py | PostToolUse | สังเกต patterns, บันทึก micro-learnings |
 | wip-checkpoint.py | PeriodicTask | บันทึก WIP progress สู่ brain; counter ValueError recovery |
