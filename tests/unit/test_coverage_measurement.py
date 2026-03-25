@@ -115,18 +115,22 @@ class TestMakefileTestUnit:
 
 
 class TestMakefileSetup:
+    def _makefile_content(self) -> str:
+        """Combined content of Makefile + Makefile.local (if present)."""
+        content = (REPO_ROOT / "Makefile").read_text()
+        local = REPO_ROOT / "Makefile.local"
+        if local.exists():
+            content += "\n" + local.read_text()
+        return content
+
     def test_makefile_setup_has_coverage_version_check(self):
         """setup target must verify coverage is installed via --version check."""
-        makefile = REPO_ROOT / "Makefile"
-        content = makefile.read_text()
-        assert "coverage --version" in content, (
-            "setup target must call 'python3 -m coverage --version' in Makefile"
+        assert "coverage --version" in self._makefile_content(), (
+            "setup target must call 'python3 -m coverage --version' in Makefile or Makefile.local"
         )
 
     def test_makefile_setup_has_coverage_sitecustomize(self):
         """setup target must install the coverage sitecustomize subprocess hook."""
-        makefile = REPO_ROOT / "Makefile"
-        content = makefile.read_text()
-        assert "coverage sitecustomize" in content, (
-            "setup target must call 'python3 -m coverage sitecustomize' in Makefile"
+        assert "coverage sitecustomize" in self._makefile_content(), (
+            "setup target must call 'python3 -m coverage sitecustomize' in Makefile or Makefile.local"
         )

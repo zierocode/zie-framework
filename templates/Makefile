@@ -1,5 +1,7 @@
-VERSION    := $(shell cat VERSION 2>/dev/null || echo "0.1.0")
-ENV        ?= dev
+VERSION := $(shell cat VERSION 2>/dev/null || echo "0.1.0")
+ENV     ?= dev
+
+# Path to PROJECT.md for version badge sync (override in Makefile.local if different)
 PROJECT_MD ?= zie-framework/PROJECT.md
 
 # ── Help ──────────────────────────────────────────────────────────────────────
@@ -9,24 +11,20 @@ help:
 	  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # ── Tests ─────────────────────────────────────────────────────────────────────
-test-unit: ## Fast unit tests with subprocess coverage measurement
-	python3 -m coverage erase
-	COVERAGE_PROCESS_START=$(CURDIR)/.coveragerc \
-	    python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
-	python3 -m coverage combine 2>/dev/null || true
-	python3 -m coverage report --show-missing --fail-under=50
+test-unit: ## Run unit tests (override in Makefile.local)
+	@echo "Override test-unit in Makefile.local"
 
-test-int: ## Integration tests (hook event simulation)
-	python3 -m pytest tests/ -v -m "integration" --tb=short
+test-int: ## Run integration tests (override in Makefile.local)
+	@echo "Override test-int in Makefile.local"
 
-lint-md: ## Lint all Markdown files (markdownlint, no exceptions)
+lint-md: ## Lint all Markdown files (markdownlint)
 	npx markdownlint-cli "**/*.md" --ignore node_modules
 
-test: test-unit test-int lint-md ## Full test suite (unit + integration + md lint)
+test: test-unit test-int lint-md ## Full test suite
 
 # ── Environments ──────────────────────────────────────────────────────────────
-start:  _start-$(ENV)  ## Start environment (usage: make start ENV=dev)
-stop:   _stop-$(ENV)   ## Stop environment
+start:  _start-$(ENV)  ## Start environment (usage: make start ENV=dev|staging|prod)
+stop:   _stop-$(ENV)   ## Stop environment  (usage: make stop ENV=dev)
 deploy: _deploy-$(ENV) ## Deploy to environment (usage: make deploy ENV=prod)
 
 _start-%:
@@ -71,7 +69,7 @@ endif
 	git commit -m "chore: bump to v$(NEW)" || true
 	git checkout main
 	git merge dev --no-ff -m "release: v$(NEW)"
-	git tag -s v$(NEW) -m "release v$(NEW)"
+	git tag -a v$(NEW) -m "release v$(NEW)"
 	git push origin main --tags
 	$(MAKE) _publish NEW=$(NEW)
 	git checkout dev
@@ -96,9 +94,16 @@ clean: ## Remove cache files and build artifacts
 	$(MAKE) _clean-extra; true
 
 # ── Hooks — override in Makefile.local ────────────────────────────────────────
-# Pattern rule: any _*-extra / _publish target not defined in Makefile.local
-# resolves here as a silent no-op. Explicit rules in Makefile.local always win
-# over pattern rules — no duplicate-target warnings.
+# _bump-extra  NEW=x.y.z  runs inside bump, before commit
+#                         → update plugin.json, package.json, pyproject.toml, etc.
+# _publish     NEW=x.y.z  runs inside release, after git push origin main --tags
+#                         → gh release create, npm publish, docker push, etc.
+# _setup-extra            runs inside setup → install project-specific deps
+# _clean-extra            runs inside clean → remove project-specific artifacts
+#
+# Pattern rule: any _* hook not defined in Makefile.local resolves here as
+# a silent no-op. Explicit rules in Makefile.local always win over pattern
+# rules — no duplicate-target warnings.
 _%:
 	@true
 

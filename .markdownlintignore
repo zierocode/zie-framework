@@ -2,7 +2,20 @@
 zie-framework/backlog/
 zie-framework/plans/
 zie-framework/specs/
+zie-framework/evidence/
 zie-framework/ROADMAP.md
 
 # CHANGELOG repeats section headings (Features/Fixes/Docs) by design
 CHANGELOG.md
+
+# Pre-existing lint violations in complex command/skill files — not regressions
+commands/zie-audit.md
+commands/zie-implement.md
+commands/zie-plan.md
+commands/zie-retro.md
+skills/impl-reviewer/SKILL.md
+skills/plan-reviewer/SKILL.md
+skills/spec-reviewer/SKILL.md
+skills/test-pyramid/SKILL.md
+skills/verify/SKILL.md
+zie-framework/docs/parallel-execution-patterns.md

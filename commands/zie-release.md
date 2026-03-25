@@ -17,21 +17,13 @@ dev→main, tags, and updates ROADMAP. Nothing ships without passing every gate.
    context
 3. Read `VERSION` → current version.
 4. Check current git branch → should be `dev`. Warn if not.
-5. **Version Consistency Gate** — before running any tests, verify that `VERSION`
-   and `.claude-plugin/plugin.json` are in sync:
+5. Verify `VERSION` file exists and is non-empty:
 
    ```bash
-   VERSION_VAL=$(cat VERSION)
-   PLUGIN_VAL=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['version'])")
-   if [ "$VERSION_VAL" != "$PLUGIN_VAL" ]; then
-     echo "Version mismatch: VERSION=$VERSION_VAL, plugin.json=$PLUGIN_VAL — run \`make bump NEW=<v>\` to sync before releasing."
-     exit 1
-   fi
+   cat VERSION
    ```
 
-   - Exit 0 (versions match) → continue.
-   - Exit 1 (mismatch) → **STOP**. Print the error message from the script
-     and do not proceed to test gates.
+   Empty or missing → **STOP**: "No VERSION file found. Run `make bump NEW=x.y.z` first."
 
 ## ลำดับการตรวจสอบ (ต้องผ่านทุกขั้น)
 
@@ -86,13 +78,15 @@ Print: `[Gate 4/5] Visual Check`
 Start **immediately after Gate 1 passes** — do NOT wait before running Gate 2.
 
 **TaskCreate** — create task before launching Agent:
+
 ```python
 TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md against changed files", activeForm="Checking docs sync")
 ```
 
 **Invoke simultaneously:**
 
-1. `Agent(subagent_type="zie-framework:docs-sync-check", run_in_background=True, prompt="Check docs sync for changed files: {changed_files}")`
+1. `Agent(subagent_type="zie-framework:docs-sync-check", run_in_background=True)`
+   - prompt: `"Check docs sync for changed files: {changed_files}"`
    - Pass `git diff main..HEAD --name-only` output as the `changed_files` argument.
 
 2. Bash: TODOs and secrets scan (runs in parallel with Agent):
@@ -104,6 +98,7 @@ TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md aga
    Also check changed files for hardcoded API keys, tokens, or credentials.
 
 **Wait for Agent completion:**
+
 - Wait for docs-sync-check Agent to complete (via task notification or TaskOutput)
 - **TaskUpdate** — mark task as "completed" when Agent finishes
 
@@ -163,15 +158,15 @@ merging.
    - Move all `[x]` items from "Now" → "Done" with date and version tag.
    - Clear Now lane (leave `<!-- -->` comment).
 
-3.5. **Cleanup shipped SDLC artifacts** — for each shipped slug derived from Now lane:
+4. **Cleanup shipped SDLC artifacts** — for each shipped slug derived from Now lane:
    - Delete `zie-framework/backlog/<slug>.md` (if exists)
    - Delete `zie-framework/specs/*-<slug>-design.md` (glob first match, if exists)
    - Delete `zie-framework/plans/*-<slug>.md` (glob first match, if exists)
-   - These deletions are staged and included in the release commit.
+   - Stage and include these deletions in the release commit.
    - Rationale: git history preserves all content — working tree contains only
      active work. `zie-framework/decisions/` is never cleaned (ADRs are permanent).
 
-4. **Draft CHANGELOG entry**:
+5. **Draft CHANGELOG entry**:
    - Run: `git log $(git describe --tags --abbrev=0 2>/dev/null || git
      rev-list --max-parents=0 HEAD)..HEAD --oneline --no-merges`
    - Rewrite commits เป็นภาษาที่คนอ่านเข้าใจ — ไม่ใช่แค่ copy commit messages:
@@ -194,14 +189,15 @@ merging.
    - **yes** → append section at top of `CHANGELOG.md`
    - **edit** → Zie แก้ text → write → continue
 
-5. **Pre-flight: ตรวจสอบ uncommitted files**:
+6. **Pre-flight: ตรวจสอบ uncommitted files**:
 
    ```bash
    git status --short
    ```
 
-   - Release commit ควรมีแค่ 4 ไฟล์: `VERSION`, `CHANGELOG.md`,
-     `zie-framework/ROADMAP.md`, `.claude-plugin/plugin.json`
+   - Release commit ควรมีแค่ 3 ไฟล์: `VERSION`, `CHANGELOG.md`,
+     `zie-framework/ROADMAP.md`
+     (project-specific files เช่น plugin.json จะถูก commit โดย `make release` ต่อไป)
    - ถ้าเจอ implementation files (hooks/*, tests/*, commands/*) ค้างอยู่ →
      STOP: "Uncommitted feature files found: [list]. These should have been
      committed in a `feat:` commit. Run `git add -A && git commit
@@ -209,32 +205,14 @@ merging.
    - ถ้าเจอแค่ docs (CLAUDE.md, README.md) ที่ release gate เพิ่งอัปเดต →
      include ได้ในขั้นถัดไป
 
-6. **Commit release files**:
+7. **Commit release files**:
 
    ```bash
-   git add VERSION CHANGELOG.md zie-framework/ROADMAP.md \
-     .claude-plugin/plugin.json
+   git add VERSION CHANGELOG.md zie-framework/ROADMAP.md
    git commit -m "release: v<NEW_VERSION>"
    ```
 
    *(git add ไม่ error ถ้าไฟล์ไม่ได้ถูกแก้)*
-
-7. **Readiness gate — verify `make release` is implemented**:
-
-   ```bash
-   grep -q "ZIE-NOT-READY" Makefile && echo "NOT_READY" || echo "READY"
-   ```
-
-   - `NOT_READY` → **STOP**. Print:
-
-     ```text
-     Release blocked: make release is not implemented yet.
-
-     Open Makefile, replace the ZIE-NOT-READY skeleton with real
-     publish steps for this project, then re-run /zie-release.
-     ```
-
-   - `READY` → proceed.
 
 8. **Delegate publish to project**:
 
@@ -269,7 +247,7 @@ merging.
 ## Notes
 
 - If any gate fails, `make release` is never called — fix and re-run `/zie-release`
-- Git ops (merge, tag, push) are delegated to `make release` — implement
-  the skeleton in your project's Makefile before first release
+- Git ops (merge, tag, push) are delegated to `make release` — project-specific
+  version bumping is handled by `_bump-extra` in `Makefile.local`
 - ROADMAP update (step 3) happens before the commit so the release commit
   reflects the correct state

@@ -219,29 +219,42 @@ then re-run /zie-init."`
    Use `templates/ROADMAP.md.template` — set project name from
    current directory name.
 
-6. **Create `Makefile`** at project root:
-   - If Makefile already exists: ADD the standard targets (test-unit,
-     test-int, test-e2e, test, push, ship) only if they don't already
-     exist. Never overwrite existing targets.
-   - If no Makefile: create from template matching project_type (python or typescript).
+6. **Create `Makefile` + `Makefile.local`** at project root:
 
-7. **Negotiate `make release` skeleton** (both greenfield + existing paths):
+   - **`Makefile`**:
+     - If already exists: **skip** (never overwrite — user owns it).
+     - If missing: copy from `templates/Makefile`.
 
-   - Check if `Makefile` already contains a `release` target:
-     `grep -q "^release:" Makefile 2>/dev/null` → if found: **skip**
-     (idempotent — never overwrite an existing target).
-   - Draft skeleton by `project_type`:
+   - **`Makefile.local`**:
+     - If already exists: **skip**.
+     - If missing: copy from matching example:
+       - `python-api` / `python-plugin` → `templates/Makefile.local.python.example`
+       - `typescript-cli` / `typescript-fullstack` → `templates/Makefile.local.typescript.example`
+       - Other → `templates/Makefile.local.python.example` (closest generic)
+     - Rename to `Makefile.local` (remove `.example` suffix).
 
-     | project\_type | Skeleton hint |
+7. **Negotiate `_bump-extra` + `_publish`** in `Makefile.local`:
+
+   - Read `Makefile.local` — check if `_bump-extra` already has real commands
+     (not just `@true`).
+   - If stub: ask "Which version files need bumping on release?"
+     Present options by `project_type`:
+
+     | project\_type | Suggested `_bump-extra` |
      | --- | --- |
-     | `python-api` | `sed` VERSION + pyproject.toml bump + pip publish |
-     | `python-plugin` | `sed` VERSION + plugin.json bump + gh release |
-     | `typescript-cli` | `npm version` + `npm publish` |
-     | `typescript-fullstack` | `npm version` + `vercel deploy --prod` |
-     | (other) | generic with detailed `ZIE-NOT-READY` TODO comment |
+     | `python-api` | `sed` pyproject.toml version |
+     | `python-plugin` | `jq` plugin.json version |
+     | `typescript-cli` | `npm version $(NEW) --no-git-tag-version` |
+     | `typescript-fullstack` | `npm version $(NEW) --no-git-tag-version` |
+     | (other) | prompt user to describe version files |
 
-   - Present skeleton and ask: "Does this look right? (yes / no / edit)"
-   - `yes` → append to `Makefile`; `no` → skip; `edit` → redraft → repeat.
+   - Present draft and ask: "Does this look right? (yes / no / edit)"
+   - `yes` → write into `Makefile.local`; `no` → leave as `@true`; `edit` → redraft.
+
+   - Ask separately: "Does this project need a publish step after release?
+     (e.g. gh release, npm publish, docker push, vercel deploy — or 'no')"
+   - If yes: add appropriate `_publish` recipe to `Makefile.local`.
+   - If no: leave `_publish` as `@true`.
 
 8. **Create `VERSION`** at project root — keep as-is if exists;
    create with content `0.1.0` if missing.
@@ -256,10 +269,25 @@ then re-run /zie-init."`
        `Node.js / TypeScript`)
      - `{{test_runner}}` → detected test runner
      - `{{build_commands}}` → appropriate commands for project_type:
-       - python: `make test-unit   # unit tests\nmake test        # full
-         suite\nmake push m="msg"  # commit + push`
-       - typescript: `make test-unit   # unit tests\nmake test        # full
-         suite\nmake push m="msg"  # commit + push`
+       - python:
+
+         ```bash
+         make test-unit        # unit tests
+         make test             # full suite
+         make push m="msg"     # commit + push
+         make start            # start dev environment
+         make deploy ENV=prod  # deploy to prod
+         ```
+
+       - typescript:
+
+         ```bash
+         make test-unit        # unit tests
+         make test             # full suite
+         make push m="msg"     # commit + push
+         make start            # start dev server
+         make deploy ENV=prod  # deploy to prod
+         ```
 
 10. **Install Markdown lint enforcement**:
     - Create `.markdownlint.json` at project root from

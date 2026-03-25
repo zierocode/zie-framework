@@ -1,0 +1,49 @@
+# Makefile.local — Python project overrides
+# Copy to Makefile.local (gitignore-able or commit as-is).
+# This file is auto-included by the base Makefile via: -include Makefile.local
+
+# ── Tests ─────────────────────────────────────────────────────────────────────
+test-unit: ## Run unit tests
+	python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
+
+test-int: ## Run integration tests
+	python3 -m pytest tests/ -v -m "integration" --tb=short
+
+# ── Lint ──────────────────────────────────────────────────────────────────────
+lint: ## Lint Python source (syntax check)
+	python3 -m py_compile src/**/*.py && echo "All files compile OK"
+
+# ── Environment lifecycle ─────────────────────────────────────────────────────
+_start-dev:
+	# Example: start a local server or Docker stack
+	# docker compose up -d
+	@echo "Started dev environment"
+
+_stop-dev:
+	# docker compose down
+	@echo "Stopped dev environment"
+
+_deploy-prod:
+	# Example: deploy to VPS or cloud
+	# ssh user@host "cd /app && git pull && systemctl restart app"
+	@echo "Deployed to prod"
+
+# ── Version bumping ───────────────────────────────────────────────────────────
+_bump-extra:
+	# Update pyproject.toml version
+	sed -i '' 's/^version = "[^"]*"/version = "$(NEW)"/' pyproject.toml || true
+
+# ── Publish ───────────────────────────────────────────────────────────────────
+_publish:
+	# Example: create GitHub release
+	# gh release create v$(NEW) --title "v$(NEW)" --generate-notes || true
+	@true
+
+# ── Setup ─────────────────────────────────────────────────────────────────────
+_setup-extra:
+	pip3 install -r requirements.txt
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+logs: ## Tail application logs
+	# docker compose logs -f
+	@echo "Override logs in Makefile.local"
