@@ -1,4 +1,5 @@
 VERSION := $(shell cat VERSION 2>/dev/null || echo "0.1.0")
+ZIEROCODE_MKT := ../zie-memory/.claude-plugin/marketplace.json
 
 # ── Help ──────────────────────────────────────────────────────────────────────
 .DEFAULT_GOAL := help
@@ -55,6 +56,24 @@ endif
 	git merge dev --no-ff -m "release: v$(NEW)"
 	git tag -s v$(NEW) -m "release v$(NEW)"
 	git push origin main --tags
+	@if [ -f $(ZIEROCODE_MKT) ]; then \
+		SHA=$$(git rev-parse HEAD) && \
+		CUR=$$(jq -r '.metadata.version' $(ZIEROCODE_MKT)) && \
+		NEW_MKT=$$(echo $$CUR | awk -F. '{print $$1"."$$2"."$$3+1}') && \
+		jq --arg sha "$$SHA" --arg ver "$(NEW)" --arg mver "$$NEW_MKT" \
+		  '(.plugins[] | select(.name=="zie-framework")).source.sha = $$sha | \
+		   (.plugins[] | select(.name=="zie-framework")).version = $$ver | \
+		   .metadata.version = $$mver' \
+		  $(ZIEROCODE_MKT) > $(ZIEROCODE_MKT).tmp && \
+		mv $(ZIEROCODE_MKT).tmp $(ZIEROCODE_MKT) && \
+		cd ../zie-memory && \
+		git add .claude-plugin/marketplace.json && \
+		git commit -m "chore: bump zie-framework to v$(NEW) in marketplace" && \
+		git push origin main && \
+		echo "Updated zierocode marketplace → zie-framework v$(NEW)"; \
+	else \
+		echo "WARN: $(ZIEROCODE_MKT) not found — skipping marketplace update"; \
+	fi
 	git checkout dev
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
@@ -65,13 +84,16 @@ setup: ## Install git hooks and coverage sitecustomize (run once after cloning)
 	python3 -m coverage sitecustomize
 	@echo "Git hooks + coverage sitecustomize installed"
 
-sync-version: ## Sync plugin.json version to match VERSION
+sync-version: ## Sync plugin.json + marketplace.json + PROJECT.md version to match VERSION
 	jq --arg v "$$(cat VERSION)" '.version = $$v' .claude-plugin/plugin.json \
 	  > .claude-plugin/plugin.json.tmp \
 	  && mv .claude-plugin/plugin.json.tmp .claude-plugin/plugin.json
+	jq --arg v "$$(cat VERSION)" '.metadata.version = $$v' .claude-plugin/marketplace.json \
+	  > .claude-plugin/marketplace.json.tmp \
+	  && mv .claude-plugin/marketplace.json.tmp .claude-plugin/marketplace.json
 	sed -i '' 's/\*\*Version\*\*: [0-9.]*/\*\*Version\*\*: '"$$(cat VERSION)"'/' \
 	  zie-framework/PROJECT.md
-	@echo "plugin.json + PROJECT.md version synced to $$(cat VERSION)"
+	@echo "plugin.json + marketplace.json + PROJECT.md version synced to $$(cat VERSION)"
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
 clean: ## Remove cache files and build artifacts
