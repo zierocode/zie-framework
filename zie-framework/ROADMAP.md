@@ -19,6 +19,8 @@
 <!-- Order: Critical → High → Medium → Low -->
 
 <!-- CRITICAL -->
+- [ ] security-critical-sprint — 8 fixes: injection, coverage, protocol, deprecation
+  [plan](plans/2026-03-27-security-critical-sprint.md) ✓ approved
 
 <!-- HIGH -->
 
@@ -48,6 +50,11 @@
 - [ ] utils.load_config() silent failure — [audit finding](backlog/audit-silent-config-parse-failures.md)
 
 <!-- MEDIUM -->
+- [ ] Sonnet 4.6 medium-effort adaptation — [analysis 2026-03-27](backlog/medium-effort-optimization.md)
+- [ ] Token efficiency sprint — trim prompts, cache regex, lean context — [analysis 2026-03-27](backlog/token-efficiency-sprint.md)
+- [ ] Parallelize audit, test gates, retro phases — [analysis 2026-03-27](backlog/parallelize-framework-ops.md)
+- [ ] SDLC artifact archiving — prevent backlog/specs/plans bloat — [analysis 2026-03-27](backlog/artifact-archive-strategy.md)
+- [ ] /zie-implement guard — block if no approved plan in Ready lane — [analysis 2026-03-27](backlog/implement-no-plan-guard.md)
 - [ ] Unsanitized event fields in logs — [audit finding](backlog/unsanitized-event-fields.md)
 - [ ] Consolidate atomic write functions — [audit finding](backlog/consolidate-utils-patterns.md)
 - [ ] Dead code cleanup (audit skill, idle-log, scaffolding) — [audit finding](backlog/dead-code-cleanup.md)
