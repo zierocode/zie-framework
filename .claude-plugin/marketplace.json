@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Solo developer SDLC framework for Claude Code — spec-first, TDD, automated testing, brain-integrated",
-    "version": "1.9.0"
+    "version": "1.10.0"
   },
   "plugins": [
     {
