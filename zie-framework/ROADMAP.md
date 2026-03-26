@@ -9,7 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-- [ ] Lean & Efficient Optimization — [plan](plans/2026-03-27-lean-efficient-optimization.md)
+<!-- -->
 
 ---
 
@@ -72,6 +72,10 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] Lean & Efficient Optimization — hook consolidation (intent-sdlc.py),
+  ROADMAP session cache, zie-audit 5 Opus→3 Sonnet + synthesis, effort
+  right-sizing, zie-implement/zie-plan parallel cap removed, archive-plans
+  Makefile target — 1491 unit + 62 integration tests — v1.10.0 2026-03-27
 - [x] Security + code quality sprint — 10 features: coverage measurement fix,
   shell injection + /tmp hardening + path traversal security fixes, subprocess
   timeouts, test quality edge cases, utils consolidation (normalize_command,
