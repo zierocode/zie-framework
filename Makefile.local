@@ -21,6 +21,21 @@ _bump-extra:
 	  > .claude-plugin/plugin.json.tmp \
 	  && mv .claude-plugin/plugin.json.tmp .claude-plugin/plugin.json
 
+# ── Publish ───────────────────────────────────────────────────────────────────
+# Updates zie-framework version + SHA in the zierocode marketplace (zie-memory repo)
+_publish:
+	@SHA=$$(git rev-parse HEAD) && \
+	jq --arg v "$(NEW)" --arg sha "$$SHA" \
+	  '(.plugins[] | select(.name=="zie-framework") | .version) = $$v | \
+	   (.plugins[] | select(.name=="zie-framework") | .source.sha) = $$sha' \
+	  /Users/zie/Code/zie-memory/.claude-plugin/marketplace.json \
+	  > /tmp/mkt.tmp && \
+	mv /tmp/mkt.tmp /Users/zie/Code/zie-memory/.claude-plugin/marketplace.json && \
+	cd /Users/zie/Code/zie-memory && \
+	git add .claude-plugin/marketplace.json && \
+	git commit -m "chore: bump zie-framework to v$(NEW) in marketplace" && \
+	git push origin dev
+
 # ── Setup ─────────────────────────────────────────────────────────────────────
 _setup-extra:
 	pip3 install pytest-cov coverage bandit
