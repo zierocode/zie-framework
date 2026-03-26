@@ -30,8 +30,35 @@
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
+<!-- Audit 2026-03-26: 53 findings, score 73/100 -->
 
-<!-- (All items approved and moved to Ready — 2026-03-24) -->
+<!-- CRITICAL -->
+- [ ] Prompt injection in safety_check_agent — [audit finding](backlog/security-prompt-injection.md)
+- [ ] Shell injection in input-sanitizer — [audit finding](backlog/security-shell-injection.md)
+- [ ] Coverage measurement broken (20% reported) — [audit finding](backlog/fix-coverage-measurement.md)
+
+<!-- HIGH -->
+- [ ] Lean & Efficient Optimization — [backlog](backlog/lean-efficient-optimization.md)
+- [ ] Symlink guards + atomic_write hardening — [audit finding](backlog/security-tmp-hardening.md)
+- [ ] sdlc-permissions allowlist bypass — [audit finding](backlog/security-permissions-bypass.md)
+- [ ] knowledge-hash --now flag broken — [audit finding](backlog/knowledge-hash-broken-flag.md)
+- [ ] Test exec_module safety + bare except — [audit finding](backlog/test-exec-module-safety.md)
+- [ ] Docs sync: PROJECT.md, SECURITY.md, README — [audit finding](backlog/docs-sync-and-completeness.md)
+- [ ] Hook JSON protocol fix (sdlc-context + shapes) — [audit finding](backlog/hook-json-protocol-fix.md)
+- [ ] utils.load_config() silent failure — [audit finding](backlog/audit-silent-config-parse-failures.md)
+
+<!-- MEDIUM -->
+- [ ] Unsanitized event fields in logs — [audit finding](backlog/unsanitized-event-fields.md)
+- [ ] Consolidate atomic write functions — [audit finding](backlog/consolidate-utils-patterns.md)
+- [ ] Dead code cleanup (audit skill, idle-log, scaffolding) — [audit finding](backlog/dead-code-cleanup.md)
+- [ ] Deprecated datetime.utcnow() — [audit finding](backlog/deprecated-api-cleanup.md)
+- [ ] Integration test depth (beyond "doesn't crash") — [audit finding](backlog/audit-weak-nocrash-assertions.md)
+- [ ] Architecture cleanup (naming, SRP, patterns) — [audit finding](backlog/architecture-cleanup.md)
+- [ ] Test quality gaps (weak assertions, edge cases) — [audit finding](backlog/test-quality-gaps.md)
+- [ ] Standards compliance (SLSA, OpenSSF, CI) — [audit finding](backlog/standards-compliance.md)
+
+<!-- LOW -->
+- [ ] Path traversal restrictions — [audit finding](backlog/security-path-traversal.md)
 
 ## Later — Someday / Maybe
 
