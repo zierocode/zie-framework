@@ -9,6 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
+- [ ] Lean & Efficient Optimization — [plan](plans/2026-03-27-lean-efficient-optimization.md)
 
 ---
 
@@ -20,7 +21,6 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-- [ ] Lean & Efficient Optimization — [plan](plans/2026-03-27-lean-efficient-optimization.md) ✓
 
 <!-- MEDIUM -->
 

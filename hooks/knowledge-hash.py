@@ -12,6 +12,7 @@ EXCLUDE = {
     'node_modules', '.git', 'build', 'dist', '.next',
     '__pycache__', 'coverage', 'zie-framework'
 }
+EXCLUDE_PATHS = {'zie-framework/plans/archive'}
 CONFIG_FILES = [
     'package.json', 'requirements.txt', 'pyproject.toml',
     'Cargo.toml', 'go.mod'
@@ -27,6 +28,7 @@ dirs = sorted(
     for p in root.rglob('*')
     if p.is_dir()
     and not any(ex in p.parts for ex in EXCLUDE)
+    and str(p.relative_to(root)) not in EXCLUDE_PATHS
 )
 counts = sorted(
     f'{d}:{len(list((root / d).iterdir()))}'

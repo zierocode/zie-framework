@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event, get_cwd, parse_roadmap_now
+from utils import read_event, get_cwd, parse_roadmap_section_content, read_roadmap_cached
 
 ALLOWED_TOOLS = {"Bash", "Write", "Edit"}
 
@@ -32,11 +32,13 @@ except Exception:
 
 try:
     cwd = get_cwd()
+    session_id = event.get("session_id", "default")
 
-    # ROADMAP Now lane
+    # ROADMAP Now lane (via session cache)
     roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
     try:
-        now_items = parse_roadmap_now(roadmap_path)
+        roadmap_content = read_roadmap_cached(roadmap_path, session_id)
+        now_items = parse_roadmap_section_content(roadmap_content, "now")
     except Exception:
         now_items = []
     active_task = now_items[0] if now_items else "(none — check ROADMAP Now lane)"

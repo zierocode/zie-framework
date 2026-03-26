@@ -52,7 +52,7 @@ class TestOldCommandsRemoved:
 
 class TestIntentDetectUpdated:
     def _hook(self):
-        return read("hooks/intent-detect.py")
+        return read("hooks/intent-sdlc.py")
 
     def test_has_backlog_suggestion(self):
         assert '"/zie-backlog"' in self._hook(), \

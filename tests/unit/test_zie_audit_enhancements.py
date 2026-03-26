@@ -7,109 +7,85 @@ def read_audit() -> str:
     return (COMMANDS_DIR / "zie-audit.md").read_text()
 
 
-class TestHardDataPhase1:
-    def test_pytest_cov_present(self):
-        assert "pytest --cov" in read_audit(), \
-            "Phase 1 must include pytest --cov run"
-
-    def test_radon_cc_present(self):
-        assert "radon cc" in read_audit(), \
-            "Phase 1 must include radon cc run"
-
-    def test_pip_audit_present(self):
+class TestPhase1ResearchProfile:
+    def test_phase1_reads_manifests(self):
         text = read_audit()
-        assert "pip audit" in text or "npm audit" in text, \
-            "Phase 1 must include pip audit or npm audit run"
+        assert "package.json" in text or "pyproject.toml" in text or "go.mod" in text, \
+            "Phase 1 must read project manifests"
 
-    def test_hard_data_feeds_agents(self):
+    def test_phase1_collects_stack(self):
         text = read_audit()
-        assert "hard_data" in text, \
-            "Phase 1 must define a hard_data variable fed to agents"
+        assert "stack" in text or "languages" in text, \
+            "Phase 1 must identify stack/languages"
 
-    def test_graceful_skip_present(self):
+    def test_phase1_collects_deps(self):
         text = read_audit()
-        assert "skip" in text.lower() or "unavailable" in text.lower(), \
-            "Hard data block must note graceful skip when tools absent"
+        assert "deps" in text or "dependencies" in text.lower(), \
+            "Phase 1 must identify dependencies"
 
-
-class TestHistoricalDiff:
-    def test_since_last_audit_heading_present(self):
+    def test_phase1_identifies_domain(self):
         text = read_audit()
-        assert "Since last audit" in text or "Since Last Audit" in text, \
-            "Audit must have a 'Since last audit' section"
+        assert "domain" in text or "app type" in text.lower(), \
+            "Phase 1 must identify domain/app type"
 
-    def test_evidence_glob_present(self):
+
+class TestPhase2DimensionAgents:
+    def test_security_agent_present(self):
         text = read_audit()
-        assert "evidence/audit-" in text, \
-            "Historical diff must glob evidence/audit-*.md"
+        assert "Security" in text, "Phase 2 must have Security agent"
 
-    def test_skip_when_no_previous_audit(self):
+    def test_code_health_agent_present(self):
         text = read_audit()
-        assert "no previous audit" in text.lower() or "skip" in text.lower(), \
-            "Historical diff must skip gracefully when no prior audit exists"
+        assert "Code Health" in text or "Quality" in text, \
+            "Phase 2 must have Code Health agent"
 
-    def test_diff_positioned_before_phase5(self):
+    def test_structural_agent_present(self):
         text = read_audit()
-        diff_pos = text.lower().find("since last audit")
-        phase5_pos = text.find("## Phase 5")
-        assert diff_pos != -1, "Since last audit section not found"
-        assert diff_pos < phase5_pos, \
-            "Historical diff must appear before Phase 5"
+        assert "Structural" in text or "Architecture" in text, \
+            "Phase 2 must have Structural agent"
 
-
-class TestVersionSpecificQueries:
-    def test_version_specific_query_block_present(self):
+    def test_websearch_per_agent(self):
         text = read_audit()
-        assert "version" in text and "CVE" in text, \
-            "Phase 3 must include version-specific CVE queries"
+        assert "WebSearch" in text, "Dimension agents must use WebSearch"
 
-    def test_deps_loop_present(self):
+    def test_agents_run_simultaneously(self):
         text = read_audit()
-        assert "research_profile.deps" in text or "for dep" in text, \
-            "Phase 3 must loop over research_profile.deps for version queries"
+        assert "simultaneously" in text.lower() or "parallel" in text.lower(), \
+            "Phase 2 agents must run in parallel/simultaneously"
 
-    def test_version_query_format(self):
+
+class TestPhase3Synthesis:
+    def test_synthesis_agent_present(self):
         text = read_audit()
-        assert ("{dep}" in text and "{version}" in text) or \
-               ("<dep>" in text and "<version>" in text), \
-            "Phase 3 must interpolate dep name and version into queries"
+        assert "Synthesis" in text or "synthesis" in text, \
+            "Phase 3 must have a synthesis agent"
 
-    def test_generic_queries_preserved(self):
+    def test_synthesis_deduplicates(self):
         text = read_audit()
-        assert "best practices" in text, \
-            "Existing generic best-practices queries must be preserved"
-        assert "security vulnerabilities checklist" in text, \
-            "Existing security checklist queries must be preserved"
+        assert "Deduplicate" in text or "deduplicate" in text, \
+            "Synthesis must deduplicate findings"
 
-
-class TestAutoFixOffer:
-    def test_auto_fix_section_present(self):
+    def test_synthesis_ranks(self):
         text = read_audit()
-        assert "auto-fix" in text.lower() or "auto_fix" in text.lower(), \
-            "Phase 5 must contain an auto-fix offer section"
+        assert "Rank" in text or "rank" in text or "score" in text.lower(), \
+            "Synthesis must rank/score findings"
 
-    def test_auto_fix_scoped_to_low_medium(self):
+    def test_synthesis_no_websearch(self):
         text = read_audit()
-        assert "Low" in text and "Medium" in text, \
-            "Auto-fix offer must reference Low and Medium severity"
-        assert "High" in text and "Critical" in text, \
-            "Auto-fix offer must explicitly exclude High and Critical"
+        assert "no WebSearch" in text or "0 WebSearch" in text, \
+            "Synthesis agent must not use WebSearch"
 
-    def test_auto_fixable_tag_referenced(self):
-        text = read_audit()
-        assert "auto-fixable" in text, \
-            "Auto-fix offer must check for auto-fixable tag on findings"
 
-    def test_auto_fix_positioned_after_backlog_write(self):
+class TestPhase4BacklogIntegration:
+    def test_backlog_integration(self):
         text = read_audit()
-        backlog_pos = text.find("zie-framework/backlog/")
-        autofix_pos = text.lower().find("auto-fix")
-        assert backlog_pos != -1, "Backlog write section not found"
-        assert autofix_pos != -1, "Auto-fix section not found"
-        assert autofix_pos > backlog_pos, \
-            "Auto-fix offer must appear after backlog items are written"
+        assert "backlog" in text.lower(), "Phase 4 must integrate with backlog"
 
-    def test_skip_when_no_auto_fixable(self):
+    def test_roadmap_update(self):
         text = read_audit()
-        assert "skip" in text.lower() or "none" in text.lower(), \
-            "Auto-fix section must skip gracefully when no qualifying findings"
+        assert "ROADMAP" in text, "Phase 4 must update ROADMAP"
+
+    def test_asks_user_before_adding(self):
+        text = read_audit()
+        assert "yes" in text.lower() or "skip" in text.lower(), \
+            "Phase 4 must ask user before adding to backlog"

@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event, get_cwd, parse_roadmap_now
+from utils import read_event, get_cwd, parse_roadmap_section_content, read_roadmap_cached
 
 # ── Outer guard ───────────────────────────────────────────────────────────────
 
@@ -27,10 +27,12 @@ except Exception:
 feature_slug = "none"
 active_task = "unknown"
 adr_count = "unknown"
+session_id = event.get("session_id", "default")
 
-# Read ROADMAP Now lane
+# Read ROADMAP Now lane (via session cache)
 try:
-    now_items = parse_roadmap_now(cwd / "zie-framework" / "ROADMAP.md")
+    roadmap_content = read_roadmap_cached(cwd / "zie-framework" / "ROADMAP.md", session_id)
+    now_items = parse_roadmap_section_content(roadmap_content, "now")
     if now_items:
         raw = now_items[0]
         slug = raw.lower()

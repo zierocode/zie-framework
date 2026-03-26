@@ -174,3 +174,22 @@ class TestHooksJsonSafetyCheckAgent:
                     )
                     return
         raise AssertionError("safety_check_agent.py not found in PreToolUse hooks")
+
+
+class TestHooksJsonWipCheckpointBackground:
+    def _load(self):
+        with open(HOOKS_JSON) as f:
+            return json.load(f)
+
+    def test_wip_checkpoint_is_background(self):
+        data = self._load()
+        post_tool_hooks = data["hooks"]["PostToolUse"]
+        wip_entries = [
+            h for group in post_tool_hooks
+            for h in group["hooks"]
+            if "wip-checkpoint" in h["command"]
+        ]
+        assert len(wip_entries) == 1, "Expected exactly one wip-checkpoint PostToolUse entry"
+        assert wip_entries[0].get("background") is True, (
+            "wip-checkpoint must have background: true to avoid blocking Claude on every file save"
+        )

@@ -88,6 +88,13 @@ setup: ## Install git hooks + project deps (run once after cloning)
 sync-version: ## Sync all version files to match current VERSION (alias for bump)
 	$(MAKE) bump NEW=$$(cat VERSION)
 
+# ── Plans archive ─────────────────────────────────────────────────────────────
+archive-plans: ## Move plans older than 60 days to zie-framework/plans/archive/
+	@mkdir -p zie-framework/plans/archive
+	@find zie-framework/plans -maxdepth 1 -name "*.md" \
+	  -mtime +60 -exec mv {} zie-framework/plans/archive/ \;
+	@echo "[zie-framework] Archived plans older than 60 days"
+
 # ── Utilities ─────────────────────────────────────────────────────────────────
 clean: ## Remove cache files and build artifacts
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; \
