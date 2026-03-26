@@ -29,15 +29,7 @@
       "hooks": [
         {
           "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/intent-detect.py\""
-        }
-      ]
-    },
-    {
-      "hooks": [
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/sdlc-context.py\""
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/intent-sdlc.py\""
         }
       ]
     }
@@ -74,7 +66,8 @@
         },
         {
           "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/wip-checkpoint.py\""
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/wip-checkpoint.py\"",
+          "background": true
         }
       ]
     }

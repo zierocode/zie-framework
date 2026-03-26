@@ -51,12 +51,14 @@ zie-framework/              # self-managed SDLC state (this repo uses itself)
 ## Development Commands
 
 ```bash
-make test-unit   # run unit tests only (pytest, excludes integration tests)
-make test-int    # run integration tests (subprocess hook events)
-make test        # full test suite (unit + integration + md lint)
-make bump NEW=x.y.z  # atomically bump VERSION + plugin.json + PROJECT.md
-make sync-version    # sync plugin.json + PROJECT.md version to match VERSION file
-make push m="msg"  # commit + push to dev
+make test-unit        # run unit tests (pytest + coverage)
+make test-int         # run integration tests (subprocess hook events)
+make test             # full test suite (unit + integration + md lint)
+make bump NEW=x.y.z   # bump VERSION + plugin.json + PROJECT.md
+make sync-version     # re-sync all version files to current VERSION
+make push m="msg"     # commit + push to dev
+make start            # open Claude with local plugin (ENV=dev)
+make setup            # install git hooks + python deps (run once)
 ```
 
 ## Agent Mode Sessions

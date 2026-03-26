@@ -2,6 +2,7 @@
 import os
 import sys
 import tempfile
+import time
 from pathlib import Path
 import pytest
 
@@ -11,7 +12,7 @@ sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
 import json
 from unittest.mock import patch
-from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd, parse_roadmap_section
+from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd, parse_roadmap_section, get_cached_roadmap, write_roadmap_cache
 
 
 class TestParseRoadmapNow:
@@ -764,19 +765,13 @@ class TestSdlcStages:
         from utils import SDLC_STAGES
         assert all(isinstance(s, str) for s in SDLC_STAGES)
 
-    def test_intent_detect_imports_sdlc_stages(self):
-        """intent-detect.py must reference SDLC_STAGES from utils."""
-        content = (REPO_ROOT / "hooks" / "intent-detect.py").read_text()
-        assert "SDLC_STAGES" in content, (
-            "intent-detect.py must import or reference SDLC_STAGES"
-        )
-
-    def test_sdlc_context_imports_sdlc_stages(self):
-        """sdlc-context.py must reference SDLC_STAGES from utils."""
-        content = (REPO_ROOT / "hooks" / "sdlc-context.py").read_text()
-        assert "SDLC_STAGES" in content, (
-            "sdlc-context.py must import or reference SDLC_STAGES"
-        )
+    def test_intent_sdlc_has_sdlc_stage_keywords(self):
+        """intent-sdlc.py must cover key SDLC stage keywords."""
+        content = (REPO_ROOT / "hooks" / "intent-sdlc.py").read_text()
+        for keyword in ("implement", "fix", "release", "plan"):
+            assert keyword in content, (
+                f"intent-sdlc.py must reference SDLC stage keyword: {keyword}"
+            )
 
 
 class TestParseRoadmapNowWarnOnEmpty:
@@ -827,3 +822,62 @@ class TestParseRoadmapNowWarnOnEmpty:
         assert result == []
         captured = capsys.readouterr()
         assert captured.err == ""
+
+
+class TestRoadmapCache:
+    """Tests for get_cached_roadmap() and write_roadmap_cache()."""
+
+    # Use unique session IDs per test to avoid cross-test pollution in /tmp
+
+    def test_get_returns_none_when_no_cache(self):
+        """Cache miss returns None (no file written)."""
+        result = get_cached_roadmap("test-sess-nocache-unique-99z", ttl=30)
+        assert result is None
+
+    def test_write_then_read_within_ttl(self):
+        """Fresh cache returns written content."""
+        sid = "test-sess-fresh-unique-99z"
+        write_roadmap_cache(sid, "# ROADMAP\n## Now\n")
+        result = get_cached_roadmap(sid, ttl=30)
+        assert result == "# ROADMAP\n## Now\n"
+
+    def test_get_returns_none_when_expired(self):
+        """Stale cache (age >= ttl) returns None."""
+        sid = "test-sess-stale-unique-99z"
+        write_roadmap_cache(sid, "# ROADMAP\n")
+        cache_file = Path(f"/tmp/zie-{sid}/roadmap.cache")
+        old_time = time.time() - 60
+        os.utime(cache_file, (old_time, old_time))
+        result = get_cached_roadmap(sid, ttl=30)
+        assert result is None
+
+    def test_get_returns_none_on_bad_session_id(self):
+        """Invalid/empty session ID returns None, does not raise."""
+        result = get_cached_roadmap("", ttl=30)
+        assert result is None
+
+    def test_write_creates_parent_dirs(self):
+        """write_roadmap_cache creates /tmp/zie-{session_id}/ if needed."""
+        sid = "test-sess-newdir-unique-99z"
+        cache_file = Path(f"/tmp/zie-{sid}/roadmap.cache")
+        cache_file.unlink(missing_ok=True)
+        write_roadmap_cache(sid, "content")
+        assert cache_file.exists()
+        assert cache_file.read_text() == "content"
+
+    def test_write_silently_swallows_errors(self, monkeypatch):
+        """write_roadmap_cache does not raise on I/O errors."""
+        monkeypatch.setattr(Path, "mkdir", lambda *a, **kw: (_ for _ in ()).throw(OSError("no perms")))
+        write_roadmap_cache("sess-err-unique-99z", "content")  # must not raise
+
+    def test_cache_default_ttl_is_30(self):
+        """Default TTL is 30 seconds."""
+        sid = "test-sess-ttl-unique-99z"
+        write_roadmap_cache(sid, "data")
+        cache_file = Path(f"/tmp/zie-{sid}/roadmap.cache")
+        # backdate by 29s — should still be fresh
+        os.utime(cache_file, (time.time() - 29, time.time() - 29))
+        assert get_cached_roadmap(sid) == "data"
+        # backdate by 31s — should be stale
+        os.utime(cache_file, (time.time() - 31, time.time() - 31))
+        assert get_cached_roadmap(sid) is None

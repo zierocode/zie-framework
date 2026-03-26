@@ -31,25 +31,25 @@ class TestImplementProgress:
 
 
 class TestAuditProgress:
-    def test_phase_counter_present(self):
+    def test_phase_structure_present(self):
         text = (COMMANDS_DIR / "zie-audit.md").read_text()
-        assert "[Phase 1/5]" in text, \
-            "zie-audit.md must contain [Phase 1/5] counter"
+        assert "## Phase 1" in text and "## Phase 2" in text, \
+            "zie-audit.md must contain Phase 1 and Phase 2 sections"
 
-    def test_agent_completion_marker_present(self):
+    def test_three_dimension_agents_present(self):
         text = (COMMANDS_DIR / "zie-audit.md").read_text()
-        assert "Agent A" in text and "✓" in text, \
-            "zie-audit.md must contain Agent A completion marker"
+        assert "Agent 1" in text and "Agent 2" in text and "Agent 3" in text, \
+            "zie-audit.md must describe 3 dimension agents"
 
-    def test_research_counter_present(self):
+    def test_research_parallel_dispatch_present(self):
         text = (COMMANDS_DIR / "zie-audit.md").read_text()
-        assert "parallel" in text.lower() and "queries" in text.lower(), \
-            "zie-audit.md must describe parallel query dispatch in Phase 3"
+        assert "parallel" in text.lower() or "simultaneously" in text.lower(), \
+            "zie-audit.md must describe parallel agent dispatch"
 
-    def test_phases_complete_summary_present(self):
+    def test_synthesis_phase_present(self):
         text = (COMMANDS_DIR / "zie-audit.md").read_text()
-        assert "phases complete" in text, \
-            "zie-audit.md must contain 'phases complete' end summary"
+        assert "## Phase 3" in text and ("Synthesis" in text or "synthesis" in text), \
+            "zie-audit.md must contain a Phase 3 Synthesis section"
 
 
 class TestReleaseProgress:

@@ -4,8 +4,8 @@ description: Deep project audit — 9-dimension analysis with external research.
 argument-hint: "[--focus <dimension>]"
 metadata:
   zie_memory_enabled: false
-model: opus
-effort: high
+model: sonnet
+effort: medium
 ---
 
 # zie-audit — Deep Project Audit

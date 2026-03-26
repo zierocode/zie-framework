@@ -9,6 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
+<!-- -->
 
 ---
 
@@ -30,8 +31,34 @@
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
+<!-- Audit 2026-03-26: 53 findings, score 73/100 -->
 
-<!-- (All items approved and moved to Ready — 2026-03-24) -->
+<!-- CRITICAL -->
+- [ ] Prompt injection in safety_check_agent — [audit finding](backlog/security-prompt-injection.md)
+- [ ] Shell injection in input-sanitizer — [audit finding](backlog/security-shell-injection.md)
+- [ ] Coverage measurement broken (20% reported) — [audit finding](backlog/fix-coverage-measurement.md)
+
+<!-- HIGH -->
+- [ ] Symlink guards + atomic_write hardening — [audit finding](backlog/security-tmp-hardening.md)
+- [ ] sdlc-permissions allowlist bypass — [audit finding](backlog/security-permissions-bypass.md)
+- [ ] knowledge-hash --now flag broken — [audit finding](backlog/knowledge-hash-broken-flag.md)
+- [ ] Test exec_module safety + bare except — [audit finding](backlog/test-exec-module-safety.md)
+- [ ] Docs sync: PROJECT.md, SECURITY.md, README — [audit finding](backlog/docs-sync-and-completeness.md)
+- [ ] Hook JSON protocol fix (sdlc-context + shapes) — [audit finding](backlog/hook-json-protocol-fix.md)
+- [ ] utils.load_config() silent failure — [audit finding](backlog/audit-silent-config-parse-failures.md)
+
+<!-- MEDIUM -->
+- [ ] Unsanitized event fields in logs — [audit finding](backlog/unsanitized-event-fields.md)
+- [ ] Consolidate atomic write functions — [audit finding](backlog/consolidate-utils-patterns.md)
+- [ ] Dead code cleanup (audit skill, idle-log, scaffolding) — [audit finding](backlog/dead-code-cleanup.md)
+- [ ] Deprecated datetime.utcnow() — [audit finding](backlog/deprecated-api-cleanup.md)
+- [ ] Integration test depth (beyond "doesn't crash") — [audit finding](backlog/audit-weak-nocrash-assertions.md)
+- [ ] Architecture cleanup (naming, SRP, patterns) — [audit finding](backlog/architecture-cleanup.md)
+- [ ] Test quality gaps (weak assertions, edge cases) — [audit finding](backlog/test-quality-gaps.md)
+- [ ] Standards compliance (SLSA, OpenSSF, CI) — [audit finding](backlog/standards-compliance.md)
+
+<!-- LOW -->
+- [ ] Path traversal restrictions — [audit finding](backlog/security-path-traversal.md)
 
 ## Later — Someday / Maybe
 
@@ -45,6 +72,10 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] Lean & Efficient Optimization — hook consolidation (intent-sdlc.py),
+  ROADMAP session cache, zie-audit 5 Opus→3 Sonnet + synthesis, effort
+  right-sizing, zie-implement/zie-plan parallel cap removed, archive-plans
+  Makefile target — 1491 unit + 62 integration tests — v1.10.0 2026-03-27
 - [x] Security + code quality sprint — 10 features: coverage measurement fix,
   shell injection + /tmp hardening + path traversal security fixes, subprocess
   timeouts, test quality edge cases, utils consolidation (normalize_command,

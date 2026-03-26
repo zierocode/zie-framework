@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.10.0 — 2026-03-27
+
+### Features
+
+- **Lean & Efficient Optimization** — reduce session token overhead ~47%:
+  merged `intent-detect.py` + `sdlc-context.py` into single `intent-sdlc.py`
+  hook; added 30s ROADMAP.md session cache; `wip-checkpoint` now runs async
+  (background: true); `safety_check_mode` defaults to `regex` (no subagent
+  on every tool call); `zie-audit` migrated from 5 Opus agents to 3 Sonnet
+  agents + synthesis pass (effort: high → medium, per ADR-021); `zie-retro`
+  effort: high → medium; `zie-implement` slimmed 351 → 109 lines; parallel
+  agent caps removed from `zie-implement` and `zie-plan` — `depends_on` and
+  file-conflict detection govern serialization instead; `make archive-plans`
+  target added for plans/ housekeeping
+- **Hybrid Release** — generic base `Makefile` + `Makefile.local` hook
+  architecture; project-specific publish steps live in `Makefile.local`,
+  keeping the framework Makefile shareable across projects
+- **Single Zierocode Marketplace** — `ZIEROCODE_MKT` sync added to release
+  pipeline; one command now publishes to the marketplace
+
 ## v1.9.0 — 2026-03-25
 
 ### Features

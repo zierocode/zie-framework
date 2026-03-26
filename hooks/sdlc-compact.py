@@ -10,9 +10,10 @@ sys.path.insert(0, os.path.dirname(__file__))
 from utils import (
     get_cwd,
     load_config,
-    parse_roadmap_now,
+    parse_roadmap_section_content,
     project_tmp_path,
     read_event,
+    read_roadmap_cached,
     safe_write_tmp,
 )
 
@@ -32,6 +33,7 @@ try:
 
     project_name = cwd.name
     snap_path = project_tmp_path("compact-snapshot", project_name)
+    session_id = event.get("session_id", "default")
 except Exception:
     sys.exit(0)
 
@@ -40,10 +42,11 @@ except Exception:
 # ---------------------------------------------------------------------------
 
 if hook_event_name == "PreCompact":
-    # --- Collect active task and now_items from ROADMAP ---
+    # --- Collect active task and now_items from ROADMAP (via session cache) ---
     try:
         roadmap_path = zf / "ROADMAP.md"
-        now_items = parse_roadmap_now(roadmap_path)
+        roadmap_content = read_roadmap_cached(roadmap_path, session_id)
+        now_items = parse_roadmap_section_content(roadmap_content, "now")
         active_task = now_items[0] if now_items else ""
     except Exception as e:
         print(f"[zie-framework] sdlc-compact: roadmap read failed: {e}", file=sys.stderr)
@@ -102,9 +105,10 @@ elif hook_event_name == "PostCompact":
         print(f"[zie-framework] sdlc-compact: snapshot read failed: {e}", file=sys.stderr)
 
     if snapshot is None:
-        # Fallback: read live ROADMAP
+        # Fallback: read live ROADMAP (via session cache)
         try:
-            now_items = parse_roadmap_now(zf / "ROADMAP.md")
+            roadmap_content = read_roadmap_cached(zf / "ROADMAP.md", session_id)
+            now_items = parse_roadmap_section_content(roadmap_content, "now")
             active_task = now_items[0] if now_items else ""
         except Exception as e:
             print(f"[zie-framework] sdlc-compact: fallback roadmap failed: {e}", file=sys.stderr)

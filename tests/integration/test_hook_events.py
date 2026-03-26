@@ -138,28 +138,17 @@ class TestSessionResumeHook:
 # ---------------------------------------------------------------------------
 
 @pytest.mark.integration
-class TestIntentDetectHook:
+class TestIntentSdlcHook:
     def test_exits_zero_with_userpromptsubmit_event(self):
-        result = run_hook("intent-detect.py", "userpromptsubmit_event.json")
+        result = run_hook("intent-sdlc.py", "userpromptsubmit_event.json")
         assert_clean_exit(result)
 
     def test_produces_no_traceback(self):
-        result = run_hook("intent-detect.py", "userpromptsubmit_event.json")
+        result = run_hook("intent-sdlc.py", "userpromptsubmit_event.json")
         assert "Traceback" not in result.stderr
 
-
-# ---------------------------------------------------------------------------
-# UserPromptSubmit — sdlc-context.py
-# ---------------------------------------------------------------------------
-
-@pytest.mark.integration
-class TestSdlcContextHook:
-    def test_exits_zero_with_userpromptsubmit_event(self):
-        result = run_hook("sdlc-context.py", "userpromptsubmit_event.json")
-        assert_clean_exit(result)
-
     def test_stdout_is_valid_json_when_nonempty(self):
-        result = run_hook("sdlc-context.py", "userpromptsubmit_event.json")
+        result = run_hook("intent-sdlc.py", "userpromptsubmit_event.json")
         assert_clean_exit(result)
         if result.stdout.strip():
             parsed = json.loads(result.stdout.strip())

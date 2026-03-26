@@ -8,6 +8,8 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
+from utils import write_roadmap_cache
 
 SAMPLE_ROADMAP = """\
 ## Now
@@ -68,16 +70,19 @@ def make_cwd(tmp_path, roadmap=None, plan=None, context_md=None):
     return tmp_path
 
 
-def run_hook(event, tmp_cwd=None, env_overrides=None):
+def run_hook(event, tmp_cwd=None, env_overrides=None, session_id=None):
     hook = os.path.join(REPO_ROOT, "hooks", "subagent-context.py")
     env = {**os.environ, "ZIE_MEMORY_API_KEY": ""}
     if tmp_cwd:
         env["CLAUDE_CWD"] = str(tmp_cwd)
     if env_overrides:
         env.update(env_overrides)
+    if session_id is None:
+        session_id = f"test-sac-{abs(hash(str(tmp_cwd))) % 999999}"
+    ev = {"session_id": session_id, **event}
     return subprocess.run(
         [sys.executable, hook],
-        input=json.dumps(event),
+        input=json.dumps(ev),
         capture_output=True,
         text=True,
         env=env,
@@ -310,3 +315,29 @@ class TestComponentsRegistryUpdated:
         text = components.read_text()
         assert "SubagentStart" in text, \
             "SubagentStart event not listed in components.md"
+
+
+class TestSubagentContextRoadmapCache:
+    """Verify subagent-context uses ROADMAP cache when available."""
+
+    def test_uses_cache_over_disk(self, tmp_path):
+        """Cache content takes priority over disk ROADMAP."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        # Disk: empty Now
+        (zf / "ROADMAP.md").write_text("## Now\n\n## Next\n")
+        sid = "test-subagent-cache-unique-88z"
+        # Cache: active feature
+        write_roadmap_cache(sid, "## Now\n- [ ] cached-subagent-feature\n\n## Next\n")
+        event = {"agentType": "Explore", "session_id": sid}
+        env = {**os.environ, "CLAUDE_CWD": str(tmp_path), "ZIE_MEMORY_API_KEY": ""}
+        hook = os.path.join(REPO_ROOT, "hooks", "subagent-context.py")
+        r = subprocess.run(
+            [sys.executable, hook], input=json.dumps(event),
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() != ""
+        ctx = json.loads(r.stdout)["additionalContext"]
+        # Should reflect cached task slug, not "none" from empty disk
+        assert "cached" in ctx or "subagent" in ctx.lower()

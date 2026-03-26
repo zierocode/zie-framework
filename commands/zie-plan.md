@@ -9,7 +9,7 @@ effort: medium
 # /zie-plan — Spec → Draft Plan → Review → Approve → Ready
 
 Draft implementation plans for approved backlog specs and get Zie's approval
-before building. Supports multiple items in parallel (max 4 agents).
+before building. Supports multiple items in parallel.
 
 ## ตรวจสอบก่อนเริ่ม
 
@@ -40,10 +40,7 @@ before building. Supports multiple items in parallel (max 4 agents).
    - Bake key findings into plan as a "## Context from brain" section.
    - /zie-implement will read this section — no need to re-recall at build time.
 
-2. If multiple slugs → spawn parallel agents (max 4) to draft plans
-   simultaneously:
-   - **Max parallel Agents: 4.** If more than 4 slugs, queue excess and start
-     them as Agents complete.
+2. If multiple slugs → spawn parallel Agents simultaneously:
    - **Dependency hint:** If multiple slugs share a common output directory
      or file pattern, add `<!-- depends_on: slug-1 -->` to serialize them.
    - Each agent receives:
@@ -159,5 +156,4 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
 - Pending plan = no `approved` key in frontmatter
 - Approved plan = `approved: true` + `approved_at` in frontmatter
 - plan-reviewer runs automatically before every Zie approval prompt
-- Max 4 parallel agents when multiple slugs provided
 - Rejection path: re-draft (stays pending, re-runs reviewer) or drop (Next)

@@ -5,16 +5,15 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 
 
 class TestMakefileBumpCallsSyncVersion:
-    def test_bump_target_calls_sync_version(self):
-        """bump target must call $(MAKE) sync-version."""
+    def test_bump_target_calls_bump_extra(self):
+        """bump target must call _bump-extra (project-specific version file hook)."""
         content = (REPO_ROOT / "Makefile").read_text()
-        # Extract the bump target block — starts at 'bump:' and ends at next target
         import re
         match = re.search(r'^bump:.*?(?=^\w+:|\Z)', content, re.MULTILINE | re.DOTALL)
         assert match, "bump target not found in Makefile"
         bump_block = match.group(0)
-        assert "sync-version" in bump_block, (
-            "bump target does not call sync-version"
+        assert "_bump-extra" in bump_block, (
+            "bump target does not call _bump-extra"
         )
 
 

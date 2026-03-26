@@ -1,0 +1,28 @@
+# Makefile.local — zie-framework project-specific extensions
+# Committed: yes (zie-framework is a plugin repo, not a secrets-bearing app)
+
+# ── Local dev ─────────────────────────────────────────────────────────────────
+local-dev: ## Open Claude with local plugin (bypasses marketplace cache)
+	claude --plugin-dir . --dangerously-skip-permissions
+
+_start-dev: local-dev
+
+# ── Lint ──────────────────────────────────────────────────────────────────────
+lint: lint-bandit ## Lint Python hooks (syntax + SAST)
+	python3 -m py_compile hooks/*.py && echo "All hooks compile OK"
+
+lint-bandit: ## Run Bandit SAST on hooks/ (medium severity + confidence)
+	python3 -m bandit -r hooks/ -ll -q -c .bandit
+
+# ── Version bumping ───────────────────────────────────────────────────────────
+# Updates .claude-plugin/plugin.json to match VERSION
+_bump-extra:
+	jq --arg v "$(NEW)" '.version = $$v' .claude-plugin/plugin.json \
+	  > .claude-plugin/plugin.json.tmp \
+	  && mv .claude-plugin/plugin.json.tmp .claude-plugin/plugin.json
+
+# ── Setup ─────────────────────────────────────────────────────────────────────
+_setup-extra:
+	pip3 install pytest-cov coverage bandit
+	python3 -m coverage --version
+	python3 -m coverage sitecustomize

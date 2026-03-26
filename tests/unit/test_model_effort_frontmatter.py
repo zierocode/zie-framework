@@ -21,10 +21,10 @@ EXPECTED = {
     "commands/zie-implement.md": ("sonnet", "medium"),
     "commands/zie-fix.md":       ("sonnet", "medium"),
     "commands/zie-release.md":   ("sonnet", "medium"),
-    "commands/zie-retro.md":     ("sonnet", "high"),
+    "commands/zie-retro.md":     ("sonnet", "medium"),
     "commands/zie-init.md":      ("sonnet", "medium"),
     "commands/zie-resync.md":    ("sonnet", "medium"),
-    "commands/zie-audit.md":     ("opus",   "high"),
+    "commands/zie-audit.md":     ("sonnet", "medium"),
     # Skills
     "skills/spec-design/SKILL.md":   ("sonnet", "high"),
     "skills/write-plan/SKILL.md":    ("sonnet", "high"),
@@ -36,7 +36,7 @@ EXPECTED = {
     "skills/tdd-loop/SKILL.md":      ("haiku",  "low"),
     "skills/test-pyramid/SKILL.md":  ("haiku",  "low"),
     "skills/retro-format/SKILL.md":  ("haiku",  "low"),
-    "skills/zie-audit/SKILL.md":         ("opus",   "high"),
+    "skills/zie-audit/SKILL.md":         ("sonnet", "medium"),
     "skills/docs-sync-check/SKILL.md":  ("haiku",  "low"),
 }
 
@@ -125,26 +125,23 @@ class TestExpectedValues:
         assert errors == [], "Wrong effort values:\n" + "\n".join(errors)
 
 
-class TestOpusFiles:
-    """Opus is reserved for the most complex, infrequent tasks."""
+class TestAuditFiles:
+    """zie-audit uses sonnet+medium per ADR-021 (supersedes ADR-012)."""
 
-    def test_zie_audit_command_is_opus(self):
+    def test_zie_audit_command_is_sonnet(self):
         fm = parse_frontmatter("commands/zie-audit.md")
-        assert fm.get("model") == "opus", "commands/zie-audit.md must use opus"
+        assert fm.get("model") == "sonnet", "commands/zie-audit.md must use sonnet (ADR-021)"
 
-    def test_zie_audit_skill_is_opus(self):
+    def test_zie_audit_skill_is_sonnet(self):
         fm = parse_frontmatter("skills/zie-audit/SKILL.md")
-        assert fm.get("model") == "opus", "skills/zie-audit/SKILL.md must use opus"
+        assert fm.get("model") == "sonnet", "skills/zie-audit/SKILL.md must use sonnet (ADR-021)"
 
-    def test_only_audit_files_use_opus(self):
-        """No other file should quietly gain an opus pin."""
+    def test_no_opus_files_in_expected(self):
+        """ADR-021: opus reservation removed — no file should use opus."""
         opus_files = [
             rel for rel, (model, _) in EXPECTED.items() if model == "opus"
         ]
-        assert set(opus_files) == {
-            "commands/zie-audit.md",
-            "skills/zie-audit/SKILL.md",
-        }, f"Unexpected opus files: {opus_files}"
+        assert opus_files == [], f"Unexpected opus files: {opus_files}"
 
 
 class TestHaikuFiles:

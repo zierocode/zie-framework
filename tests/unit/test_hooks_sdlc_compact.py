@@ -21,13 +21,19 @@ SAMPLE_ROADMAP = """## Now
 """
 
 
-def run_hook(event_name, tmp_cwd=None, env_overrides=None):
+def run_hook(event_name, tmp_cwd=None, env_overrides=None, session_id=None):
     env = {**os.environ}
     if tmp_cwd:
         env["CLAUDE_CWD"] = str(tmp_cwd)
     if env_overrides:
         env.update(env_overrides)
-    event = {"hook_event_name": event_name, "cwd": str(tmp_cwd) if tmp_cwd else ""}
+    if session_id is None:
+        session_id = f"test-sc-{abs(hash(str(tmp_cwd) + event_name)) % 999999}"
+    event = {
+        "hook_event_name": event_name,
+        "session_id": session_id,
+        "cwd": str(tmp_cwd) if tmp_cwd else "",
+    }
     return subprocess.run(
         [sys.executable, HOOK],
         input=json.dumps(event),

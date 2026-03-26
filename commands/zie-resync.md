@@ -64,6 +64,7 @@ All updates require user confirmation before writing.
 
    Skip always: `README.md`, `CHANGELOG.md`, `LICENSE*`,
    `CLAUDE.md`, `AGENTS.md`, files already inside `zie-framework/`,
+   `plans/archive/` (archived historical plans),
    and any `docs/` tree that contains `index.md` or `_sidebar.md`
    at its root (public doc site).
 

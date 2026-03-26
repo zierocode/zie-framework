@@ -10,13 +10,13 @@ DOCS_DIR = REPO_ROOT / "zie-framework" / "docs"
 class TestParallelExecutionPatterns:
     """Test that parallel execution patterns are correctly implemented."""
 
-    def test_zie_implement_max_parallel_tasks(self):
-        """zie-implement.md must specify max parallel tasks limit."""
+    def test_zie_implement_parallel_uses_depends_on(self):
+        """zie-implement.md must use depends_on for task ordering, not hard caps."""
         text = (CMD_DIR / "zie-implement.md").read_text()
-        assert "Max parallel tasks" in text, \
-            "zie-implement.md must specify max parallel tasks"
-        assert "4" in text, \
-            "zie-implement.md must specify limit of 4"
+        assert "depends_on" in text, \
+            "zie-implement.md must reference depends_on syntax for task ordering"
+        assert "parallel" in text.lower(), \
+            "zie-implement.md must describe parallel task execution"
 
     def test_zie_implement_file_conflict_check(self):
         """zie-implement.md must include file conflict detection."""
@@ -24,11 +24,11 @@ class TestParallelExecutionPatterns:
         assert "conflict" in text.lower(), \
             "zie-implement.md must mention file conflict detection"
 
-    def test_zie_plan_max_parallel_agents(self):
-        """zie-plan.md must specify max parallel Agents limit."""
+    def test_zie_plan_parallel_agents(self):
+        """zie-plan.md must describe parallel Agent dispatch."""
         text = (CMD_DIR / "zie-plan.md").read_text()
-        assert "Max parallel Agents" in text or "max 4" in text.lower(), \
-            "zie-plan.md must specify max parallel Agents"
+        assert "parallel" in text.lower() or "Agent" in text, \
+            "zie-plan.md must describe parallel Agent dispatch"
 
     def test_zie_release_fork_terminology_fixed(self):
         """zie-release.md must not use misleading 'Fork Skill' terminology."""

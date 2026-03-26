@@ -15,15 +15,18 @@ SAMPLE_ROADMAP = """## Now\n- [ ] Implement failure-context hook\n"""
 ROADMAP_EMPTY_NOW = """## Now\n\n## Next\n- [ ] Some future task\n"""
 
 
-def run_hook(event: dict, tmp_cwd=None, env_overrides=None):
+def run_hook(event: dict, tmp_cwd=None, env_overrides=None, session_id=None):
     env = {**os.environ}
     if tmp_cwd:
         env["CLAUDE_CWD"] = str(tmp_cwd)
     if env_overrides:
         env.update(env_overrides)
+    if session_id is None:
+        session_id = f"test-fc-{abs(hash(str(tmp_cwd))) % 999999}"
+    ev = {"session_id": session_id, **event}
     return subprocess.run(
         [sys.executable, HOOK],
-        input=json.dumps(event),
+        input=json.dumps(ev),
         capture_output=True,
         text=True,
         env=env,
@@ -170,3 +173,29 @@ class TestOutputProtocol:
         result = run_hook(event, tmp_cwd=cwd)
         assert result.stdout.strip() != ""
         json.loads(result.stdout)  # raises if invalid
+
+
+class TestFailureContextRoadmapCache:
+    """Verify failure-context uses ROADMAP cache when available."""
+
+    def test_uses_cache_over_disk(self, tmp_path):
+        """Cache content takes priority over disk ROADMAP."""
+        import sys
+        sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
+        from utils import write_roadmap_cache
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        # Disk: empty Now
+        (zf / "ROADMAP.md").write_text("## Now\n\n## Next\n")
+        sid = "test-failure-cache-unique-88z"
+        write_roadmap_cache(sid, "## Now\n- [ ] cached-failure-task\n\n## Next\n")
+        event = {"tool_name": "Bash", "session_id": sid}
+        env = {**os.environ, "CLAUDE_CWD": str(tmp_path)}
+        r = subprocess.run(
+            [sys.executable, HOOK], input=json.dumps(event),
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+        ctx = json.loads(r.stdout)["additionalContext"]
+        # Should reflect cached task, not "(none — check ROADMAP Now lane)"
+        assert "cached-failure-task" in ctx

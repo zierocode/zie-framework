@@ -1,0 +1,56 @@
+# Makefile.local — TypeScript project overrides
+# Copy to Makefile.local (gitignore-able or commit as-is).
+# This file is auto-included by the base Makefile via: -include Makefile.local
+
+# ── Tests ─────────────────────────────────────────────────────────────────────
+test-unit: ## Run unit tests
+	npx vitest run --reporter=dot
+
+test-int: ## Run integration tests
+	npx vitest run --project=integration
+
+test-e2e: ## Run Playwright E2E tests (requires dev server)
+	npx playwright test
+
+# ── Lint ──────────────────────────────────────────────────────────────────────
+lint: ## Lint TypeScript source
+	npx tsc --noEmit
+	npx eslint src/ --max-warnings=0
+
+# ── Build ─────────────────────────────────────────────────────────────────────
+build: ## Production build
+	npm run build
+
+# ── Environment lifecycle ─────────────────────────────────────────────────────
+_start-dev:
+	npm run dev
+
+_stop-dev:
+	@echo "Stop dev server manually (Ctrl+C)"
+
+_deploy-prod:
+	# Example: deploy to Vercel
+	# npx vercel --prod
+	@echo "Deploy to prod — override _deploy-prod in Makefile.local"
+
+# ── Version bumping ───────────────────────────────────────────────────────────
+_bump-extra:
+	# Update package.json version
+	npm version $(NEW) --no-git-tag-version || true
+
+# ── Publish ───────────────────────────────────────────────────────────────────
+_publish:
+	# Example: publish to npm
+	# npm publish
+	# Or create GitHub release:
+	# gh release create v$(NEW) --title "v$(NEW)" --generate-notes || true
+	@true
+
+# ── Setup ─────────────────────────────────────────────────────────────────────
+_setup-extra:
+	npm install
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+logs: ## Tail application logs
+	# docker compose logs -f
+	@echo "Override logs in Makefile.local"

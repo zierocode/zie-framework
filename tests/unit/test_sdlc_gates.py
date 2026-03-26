@@ -63,18 +63,18 @@ class TestZieRetroMemory:
 
 class TestIntentDetectPlan:
     def test_plan_pattern_in_code(self):
-        content = read("hooks/intent-detect.py")
+        content = read("hooks/intent-sdlc.py")
         assert '"plan"' in content or "'plan'" in content, \
-            "intent-detect.py must have a plan category"
+            "intent-sdlc.py must have a plan category"
 
     def test_plan_suggestion_maps_to_zie_plan(self):
-        content = read("hooks/intent-detect.py")
+        content = read("hooks/intent-sdlc.py")
         assert "/zie-plan" in content, \
-            "intent-detect.py must suggest /zie-plan"
+            "intent-sdlc.py must suggest /zie-plan"
 
     def test_plan_intent_detected_thai(self):
         """Test that Thai planning phrases trigger plan intent."""
-        hook = os.path.join(REPO_ROOT, "hooks", "intent-detect.py")
+        hook = os.path.join(REPO_ROOT, "hooks", "intent-sdlc.py")
         event = {"prompt": "อยากวางแผน feature ใหม่"}
         env = {**os.environ, "CLAUDE_CWD": REPO_ROOT}
         result = subprocess.run(
@@ -266,3 +266,20 @@ class TestROADMAPReadyLane:
         ready_pos = content.find("## Ready")
         now_pos = content.find("## Now")
         assert ready_pos < now_pos, "Ready lane must appear before Now in template"
+
+
+class TestCommandLineCounts:
+    def test_zie_implement_line_count(self):
+        content = read("commands/zie-implement.md")
+        lines = content.splitlines()
+        assert len(lines) <= 160, f"zie-implement.md is {len(lines)} lines (max 160)"
+
+    def test_zie_implement_no_parallel_cap(self):
+        content = read("commands/zie-implement.md")
+        assert "max parallel tasks: 4" not in content.lower()
+        assert "max 4 parallel" not in content.lower()
+
+    def test_zie_plan_no_parallel_cap(self):
+        content = read("commands/zie-plan.md")
+        assert "max 4 parallel" not in content.lower()
+        assert "max parallel agents: 4" not in content.lower()

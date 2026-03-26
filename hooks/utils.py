@@ -16,6 +16,7 @@ import os
 import re
 import sys
 import tempfile
+import time
 import urllib.request
 from pathlib import Path
 
@@ -68,6 +69,45 @@ def parse_roadmap_now(roadmap_path, warn_on_empty: bool = False) -> list:
             file=sys.stderr,
         )
     return items
+
+
+def parse_roadmap_section_content(content: str, section_name: str) -> list:
+    """Extract cleaned items from a named ## section of ROADMAP content string.
+
+    Identical logic to parse_roadmap_section but operates on a string instead
+    of a file path. Returns [] if the section is absent or empty.
+    """
+    lines = []
+    in_section = False
+    for line in content.splitlines():
+        if line.startswith("##") and section_name.lower() in line.lower():
+            in_section = True
+            continue
+        if line.startswith("##") and in_section:
+            break
+        if in_section and line.strip().startswith("- "):
+            clean = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', line.strip())
+            clean = clean.lstrip("- ").lstrip("[ ]").lstrip("[x]").strip()
+            if clean:
+                lines.append(clean)
+    return lines
+
+
+def read_roadmap_cached(roadmap_path, session_id: str, ttl: int = 30) -> str:
+    """Return ROADMAP.md content using session cache, falling back to disk read.
+
+    On cache miss: reads from disk and writes to cache.
+    On any read error: returns empty string.
+    """
+    cached = get_cached_roadmap(session_id, ttl=ttl)
+    if cached is not None:
+        return cached
+    try:
+        content = Path(roadmap_path).read_text()
+        write_roadmap_cache(session_id, content)
+        return content
+    except Exception:
+        return ""
 
 
 def atomic_write(path: Path, content: str) -> None:
@@ -161,6 +201,28 @@ def safe_write_persistent(path: Path, content: str) -> bool:
             pass
         return False
 
+
+def get_cached_roadmap(session_id: str, ttl: int = 30) -> str | None:
+    """Return cached ROADMAP.md content if fresh (age < ttl seconds), else None."""
+    try:
+        cache_path = Path(f"/tmp/zie-{session_id}/roadmap.cache")
+        if cache_path.exists():
+            age = time.time() - cache_path.stat().st_mtime
+            if age < ttl:
+                return cache_path.read_text()
+        return None
+    except Exception:
+        return None
+
+
+def write_roadmap_cache(session_id: str, content: str) -> None:
+    """Write ROADMAP.md content to the session cache."""
+    try:
+        cache_dir = Path(f"/tmp/zie-{session_id}")
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        (cache_dir / "roadmap.cache").write_text(content)
+    except Exception:
+        pass
 
 def persistent_project_path(name: str, project: str) -> Path:
     """Return a project-scoped persistent path under CLAUDE_PLUGIN_DATA.

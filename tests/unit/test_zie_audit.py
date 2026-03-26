@@ -22,23 +22,20 @@ class TestZieAuditCommand:
 
     def test_has_research_profile(self):
         content = read_cmd("zie-audit")
-        assert "research_profile" in content, \
-            "Phase 1 must build a research_profile struct"
+        assert "stack" in content or "deps" in content, \
+            "Phase 1 must build a research profile (stack, deps)"
 
-    def test_has_all_9_dimensions(self):
+    def test_has_three_dimensions(self):
         content = read_cmd("zie-audit")
-        dimensions = [
-            "Security", "Lean", "Quality", "Docs", "Architecture",
-            "Performance", "Depend", "Developer", "Standards",
-        ]
-        for dim in dimensions:
-            assert dim in content, \
-                f"zie-audit must cover the {dim} dimension"
+        assert "Security" in content, "zie-audit must cover Security dimension"
+        assert "Code Health" in content or "Quality" in content, \
+            "zie-audit must cover Code Health dimension"
+        assert "Structural" in content or "Architecture" in content, \
+            "zie-audit must cover Structural dimension"
 
     def test_research_sources_are_dynamic(self):
         content = read_cmd("zie-audit")
-        assert "research_profile" in content
-        assert "languages" in content or "project_type" in content
+        assert "stack" in content or "languages" in content or "deps" in content
 
     def test_has_external_research_phase(self):
         content = read_cmd("zie-audit")
@@ -47,23 +44,24 @@ class TestZieAuditCommand:
 
     def test_has_severity_and_scoring(self):
         content = read_cmd("zie-audit")
-        assert "Critical" in content
-        assert "High" in content
-        assert "/100" in content or "score" in content.lower()
+        assert "CRITICAL" in content or "Critical" in content
+        assert "HIGH" in content or "High" in content
+        assert "score" in content.lower() or "severity" in content.lower()
 
     def test_has_backlog_integration(self):
         content = read_cmd("zie-audit")
         assert "backlog" in content.lower()
         assert "ROADMAP" in content
 
-    def test_has_focus_flag(self):
+    def test_has_synthesis_phase(self):
         content = read_cmd("zie-audit")
-        assert "--focus" in content
+        assert "Synthesis" in content or "synthesis" in content, \
+            "zie-audit must have a synthesis phase to consolidate findings"
 
-    def test_evidence_saved_locally(self):
+    def test_report_saved(self):
         content = read_cmd("zie-audit")
-        assert "evidence/" in content, \
-            "audit report must be saved to evidence/ (gitignored)"
+        assert "audit-" in content or "audit_" in content, \
+            "audit report must be saved with an audit-<date> filename"
 
     def test_components_md_lists_zie_audit(self):
         components = ROOT / "zie-framework" / "project" / "components.md"

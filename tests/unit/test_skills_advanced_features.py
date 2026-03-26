@@ -177,12 +177,12 @@ class TestZieAuditSkill:
         assert "query" in content.lower() or "queries" in content.lower(), \
             "reference.md must contain a query template library section"
 
-    def test_zie_audit_command_unchanged(self):
-        """commands/zie-audit.md must not be modified — it stays as-is."""
+    def test_zie_audit_command_has_phases(self):
+        """commands/zie-audit.md must have multi-phase structure."""
         cmd_path = ROOT / "commands" / "zie-audit.md"
         content = cmd_path.read_text()
-        assert "Phase 1" in content and "Phase 5" in content, \
-            "commands/zie-audit.md must retain all 5 phases unchanged"
+        assert "Phase 1" in content and "Phase 4" in content, \
+            "commands/zie-audit.md must have at least 4 phases"
 
 
 class TestSkillFileSizeGuard:

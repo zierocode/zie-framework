@@ -35,16 +35,22 @@ class TestBanditSast:
             + result.stderr
         )
 
+    def _makefile_content(self) -> str:
+        """Combined content of Makefile + Makefile.local (if present)."""
+        content = (REPO_ROOT / "Makefile").read_text()
+        local = REPO_ROOT / "Makefile.local"
+        if local.exists():
+            content += "\n" + local.read_text()
+        return content
+
     def test_make_lint_bandit_target_exists(self):
-        """Makefile must define a lint-bandit target."""
-        makefile = REPO_ROOT / "Makefile"
-        content = makefile.read_text()
-        assert "lint-bandit:" in content, "lint-bandit target not found in Makefile"
+        """Makefile or Makefile.local must define a lint-bandit target."""
+        assert "lint-bandit:" in self._makefile_content(), \
+            "lint-bandit target not found in Makefile or Makefile.local"
 
     def test_make_lint_calls_lint_bandit(self):
         """The lint target must depend on or call lint-bandit."""
-        makefile = REPO_ROOT / "Makefile"
-        content = makefile.read_text()
+        content = self._makefile_content()
         for line in content.splitlines():
             if line.startswith("lint:") or line.startswith("lint "):
                 assert "lint-bandit" in line, (
@@ -52,7 +58,7 @@ class TestBanditSast:
                 )
                 break
         else:
-            raise AssertionError("lint target not found in Makefile")
+            raise AssertionError("lint target not found in Makefile or Makefile.local")
 
 
 class TestPreCommitBanditIntegration:

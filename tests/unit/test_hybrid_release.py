@@ -1,3 +1,4 @@
+"""Tests for the base Makefile template + Makefile.local release architecture."""
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent.parent
@@ -5,23 +6,58 @@ TEMPLATES = ROOT / "templates"
 COMMANDS = ROOT / "commands"
 
 
-def test_python_template_has_release_skeleton():
-    content = (TEMPLATES / "Makefile.python.template").read_text()
+def test_base_makefile_template_exists():
+    assert (TEMPLATES / "Makefile").exists(), \
+        "templates/Makefile (base template) must exist"
+
+
+def test_base_makefile_has_release_target():
+    content = (TEMPLATES / "Makefile").read_text()
     assert "release:" in content
-    assert "ZIE-NOT-READY" in content
-    assert "@exit 1" in content
+    assert "ZIE-NOT-READY" not in content, \
+        "base template must have a real release target, not ZIE-NOT-READY"
 
 
-def test_typescript_template_has_release_skeleton():
-    content = (TEMPLATES / "Makefile.typescript.template").read_text()
-    assert "release:" in content
-    assert "ZIE-NOT-READY" in content
-    assert "@exit 1" in content
+def test_base_makefile_has_bump_extra_hook():
+    content = (TEMPLATES / "Makefile").read_text()
+    assert "_bump-extra" in content, \
+        "base template must define the _bump-extra hook"
 
 
-def test_zie_release_has_readiness_gate():
+def test_base_makefile_has_publish_hook():
+    content = (TEMPLATES / "Makefile").read_text()
+    assert "_publish" in content, \
+        "base template must define the _publish hook"
+
+
+def test_python_example_local_exists():
+    assert (TEMPLATES / "Makefile.local.python.example").exists(), \
+        "templates/Makefile.local.python.example must exist"
+
+
+def test_typescript_example_local_exists():
+    assert (TEMPLATES / "Makefile.local.typescript.example").exists(), \
+        "templates/Makefile.local.typescript.example must exist"
+
+
+def test_python_example_has_bump_extra():
+    content = (TEMPLATES / "Makefile.local.python.example").read_text()
+    assert "_bump-extra" in content
+
+
+def test_typescript_example_has_bump_extra():
+    content = (TEMPLATES / "Makefile.local.typescript.example").read_text()
+    assert "_bump-extra" in content
+
+
+def test_zie_release_no_zie_not_ready():
     content = (COMMANDS / "zie-release.md").read_text()
-    assert "ZIE-NOT-READY" in content
+    assert "ZIE-NOT-READY" not in content, \
+        "zie-release.md must not contain ZIE-NOT-READY (obsolete gate)"
+
+
+def test_zie_release_delegates_to_make_release():
+    content = (COMMANDS / "zie-release.md").read_text()
     assert "make release NEW=" in content
 
 
@@ -31,8 +67,19 @@ def test_zie_release_no_direct_git_ops():
     assert "git push origin main" not in content
 
 
-def test_zie_init_has_release_negotiation():
+def test_zie_init_has_makefile_local_creation():
     content = (COMMANDS / "zie-init.md").read_text()
-    assert "make release" in content
-    assert "ZIE-NOT-READY" in content
-    assert "project_type" in content
+    assert "Makefile.local" in content, \
+        "zie-init.md must reference Makefile.local creation"
+
+
+def test_zie_init_has_bump_extra_negotiation():
+    content = (COMMANDS / "zie-init.md").read_text()
+    assert "_bump-extra" in content, \
+        "zie-init.md must negotiate _bump-extra in step 7"
+
+
+def test_zie_init_no_zie_not_ready():
+    content = (COMMANDS / "zie-init.md").read_text()
+    assert "ZIE-NOT-READY" not in content, \
+        "zie-init.md must not reference ZIE-NOT-READY (obsolete pattern)"
