@@ -20,6 +20,7 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
+- [ ] Lean & Efficient Optimization — [plan](plans/2026-03-27-lean-efficient-optimization.md) ✓
 
 <!-- MEDIUM -->
 
@@ -38,7 +39,6 @@
 - [ ] Coverage measurement broken (20% reported) — [audit finding](backlog/fix-coverage-measurement.md)
 
 <!-- HIGH -->
-- [ ] Lean & Efficient Optimization — [backlog](backlog/lean-efficient-optimization.md)
 - [ ] Symlink guards + atomic_write hardening — [audit finding](backlog/security-tmp-hardening.md)
 - [ ] sdlc-permissions allowlist bypass — [audit finding](backlog/security-permissions-bypass.md)
 - [ ] knowledge-hash --now flag broken — [audit finding](backlog/knowledge-hash-broken-flag.md)
