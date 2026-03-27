@@ -29,6 +29,20 @@ CONFIRM_PATTERNS = [
     r"truncate\s+--size\s+0", # truncate --size 0 (zeroing a file)
 ]
 
+# Operators that make a compound command unsafe to wrap in the confirmation prompt.
+# Single | (pipe) is intentionally excluded — pipe chains are legitimate.
+_DANGEROUS_COMPOUND_RE = re.compile(r'(?:;|&&|\|\||`|\$\()')
+
+
+def _is_safe_for_confirmation_wrapper(command: str) -> bool:
+    """Return True if command can be safely embedded in the confirmation wrapper.
+
+    Blocks commands containing compound operators (;, &&, ||, backtick, $())
+    that could escape the {{ command; }} execution block.
+    Single pipe (|) is permitted.
+    """
+    return not _DANGEROUS_COMPOUND_RE.search(command)
+
 # ── Outer guard ──────────────────────────────────────────────────────────────
 try:
     event = read_event()
@@ -89,6 +103,12 @@ if tool_name == "Bash":
 
         for pattern in CONFIRM_PATTERNS:
             if re.search(pattern, normalized):
+                if not _is_safe_for_confirmation_wrapper(command):
+                    print(
+                        "[zie-framework] input-sanitizer: compound command skipped confirmation wrap",
+                        file=sys.stderr,
+                    )
+                    sys.exit(0)
                 rewritten = (
                     f'printf "Would run: %s\\n" {shlex.quote(command)} '
                     f'&& read -p "Confirm? [y/N] " _y '

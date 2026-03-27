@@ -26,6 +26,15 @@ SDLC_STAGES: list = [
 ]
 
 
+def sanitize_log_field(value: object) -> str:
+    """Strip ASCII control characters from a log field value.
+
+    Converts value to str first, then replaces chars in range
+    0x00-0x1f and 0x7f with '?' to prevent log injection.
+    """
+    return re.sub(r'[\x00-\x1f\x7f]', '?', str(value))
+
+
 def parse_roadmap_section(roadmap_path, section_name: str) -> list:
     """Extract cleaned items from a named ## section of ROADMAP.md.
 
@@ -66,6 +75,25 @@ def parse_roadmap_now(roadmap_path, warn_on_empty: bool = False) -> list:
     if warn_on_empty and path.exists() and not items:
         print(
             "[zie-framework] WARNING: ROADMAP.md Now section is empty or missing",
+            file=sys.stderr,
+        )
+    return items
+
+
+def parse_roadmap_ready(roadmap_path, warn_on_empty: bool = False) -> list:
+    """Extract cleaned items from the ## Ready section of ROADMAP.md.
+
+    Returns [] if the file is missing, the Ready section is absent, or it is empty.
+    Accepts Path or str.
+
+    If warn_on_empty=True and the file exists but the Ready section is absent
+    or empty, prints a warning to stderr.
+    """
+    path = Path(roadmap_path)
+    items = parse_roadmap_section(path, "ready")
+    if warn_on_empty and path.exists() and not items:
+        print(
+            "[zie-framework] WARNING: ROADMAP.md Ready section is empty or missing",
             file=sys.stderr,
         )
     return items
@@ -131,6 +159,16 @@ def atomic_write(path: Path, content: str) -> None:
         except OSError:
             pass
         raise
+
+
+def is_zie_initialized(cwd: Path) -> bool:
+    """Return True if cwd contains a zie-framework directory (not just a file)."""
+    return (cwd / "zie-framework").is_dir()
+
+
+def get_project_name(cwd: Path) -> str:
+    """Return sanitized project name derived from directory name."""
+    return safe_project_name(cwd.name)
 
 
 def safe_project_name(project: str) -> str:
@@ -255,12 +293,16 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
 def load_config(cwd: Path) -> dict:
     """Read zie-framework/.config as JSON and return a dict.
 
-    Returns {} on any error (missing file, parse failure, permission denied, etc.).
+    Returns {} on any error (missing file, parse failure, permission denied).
+    Logs parse errors to stderr for operator visibility (ADR-019).
     """
     config_path = cwd / "zie-framework" / ".config"
     try:
         return json.loads(config_path.read_text())
-    except Exception:
+    except FileNotFoundError:
+        return {}
+    except Exception as e:
+        print(f"[zie-framework] config parse error: {e}", file=sys.stderr)
         return {}
 
 

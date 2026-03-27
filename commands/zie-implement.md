@@ -7,8 +7,6 @@ effort: medium
 
 # /zie-implement — TDD Feature Implementation Loop
 
-Implement the active feature using Test-Driven Development.
-
 ## ตรวจสอบก่อนเริ่ม
 
 **Live context:**
@@ -17,13 +15,16 @@ Implement the active feature using Test-Driven Development.
 !`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now 2>/dev/null || echo "knowledge-hash: unavailable"`
 
 1. Check `zie-framework/` exists → if not, run `/zie-init` first.
-2. Read `zie-framework/ROADMAP.md` → check Now lane:
-   - `[ ]` in Now → STOP: "ยังไม่เสร็จ ทำต่อหรือ /zie-fix ก่อน"
-   - `[x]` in Now → batch pending release, continue
-   - Now empty → continue
-3. Check Ready lane for approved plan: Read plan header only: everything up to (not including) the first `### Task` heading
-   — check frontmatter for `approved: true`.
-   - Empty → auto-run `/zie-plan` → get approval → continue.
+2. **Pre-flight: ROADMAP guard** — check `zie-framework/ROADMAP.md` exists:
+   - Missing → STOP: "ROADMAP.md not found — run /zie-init to initialize this project."
+   - Read Now lane:
+     - `[ ]` in Now → STOP: "WIP task in progress — complete it or run /zie-fix before starting a new one."
+     - `[x]` in Now → batch pending release, continue
+     - Now empty → continue
+3. **Pre-flight: Ready lane guard** — read Ready lane:
+   - Empty → auto-run `/zie-plan` → get approval → continue. If still empty → STOP: "Ready lane is empty."
+   - Read plan header only: everything up to (not including) the first `### Task` heading — check frontmatter for `approved: true`.
+   - Not approved → STOP: "Plan in Ready lane is not approved — run /zie-plan to get approval."
 4. Pull first Ready item → move to Now.
 5. Check uncommitted work: warn if implementation files untracked.
 6. Read `zie-framework/.config` for context.
@@ -32,10 +33,7 @@ Implement the active feature using Test-Driven Development.
 
 ## Task Parallelism
 
-Tasks with no `depends_on` annotation run in parallel by default. Tasks with
-`<!-- depends_on: TN -->` run after listed dependencies. Tasks sharing output
-files must be serialized (file conflict check: if two tasks write the same file,
-add implicit `depends_on`).
+Tasks without `depends_on` run in parallel (max 4 concurrent). Tasks with `<!-- depends_on: TN -->` run after listed tasks. File-write conflict → add implicit `depends_on`.
 
 ## Context Bundle
 
@@ -69,7 +67,7 @@ Test level selection (print once before task loop, not per task):
 6. **Spawn async impl-reviewer** (HIGH only): `@agent-impl-reviewer` (background: true) with task description, Acceptance Criteria, changed files, `context_bundle`. Record in pending-reviewers list. Do NOT block.
    - Deferred-check at each loop start: poll `reviewer_status` for pending reviewers.
      - `reviewer_status: approved` → clear, continue
-     - `reviewer_status: issues_found` → halt, fix all, re-run `make test-unit`, re-invoke synchronously (confirm pass). Max 2 total iterations. If 0 issues on initial pass → APPROVED immediately.
+     - `reviewer_status: issues_found` → halt, fix all, re-run `make test-unit`, re-invoke synchronously (confirm pass). Max 2 total iterations. If 0 issues → APPROVED immediately.
 7. **→ LOW risk:** `make test-unit` + `[risk: LOW] Skipping impl-reviewer`.
 8. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ done — {remaining} remaining`.
    - Checkpoint every 3 tasks or halfway.
@@ -93,17 +91,6 @@ Test level selection (print once before task loop, not per task):
 Fail unexpectedly → `Skill(zie-framework:debug)`. Stuck after 2 → surface error, ask Zie.
 Never silently skip tests.
 
-## Resume Subagent
-
-Agent IDs are session-scoped. Resume via `SendMessage` with agent ID. If session ended, start fresh.
-
 ## ขั้นตอนถัดไป
 
-→ `/zie-release` — เมื่อทุก task เสร็จ
-→ `/zie-backlog` — feature ถัดไป
-
-## Notes
-
-- Any language — test runner from `.config`
-- No active plan → suggest `/zie-backlog` or `/zie-spec`
-- Resumable mid-task
+→ `/zie-release`

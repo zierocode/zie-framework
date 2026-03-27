@@ -48,7 +48,7 @@ def invoke_subagent(command: str) -> str:
     prompt = (
         "You are a safety agent for a developer terminal. "
         "Evaluate whether this shell command is safe to run:\n\n"
-        f"  {command}\n\n"
+        f"```\n{command}\n```\n\n"
         "Reply with exactly one word: ALLOW (if safe) or BLOCK (if dangerous)."
     )
     result = subprocess.run(

@@ -7,9 +7,6 @@ effort: medium
 
 # /zie-release — Release Gate → Merge dev→main → Tag
 
-Full automated release gate. Runs all tests, verifies, bumps version, merges
-dev→main, tags, and updates ROADMAP. Nothing ships without passing every gate.
-
 ## ตรวจสอบก่อนเริ่ม
 
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
@@ -75,8 +72,6 @@ Print: `[Gate 4/5] Visual Check`
 
 ### Quality Checks (background Agents + Bash)
 
-Start **immediately after Gate 1 passes** — do NOT wait before running Gate 2.
-
 **TaskCreate** — create task before launching Agent:
 
 ```python
@@ -86,8 +81,7 @@ TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md aga
 **Invoke simultaneously:**
 
 1. `Agent(subagent_type="zie-framework:docs-sync-check", run_in_background=True)`
-   - prompt: `"Check docs sync for changed files: {changed_files}"`
-   - Pass `git diff main..HEAD --name-only` output as the `changed_files` argument.
+   - prompt: `"Check docs sync for changed files: {changed_files}"` (`git diff main..HEAD --name-only`)
 
 2. Bash: TODOs and secrets scan (runs in parallel with Agent):
 
@@ -97,15 +91,9 @@ TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md aga
 
    Also check changed files for hardcoded API keys, tokens, or credentials.
 
-**Wait for Agent completion:**
+Await docs-sync-check Agent completion. **TaskUpdate** → completed.
 
-- Wait for docs-sync-check Agent to complete (via task notification or TaskOutput)
-- **TaskUpdate** — mark task as "completed" when Agent finishes
-
-Results are collected in the section below after Gate 3 completes.
-
-<!-- fallback: if Agent tool unavailable or subagent_type not found,
-     call Skill(zie-framework:docs-sync-check) inline (blocking) -->
+<!-- fallback: if Agent tool unavailable, call Skill(zie-framework:docs-sync-check) inline -->
 
 ### รวมผลลัพธ์ Quality Forks
 
@@ -141,11 +129,9 @@ merging.
 
      ```text
      Suggested bump: minor
-     Reason: Knowledge Architecture adds PROJECT.md + project/* (new feature,
-     backward compatible)
-
-     Current: <VERSION> → <suggested new version>
-     Confirm? (Enter = accept suggestion / major / minor / patch to override)
+     Reason: <what changed>
+     Current: <VERSION> → <new version>
+     Confirm? (Enter = accept / major / minor / patch to override)
      ```
 
 2. **Bump VERSION**:
@@ -198,12 +184,8 @@ merging.
    - Release commit ควรมีแค่ 3 ไฟล์: `VERSION`, `CHANGELOG.md`,
      `zie-framework/ROADMAP.md`
      (project-specific files เช่น plugin.json จะถูก commit โดย `make release` ต่อไป)
-   - ถ้าเจอ implementation files (hooks/*, tests/*, commands/*) ค้างอยู่ →
-     STOP: "Uncommitted feature files found: [list]. These should have been
-     committed in a `feat:` commit. Run `git add -A && git commit
-     -m "feat: SLUG"` — then re-run /zie-release."
-   - ถ้าเจอแค่ docs (CLAUDE.md, README.md) ที่ release gate เพิ่งอัปเดต →
-     include ได้ในขั้นถัดไป
+   - ถ้าเจอ implementation files → STOP: "Uncommitted feature files found. Commit with `git add -A && git commit -m "feat: SLUG"` first."
+   - ถ้าเจอแค่ docs ที่ release gate เพิ่งอัปเดต → include ได้
 
 7. **Commit release files**:
 
@@ -211,8 +193,6 @@ merging.
    git add VERSION CHANGELOG.md zie-framework/ROADMAP.md
    git commit -m "release: v<NEW_VERSION>"
    ```
-
-   *(git add ไม่ error ถ้าไฟล์ไม่ได้ถูกแก้)*
 
 8. **Delegate publish to project**:
 
@@ -230,9 +210,19 @@ merging.
    - Then WRITE: Call `mcp__plugin_zie-memory_zie-memory__remember`
      with `"Shipped: <feature> v<NEW_VERSION>. Tasks: N. Actual: <vs estimate>." tags=[shipped, <project>, <domain>]`
 
-10. **Auto-run `/zie-retro`**.
+10. **Archive shipped SDLC artifacts**:
 
-11. Print:
+    ```bash
+    make archive
+    ```
+
+    Moves completed backlog items, specs, and plans from active directories to
+    `zie-framework/archive/` by slug matching Done-lane entries. Git history
+    preserves all content — working tree reflects only active work.
+
+11. **Auto-run `/zie-retro`**.
+
+12. Print:
 
     ```text
     Released v<NEW_VERSION>
@@ -244,10 +234,3 @@ merging.
     /zie-retro running...
     ```
 
-## Notes
-
-- If any gate fails, `make release` is never called — fix and re-run `/zie-release`
-- Git ops (merge, tag, push) are delegated to `make release` — project-specific
-  version bumping is handled by `_bump-extra` in `Makefile.local`
-- ROADMAP update (step 3) happens before the commit so the release commit
-  reflects the correct state

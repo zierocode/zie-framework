@@ -4,3 +4,4 @@ __pycache__/
 /tmp/zie-framework-*
 .pytest_cache/
 zie-framework/evidence/
+.coverage.*

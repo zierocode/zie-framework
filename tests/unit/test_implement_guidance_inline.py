@@ -37,13 +37,13 @@ class TestInlineGuidanceBlock:
 
 
 class TestParallelByDefault:
-    def test_parallel_by_default_logic_present(self):
+    def test_parallel_execution_documented(self):
         text = read_cmd()
-        assert "no depends_on" in text or "without depends_on" in text or \
-               "no `depends_on`" in text, \
-            "Parallel-by-default logic must state tasks without depends_on run in parallel"
+        assert "background" in text.lower() or "parallel" in text.lower() or \
+               "concurrent" in text.lower(), \
+            "zie-implement.md must document parallel/background execution"
 
-    def test_depends_on_sequential_logic_present(self):
+    def test_sequential_task_loop_present(self):
         text = read_cmd()
-        assert "depends_on" in text, \
-            "Sequential depends_on annotation logic must still be present"
+        assert "Task Loop" in text or "task loop" in text.lower(), \
+            "Sequential task loop structure must be documented"

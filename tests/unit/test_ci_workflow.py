@@ -118,12 +118,12 @@ class TestCiWorkflowSteps:
 
     def test_make_test_step_present(self):
         run_values = [s.get("run", "") for s in self._steps()]
-        assert any(r.strip() == "make test" for r in run_values), \
-            "make test step missing or has unexpected extra flags"
+        assert any(r.strip() == "make test-unit" for r in run_values), \
+            "make test-unit step missing or has unexpected extra flags"
 
     def test_no_continue_on_error_on_make_test(self):
         for step in self._steps():
-            if step.get("run", "").strip() == "make test":
+            if step.get("run", "").strip() == "make test-unit":
                 assert step.get("continue-on-error") is not True, \
-                    "make test step must not have continue-on-error: true"
+                    "make test-unit step must not have continue-on-error: true"
                 return

@@ -10,19 +10,17 @@ DOCS_DIR = REPO_ROOT / "zie-framework" / "docs"
 class TestParallelExecutionPatterns:
     """Test that parallel execution patterns are correctly implemented."""
 
-    def test_zie_implement_parallel_uses_depends_on(self):
-        """zie-implement.md must use depends_on for task ordering, not hard caps."""
+    def test_zie_implement_parallel_agents(self):
+        """zie-implement.md must use background agents for parallel execution."""
         text = (CMD_DIR / "zie-implement.md").read_text()
-        assert "depends_on" in text, \
-            "zie-implement.md must reference depends_on syntax for task ordering"
-        assert "parallel" in text.lower(), \
-            "zie-implement.md must describe parallel task execution"
+        assert "background" in text.lower() or "parallel" in text.lower(), \
+            "zie-implement.md must describe background/parallel agent execution"
 
-    def test_zie_implement_file_conflict_check(self):
-        """zie-implement.md must include file conflict detection."""
-        text = (CMD_DIR / "zie-implement.md").read_text()
-        assert "conflict" in text.lower(), \
-            "zie-implement.md must mention file conflict detection"
+    def test_zie_implement_file_conflict_in_plan_tools(self):
+        """File conflict detection is documented in write-plan and plan-reviewer."""
+        write_plan_text = (SKILLS_DIR / "write-plan" / "SKILL.md").read_text()
+        assert "conflict" in write_plan_text.lower(), \
+            "write-plan/SKILL.md must document file conflict detection"
 
     def test_zie_plan_parallel_agents(self):
         """zie-plan.md must describe parallel Agent dispatch."""

@@ -85,10 +85,12 @@ class TestFindMatchingTest:
     @pytest.fixture
     def load_module(self):
         """Import auto-test.py without triggering hook execution."""
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("auto_test", HOOK)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
+        import importlib.machinery
+        import types
+        loader = importlib.machinery.SourceFileLoader("auto_test", str(HOOK))
+        mod = types.ModuleType("auto_test")
+        mod.__file__ = str(HOOK)
+        loader.exec_module(mod)
         return mod
 
     def test_matching_pytest_test_found_recursively(self, tmp_path, load_module):
@@ -313,10 +315,12 @@ class TestFindMatchingTestEdgeCases:
     @pytest.fixture
     def load_module(self):
         """Import auto-test.py without triggering hook execution (same as TestFindMatchingTest)."""
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("auto_test", HOOK)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
+        import importlib.machinery
+        import types
+        loader = importlib.machinery.SourceFileLoader("auto_test", str(HOOK))
+        mod = types.ModuleType("auto_test")
+        mod.__file__ = str(HOOK)
+        loader.exec_module(mod)
         return mod
 
     def test_no_tests_directory_returns_none(self, tmp_path, load_module):
@@ -451,16 +455,15 @@ def parse_additional_context(stdout: str):
             continue
         try:
             obj = json.loads(line)
-            hso = obj.get("hookSpecificOutput", {})
-            if "additionalContext" in hso:
-                return hso["additionalContext"]
+            if "additionalContext" in obj:
+                return obj["additionalContext"]
         except (json.JSONDecodeError, AttributeError):
             continue
     return None
 
 
 class TestAdditionalContextInjection:
-    """hookSpecificOutput.additionalContext must be emitted after Write/Edit."""
+    """additionalContext must be emitted (flat protocol) after Write/Edit."""
 
     @pytest.fixture(autouse=True)
     def _cleanup_debounce(self, tmp_path):
@@ -598,7 +601,7 @@ class TestAdditionalContextInjection:
     # --- JSON structure ---
 
     def test_additional_context_valid_json_line(self, tmp_path):
-        """The hookSpecificOutput line must be valid JSON parseable independently."""
+        """The additionalContext line must be valid flat JSON parseable independently."""
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
         (cwd / "tests").mkdir()
         changed = str(cwd / "src" / "auth.py")
@@ -610,15 +613,15 @@ class TestAdditionalContextInjection:
                 continue
             try:
                 obj = json.loads(line)
-                if "hookSpecificOutput" in obj:
+                if "additionalContext" in obj:
                     json_lines.append(obj)
             except json.JSONDecodeError:
                 pass
         assert len(json_lines) == 1, (
-            f"Expected exactly one hookSpecificOutput JSON line, found {len(json_lines)}: "
+            f"Expected exactly one additionalContext JSON line, found {len(json_lines)}: "
             f"{r.stdout!r}"
         )
-        assert "additionalContext" in json_lines[0]["hookSpecificOutput"]
+        assert "additionalContext" in json_lines[0]
 
     def test_additional_context_is_string(self, tmp_path):
         """additionalContext value must be a string, not a dict or list."""

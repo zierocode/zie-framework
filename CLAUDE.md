@@ -52,7 +52,7 @@ zie-framework/              # self-managed SDLC state (this repo uses itself)
 
 ```bash
 make test-unit        # run unit tests (pytest + coverage)
-make test-int         # run integration tests (subprocess hook events)
+make test-int         # run integration tests (require live Claude session — not in CI)
 make test             # full test suite (unit + integration + md lint)
 make bump NEW=x.y.z   # bump VERSION + plugin.json + PROJECT.md
 make sync-version     # re-sync all version files to current VERSION

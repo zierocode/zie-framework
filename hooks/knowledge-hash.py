@@ -20,6 +20,8 @@ CONFIG_FILES = [
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--root', default='.')
+parser.add_argument('--now', action='store_true',
+                    help='Print current hash to stdout (default behavior; accepted for compatibility)')
 args = parser.parse_args()
 
 root = Path(args.root)

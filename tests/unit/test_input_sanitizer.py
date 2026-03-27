@@ -164,12 +164,11 @@ class TestBashConfirmRewrite:
         assert r.stdout.strip() == ""
 
     def test_only_first_pattern_matched_on_multi_match(self):
-        """When a command matches multiple CONFIRM_PATTERNS, only one rewrite is applied."""
+        """Compound command matching multiple CONFIRM_PATTERNS must NOT be wrapped (injection guard)."""
         r = run_hook("Bash", {"command": "rm -rf ./a/ && make clean"})
         assert r.returncode == 0
-        out = json.loads(r.stdout)
-        # Wrapped exactly once — the wrapping phrase appears exactly once
-        assert out["updatedInput"]["command"].count("Would run:") == 1
+        # && makes this a compound command — must be skipped, no stdout
+        assert r.stdout.strip() == ""
 
     def test_whitespace_normalization_matches(self):
         r = run_hook("Bash", {"command": "rm  -rf  ./dist/"})
@@ -180,8 +179,6 @@ class TestBashConfirmRewrite:
     @pytest.mark.parametrize("command", [
         'rm -rf ./dist "quoted dir"',
         "rm -rf ./it's-mine",
-        "rm -rf ./foo; evil",
-        "rm -rf ./a && evil",
     ])
     def test_confirm_rewrite_metacharacters_safe(self, command):
         r = run_hook("Bash", {"command": command})
@@ -193,6 +190,16 @@ class TestBashConfirmRewrite:
         assert 'printf "Would run: %s\\n"' in rewritten_cmd
         assert f'echo "Would run: {command}"' not in rewritten_cmd
         assert f'{{ {command}; }}' in rewritten_cmd
+
+    @pytest.mark.parametrize("command", [
+        "rm -rf ./foo; evil",
+        "rm -rf ./a && evil",
+    ])
+    def test_compound_commands_not_wrapped(self, command):
+        """Compound commands with ; or && must be skipped (shell injection guard)."""
+        r = run_hook("Bash", {"command": command})
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
 
 
 # ---------------------------------------------------------------------------

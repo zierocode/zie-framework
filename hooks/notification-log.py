@@ -10,13 +10,13 @@ import sys
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, project_tmp_path, read_event, safe_project_name, safe_write_tmp
+from utils import get_cwd, project_tmp_path, read_event, safe_project_name, safe_write_tmp, sanitize_log_field
 
 # --- Outer guard: parse event; any failure exits 0 silently ---
 try:
     event = read_event()
     notification_type = event.get("notification_type", "")
-    if notification_type not in ("permission_prompt", "idle_prompt"):
+    if notification_type != "permission_prompt":
         sys.exit(0)
 except Exception:
     sys.exit(0)
@@ -61,7 +61,7 @@ def _append_and_write(log_path, message):
 
 # --- Inner operations: file I/O; errors are logged, hook still exits 0 ---
 try:
-    message = event.get("message", "")
+    message = sanitize_log_field(event.get("message", ""))
     project = safe_project_name(get_cwd().name)
 
     if notification_type == "permission_prompt":
@@ -76,9 +76,6 @@ try:
                 )
             }))
 
-    elif notification_type == "idle_prompt":
-        log_path = project_tmp_path("idle-log", project)
-        _append_and_write(log_path, message)
 
 except Exception as e:
     print(f"[zie-framework] notification-log: {e}", file=sys.stderr)
