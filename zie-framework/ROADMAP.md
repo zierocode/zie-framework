@@ -39,15 +39,13 @@
 
 <!-- MEDIUM -->
 
+- [ ] sprint4-final-clearance — [spec](specs/2026-03-27-sprint4-final-clearance-design.md)
+
 <!-- LOW -->
 
 ## Later — Someday / Maybe
 
 <!-- Good ideas, not yet prioritized. -->
-
-- [ ] Integration test depth (beyond "doesn't crash") — [audit finding](backlog/audit-weak-nocrash-assertions.md)
-- [ ] Architecture cleanup (naming, SRP, patterns) — [audit finding](backlog/architecture-cleanup.md)
-- [ ] Path traversal restrictions — [audit finding](backlog/security-path-traversal.md)
 
 ---
 
