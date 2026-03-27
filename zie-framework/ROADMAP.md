@@ -21,8 +21,10 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
+- [ ] Sprint 2: Security Hardening + Code Quality — [plan](plans/2026-03-27-sprint2-hardening-quality.md) ✓ approved
 
 <!-- MEDIUM -->
+- [ ] Sprint 3: Framework Optimization — [plan](plans/2026-03-27-sprint3-optimization.md) ✓ approved
 
 <!-- LOW -->
 
@@ -47,10 +49,8 @@
 - [ ] Parallelize audit, test gates, retro phases — [analysis 2026-03-27](backlog/parallelize-framework-ops.md)
 - [ ] SDLC artifact archiving — prevent backlog/specs/plans bloat — [analysis 2026-03-27](backlog/artifact-archive-strategy.md)
 - [ ] /zie-implement guard — block if no approved plan in Ready lane — [analysis 2026-03-27](backlog/implement-no-plan-guard.md)
-- [ ] Unsanitized event fields in logs — [audit finding](backlog/unsanitized-event-fields.md)
 - [ ] Consolidate atomic write functions — [audit finding](backlog/consolidate-utils-patterns.md)
 - [ ] Dead code cleanup (audit skill, idle-log, scaffolding) — [audit finding](backlog/dead-code-cleanup.md)
-- [ ] Deprecated datetime.utcnow() — [audit finding](backlog/deprecated-api-cleanup.md)
 - [ ] Integration test depth (beyond "doesn't crash") — [audit finding](backlog/audit-weak-nocrash-assertions.md)
 - [ ] Architecture cleanup (naming, SRP, patterns) — [audit finding](backlog/architecture-cleanup.md)
 - [ ] Test quality gaps (weak assertions, edge cases) — [audit finding](backlog/test-quality-gaps.md)
