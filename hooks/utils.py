@@ -142,6 +142,16 @@ def atomic_write(path: Path, content: str) -> None:
         raise
 
 
+def is_zie_initialized(cwd: Path) -> bool:
+    """Return True if cwd contains a zie-framework directory (not just a file)."""
+    return (cwd / "zie-framework").is_dir()
+
+
+def get_project_name(cwd: Path) -> str:
+    """Return sanitized project name derived from directory name."""
+    return safe_project_name(cwd.name)
+
+
 def safe_project_name(project: str) -> str:
     """Sanitize a project name to alphanumeric-and-dash only.
 

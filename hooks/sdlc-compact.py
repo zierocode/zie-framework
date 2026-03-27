@@ -145,5 +145,3 @@ elif hook_event_name == "PostCompact":
         print(f"[zie-framework] sdlc-compact: context build failed: {e}", file=sys.stderr)
         print(json.dumps({"additionalContext": ""}))
 
-if __name__ == "__main__":
-    pass

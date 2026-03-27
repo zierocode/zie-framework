@@ -16,7 +16,7 @@ from utils import get_cwd, project_tmp_path, read_event, safe_project_name, safe
 try:
     event = read_event()
     notification_type = event.get("notification_type", "")
-    if notification_type not in ("permission_prompt", "idle_prompt"):
+    if notification_type != "permission_prompt":
         sys.exit(0)
 except Exception:
     sys.exit(0)
@@ -76,9 +76,6 @@ try:
                 )
             }))
 
-    elif notification_type == "idle_prompt":
-        log_path = project_tmp_path("idle-log", project)
-        _append_and_write(log_path, message)
 
 except Exception as e:
     print(f"[zie-framework] notification-log: {e}", file=sys.stderr)

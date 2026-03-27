@@ -207,11 +207,12 @@ class TestFileFilter:
     """Import the hook module and test is_impl_file directly."""
 
     def _import_filter(self):
-        import importlib.util
-        spec = importlib.util.spec_from_file_location(
-            "task_completed_gate", HOOK)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
+        import importlib.machinery
+        import types
+        loader = importlib.machinery.SourceFileLoader("task_completed_gate", str(HOOK))
+        mod = types.ModuleType("task_completed_gate")
+        mod.__file__ = str(HOOK)
+        loader.exec_module(mod)
         return mod.is_impl_file
 
     def test_py_file_is_impl(self):

@@ -198,15 +198,6 @@
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/notification-log.py\""
         }
       ]
-    },
-    {
-      "matcher": "idle_prompt",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/notification-log.py\""
-        }
-      ]
     }
   ]
   }

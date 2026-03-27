@@ -85,10 +85,12 @@ class TestFindMatchingTest:
     @pytest.fixture
     def load_module(self):
         """Import auto-test.py without triggering hook execution."""
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("auto_test", HOOK)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
+        import importlib.machinery
+        import types
+        loader = importlib.machinery.SourceFileLoader("auto_test", str(HOOK))
+        mod = types.ModuleType("auto_test")
+        mod.__file__ = str(HOOK)
+        loader.exec_module(mod)
         return mod
 
     def test_matching_pytest_test_found_recursively(self, tmp_path, load_module):
@@ -313,10 +315,12 @@ class TestFindMatchingTestEdgeCases:
     @pytest.fixture
     def load_module(self):
         """Import auto-test.py without triggering hook execution (same as TestFindMatchingTest)."""
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("auto_test", HOOK)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
+        import importlib.machinery
+        import types
+        loader = importlib.machinery.SourceFileLoader("auto_test", str(HOOK))
+        mod = types.ModuleType("auto_test")
+        mod.__file__ = str(HOOK)
+        loader.exec_module(mod)
         return mod
 
     def test_no_tests_directory_returns_none(self, tmp_path, load_module):

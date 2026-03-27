@@ -8,7 +8,9 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from utils import normalize_command, read_event
 
-# Ordered allowlist — anchored with re.match to prevent compound-command spoofing
+# Ordered allowlist.
+# The metachar guard below blocks injection via &&, ||, ;, |, `, $(
+# so argument-bearing commands like "git add ." and "make test-unit" are safe.
 SAFE_PATTERNS = [
     r"git add\b",
     r"git commit\b",
@@ -16,11 +18,15 @@ SAFE_PATTERNS = [
     r"git status\b",
     r"git log\b",
     r"git stash\b",
-    r"make test",
-    r"make lint",
+    r"make test\b",
+    r"make lint\b",
     r"python3 -m pytest\b",
     r"python3 -m bandit\b",
 ]
+
+# Reject any command containing shell metacharacters — no quote-aware parsing needed
+_METACHARS = (";", "&&", "||", "|", "`", "$(")
+
 
 # ── Outer guard ───────────────────────────────────────────────────────────────
 
@@ -39,6 +45,9 @@ except Exception:
 
 try:
     cmd = normalize_command(command)
+
+    if any(mc in cmd for mc in _METACHARS):
+        sys.exit(0)
 
     matched_pattern = None
     for pattern in SAFE_PATTERNS:

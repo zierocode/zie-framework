@@ -198,31 +198,19 @@ class TestPermissionPromptLogging:
 # ---------------------------------------------------------------------------
 
 class TestIdlePromptLogging:
-    def test_idle_log_created(self, tmp_path):
+    def test_idle_prompt_exits_zero(self, tmp_path):
+        """idle_prompt events are silently ignored — no log created, no stdout."""
         project = f"testproj-{tmp_path.name}"
         log = tmp_log_path("idle-log", project)
         log.unlink(missing_ok=True)
 
-        run_hook(
+        r = run_hook(
             {"event": "Notification", "notification_type": "idle_prompt",
              "message": "Session has been idle"},
             project,
         )
-        assert log.exists(), f"idle-log not created at {log}"
-
-    def test_idle_log_record_has_ts_and_msg(self, tmp_path):
-        project = f"testproj-{tmp_path.name}"
-        log = tmp_log_path("idle-log", project)
-        log.unlink(missing_ok=True)
-
-        run_hook(
-            {"event": "Notification", "notification_type": "idle_prompt",
-             "message": "Session has been idle"},
-            project,
-        )
-        records = [json.loads(line) for line in log.read_text().splitlines() if line.strip()]
-        assert records[0]["msg"] == "Session has been idle"
-        assert "ts" in records[0]
+        assert r.returncode == 0
+        assert not log.exists(), "idle-log must not be created — idle_prompt logging was removed"
 
     def test_idle_no_stdout(self, tmp_path):
         project = f"testproj-{tmp_path.name}"
@@ -356,11 +344,12 @@ class TestHooksJsonRegistration:
             "Notification hooks must include a 'permission_prompt' matcher"
         )
 
-    def test_idle_prompt_matcher_registered(self):
+    def test_idle_prompt_matcher_removed(self):
+        """idle_prompt matcher was removed — hook no longer processes idle events."""
         data = self._load()
         matchers = [entry.get("matcher") for entry in data["hooks"]["Notification"]]
-        assert "idle_prompt" in matchers, (
-            "Notification hooks must include an 'idle_prompt' matcher"
+        assert "idle_prompt" not in matchers, (
+            "idle_prompt matcher should be removed — idle-log write was dead code"
         )
 
     def test_both_matchers_point_to_notification_log(self):
