@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.11.0 — 2026-03-27
+
+### Features
+
+- **Archive strategy** — `make archive` moves shipped SDLC artifacts (backlog/specs/plans)
+  to `zie-framework/archive/` after release; `/zie-release` now includes archive step;
+  keeps active directories lean; idempotent (ADR-023)
+- **`/zie-implement` pre-flight guard** — stops execution when ROADMAP.md is missing,
+  WIP task is active in Now lane, or Ready lane has no approved plan; guides user to
+  correct next command
+- **`parse_roadmap_ready()`** — new utility in `hooks/utils.py` mirroring
+  `parse_roadmap_now()` for extracting the Ready lane
+- **Parallel ADR + ROADMAP update in `/zie-retro`** — ADR write and ROADMAP update
+  now launched as concurrent background Agents; failure mode documented
+
+### Changed
+
+- **Effort routing** — `write-plan` SKILL.md downgraded from `effort: high` to `effort: medium`;
+  `effort: high` reserved exclusively for `spec-design` (ADR-022)
+- **CI hardening** — `make test` → `make test-unit` in `.github/workflows/ci.yml`;
+  integration tests require a live Claude session and are excluded from CI
+- **Token trim** — redundant intro paragraphs removed from `/zie-implement`, `/zie-release`,
+  `/zie-retro`; verbose ASCII table example in retro replaced with compact inline format
+- **Security** — `sdlc-permissions.py` metachar guard blocks `;`, `&&`, `||`, `|`, `` ` ``,
+  `$(` before allowlist check; atomic write helpers enforce 0o600 permissions;
+  `is_zie_initialized()` uses `.is_dir()` not `.exists()` to reject symlink files
+- **Dead code removal** — `idle_prompt` Notification handler + hooks.json matcher removed;
+  `exec_module` replaced with `SourceFileLoader` pattern in test fixtures
+
 ## v1.10.0 — 2026-03-27
 
 ### Features

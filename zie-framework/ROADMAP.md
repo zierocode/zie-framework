@@ -21,10 +21,8 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-- [ ] Sprint 2: Security Hardening + Code Quality — [plan](plans/2026-03-27-sprint2-hardening-quality.md) ✓ approved
 
 <!-- MEDIUM -->
-- [ ] Sprint 3: Framework Optimization — [plan](plans/2026-03-27-sprint3-optimization.md) ✓ approved
 
 <!-- LOW -->
 
@@ -38,23 +36,10 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-- [ ] Symlink guards + atomic_write hardening — [audit finding](backlog/security-tmp-hardening.md)
-- [ ] sdlc-permissions allowlist bypass — [audit finding](backlog/security-permissions-bypass.md)
-- [ ] Test exec_module safety + bare except — [audit finding](backlog/test-exec-module-safety.md)
-- [ ] Docs sync: PROJECT.md, SECURITY.md, README — [audit finding](backlog/docs-sync-and-completeness.md)
 
 <!-- MEDIUM -->
-- [ ] Sonnet 4.6 medium-effort adaptation — [analysis 2026-03-27](backlog/medium-effort-optimization.md)
-- [ ] Token efficiency sprint — trim prompts, cache regex, lean context — [analysis 2026-03-27](backlog/token-efficiency-sprint.md)
-- [ ] Parallelize audit, test gates, retro phases — [analysis 2026-03-27](backlog/parallelize-framework-ops.md)
-- [ ] SDLC artifact archiving — prevent backlog/specs/plans bloat — [analysis 2026-03-27](backlog/artifact-archive-strategy.md)
-- [ ] /zie-implement guard — block if no approved plan in Ready lane — [analysis 2026-03-27](backlog/implement-no-plan-guard.md)
-- [ ] Consolidate atomic write functions — [audit finding](backlog/consolidate-utils-patterns.md)
-- [ ] Dead code cleanup (audit skill, idle-log, scaffolding) — [audit finding](backlog/dead-code-cleanup.md)
 - [ ] Integration test depth (beyond "doesn't crash") — [audit finding](backlog/audit-weak-nocrash-assertions.md)
 - [ ] Architecture cleanup (naming, SRP, patterns) — [audit finding](backlog/architecture-cleanup.md)
-- [ ] Test quality gaps (weak assertions, edge cases) — [audit finding](backlog/test-quality-gaps.md)
-- [ ] Standards compliance (SLSA, OpenSSF, CI) — [audit finding](backlog/standards-compliance.md)
 
 <!-- LOW -->
 - [ ] Path traversal restrictions — [audit finding](backlog/security-path-traversal.md)
@@ -71,6 +56,14 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] sprint3-framework-optimization — token trim (implement/release/retro), parallel ADR+ROADMAP
+  agents in retro, archive strategy (make archive + zie-framework/archive/), implement pre-flight
+  guard, effort routing (write-plan high→medium, ADR-022), CI hardening (make test→test-unit),
+  parse_roadmap_ready(), 12 new test files — 1555 unit tests — v1.11.0 2026-03-27
+- [x] sprint2-hardening-quality — /tmp write permissions (0o600), sdlc-permissions metachar
+  guard (;&&||`$()), exec_module replacement (SourceFileLoader), idle_prompt dead code removal,
+  utils helpers (is_zie_initialized, get_project_name), notification-log cleanup — 1528 unit
+  tests — v1.11.0 2026-03-27
 - [x] security-critical-sprint — 8 fixes: prompt injection (safety_check_agent), shell injection
   (input-sanitizer), coverage gate documentation + smoke target, knowledge-hash --now flag,
   load_config() stderr visibility, JSON protocol (sdlc-compact + auto-test), datetime.utcnow()
