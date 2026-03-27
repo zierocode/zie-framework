@@ -81,6 +81,14 @@ claude --plugin-dir . --agent zie-framework:zie-audit-mode
   are missing
 - **Test runner**: pytest
 
+## Hook Configuration
+
+Optional keys in `zie-framework/.config` (JSON):
+
+| Key | Default | Values | Description |
+| --- | --- | --- | --- |
+| `safety_check_mode` | `"regex"` | `"regex"`, `"agent"`, `"both"` | Controls `safety_check_agent.py`. `"regex"` — fast pattern matching only, no subprocess spawned. `"agent"` — spawns a Claude subagent on every Bash call to evaluate safety. `"both"` — runs regex first, then agent. Use `"regex"` unless you need AI-level judgment on commands. |
+
 ## Hook Error Handling Convention
 
 All hooks follow a two-tier pattern:

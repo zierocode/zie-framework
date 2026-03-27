@@ -52,6 +52,7 @@ class TestAutoTestGuardrails:
         r = subprocess.run([sys.executable, HOOK], input="not json",
                            capture_output=True, text=True, env=env)
         assert r.returncode == 0
+        assert r.stdout.strip() == ""
 
     def test_missing_file_path_exits_zero(self, tmp_path):
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
@@ -288,6 +289,7 @@ class TestAutoTestConfigParseWarning:
             tmp_cwd=tmp_path,
         )
         assert r.returncode == 0
+        assert r.stdout.strip() == ""  # no test_runner in corrupt config → no output
 
     def test_no_warning_on_valid_config(self, tmp_path):
         """Valid .config must not produce any warning."""

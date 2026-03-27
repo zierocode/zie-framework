@@ -8,6 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils import (
+    get_cached_git_status,
     get_cwd,
     load_config,
     parse_roadmap_section_content,
@@ -15,6 +16,7 @@ from utils import (
     read_event,
     read_roadmap_cached,
     safe_write_tmp,
+    write_git_status_cache,
 )
 
 # ---------------------------------------------------------------------------
@@ -53,28 +55,40 @@ if hook_event_name == "PreCompact":
         now_items = []
         active_task = ""
 
-    # --- Collect git branch ---
+    # --- Collect git branch (with session cache, 5s TTL) ---
     try:
-        result = subprocess.run(
-            ["git", "-C", str(cwd), "branch", "--show-current"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-        )
-        git_branch = result.stdout.strip()
+        cached = get_cached_git_status(session_id, "branch")
+        if cached is not None:
+            git_branch = cached
+        else:
+            result = subprocess.run(
+                ["git", "-C", str(cwd), "branch", "--show-current"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            git_branch = result.stdout.strip()
+            if result.returncode == 0 and git_branch:
+                write_git_status_cache(session_id, "branch", git_branch)
     except Exception as e:
         print(f"[zie-framework] sdlc-compact: git branch failed: {e}", file=sys.stderr)
         git_branch = ""
 
-    # --- Collect changed files ---
+    # --- Collect changed files (with session cache, 2s TTL — changes frequently) ---
     try:
-        result = subprocess.run(
-            ["git", "-C", str(cwd), "diff", "--name-only", "HEAD"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-        )
-        changed_files = [f for f in result.stdout.splitlines() if f.strip()][:20]
+        cached = get_cached_git_status(session_id, "diff", ttl=2)
+        if cached is not None:
+            changed_files = [f for f in cached.splitlines() if f.strip()][:20]
+        else:
+            result = subprocess.run(
+                ["git", "-C", str(cwd), "diff", "--name-only", "HEAD"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            changed_files = [f for f in result.stdout.splitlines() if f.strip()][:20]
+            if result.returncode == 0:
+                write_git_status_cache(session_id, "diff", result.stdout)
     except Exception as e:
         print(f"[zie-framework] sdlc-compact: git diff failed: {e}", file=sys.stderr)
         changed_files = []

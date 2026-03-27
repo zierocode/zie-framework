@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event, get_cwd, parse_roadmap_section_content, read_roadmap_cached
+from utils import read_event, get_cwd, parse_roadmap_section_content, read_roadmap_cached, get_cached_git_status, write_git_status_cache
 
 ALLOWED_TOOLS = {"Bash", "Write", "Edit"}
 
@@ -43,31 +43,43 @@ try:
         now_items = []
     active_task = now_items[0] if now_items else "(none — check ROADMAP Now lane)"
 
-    # Git last commit
+    # Git last commit (with session cache, 5s TTL)
     try:
-        log_result = subprocess.run(
-            ["git", "log", "-1", "--pretty=%h %s"],
-            capture_output=True, text=True, cwd=str(cwd), timeout=5,
-        )
-        last_commit = (
-            log_result.stdout.strip()
-            if log_result.returncode == 0
-            else "(git unavailable)"
-        )
+        cached = get_cached_git_status(session_id, "log")
+        if cached is not None:
+            last_commit = cached
+        else:
+            log_result = subprocess.run(
+                ["git", "log", "-1", "--pretty=%h %s"],
+                capture_output=True, text=True, cwd=str(cwd), timeout=5,
+            )
+            last_commit = (
+                log_result.stdout.strip()
+                if log_result.returncode == 0
+                else "(git unavailable)"
+            )
+            if log_result.returncode == 0:
+                write_git_status_cache(session_id, "log", last_commit)
     except Exception:
         last_commit = "(git unavailable)"
 
-    # Git branch
+    # Git branch (with session cache, 5s TTL)
     try:
-        branch_result = subprocess.run(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-            capture_output=True, text=True, cwd=str(cwd), timeout=5,
-        )
-        branch = (
-            branch_result.stdout.strip()
-            if branch_result.returncode == 0
-            else "(git unavailable)"
-        )
+        cached = get_cached_git_status(session_id, "branch")
+        if cached is not None:
+            branch = cached
+        else:
+            branch_result = subprocess.run(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                capture_output=True, text=True, cwd=str(cwd), timeout=5,
+            )
+            branch = (
+                branch_result.stdout.strip()
+                if branch_result.returncode == 0
+                else "(git unavailable)"
+            )
+            if branch_result.returncode == 0:
+                write_git_status_cache(session_id, "branch", branch)
     except Exception:
         branch = "(git unavailable)"
 
