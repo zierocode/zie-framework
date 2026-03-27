@@ -24,6 +24,8 @@
 
 <!-- MEDIUM -->
 
+- [ ] sprint4-final-clearance — [plan](plans/2026-03-27-sprint4-final-clearance.md) ✓ approved
+
 <!-- LOW -->
 
 ---
@@ -38,8 +40,6 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-
-- [ ] sprint4-final-clearance — [spec](specs/2026-03-27-sprint4-final-clearance-design.md)
 
 <!-- LOW -->
 
