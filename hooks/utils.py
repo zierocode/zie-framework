@@ -80,6 +80,25 @@ def parse_roadmap_now(roadmap_path, warn_on_empty: bool = False) -> list:
     return items
 
 
+def parse_roadmap_ready(roadmap_path, warn_on_empty: bool = False) -> list:
+    """Extract cleaned items from the ## Ready section of ROADMAP.md.
+
+    Returns [] if the file is missing, the Ready section is absent, or it is empty.
+    Accepts Path or str.
+
+    If warn_on_empty=True and the file exists but the Ready section is absent
+    or empty, prints a warning to stderr.
+    """
+    path = Path(roadmap_path)
+    items = parse_roadmap_section(path, "ready")
+    if warn_on_empty and path.exists() and not items:
+        print(
+            "[zie-framework] WARNING: ROADMAP.md Ready section is empty or missing",
+            file=sys.stderr,
+        )
+    return items
+
+
 def parse_roadmap_section_content(content: str, section_name: str) -> list:
     """Extract cleaned items from a named ## section of ROADMAP content string.
 

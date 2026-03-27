@@ -27,7 +27,7 @@ EXPECTED = {
     "commands/zie-audit.md":     ("sonnet", "medium"),
     # Skills
     "skills/spec-design/SKILL.md":   ("sonnet", "high"),
-    "skills/write-plan/SKILL.md":    ("sonnet", "high"),
+    "skills/write-plan/SKILL.md":    ("sonnet", "medium"),
     "skills/debug/SKILL.md":         ("sonnet", "medium"),
     "skills/spec-reviewer/SKILL.md": ("haiku",  "low"),
     "skills/plan-reviewer/SKILL.md": ("haiku",  "low"),

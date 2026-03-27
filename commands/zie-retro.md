@@ -7,10 +7,6 @@ effort: medium
 
 # /zie-retro — Retrospective + ADRs + Brain Storage
 
-Post-release or end-of-session retrospective. Documents what happened, extracts
-architectural decisions as ADRs, updates ROADMAP, and stores learnings in the
-brain.
-
 ## ตรวจสอบก่อนเริ่ม
 
 **Live context (injected at command load):**
@@ -45,17 +41,7 @@ Recent activity window:
    - Resolve log path: `project_tmp_path("subagent-log", project)` →
      `/tmp/zie-<project>-subagent-log`
    - If file exists: read line-by-line, parse each JSON record, group by
-     `agent_type`. Print summary:
-
-     ```text
-     Subagent Activity This Session
-     ─────────────────────────────────────────────────────
-     Type              Count   Last Agent ID   Last Message
-     spec-reviewer     2       abc-123         "The spec lo..."
-     plan-reviewer     1       def-456         "Plan looks s..."
-     ─────────────────────────────────────────────────────
-     ```
-
+     `agent_type`. Print table: Type | Count | Last Agent ID | Last Message.
    - If file does not exist or `FileNotFoundError`: print
      "No subagent activity recorded this session." and continue.
    - If a line fails JSON parse: skip it silently (partial log is still useful).
@@ -96,53 +82,9 @@ Print: "Running retro-format and docs-sync-check in background. Use /tasks to se
 - Wait for both Agents to complete (via task completion notifications or TaskOutput polling)
 - **TaskUpdate** — mark both tasks as "completed" when Agents finish
 
-Collect results and continue to "บันทึก ADRs" step.
-
-<!-- fallback: if Agent tool unavailable or subagent_type not found,
-     call Skill(zie-framework:retro-format) and Skill(zie-framework:docs-sync-check) inline (blocking) -->
-
-### บันทึก ADRs
-
-For each significant architectural decision identified (`[ADR {N}/{total}]`):
-
-- Create `zie-framework/decisions/ADR-<NNN>-<slug>.md` from ADR template:
-
-  ```text
-  # ADR-<NNN>: <Title>
-  Date: YYYY-MM-DD
-  Status: Accepted
-
-  ## Context
-  <what situation required this decision>
-
-  ## Decision
-  <what was decided>
-
-  ## Consequences
-  <what this means going forward — positive and negative>
-  ```
-
-- Only create ADR for decisions with lasting consequences. Skip routine
-  implementation choices.
-
-### อัปเดต project knowledge
-
-Print: "Updating knowledge docs..."
-
-หลัง ADRs เขียนเสร็จ:
-
-- ตรวจก่อน: ถ้า `zie-framework/project/` ไม่มี → skip knowledge sync พร้อม note:
-  "Project knowledge docs not found — run /zie-resync to generate them."
-- อ่าน `zie-framework/project/components.md` → อัปเดต components ที่เปลี่ยน
-  behavior ใน session นี้
-- อ่าน `zie-framework/project/context.md` → เป็น background เท่านั้น (read-only)
-- เขียน ADR ใหม่แต่ละอันเป็นไฟล์แยกใน `zie-framework/decisions/ADR-NNN-<slug>.md`
-  (ใช้ NNN = running number ถัดจากไฟล์ล่าสุดใน decisions/)
-- ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
+<!-- fallback: if Agent tool unavailable, call Skill(zie-framework:retro-format) and Skill(zie-framework:docs-sync-check) inline -->
 
 ### รวมผลลัพธ์ forks
-
-Collect both fork results (forks ran while ADRs were being written above):
 
 - **retro-format result** → print the five structured retro sections.
 - **docs-sync-check result** → if `claude_md_stale=true`: update `CLAUDE.md` now
@@ -156,17 +98,26 @@ Collect both fork results (forks ran while ADRs were being written above):
   with `"Project snapshot: <version>. Components changed: <list>. Decisions: <new ADR slugs>."`
   `tags=[project-knowledge, zie-framework, <version>] supersedes=[project-knowledge, zie-framework]`
 
-### อัปเดต ROADMAP
+### บันทึก ADRs + อัปเดต ROADMAP (parallel)
 
-Update `zie-framework/ROADMAP.md`:
+Launch both as parallel Agent calls — two Agent tool uses in one message. ADR files and ROADMAP.md are different paths, no write conflict:
 
-- Ensure all shipped items are in "Done" with date.
-- If running **standalone** (not called from /zie-release): re-read "Next"
-  section, re-prioritize based on what was learned, and ask Zie: "Anything
-  to add to Next or Later?"
-- If called **from /zie-release**: skip interactive re-prioritize prompt
-  (release already handled ROADMAP). Print: "Run /zie-retro standalone to
-  review and reprioritize backlog."
+1. `Agent(subagent_type="zie-framework:retro-format", run_in_background=True, prompt="Write ADRs for decisions: {decisions_json}. Next ADR number: {next_adr_n}. Write each to zie-framework/decisions/ADR-<NNN>-<slug>.md")` — creates ADR files, printing `[ADR N/total]` for each
+2. `Agent(subagent_type="zie-framework:retro-format", run_in_background=True, prompt="Update ROADMAP Done section for shipped items: {shipped_items}. File: zie-framework/ROADMAP.md")` — updates Done lane in `zie-framework/ROADMAP.md`
+
+Await both. Then proceed to brain store.
+
+**Failure mode:** If either Agent call fails → skip brain store entirely. Do not retry.
+
+<!-- fallback: if Agent tool unavailable, run ADR write and ROADMAP update inline (blocking, sequential). ADR format: see zie-framework/decisions/ for examples. Only create for decisions with lasting consequences. ROADMAP: move shipped items to Done with date; if standalone ask Zie to re-prioritize Next. -->
+
+### อัปเดต project knowledge
+
+Print: "Updating knowledge docs..."
+
+- ถ้า `zie-framework/project/` ไม่มี → skip + note "run /zie-resync to generate them"
+- อ่าน `zie-framework/project/components.md` → อัปเดต components ที่เปลี่ยน behavior
+- ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
 
 ### บันทึกสู่ brain
 
@@ -229,10 +180,3 @@ Backlog is empty — add items with /zie-backlog
 
 This step is advisory only. Nothing is automatically started.
 
-## Notes
-
-- Can run standalone (not just after /zie-release): `/zie-retro` at any time
-- When called from /zie-release: skips interactive backlog re-prioritize
-- Lightweight when nothing major happened — won't create empty ADRs
-- ADR numbers are auto-incremented from existing files in
-  `zie-framework/decisions/`

@@ -95,6 +95,21 @@ setup: ## Install git hooks + project deps (run once after cloning)
 sync-version: ## Sync all version files to match current VERSION (alias for bump)
 	$(MAKE) bump NEW=$$(cat VERSION)
 
+# ── Archive ───────────────────────────────────────────────────────────────────
+archive: ## Archive shipped SDLC artifacts (move Done-lane items to archive/)
+	@python3 -c "\
+import re, shutil, sys; \
+from pathlib import Path; \
+zf = Path('zie-framework'); \
+roadmap_path = zf / 'ROADMAP.md'; \
+roadmap = roadmap_path.read_text() if roadmap_path.exists() else ''; \
+done_match = re.search(r'## Done(.*?)(?=^## |\Z)', roadmap, re.DOTALL | re.MULTILINE); \
+slugs = []; \
+[slugs.append(m.group(1)) for line in (done_match.group(1).splitlines() if done_match else []) for m in [re.search(r'[-*]\s+.*?([a-z0-9][a-z0-9-]+)', line.lower())] if m]; \
+moved = 0; \
+[([shutil.move(str(src), str(zf / 'archive' / d / src.name)) or None for src in (zf / d).glob(f'*{slug}*') if not (zf / 'archive' / d / src.name).exists() and (moved := moved + 1)]) for slug in slugs for d in ('backlog', 'specs', 'plans')]; \
+print(f'Archive complete. Moved {moved} file(s).')"
+
 # ── Plans archive ─────────────────────────────────────────────────────────────
 archive-plans: ## Move plans older than 60 days to zie-framework/plans/archive/
 	@mkdir -p zie-framework/plans/archive
