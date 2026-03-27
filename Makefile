@@ -10,11 +10,18 @@ help:
 
 # ── Tests ─────────────────────────────────────────────────────────────────────
 test-unit: ## Fast unit tests with subprocess coverage measurement
+	# REQUIRES: sitecustomize.py in venv for subprocess hook coverage.
+	# Without it, subprocess-spawned hooks show 0%. Run 'make coverage-smoke' to verify.
 	python3 -m coverage erase
 	COVERAGE_PROCESS_START=$(CURDIR)/.coveragerc \
 	    python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
 	python3 -m coverage combine 2>/dev/null || true
 	python3 -m coverage report --show-missing --fail-under=50
+
+coverage-smoke: ## Verify ≥1 hook has >0% line coverage (requires sitecustomize.py in venv)
+	@python3 -m coverage report 2>/dev/null | grep -E 'hooks/[^ ]+.*[1-9][0-9]*%' > /dev/null || \
+		(echo "ERROR: No hooks show >0% coverage. Ensure sitecustomize.py is in venv (see .coveragerc)" && exit 1)
+	@echo "[zie-framework] Coverage smoke passed — at least one hook has measurable coverage"
 
 test-int: ## Integration tests (hook event simulation)
 	python3 -m pytest tests/ -v -m "integration" --tb=short

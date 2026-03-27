@@ -9,7 +9,7 @@ Two-tier error handling per zie-framework hook convention:
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -32,7 +32,7 @@ try:
     last_message = str(raw_msg or "")[:500]
 
     record = {
-        "ts": datetime.utcnow().isoformat() + "Z",
+        "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "agent_id": agent_id,
         "agent_type": agent_type,
         "last_message": last_message,

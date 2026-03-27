@@ -140,10 +140,10 @@ elif hook_event_name == "PostCompact":
             for f in snapshot["changed_files"]:
                 lines.append(f"  - {f}")
         context = "\n".join(lines)
-        print(json.dumps({"hookSpecificOutput": {"additionalContext": context}}))
+        print(json.dumps({"additionalContext": context}))
     except Exception as e:
         print(f"[zie-framework] sdlc-compact: context build failed: {e}", file=sys.stderr)
-        print(json.dumps({"hookSpecificOutput": {"additionalContext": ""}}))
+        print(json.dumps({"additionalContext": ""}))
 
 if __name__ == "__main__":
     pass

@@ -26,6 +26,15 @@ SDLC_STAGES: list = [
 ]
 
 
+def sanitize_log_field(value: object) -> str:
+    """Strip ASCII control characters from a log field value.
+
+    Converts value to str first, then replaces chars in range
+    0x00-0x1f and 0x7f with '?' to prevent log injection.
+    """
+    return re.sub(r'[\x00-\x1f\x7f]', '?', str(value))
+
+
 def parse_roadmap_section(roadmap_path, section_name: str) -> list:
     """Extract cleaned items from a named ## section of ROADMAP.md.
 
@@ -255,12 +264,16 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
 def load_config(cwd: Path) -> dict:
     """Read zie-framework/.config as JSON and return a dict.
 
-    Returns {} on any error (missing file, parse failure, permission denied, etc.).
+    Returns {} on any error (missing file, parse failure, permission denied).
+    Logs parse errors to stderr for operator visibility (ADR-019).
     """
     config_path = cwd / "zie-framework" / ".config"
     try:
         return json.loads(config_path.read_text())
-    except Exception:
+    except FileNotFoundError:
+        return {}
+    except Exception as e:
+        print(f"[zie-framework] config parse error: {e}", file=sys.stderr)
         return {}
 
 

@@ -19,8 +19,6 @@
 <!-- Order: Critical → High → Medium → Low -->
 
 <!-- CRITICAL -->
-- [ ] security-critical-sprint — 8 fixes: injection, coverage, protocol, deprecation
-  [plan](plans/2026-03-27-security-critical-sprint.md) ✓ approved
 
 <!-- HIGH -->
 
@@ -36,18 +34,12 @@
 <!-- Audit 2026-03-26: 53 findings, score 73/100 -->
 
 <!-- CRITICAL -->
-- [ ] Prompt injection in safety_check_agent — [audit finding](backlog/security-prompt-injection.md)
-- [ ] Shell injection in input-sanitizer — [audit finding](backlog/security-shell-injection.md)
-- [ ] Coverage measurement broken (20% reported) — [audit finding](backlog/fix-coverage-measurement.md)
 
 <!-- HIGH -->
 - [ ] Symlink guards + atomic_write hardening — [audit finding](backlog/security-tmp-hardening.md)
 - [ ] sdlc-permissions allowlist bypass — [audit finding](backlog/security-permissions-bypass.md)
-- [ ] knowledge-hash --now flag broken — [audit finding](backlog/knowledge-hash-broken-flag.md)
 - [ ] Test exec_module safety + bare except — [audit finding](backlog/test-exec-module-safety.md)
 - [ ] Docs sync: PROJECT.md, SECURITY.md, README — [audit finding](backlog/docs-sync-and-completeness.md)
-- [ ] Hook JSON protocol fix (sdlc-context + shapes) — [audit finding](backlog/hook-json-protocol-fix.md)
-- [ ] utils.load_config() silent failure — [audit finding](backlog/audit-silent-config-parse-failures.md)
 
 <!-- MEDIUM -->
 - [ ] Sonnet 4.6 medium-effort adaptation — [analysis 2026-03-27](backlog/medium-effort-optimization.md)
@@ -79,6 +71,11 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] security-critical-sprint — 8 fixes: prompt injection (safety_check_agent), shell injection
+  (input-sanitizer), coverage gate documentation + smoke target, knowledge-hash --now flag,
+  load_config() stderr visibility, JSON protocol (sdlc-compact + auto-test), datetime.utcnow()
+  deprecation (subagent-stop), log field sanitization (stopfailure-log + notification-log)
+  — 1518 unit + 62 integration tests — v1.10.1 2026-03-27
 - [x] Lean & Efficient Optimization — hook consolidation (intent-sdlc.py),
   ROADMAP session cache, zie-audit 5 Opus→3 Sonnet + synthesis, effort
   right-sizing, zie-implement/zie-plan parallel cap removed, archive-plans

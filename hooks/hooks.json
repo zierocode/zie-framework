@@ -9,7 +9,7 @@
     "PreCompact": "no output required; side-effects only (snapshot write)",
     "SubagentStart": "JSON {\"additionalContext\": \"...\"} printed to stdout for Explore|Plan agents",
     "PermissionRequest": "JSON {\"decision\": {\"behavior\": \"allow\", \"updatedPermissions\": {...}}} printed to stdout",
-    "PostCompact": "JSON {\"hookSpecificOutput\": {\"additionalContext\": \"...\"}} printed to stdout",
+    "PostCompact": "JSON {\"additionalContext\": \"...\"} printed to stdout",
     "PostToolUseFailure": "JSON {\"additionalContext\": \"...\"} printed to stdout",
     "Notification": "JSON {\"additionalContext\": \"...\"} printed to stdout to inject context; empty stdout to pass through"
   },

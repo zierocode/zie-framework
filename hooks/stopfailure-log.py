@@ -7,14 +7,14 @@ from datetime import datetime, timezone
 sys.path.insert(0, os.path.dirname(__file__))
 
 try:
-    from utils import get_cwd, parse_roadmap_now, project_tmp_path, read_event, safe_project_name
+    from utils import get_cwd, parse_roadmap_now, project_tmp_path, read_event, safe_project_name, sanitize_log_field
     event = read_event()
 except Exception:
     sys.exit(0)
 
 try:
-    error_type = event.get("error_type", "unknown")
-    error_details = event.get("error_details", "")
+    error_type = sanitize_log_field(event.get("error_type", "unknown"))
+    error_details = sanitize_log_field(event.get("error_details", ""))
 
     cwd = get_cwd()
     if not (cwd / "zie-framework").exists():

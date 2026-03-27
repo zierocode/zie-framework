@@ -92,7 +92,7 @@ if __name__ == "__main__":
         _additional_context = f"Affected test: {_ctx_test}"
     else:
         _additional_context = f"No test file found for {changed.name} — write one"
-    print(json.dumps({"hookSpecificOutput": {"additionalContext": _additional_context}}))
+    print(json.dumps({"additionalContext": _additional_context}))
 
     # Debounce: skip test run if same file was tested recently (within debounce window)
     if _debounce_env:

@@ -261,8 +261,7 @@ class TestSdlcCompactPostCompact:
         r = run_hook("PostCompact", tmp_cwd=cwd)
         assert r.returncode == 0
         out = json.loads(r.stdout)  # must not raise
-        assert "hookSpecificOutput" in out
-        assert "additionalContext" in out["hookSpecificOutput"]
+        assert "additionalContext" in out
 
     def test_context_contains_active_task(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
@@ -274,7 +273,7 @@ class TestSdlcCompactPostCompact:
             "tdd_phase": "",
         })
         r = run_hook("PostCompact", tmp_cwd=cwd)
-        ctx = json.loads(r.stdout)["hookSpecificOutput"]["additionalContext"]
+        ctx = json.loads(r.stdout)["additionalContext"]
         assert "Implement sdlc-compact hook" in ctx
 
     def test_context_contains_git_branch(self, tmp_path):
@@ -287,7 +286,7 @@ class TestSdlcCompactPostCompact:
             "tdd_phase": "",
         })
         r = run_hook("PostCompact", tmp_cwd=cwd)
-        ctx = json.loads(r.stdout)["hookSpecificOutput"]["additionalContext"]
+        ctx = json.loads(r.stdout)["additionalContext"]
         assert "feature/compact" in ctx
 
     def test_context_contains_tdd_phase_when_set(self, tmp_path):
@@ -300,7 +299,7 @@ class TestSdlcCompactPostCompact:
             "tdd_phase": "RED",
         })
         r = run_hook("PostCompact", tmp_cwd=cwd)
-        ctx = json.loads(r.stdout)["hookSpecificOutput"]["additionalContext"]
+        ctx = json.loads(r.stdout)["additionalContext"]
         assert "RED" in ctx
 
     def test_context_omits_tdd_phase_line_when_empty(self, tmp_path):
@@ -313,7 +312,7 @@ class TestSdlcCompactPostCompact:
             "tdd_phase": "",
         })
         r = run_hook("PostCompact", tmp_cwd=cwd)
-        ctx = json.loads(r.stdout)["hookSpecificOutput"]["additionalContext"]
+        ctx = json.loads(r.stdout)["additionalContext"]
         # No blank "TDD phase: " line emitted
         assert "TDD phase: \n" not in ctx
 
@@ -327,7 +326,7 @@ class TestSdlcCompactPostCompact:
             "tdd_phase": "",
         })
         r = run_hook("PostCompact", tmp_cwd=cwd)
-        ctx = json.loads(r.stdout)["hookSpecificOutput"]["additionalContext"]
+        ctx = json.loads(r.stdout)["additionalContext"]
         assert "hooks/sdlc-compact.py" in ctx
 
     def test_context_omits_active_task_line_when_empty(self, tmp_path):
@@ -340,7 +339,7 @@ class TestSdlcCompactPostCompact:
             "tdd_phase": "",
         })
         r = run_hook("PostCompact", tmp_cwd=cwd)
-        ctx = json.loads(r.stdout)["hookSpecificOutput"]["additionalContext"]
+        ctx = json.loads(r.stdout)["additionalContext"]
         assert "Active task: \n" not in ctx
 
     def test_missing_snapshot_falls_back_to_live_roadmap(self, tmp_path):
@@ -350,7 +349,7 @@ class TestSdlcCompactPostCompact:
         r = run_hook("PostCompact", tmp_cwd=cwd)
         assert r.returncode == 0
         out = json.loads(r.stdout)
-        ctx = out["hookSpecificOutput"]["additionalContext"]
+        ctx = out["additionalContext"]
         assert "sdlc-compact hook" in ctx
 
     def test_missing_snapshot_missing_roadmap_still_exits_zero(self, tmp_path):
@@ -359,7 +358,7 @@ class TestSdlcCompactPostCompact:
         assert r.returncode == 0
         # Must still emit valid JSON (even if context is minimal)
         out = json.loads(r.stdout)
-        assert "hookSpecificOutput" in out
+        assert "additionalContext" in out
 
     def test_corrupt_snapshot_falls_back_to_live_roadmap(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
@@ -367,7 +366,7 @@ class TestSdlcCompactPostCompact:
         r = run_hook("PostCompact", tmp_cwd=cwd)
         assert r.returncode == 0
         out = json.loads(r.stdout)
-        ctx = out["hookSpecificOutput"]["additionalContext"]
+        ctx = out["additionalContext"]
         assert "sdlc-compact hook" in ctx
 
 

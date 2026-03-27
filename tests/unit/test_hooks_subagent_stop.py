@@ -83,28 +83,28 @@ class TestSubagentStopNormalWrite:
         cwd = make_cwd(tmp_path)
         run_hook(VALID_EVENT, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        record = json.loads(log.read_text().strip())
+        record = json.loads(log.read_text().strip().splitlines()[0])
         assert record["agent_id"] == "abc-123"
 
     def test_agent_type_field(self, tmp_path):
         cwd = make_cwd(tmp_path)
         run_hook(VALID_EVENT, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        record = json.loads(log.read_text().strip())
+        record = json.loads(log.read_text().strip().splitlines()[0])
         assert record["agent_type"] == "spec-reviewer"
 
     def test_last_message_field(self, tmp_path):
         cwd = make_cwd(tmp_path)
         run_hook(VALID_EVENT, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        record = json.loads(log.read_text().strip())
+        record = json.loads(log.read_text().strip().splitlines()[0])
         assert record["last_message"] == "Looks good overall."
 
     def test_ts_field_present_and_ends_with_z(self, tmp_path):
         cwd = make_cwd(tmp_path)
         run_hook(VALID_EVENT, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        record = json.loads(log.read_text().strip())
+        record = json.loads(log.read_text().strip().splitlines()[0])
         assert "ts" in record
         assert record["ts"].endswith("Z"), f"ts must end with Z, got: {record['ts']}"
 
@@ -124,7 +124,7 @@ class TestSubagentStopTruncation:
         event = {**VALID_EVENT, "last_assistant_message": "x" * 1000}
         run_hook(event, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        record = json.loads(log.read_text().strip())
+        record = json.loads(log.read_text().strip().splitlines()[0])
         assert len(record["last_message"]) == 500
 
     def test_short_message_not_padded(self, tmp_path):
@@ -132,7 +132,7 @@ class TestSubagentStopTruncation:
         event = {**VALID_EVENT, "last_assistant_message": "short"}
         run_hook(event, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        record = json.loads(log.read_text().strip())
+        record = json.loads(log.read_text().strip().splitlines()[0])
         assert record["last_message"] == "short"
 
     def test_exactly_500_message_unchanged(self, tmp_path):
@@ -140,7 +140,7 @@ class TestSubagentStopTruncation:
         event = {**VALID_EVENT, "last_assistant_message": "y" * 500}
         run_hook(event, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        record = json.loads(log.read_text().strip())
+        record = json.loads(log.read_text().strip().splitlines()[0])
         assert len(record["last_message"]) == 500
 
 
@@ -154,7 +154,7 @@ class TestSubagentStopMissingFields:
         run_hook({}, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
         assert log.exists(), "log must be written even for empty event"
-        record = json.loads(log.read_text().strip())
+        record = json.loads(log.read_text().strip().splitlines()[0])
         assert record["agent_id"] == "unknown"
         assert record["agent_type"] == "unknown"
         assert record["last_message"] == ""
@@ -164,7 +164,7 @@ class TestSubagentStopMissingFields:
         event = {"agent_id": "x", "agent_type": "y", "last_assistant_message": None}
         run_hook(event, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        record = json.loads(log.read_text().strip())
+        record = json.loads(log.read_text().strip().splitlines()[0])
         assert record["last_message"] == ""
 
     def test_missing_agent_id_defaults_to_unknown(self, tmp_path):
@@ -172,7 +172,7 @@ class TestSubagentStopMissingFields:
         event = {"agent_type": "plan-reviewer", "last_assistant_message": "ok"}
         run_hook(event, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        record = json.loads(log.read_text().strip())
+        record = json.loads(log.read_text().strip().splitlines()[0])
         assert record["agent_id"] == "unknown"
 
     def test_exits_zero_on_empty_event(self, tmp_path):
