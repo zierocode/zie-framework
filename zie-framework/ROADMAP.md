@@ -38,17 +38,16 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [ ] Integration test depth (beyond "doesn't crash") — [audit finding](backlog/audit-weak-nocrash-assertions.md)
-- [ ] Architecture cleanup (naming, SRP, patterns) — [audit finding](backlog/architecture-cleanup.md)
 
 <!-- LOW -->
-- [ ] Path traversal restrictions — [audit finding](backlog/security-path-traversal.md)
 
 ## Later — Someday / Maybe
 
 <!-- Good ideas, not yet prioritized. -->
 
-<!-- (All 4 former Later items moved to Next — 2026-03-24) -->
+- [ ] Integration test depth (beyond "doesn't crash") — [audit finding](backlog/audit-weak-nocrash-assertions.md)
+- [ ] Architecture cleanup (naming, SRP, patterns) — [audit finding](backlog/architecture-cleanup.md)
+- [ ] Path traversal restrictions — [audit finding](backlog/security-path-traversal.md)
 
 ---
 
