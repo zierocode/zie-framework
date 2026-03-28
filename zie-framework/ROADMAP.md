@@ -9,7 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-<!-- -->
+- [ ] sprint4-final-clearance — [plan](plans/2026-03-27-sprint4-final-clearance.md)
 
 ---
 
@@ -23,8 +23,6 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-
-- [ ] sprint4-final-clearance — [plan](plans/2026-03-27-sprint4-final-clearance.md) ✓ approved
 
 <!-- LOW -->
 

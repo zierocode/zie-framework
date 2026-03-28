@@ -297,6 +297,7 @@ def write_git_status_cache(session_id: str, key: str, content: str) -> None:
     except Exception:
         pass
 
+
 def persistent_project_path(name: str, project: str) -> Path:
     """Return a project-scoped persistent path under CLAUDE_PLUGIN_DATA.
 
