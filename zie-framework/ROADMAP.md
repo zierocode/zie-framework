@@ -36,13 +36,21 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
+- [ ] pipeline-gate-enforcement — hooks enforce spec→plan→implement order (not just advisory) — [backlog](backlog/pipeline-gate-enforcement.md)
+- [ ] adr-session-cache — session-scoped ADR cache, eliminate redundant loading across reviewers — [backlog](backlog/adr-session-cache.md)
 - [ ] adr-auto-summarization — ADR context cap + auto-summarize in /zie-retro when count > 30 — [backlog](backlog/adr-auto-summarization.md)
 
 <!-- MEDIUM -->
+- [ ] user-onboarding-sdlc — /zie-init pipeline orientation + SessionStart drift warning — [backlog](backlog/user-onboarding-sdlc.md)
+- [ ] retro-release-lean-context — fix ROADMAP double-read in retro, remove blocking fallback in release — [backlog](backlog/retro-release-lean-context.md)
+- [ ] hook-resilience-tests — error path + edge case tests for all hooks — [backlog](backlog/hook-resilience-tests.md)
 - [ ] test-suite-tiering — make test-fast (dev loop) vs make test-ci (full suite) — [backlog](backlog/test-suite-tiering.md)
 - [ ] roadmap-done-compaction — auto-compact Done section when entries > 20 in /zie-retro — [backlog](backlog/roadmap-done-compaction.md)
 
 <!-- LOW -->
+- [ ] hook-config-hardening — configurable timeouts, .config validation, bounded auto-test — [backlog](backlog/hook-config-hardening.md)
+- [ ] dry-utils-cleanup — consolidate parse_roadmap + centralize CONFIG_DEFAULTS — [backlog](backlog/dry-utils-cleanup.md)
+- [ ] zie-init-single-scan — unify Explore agent to single pass, eliminate duplicate scan — [backlog](backlog/zie-init-single-scan.md)
 - [ ] archive-ttl-rotation — make archive-prune, auto-run in /zie-retro, 90-day TTL — [backlog](backlog/archive-ttl-rotation.md)
 - [ ] coverage-make-clean — add .coverage + htmlcov/ to make clean — [backlog](backlog/coverage-make-clean.md)
 
