@@ -36,10 +36,15 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
+- [ ] adr-auto-summarization — ADR context cap + auto-summarize in /zie-retro when count > 30 — [backlog](backlog/adr-auto-summarization.md)
 
 <!-- MEDIUM -->
+- [ ] test-suite-tiering — make test-fast (dev loop) vs make test-ci (full suite) — [backlog](backlog/test-suite-tiering.md)
+- [ ] roadmap-done-compaction — auto-compact Done section when entries > 20 in /zie-retro — [backlog](backlog/roadmap-done-compaction.md)
 
 <!-- LOW -->
+- [ ] archive-ttl-rotation — make archive-prune, auto-run in /zie-retro, 90-day TTL — [backlog](backlog/archive-ttl-rotation.md)
+- [ ] coverage-make-clean — add .coverage + htmlcov/ to make clean — [backlog](backlog/coverage-make-clean.md)
 
 ## Later — Someday / Maybe
 
