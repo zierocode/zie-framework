@@ -70,6 +70,7 @@ class TestSdlcCompactOuterGuard:
             text=True,
         )
         assert r.returncode == 0
+        assert r.stdout.strip() == ""
 
     def test_empty_stdin_exits_zero(self):
         r = subprocess.run(
@@ -79,6 +80,7 @@ class TestSdlcCompactOuterGuard:
             text=True,
         )
         assert r.returncode == 0
+        assert r.stdout.strip() == ""
 
     def test_precompact_exits_zero_without_zf_dir(self, tmp_path):
         # tmp_path has no zie-framework/ subdir

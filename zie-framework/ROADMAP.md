@@ -38,17 +38,12 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [ ] Integration test depth (beyond "doesn't crash") — [audit finding](backlog/audit-weak-nocrash-assertions.md)
-- [ ] Architecture cleanup (naming, SRP, patterns) — [audit finding](backlog/architecture-cleanup.md)
 
 <!-- LOW -->
-- [ ] Path traversal restrictions — [audit finding](backlog/security-path-traversal.md)
 
 ## Later — Someday / Maybe
 
 <!-- Good ideas, not yet prioritized. -->
-
-<!-- (All 4 former Later items moved to Next — 2026-03-24) -->
 
 ---
 
@@ -56,6 +51,8 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] sprint4-final-clearance — git status caching (hot path), stronger test assertions (5 files),
+  safety_check_mode documented in CLAUDE.md — 1566 unit + 62 integration tests — v1.11.1 2026-03-29
 - [x] sprint3-framework-optimization — token trim (implement/release/retro), parallel ADR+ROADMAP
   agents in retro, archive strategy (make archive + zie-framework/archive/), implement pre-flight
   guard, effort routing (write-plan high→medium, ADR-022), CI hardening (make test→test-unit),

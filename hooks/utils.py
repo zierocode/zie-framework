@@ -262,6 +262,42 @@ def write_roadmap_cache(session_id: str, content: str) -> None:
     except Exception:
         pass
 
+
+def get_cached_git_status(session_id: str, key: str, ttl: int = 5) -> str | None:
+    """Return cached git output if fresh (age < ttl seconds), else None.
+
+    key identifies the git command (e.g. 'log', 'branch', 'diff').
+    Returns None on cache miss, expiry, or any read error.
+    """
+    try:
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        safe_key = re.sub(r'[^a-zA-Z0-9_-]', '-', key)
+        cache_path = Path(tempfile.gettempdir()) / f"zie-{safe_id}" / f"git-{safe_key}.cache"
+        if cache_path.exists():
+            age = time.time() - cache_path.stat().st_mtime
+            if age < ttl:
+                return cache_path.read_text()
+        return None
+    except Exception:
+        return None
+
+
+def write_git_status_cache(session_id: str, key: str, content: str) -> None:
+    """Write git output to the session cache.
+
+    key identifies the git command (e.g. 'log', 'branch', 'diff').
+    Silently ignores all errors.
+    """
+    try:
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        safe_key = re.sub(r'[^a-zA-Z0-9_-]', '-', key)
+        cache_dir = Path(tempfile.gettempdir()) / f"zie-{safe_id}"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        (cache_dir / f"git-{safe_key}.cache").write_text(content)
+    except Exception:
+        pass
+
+
 def persistent_project_path(name: str, project: str) -> Path:
     """Return a project-scoped persistent path under CLAUDE_PLUGIN_DATA.
 

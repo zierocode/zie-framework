@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.11.1 — 2026-03-29
+
+### Changed
+- Git subprocess calls in `failure-context.py` and `sdlc-compact.py` now read from
+  a session-scoped file cache before spawning a process — reduces redundant git calls
+  on hot paths during active editing sessions.
+- Test assertions across 5 hook test files now verify observable side-effects
+  (stdout content, file existence, counter values) rather than just exit code — catches
+  regressions that previously would have silently passed.
+
+### Docs
+- `safety_check_mode` config key is now documented in `CLAUDE.md` with all three
+  valid values (`"regex"`, `"agent"`, `"both"`) and their tradeoffs.
+
 ## v1.11.0 — 2026-03-27
 
 ### Features

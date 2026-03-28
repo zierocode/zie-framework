@@ -881,3 +881,69 @@ class TestRoadmapCache:
         # backdate by 31s — should be stale
         os.utime(cache_file, (time.time() - 31, time.time() - 31))
         assert get_cached_roadmap(sid) is None
+
+
+# ---------------------------------------------------------------------------
+# TestGitStatusCache
+# ---------------------------------------------------------------------------
+
+from utils import get_cached_git_status, write_git_status_cache
+
+
+class TestGitStatusCache:
+    def test_cache_miss_returns_none(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        result = get_cached_git_status("sid-git-001", "log", ttl=5)
+        assert result is None
+
+    def test_cache_hit_within_ttl(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        write_git_status_cache("sid-git-002", "log", "abc1234 some commit")
+        result = get_cached_git_status("sid-git-002", "log", ttl=60)
+        assert result == "abc1234 some commit"
+
+    def test_cache_miss_after_ttl(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        write_git_status_cache("sid-git-003", "log", "old content")
+        cache_file = tmp_path / "zie-sid-git-003" / "git-log.cache"
+        old_mtime = time.time() - 10
+        os.utime(cache_file, (old_mtime, old_mtime))
+        result = get_cached_git_status("sid-git-003", "log", ttl=5)
+        assert result is None
+
+    def test_write_creates_parent_dir(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        write_git_status_cache("sid-git-004", "branch", "main")
+        assert (tmp_path / "zie-sid-git-004" / "git-branch.cache").exists()
+
+    def test_different_keys_are_independent(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        write_git_status_cache("sid-git-005", "log", "log-data")
+        write_git_status_cache("sid-git-005", "branch", "branch-data")
+        assert get_cached_git_status("sid-git-005", "log", ttl=60) == "log-data"
+        assert get_cached_git_status("sid-git-005", "branch", ttl=60) == "branch-data"
+
+    def test_path_injection_sanitized(self, tmp_path, monkeypatch):
+        """session_id with path separators must not escape tmp dir."""
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        write_git_status_cache("../../evil", "log", "data")
+        # Must not write outside tmp_path
+        for root, dirs, files in os.walk(str(tmp_path)):
+            for f in files:
+                full = os.path.join(root, f)
+                assert full.startswith(str(tmp_path)), f"file escaped tmp: {full}"
+
+    def test_key_injection_sanitized(self, tmp_path, monkeypatch):
+        """cache key with path separators must not escape session dir."""
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        write_git_status_cache("sid-git-006", "../../evil", "data")
+        for root, dirs, files in os.walk(str(tmp_path)):
+            for f in files:
+                full = os.path.join(root, f)
+                assert full.startswith(str(tmp_path)), f"file escaped tmp: {full}"
+
+    def test_read_error_returns_none(self, tmp_path, monkeypatch):
+        """Unreadable cache dir returns None without raising."""
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        result = get_cached_git_status("nonexistent-sid-xyz", "log", ttl=60)
+        assert result is None

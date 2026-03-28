@@ -93,6 +93,7 @@ class TestInterrupt:
         event = {"tool_name": "Write", "is_interrupt": True}
         result = run_hook(event, tmp_cwd=cwd)
         assert result.returncode == 0
+        assert result.stdout == ""
 
 
 class TestMissingRoadmap:
@@ -199,3 +200,24 @@ class TestFailureContextRoadmapCache:
         ctx = json.loads(r.stdout)["additionalContext"]
         # Should reflect cached task, not "(none — check ROADMAP Now lane)"
         assert "cached-failure-task" in ctx
+
+
+class TestFailureContextGitCache:
+    """Verify failure-context reads git data from git status cache when available."""
+
+    def test_git_log_from_cache(self, tmp_path):
+        """Cached git log is used instead of running a subprocess."""
+        sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
+        from utils import write_git_status_cache
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
+        sid = "test-git-cache-fc-77x"
+        write_git_status_cache(sid, "log", "abc1234 cached commit message")
+        event = {"tool_name": "Bash", "session_id": sid}
+        env = {**os.environ, "CLAUDE_CWD": str(cwd)}
+        r = subprocess.run(
+            [sys.executable, HOOK], input=json.dumps(event),
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+        ctx = json.loads(r.stdout)["additionalContext"]
+        assert "abc1234 cached commit message" in ctx

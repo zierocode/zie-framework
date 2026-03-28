@@ -282,6 +282,7 @@ class TestGuardrails:
             text=True,
         )
         assert r.returncode == 0
+        assert r.stdout.strip() == ""
 
     def test_always_exits_zero(self, tmp_path):
         project = f"testproj-{tmp_path.name}"
@@ -291,6 +292,8 @@ class TestGuardrails:
             project,
         )
         assert r.returncode == 0
+        log = tmp_log_path("permission-log", project)
+        assert log.exists()
 
     def test_symlink_at_log_path_logs_stderr_exits_zero(self, tmp_path):
         """If the log path is a symlink, safe_write_tmp refuses and hook still exits 0."""

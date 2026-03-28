@@ -67,6 +67,7 @@ class TestWipCheckpointGuardrails:
     def test_no_action_when_no_zf_dir(self, tmp_path):
         r = run_hook(tmp_cwd=tmp_path, env_overrides={"ZIE_MEMORY_API_KEY": "fake"})
         assert r.returncode == 0
+        assert r.stdout.strip() == ""
 
     def test_no_action_for_non_edit_tool(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
@@ -78,6 +79,7 @@ class TestWipCheckpointGuardrails:
         r = subprocess.run([sys.executable, HOOK], input="bad json",
                            capture_output=True, text=True)
         assert r.returncode == 0
+        assert r.stdout.strip() == ""
 
 
 class TestWipCheckpointCounter:
@@ -106,9 +108,10 @@ class TestWipCheckpointCounter:
         for _ in range(4):
             r = run_hook(tmp_cwd=cwd, env_overrides={
                 "ZIE_MEMORY_API_KEY": "fake-key",
-                "ZIE_MEMORY_API_URL": "http://localhost:19999",
+                "ZIE_MEMORY_API_URL": "http://localhost:19999",  # http fails scheme guard → exits early
             })
             assert r.returncode == 0  # must not crash even on network error
+            assert r.stdout.strip() == ""  # hook exited before producing any output
 
     def test_no_crash_on_fifth_edit_with_bad_url(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
