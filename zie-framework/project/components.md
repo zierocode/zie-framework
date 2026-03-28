@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-03-25 (v1.9.0)
+**Last updated:** 2026-03-29 (v1.11.1)
 
 ## Commands
 
@@ -41,12 +41,12 @@
 | safety-check.py | PreToolUse:Bash | บล็อก dangerous cmds (exit 2 = block); MAX_MESSAGE_LEN=500 ReDoS guard; whitespace normalised before match |
 | intent-detect.py | PreToolUse:Bash | ตรวจ intent → suggest cmd (JSON out) |
 | session-resume.py | SessionStart | แสดง project state + active feature |
-| failure-context.py | PostToolUseFailure:Bash/Write/Edit | inject SDLC debug context (active task, branch, last commit, quick-fix hint); is_interrupt guard |
+| failure-context.py | PostToolUseFailure:Bash/Write/Edit | inject SDLC debug context (active task, branch, last commit, quick-fix hint); is_interrupt guard; reads branch/log from session git cache before subprocess |
 | stop-guard.py | Stop | บล็อก session หาก uncommitted implementation files ถูกตรวจพบ (hooks, tests, commands, skills, templates); stop_hook_active infinite-loop guard |
 | session-learn.py | PostToolUse | สังเกต patterns, บันทึก micro-learnings |
 | wip-checkpoint.py | PeriodicTask | บันทึก WIP progress สู่ brain; counter ValueError recovery |
 | session-cleanup.py | Stop | ลบ project-scoped /tmp files on exit |
-| sdlc-compact.py | PreCompact / PostCompact | snapshot SDLC state before compaction; restore as additionalContext after |
+| sdlc-compact.py | PreCompact / PostCompact | snapshot SDLC state before compaction; restore as additionalContext after; reads branch/diff from session git cache before subprocess |
 | sdlc-context.py | UserPromptSubmit | inject [sdlc] task/stage/next/tests context into every prompt |
 | subagent-context.py | SubagentStart:Explore/Plan | inject active feature slug, first incomplete task, ADR count into research subagents |
 | config-drift.py | ConfigChange:project_settings\|user_settings | ตรวจ CLAUDE.md / settings.json / zie-framework/.config drift → inject additionalContext to re-read |
@@ -57,7 +57,7 @@
 | stopfailure-log.py | StopFailure | capture API errors and rate-limit notifications to per-project tmp log |
 | subagent-stop.py | SubagentStop | capture subagent completion with ID; enables resume-by-ID pattern in same session |
 | task-completed-gate.py | TaskCompleted | block on failing tests; warn on uncommitted files at task completion |
-| utils.py | (shared library) | read_event(), get_cwd(), load_config() (JSON), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write), normalize_command(), safe_project_name(), BLOCKS, WARNS, SDLC_STAGES |
+| utils.py | (shared library) | read_event(), get_cwd(), load_config() (JSON), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write), normalize_command(), safe_project_name(), get_cached_git_status(session_id, key, ttl=5), write_git_status_cache(session_id, key, content), BLOCKS, WARNS, SDLC_STAGES |
 
 ## Agents
 
