@@ -9,7 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-- [ ] sprint4-final-clearance — [plan](plans/2026-03-27-sprint4-final-clearance.md)
+<!-- -->
 
 ---
 
@@ -51,6 +51,8 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] sprint4-final-clearance — git status caching (hot path), stronger test assertions (5 files),
+  safety_check_mode documented in CLAUDE.md — 1566 unit + 62 integration tests — v1.11.1 2026-03-29
 - [x] sprint3-framework-optimization — token trim (implement/release/retro), parallel ADR+ROADMAP
   agents in retro, archive strategy (make archive + zie-framework/archive/), implement pre-flight
   guard, effort routing (write-plan high→medium, ADR-022), CI hardening (make test→test-unit),
