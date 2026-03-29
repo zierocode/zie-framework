@@ -9,7 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-<!-- -->
+- [ ] pipeline-gate-enforcement — hooks enforce spec→plan→implement order — [plan](plans/2026-03-29-pipeline-gate-enforcement.md)
 
 ---
 

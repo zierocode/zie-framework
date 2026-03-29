@@ -23,7 +23,7 @@ spec: specs/2026-03-29-pipeline-gate-enforcement-design.md
 
 ---
 
-## Task 1: Add `_check_pipeline_preconditions` to `intent-sdlc.py`
+## Task 1: Add `_check_pipeline_preconditions` to `intent-sdlc.py` ✓
 
 <!-- depends_on: none -->
 
@@ -333,7 +333,7 @@ Run: `make test-unit` — still PASS
 
 ---
 
-## Task 2: Add `TestPositionalGuidance` test class
+## Task 2: Add `TestPositionalGuidance` test class ✓
 
 <!-- depends_on: Task 1 -->
 
@@ -421,7 +421,7 @@ Run: `make test-unit` — still PASS
 
 ---
 
-## Task 3: Harden `zie-plan.md` pre-flight gate
+## Task 3: Harden `zie-plan.md` pre-flight gate ✓
 
 <!-- depends_on: none -->
 
@@ -482,7 +482,7 @@ For each resolved slug (whether from args or from no-args selection):
 
 ---
 
-## Task 4: Register `_extract_roadmap_slugs` and `_spec_approved` unit tests
+## Task 4: Register `_extract_roadmap_slugs` and `_spec_approved` unit tests ✓
 
 <!-- depends_on: Task 1 -->
 
