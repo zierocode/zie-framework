@@ -10,6 +10,8 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [x] zie-audit-v2 — 7 dimensions + external research + inline synthesis + batch backlog
+
 ---
 
 ## Ready — Approved Plans
