@@ -17,6 +17,8 @@ test-unit: ## Fast unit tests with subprocess coverage measurement
 	    python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
 	python3 -m coverage combine 2>/dev/null || true
 	python3 -m coverage report --show-missing --fail-under=50
+	@pytest --collect-only -q -m error_path tests/unit/ 2>/dev/null \
+		| python3 tests/unit/scripts/check_error_path_coverage.py
 
 coverage-smoke: ## Verify ≥1 hook has >0% line coverage (requires sitecustomize.py in venv)
 	@python3 -m coverage report 2>/dev/null | grep -E 'hooks/[^ ]+.*[1-9][0-9]*%' > /dev/null || \
