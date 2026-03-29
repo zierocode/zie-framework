@@ -2,10 +2,10 @@
 # Committed: yes (zie-framework is a plugin repo, not a secrets-bearing app)
 
 # ── Local dev ─────────────────────────────────────────────────────────────────
-local-dev: ## Open Claude with local plugin (bypasses marketplace cache)
-	claude --plugin-dir . --dangerously-skip-permissions
-
-_start-dev: local-dev
+# Plugin loads from marketplace cache (github:zierocode/zie-framework).
+# To test unreleased changes locally: claude --plugin-dir . --dangerously-skip-permissions
+_start-dev:
+	claude --dangerously-skip-permissions
 
 # ── Lint ──────────────────────────────────────────────────────────────────────
 lint: lint-bandit ## Lint Python hooks (syntax + SAST)
@@ -22,19 +22,10 @@ _bump-extra:
 	  && mv .claude-plugin/plugin.json.tmp .claude-plugin/plugin.json
 
 # ── Publish ───────────────────────────────────────────────────────────────────
-# Updates zie-framework version + SHA in the zierocode marketplace (zie-memory repo)
+# Plugin is self-contained — marketplace resolves via github:zierocode/zie-framework.
+# autoUpdate: true in settings.json picks up new version on session restart.
 _publish:
-	@SHA=$$(git rev-parse HEAD) && \
-	jq --arg v "$(NEW)" --arg sha "$$SHA" \
-	  '(.plugins[] | select(.name=="zie-framework") | .version) = $$v | \
-	   (.plugins[] | select(.name=="zie-framework") | .source.sha) = $$sha' \
-	  /Users/zie/Code/zie-memory/.claude-plugin/marketplace.json \
-	  > /tmp/mkt.tmp && \
-	mv /tmp/mkt.tmp /Users/zie/Code/zie-memory/.claude-plugin/marketplace.json && \
-	cd /Users/zie/Code/zie-memory && \
-	git add .claude-plugin/marketplace.json && \
-	git commit -m "chore: bump zie-framework to v$(NEW) in marketplace" && \
-	git push origin dev
+	gh release create v$(NEW) --title "v$(NEW)" --generate-notes || true
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
 _setup-extra:
