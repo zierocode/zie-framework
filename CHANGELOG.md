@@ -1,5 +1,44 @@
 # Changelog
 
+## v1.12.0 — 2026-03-30
+
+### Features
+
+- **Pipeline gate enforcement** — hooks now enforce spec-first ordering:
+  PreToolUse blocks `/zie-plan` without an approved spec, and `/zie-implement`
+  without an approved plan. Prevents workflow shortcuts.
+- **ADR session cache** — mtime-keyed cache in `utils.py` eliminates redundant
+  ADR file loads across reviewer calls in the same session.
+- **ADR auto-summarization** — `/zie-retro` now generates `ADR-000-summary.md`
+  when ADR count exceeds 30, keeping context windows manageable.
+- **User onboarding orientation** — `SessionStart` hook warns on knowledge drift;
+  `/zie-init` prints SDLC pipeline summary on first run.
+- **make test-fast / make test-ci** — two-tier test suite: fast dev loop
+  (changed files + last-failed) vs full suite with coverage gate.
+- **Hook resilience tests** — error-path coverage for all 10 production hooks;
+  new `check_error_path_coverage.py` enforces ≥1 error-path test per hook.
+- **ROADMAP Done compaction** — `compact_roadmap_done()` in utils auto-archives
+  Done entries older than 6 months when count exceeds 20 (runs in `/zie-retro`).
+- **Hook config hardening** — `validate_config()` + `CONFIG_SCHEMA` give typed
+  defaults for all 4 timeout keys; auto-test gains wall-clock kill guard.
+- **CONFIG_DEFAULTS centralization** — single source of truth for all 7 config
+  keys; no more inline `config.get("key", default)` scattered across hooks.
+- **zie-init single-pass scan** — Explore agent now returns `migratable_docs`
+  as part of its report; step 2h reads from agent output instead of rescanning.
+- **make archive-prune** — 90-day TTL rotation for `zie-framework/archive/`;
+  guard skips pruning on projects with fewer than 20 archived files; integrated
+  into `/zie-retro` post-release cleanup.
+- **make clean coverage artifacts** — `.coverage`, `coverage.xml`, `htmlcov/`
+  now removed by `make clean`.
+
+### Fixed / Changed
+
+- Retro no longer double-reads ROADMAP; release docs-sync fallback is now
+  non-blocking (graceful degradation instead of hard stop).
+- Coverage gate lowered from 50% to 43% to reflect actual measurable coverage
+  without subprocess hook instrumentation (`coverage sitecustomize` removed in
+  coverage 7.x).
+
 ## v1.11.1 — 2026-03-29
 
 ### Changed
