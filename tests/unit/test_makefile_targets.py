@@ -43,3 +43,21 @@ def test_test_target_unchanged():
     result = _make("test")
     assert result.returncode == 0
     assert "test-unit" in result.stdout or "pytest" in result.stdout
+
+
+def test_clean_removes_coverage_file():
+    result = _make("clean")
+    assert ".coverage" in result.stdout, \
+        "make clean must remove .coverage files"
+
+
+def test_clean_removes_htmlcov():
+    result = _make("clean")
+    assert "htmlcov" in result.stdout, \
+        "make clean must remove htmlcov/ directory"
+
+
+def test_clean_removes_coverage_xml():
+    result = _make("clean")
+    assert "coverage.xml" in result.stdout, \
+        "make clean must remove coverage.xml"

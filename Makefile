@@ -162,6 +162,10 @@ clean: ## Remove cache files and build artifacts
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; \
 	find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null; \
 	find . -name "*.pyc" -delete 2>/dev/null; \
+	find . -name ".coverage" -delete 2>/dev/null; \
+	find . -name ".coverage.*" -delete 2>/dev/null; \
+	find . -name "coverage.xml" -delete 2>/dev/null; \
+	find . -type d -name "htmlcov" -exec rm -rf {} + 2>/dev/null; \
 	$(MAKE) _clean-extra; true
 
 # ── Hooks — override in Makefile.local ────────────────────────────────────────
