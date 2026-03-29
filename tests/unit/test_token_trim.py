@@ -9,8 +9,8 @@ def _word_count(path: Path) -> int:
 
 
 def test_zie_implement_word_count():
-    """zie-implement.md must be ≤710 words (trimmed from 716; Task 11 pre-flight guard added)."""
-    assert _word_count(COMMANDS / "zie-implement.md") <= 710
+    """zie-implement.md must be ≤740 words (adr-session-cache: Context Bundle updated for cache-first ADR load)."""
+    assert _word_count(COMMANDS / "zie-implement.md") <= 740
 
 
 def test_zie_release_word_count():

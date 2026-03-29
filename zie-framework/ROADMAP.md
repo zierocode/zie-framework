@@ -10,7 +10,8 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 - [x] pipeline-gate-enforcement — hooks enforce spec→plan→implement order — [plan](plans/2026-03-29-pipeline-gate-enforcement.md)
-- [ ] adr-session-cache — session-scoped ADR cache, eliminate redundant reviewer loading — [plan](plans/2026-03-29-adr-session-cache.md)
+- [x] adr-session-cache — session-scoped ADR cache, eliminate redundant reviewer loading — [plan](plans/2026-03-29-adr-session-cache.md)
+- [ ] adr-auto-summarization — ADR context cap + auto-summarize in /zie-retro when count > 30 — [plan](plans/2026-03-29-adr-auto-summarization.md)
 
 ---
 
@@ -22,7 +23,6 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-- [ ] adr-session-cache — session-scoped ADR cache, eliminate redundant reviewer loading — [plan](plans/2026-03-29-adr-session-cache.md)
 - [ ] adr-auto-summarization — ADR context cap + auto-summarize in /zie-retro when count > 30 — [plan](plans/2026-03-29-adr-auto-summarization.md)
 
 <!-- MEDIUM -->

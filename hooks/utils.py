@@ -298,6 +298,65 @@ def write_git_status_cache(session_id: str, key: str, content: str) -> None:
         pass
 
 
+def get_cached_adrs(
+    session_id: str,
+    decisions_dir,
+    tmp_dir=None,
+) -> "str | None":
+    """Return cached ADR content if stored mtime matches current max mtime.
+
+    decisions_dir: Path or str pointing to zie-framework/decisions/.
+    tmp_dir: override tempfile.gettempdir() (test injection point).
+    Returns None on cache miss, mtime mismatch, empty/missing dir, or any error.
+    """
+    try:
+        decisions_path = Path(decisions_dir)
+        adr_files = list(decisions_path.glob("*.md"))
+        if not adr_files:
+            return None
+        current_max_mtime = max(f.stat().st_mtime for f in adr_files)
+        base = Path(tmp_dir) if tmp_dir else Path(tempfile.gettempdir())
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        cache_path = base / f"zie-{safe_id}" / "adr-cache.json"
+        if not cache_path.exists():
+            return None
+        data = json.loads(cache_path.read_text())
+        if abs(data["mtime"] - current_max_mtime) > 0.001:
+            return None
+        return data["content"]
+    except Exception:
+        return None
+
+
+def write_adr_cache(
+    session_id: str,
+    content: str,
+    decisions_dir,
+    tmp_dir=None,
+) -> bool:
+    """Write ADR content to session cache keyed by max mtime of decisions_dir.
+
+    decisions_dir: Path or str pointing to zie-framework/decisions/.
+    tmp_dir: override tempfile.gettempdir() (test injection point).
+    Returns True on success, False if decisions_dir is empty/missing or write fails.
+    """
+    try:
+        decisions_path = Path(decisions_dir)
+        adr_files = list(decisions_path.glob("*.md"))
+        if not adr_files:
+            return False
+        max_mtime = max(f.stat().st_mtime for f in adr_files)
+        base = Path(tmp_dir) if tmp_dir else Path(tempfile.gettempdir())
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        cache_dir = base / f"zie-{safe_id}"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        cache_path = cache_dir / "adr-cache.json"
+        payload = json.dumps({"mtime": max_mtime, "content": content})
+        return safe_write_tmp(cache_path, payload)
+    except Exception:
+        return False
+
+
 def persistent_project_path(name: str, project: str) -> Path:
     """Return a project-scoped persistent path under CLAUDE_PLUGIN_DATA.
 
