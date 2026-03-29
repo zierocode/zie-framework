@@ -149,6 +149,17 @@ Learnings stored: <N memories>
 Next session: Run /zie-status to see current state.
 ```
 
+### Archive prune (post-release cleanup)
+
+Run archive TTL rotation — non-blocking (skip on failure):
+
+```bash
+make archive-prune || true
+```
+
+This removes `zie-framework/archive/` files older than 90 days.
+Guard: skips automatically when archive has fewer than 20 files.
+
 ### Suggest next
 
 After printing the retrospective summary, read `zie-framework/ROADMAP.md` and

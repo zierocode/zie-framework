@@ -19,5 +19,5 @@ def test_zie_release_word_count():
 
 
 def test_zie_retro_word_count():
-    """zie-retro.md must be ≤946 words (≥10% trim from 1051)."""
-    assert _word_count(COMMANDS / "zie-retro.md") <= 946
+    """zie-retro.md must be ≤983 words (archive-prune section added in archive-ttl-rotation)."""
+    assert _word_count(COMMANDS / "zie-retro.md") <= 983

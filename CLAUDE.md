@@ -61,6 +61,7 @@ make sync-version     # re-sync all version files to current VERSION
 make push m="msg"     # commit + push to dev
 make start            # open Claude with local plugin (ENV=dev)
 make setup            # install git hooks + python deps (run once)
+make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 files)
 ```
 
 ## Agent Mode Sessions

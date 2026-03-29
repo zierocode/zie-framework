@@ -132,6 +132,21 @@ archive-plans: ## Move plans older than 60 days to zie-framework/plans/archive/
 	  -mtime +60 -exec mv {} zie-framework/plans/archive/ \;
 	@echo "[zie-framework] Archived plans older than 60 days"
 
+.PHONY: archive-prune
+archive-prune: ## Prune archive/ files older than 90 days (guard: skips if < 20 total files)
+	@python3 -c "\
+import os, sys, time; \
+from pathlib import Path; \
+archive_root = Path('zie-framework/archive'); \
+subdirs = ('backlog', 'specs', 'plans'); \
+TTL = 90 * 86400; GUARD = 20; \
+all_md = [f for d in subdirs for f in (archive_root / d).glob('*.md') if archive_root.exists() and (archive_root / d).exists()]; \
+(not archive_root.exists()) and [print('[zie-framework] Archive prune: archive directory not found, skipping'), sys.exit(0)]; \
+len(all_md) < GUARD and [print(f'[zie-framework] Archive prune: archive too young ({len(all_md)} files), skipping prune'), sys.exit(0)]; \
+now = time.time(); removed = [0]; \
+[[f.unlink() or removed.__setitem__(0, removed[0] + 1) for f in (archive_root / d).glob('*.md') if (now - f.stat().st_mtime) > TTL] for d in subdirs if (archive_root / d).exists()]; \
+print(f'[zie-framework] Archive prune: removed {removed[0]} file(s)')"
+
 .PHONY: adr-count
 adr-count: ## Count ADR files in zie-framework/decisions/ (excludes ADR-000-summary.md)
 	@count=$$(ls zie-framework/decisions/ADR-*.md 2>/dev/null | grep -v ADR-000-summary | wc -l | tr -d ' '); echo $$count
