@@ -12,7 +12,7 @@
 - [x] pipeline-gate-enforcement — hooks enforce spec→plan→implement order — [plan](plans/2026-03-29-pipeline-gate-enforcement.md)
 - [x] adr-session-cache — session-scoped ADR cache, eliminate redundant reviewer loading — [plan](plans/2026-03-29-adr-session-cache.md)
 - [x] adr-auto-summarization — ADR context cap + auto-summarize in /zie-retro when count > 30 — [plan](plans/2026-03-29-adr-auto-summarization.md)
-- [ ] user-onboarding-sdlc — /zie-init pipeline orientation + SessionStart drift warning — [plan](plans/2026-03-29-user-onboarding-sdlc.md)
+- [x] user-onboarding-sdlc — /zie-init pipeline orientation + SessionStart drift warning — [plan](plans/2026-03-29-user-onboarding-sdlc.md)
 
 ---
 

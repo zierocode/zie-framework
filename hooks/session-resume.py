@@ -75,3 +75,19 @@ lines = [
 ]
 
 print("\n".join(lines))
+
+# Drift detection — call knowledge-hash.py --check
+try:
+    import subprocess as _sp
+    _kh_script = os.environ.get(
+        "ZIE_KNOWLEDGE_HASH_SCRIPT",
+        os.path.join(os.path.dirname(__file__), "knowledge-hash.py"),
+    )
+    _result = _sp.run(
+        [sys.executable, _kh_script, "--check", "--root", str(cwd)],
+        capture_output=True, text=True, timeout=10,
+    )
+    if _result.stdout.strip():
+        print(_result.stdout.strip())
+except Exception as e:
+    print(f"[zie-framework] session-resume: drift check failed: {e}", file=sys.stderr)

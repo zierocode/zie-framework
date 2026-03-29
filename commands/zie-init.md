@@ -331,6 +331,16 @@ then re-run /zie-init."`
 
    Next: Run /zie-status to see current state.
          Run /zie-backlog to start your first feature.
+
+   SDLC pipeline:
+     /zie-backlog → /zie-spec → /zie-plan → /zie-implement → /zie-release → /zie-retro
+   Each stage enforces quality gates. Run /zie-status to see where you are.
+   First feature: /zie-backlog "your idea"
+   ```
+
+   If migration ran in step 2.h, append:
+   ```text
+   Migration complete: <N> files moved to zie-framework/specs|plans|decisions/
    ```
 
 ## Notes
