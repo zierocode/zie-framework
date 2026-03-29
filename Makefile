@@ -9,6 +9,19 @@ help:
 	  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # ── Tests ─────────────────────────────────────────────────────────────────────
+test-fast: ## Fast TDD feedback — runs pytest on changed files only (+ --lf)
+	bash scripts/test_fast.sh
+
+# test-ci mirrors test-unit body for independent evolvability (CI alias)
+test-ci: ## Full test suite with coverage gate — use before commit and in CI
+	python3 -m coverage erase
+	COVERAGE_PROCESS_START=$(CURDIR)/.coveragerc \
+	    python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
+	python3 -m coverage combine 2>/dev/null || true
+	python3 -m coverage report --show-missing --fail-under=50
+	@pytest --collect-only -q -m error_path tests/unit/ 2>/dev/null \
+		| python3 tests/unit/scripts/check_error_path_coverage.py
+
 test-unit: ## Fast unit tests with subprocess coverage measurement
 	# REQUIRES: sitecustomize.py in venv for subprocess hook coverage.
 	# Without it, subprocess-spawned hooks show 0%. Run 'make coverage-smoke' to verify.

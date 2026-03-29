@@ -51,7 +51,9 @@ zie-framework/              # self-managed SDLC state (this repo uses itself)
 ## Development Commands
 
 ```bash
-make test-unit        # run unit tests (pytest + coverage)
+make test-fast        # fast TDD feedback — changed files + last-failed (use during RED/GREEN)
+make test-ci          # full suite with coverage gate — use before commit and in CI
+make test-unit        # run unit tests with subprocess coverage measurement
 make test-int         # run integration tests (require live Claude session — not in CI)
 make test             # full test suite (unit + integration + md lint)
 make bump NEW=x.y.z   # bump VERSION + plugin.json + PROJECT.md

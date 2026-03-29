@@ -24,6 +24,7 @@ skill — follow exactly.
    - Uses the simplest possible setup
 3. Run the test → it MUST fail. If it passes, the feature already exists — skip
    to next task.
+   Run: `make test-fast` — must FAIL
 4. Confirm you understand WHY it fails (not just that it fails).
 
 ### GREEN — ทำให้ test ผ่าน
@@ -32,15 +33,15 @@ skill — follow exactly.
    - No extra features
    - No optimization yet
    - Hardcoding is OK here if needed to get green
-2. Run the test → it MUST pass.
-3. Run the full unit suite → must not regress anything.
+2. Run: `make test-fast` — must PASS
+3. Run: `make test-fast` — must not regress anything.
 
 ### REFACTOR — ปรับปรุง code
 
 1. Remove duplication.
 2. Improve names (variables, functions, parameters).
 3. Simplify logic where obvious.
-4. Run tests again → must still pass.
+4. Run: `make test-ci` — must still pass (full suite).
 5. If refactor reveals a design problem → note it but don't fix it now (add to
    backlog).
 
