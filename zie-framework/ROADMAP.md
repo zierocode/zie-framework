@@ -10,8 +10,6 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [x] zie-audit-v2 — 7 dimensions + external research + inline synthesis + batch backlog
-
 ---
 
 ## Ready — Approved Plans
@@ -51,6 +49,8 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint6-audit-v2-portability — zie-audit v2 (7 dimensions + external research), 5 portability fixes (agents, safety hook, markdownlint, venv python, dev branch), plugin marketplace decoupling — v1.13.0 2026-03-30
 
 - [x] sprint5-pipeline-quality — 13 features: pipeline-gate-enforcement, adr-session-cache,
   adr-auto-summarization, user-onboarding-sdlc, retro-release-lean-context, hook-resilience-tests,
