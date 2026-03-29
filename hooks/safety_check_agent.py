@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
         cwd = get_cwd()
         config = load_config(cwd)
-        mode = config.get("safety_check_mode", "regex")
+        mode = config.get("safety_check_mode")
 
         if mode not in ("agent", "both"):
             sys.exit(0)  # defer to safety-check.py in regex mode

@@ -54,6 +54,16 @@ def validate_config(config: dict) -> dict:
     return result
 
 
+CONFIG_DEFAULTS: dict = {
+    "safety_check_mode": "regex",
+    "test_runner": "",
+    "auto_test_debounce_ms": 3000,
+    "auto_test_timeout_ms": 30000,
+    "test_indicators": "",
+    "project_type": "unknown",
+    "zie_memory_enabled": False,
+}
+
 SDLC_STAGES: list = [
     "init", "backlog", "spec", "plan",
     "implement", "fix", "release", "retro",
@@ -74,25 +84,12 @@ def parse_roadmap_section(roadmap_path, section_name: str) -> list:
 
     section_name is matched case-insensitively against ## headers.
     Returns [] if file missing, section absent, or section empty.
-    Accepts Path or str.
+    Accepts Path or str. Delegates to parse_roadmap_section_content.
     """
     path = Path(roadmap_path)
     if not path.exists():
         return []
-    lines = []
-    in_section = False
-    for line in path.read_text().splitlines():
-        if line.startswith("##") and section_name.lower() in line.lower():
-            in_section = True
-            continue
-        if line.startswith("##") and in_section:
-            break
-        if in_section and line.strip().startswith("- "):
-            clean = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', line.strip())
-            clean = clean.lstrip("- ").lstrip("[ ]").lstrip("[x]").strip()
-            if clean:
-                lines.append(clean)
-    return lines
+    return parse_roadmap_section_content(path.read_text(), section_name)
 
 
 def parse_roadmap_now(roadmap_path, warn_on_empty: bool = False) -> list:
@@ -422,7 +419,8 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
 def load_config(cwd: Path) -> dict:
     """Read zie-framework/.config as JSON and return a validated dict.
 
-    Always returns a fully-typed dict with all CONFIG_SCHEMA keys present.
+    Merges CONFIG_DEFAULTS first, then loaded values, then validates CONFIG_SCHEMA
+    keys for type safety. Always returns a fully-typed dict with all known keys.
     Absent file returns all defaults silently. Parse errors logged to stderr.
     """
     config_path = cwd / "zie-framework" / ".config"
@@ -430,12 +428,13 @@ def load_config(cwd: Path) -> dict:
         raw = json.loads(config_path.read_text())
         if not isinstance(raw, dict):
             raise TypeError(f"config must be a JSON object, got {type(raw).__name__}")
-        return validate_config(raw)
+        merged = {**CONFIG_DEFAULTS, **raw}
+        return validate_config(merged)
     except FileNotFoundError:
-        return validate_config({})
+        return validate_config(dict(CONFIG_DEFAULTS))
     except Exception as e:
         print(f"[zie-framework] config parse error: {e}", file=sys.stderr)
-        return validate_config({})
+        return validate_config(dict(CONFIG_DEFAULTS))
 
 
 def normalize_command(cmd: str) -> str:

@@ -77,7 +77,7 @@ if __name__ == "__main__":
     config = load_config(cwd)
 
     if not test_runner:
-        test_runner = config.get("test_runner", "")
+        test_runner = config.get("test_runner")
     if not test_runner:
         sys.exit(0)
 
@@ -99,9 +99,9 @@ if __name__ == "__main__":
         try:
             debounce_ms = int(_debounce_env)
         except (TypeError, ValueError):
-            debounce_ms = config.get("auto_test_debounce_ms", 3000)
+            debounce_ms = config.get("auto_test_debounce_ms")
     else:
-        debounce_ms = config.get("auto_test_debounce_ms", 3000)
+        debounce_ms = config.get("auto_test_debounce_ms")
     debounce_file = project_tmp_path("last-test", cwd.name)
     if debounce_ms > 0 and debounce_file.exists():
         last_run = debounce_file.stat().st_mtime

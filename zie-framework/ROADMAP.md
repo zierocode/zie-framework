@@ -18,6 +18,7 @@
 - [x] test-suite-tiering — make test-fast (dev loop) vs make test-ci (full suite) — [plan](plans/2026-03-29-test-suite-tiering.md)
 - [x] roadmap-done-compaction — auto-compact Done section when entries > 20 in /zie-retro — [plan](plans/2026-03-29-roadmap-done-compaction.md)
 - [x] hook-config-hardening — configurable timeouts, .config validation, bounded auto-test — [plan](plans/2026-03-29-hook-config-hardening.md)
+- [x] dry-utils-cleanup — consolidate parse_roadmap + centralize CONFIG_DEFAULTS — [plan](plans/2026-03-29-dry-utils-cleanup.md)
 
 ---
 
@@ -35,7 +36,6 @@
 - [ ] hook-resilience-tests — error path + edge case tests for all hooks — [plan](plans/2026-03-29-hook-resilience-tests.md)
 - [ ] test-suite-tiering — make test-fast (dev loop) vs make test-ci (full suite) — [plan](plans/2026-03-29-test-suite-tiering.md)
 <!-- LOW -->
-- [ ] dry-utils-cleanup — consolidate parse_roadmap + centralize CONFIG_DEFAULTS — [plan](plans/2026-03-29-dry-utils-cleanup.md)
 - [ ] zie-init-single-scan — unify Explore agent to single pass — [plan](plans/2026-03-29-zie-init-single-scan.md)
 - [ ] archive-ttl-rotation — make archive-prune, auto-run in /zie-retro, 90-day TTL — [plan](plans/2026-03-29-archive-ttl-rotation.md)
 - [ ] coverage-make-clean — add .coverage + htmlcov/ to make clean — [plan](plans/2026-03-29-coverage-make-clean.md)

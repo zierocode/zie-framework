@@ -28,8 +28,8 @@ if version_file.exists():
     version = version_file.read_text().strip()
 
 project_name = cwd.name
-project_type = config.get("project_type", "unknown")
-zie_memory = config.get("zie_memory_enabled", False)
+project_type = config.get("project_type")
+zie_memory = config.get("zie_memory_enabled")
 
 # Write config vars to CLAUDE_ENV_FILE (SessionStart env injection)
 _env_file_path = os.environ.get("CLAUDE_ENV_FILE", "").strip()
@@ -37,12 +37,12 @@ if _env_file_path:
     try:
         _debounce_ms = "3000"
         try:
-            _debounce_ms = str(int(config.get("auto_test_debounce_ms", 3000)))
+            _debounce_ms = str(int(config.get("auto_test_debounce_ms")))
         except (TypeError, ValueError):
             _debounce_ms = "3000"
         _env_lines = (
             f"export ZIE_PROJECT='{project_name}'\n"
-            f"export ZIE_TEST_RUNNER='{config.get('test_runner', '')}'\n"
+            f"export ZIE_TEST_RUNNER='{config.get('test_runner')}'\n"
             f"export ZIE_MEMORY_ENABLED='{'1' if zie_memory else '0'}'\n"
             f"export ZIE_AUTO_TEST_DEBOUNCE_MS='{_debounce_ms}'\n"
         )

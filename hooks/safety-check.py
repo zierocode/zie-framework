@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     cwd = get_cwd()
     config = load_config(cwd)
-    mode = config.get("safety_check_mode", "regex")
+    mode = config.get("safety_check_mode")
 
     if mode == "agent":
         sys.exit(0)  # defer entirely to safety-check-agent hook
