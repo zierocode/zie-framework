@@ -13,6 +13,7 @@
 - [x] adr-session-cache — session-scoped ADR cache, eliminate redundant reviewer loading — [plan](plans/2026-03-29-adr-session-cache.md)
 - [x] adr-auto-summarization — ADR context cap + auto-summarize in /zie-retro when count > 30 — [plan](plans/2026-03-29-adr-auto-summarization.md)
 - [x] user-onboarding-sdlc — /zie-init pipeline orientation + SessionStart drift warning — [plan](plans/2026-03-29-user-onboarding-sdlc.md)
+- [x] retro-release-lean-context — fix ROADMAP double-read in retro, remove blocking fallback in release — [plan](plans/2026-03-29-retro-release-lean-context.md)
 
 ---
 
@@ -27,7 +28,6 @@
 
 <!-- MEDIUM -->
 - [ ] user-onboarding-sdlc — /zie-init pipeline orientation + SessionStart drift warning — [plan](plans/2026-03-29-user-onboarding-sdlc.md)
-- [ ] retro-release-lean-context — fix ROADMAP double-read in retro, remove blocking fallback in release — [plan](plans/2026-03-29-retro-release-lean-context.md)
 - [ ] hook-resilience-tests — error path + edge case tests for all hooks — [plan](plans/2026-03-29-hook-resilience-tests.md)
 - [ ] test-suite-tiering — make test-fast (dev loop) vs make test-ci (full suite) — [plan](plans/2026-03-29-test-suite-tiering.md)
 - [ ] roadmap-done-compaction — auto-compact Done section when entries > 20 in /zie-retro — [plan](plans/2026-03-29-roadmap-done-compaction.md)

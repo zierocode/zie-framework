@@ -121,6 +121,12 @@ archive-plans: ## Move plans older than 60 days to zie-framework/plans/archive/
 adr-count: ## Count ADR files in zie-framework/decisions/ (excludes ADR-000-summary.md)
 	@count=$$(ls zie-framework/decisions/ADR-*.md 2>/dev/null | grep -v ADR-000-summary | wc -l | tr -d ' '); echo $$count
 
+.PHONY: docs-sync
+docs-sync: ## Run docs-sync-check manually (checks CLAUDE.md + README.md vs disk)
+	@echo "[zie-framework] docs-sync-check is a Claude skill — run inside a Claude session:"
+	@echo "  Skill(zie-framework:docs-sync-check)"
+	@echo "Or run /zie-retro which invokes it automatically."
+
 # ── Utilities ─────────────────────────────────────────────────────────────────
 clean: ## Remove cache files and build artifacts
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; \
