@@ -41,6 +41,10 @@ class TestSafetyCheckBlocks:
         assert r.returncode == 2
         assert "BLOCKED" in r.stdout
 
+    def test_git_push_origin_main_with_tags_is_allowed(self):
+        r = run_hook("Bash", "git push origin main --tags")
+        assert r.returncode == 0, "push origin main --tags must be allowed (used by make release)"
+
     def test_git_push_force_flag_is_blocked(self):
         r = run_hook("Bash", "git push --force origin dev")
         assert r.returncode == 2

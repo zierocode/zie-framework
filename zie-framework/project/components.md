@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-03-29 (v1.11.1)
+**Last updated:** 2026-03-30 (v1.12.0)
 
 ## Commands
 
@@ -57,7 +57,7 @@
 | stopfailure-log.py | StopFailure | capture API errors and rate-limit notifications to per-project tmp log |
 | subagent-stop.py | SubagentStop | capture subagent completion with ID; enables resume-by-ID pattern in same session |
 | task-completed-gate.py | TaskCompleted | block on failing tests; warn on uncommitted files at task completion |
-| utils.py | (shared library) | read_event(), get_cwd(), load_config() (JSON), parse_roadmap_now(), parse_roadmap_section(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write), normalize_command(), safe_project_name(), get_cached_git_status(session_id, key, ttl=5), write_git_status_cache(session_id, key, content), BLOCKS, WARNS, SDLC_STAGES |
+| utils.py | (shared library) | read_event(), get_cwd(), load_config() (JSON + validate_config, CONFIG_DEFAULTS, CONFIG_SCHEMA), parse_roadmap_now(), parse_roadmap_section(), parse_roadmap_ready(), compact_roadmap_done(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write), normalize_command(), safe_project_name(), get_cached_git_status(session_id, key, ttl=5), write_git_status_cache(session_id, key, content), get_cached_adrs(adr_dir, session_id) (mtime-keyed ADR cache), BLOCKS, WARNS, SDLC_STAGES |
 
 ## Agents
 
@@ -91,3 +91,4 @@ Scripts in `hooks/` that are not registered as hook event handlers.
 | Script | Purpose |
 | --- | --- |
 | `hooks/knowledge-hash.py` | Compute SHA-256 of project structure for drift detection. Called by `make resync` / `/zie-resync`. Not registered in hooks.json. |
+| `scripts/test_fast.sh` | Fast TDD feedback loop — runs pytest on changed files + `--lf`. Invoked by `make test-fast`. |

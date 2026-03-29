@@ -321,15 +321,28 @@ then re-run /zie-init."`
          make deploy ENV=prod  # deploy to prod
          ```
 
-10. **Install Markdown lint enforcement**:
+10. **Set up `dev` branch**:
+    - Run `git branch --list dev` to check if `dev` exists.
+    - If not: run `git checkout -b dev` to create it (or `git checkout dev` if
+      it exists on remote). `make release` requires the `dev` branch to exist.
+    - If already on `dev` or `dev` already exists: skip silently.
+
+11. **Install Markdown lint enforcement**:
     - Create `.markdownlint.json` at project root from
       `templates/markdownlint.json.template` — skip if already exists.
+    - Create `.markdownlintignore` at project root — skip if already exists.
+      Content:
+      ```
+      zie-framework/backlog/
+      zie-framework/specs/
+      zie-framework/plans/
+      ```
     - Create `.githooks/pre-commit` from
       `templates/githooks-pre-commit.template` — skip if already exists.
       Run `chmod +x .githooks/pre-commit` after.
     - Run `git config core.hooksPath .githooks` to activate the hook.
 
-11. **If `playwright_enabled=true`**:
+12. **If `playwright_enabled=true`**:
     - Check if `@playwright/test` in package.json devDependencies
     - If not: ask "Install @playwright/test? This will run npm install. (yes/no)"
       → If yes: `npm install --save-dev @playwright/test` +
@@ -338,13 +351,13 @@ then re-run /zie-init."`
     - Create `playwright.config.ts` from template if it doesn't exist
     - Create `tests/e2e/` directory with `fixtures.ts`
 
-12. **If `zie_memory_enabled=true`**:
+13. **If `zie_memory_enabled=true`**:
     - Store project bootstrap memory:
       Call `mcp__plugin_zie-memory_zie-memory__remember` with
       `"Project <name> initialized with zie-framework. Type: <project_type>. Stack: <tech_stack>. Test runner: <test_runner>."
       tags=[zie-framework, init, <project_name>]`
 
-13. **Print summary**:
+14. **Print summary**:
 
    ```text
    zie-framework initialized in <project>/

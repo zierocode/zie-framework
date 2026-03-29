@@ -22,9 +22,7 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [ ] user-onboarding-sdlc — /zie-init pipeline orientation + SessionStart drift warning — [plan](plans/2026-03-29-user-onboarding-sdlc.md)
-- [ ] hook-resilience-tests — error path + edge case tests for all hooks — [plan](plans/2026-03-29-hook-resilience-tests.md)
-- [ ] test-suite-tiering — make test-fast (dev loop) vs make test-ci (full suite) — [plan](plans/2026-03-29-test-suite-tiering.md)
+
 <!-- LOW -->
 
 ---

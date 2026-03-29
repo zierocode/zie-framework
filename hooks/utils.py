@@ -454,8 +454,8 @@ BLOCKS = [
     # Force push
     (r"git\s+push\s+.*--force\b", "Force push blocked — use 'git push' normally or ask Zie explicitly"),
     (r"git\s+push\s+.*-f\b", "Force push blocked — use 'git push' normally"),
-    (r"git\s+push\s+.*origin\s+main\b", "Direct push to main blocked — use 'make ship' instead"),
-    (r"git\s+push\s+.*origin\s+master\b", "Direct push to master blocked — use 'make ship' instead"),
+    (r"git\s+push\b(?!.*--tags).*\borigin\s+main\b", "Direct push to main blocked — use 'make release NEW=x.y.z' instead"),
+    (r"git\s+push\b(?!.*--tags).*\borigin\s+master\b", "Direct push to master blocked — use 'make release NEW=x.y.z' instead"),
     # Hard reset
     (r"git\s+reset\s+--hard\b", "git reset --hard blocked — this discards uncommitted work. Use 'git stash' instead"),
     # Skip hooks
