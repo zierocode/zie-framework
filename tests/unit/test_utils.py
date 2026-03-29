@@ -12,7 +12,7 @@ sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
 import json
 from unittest.mock import patch
-from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd, parse_roadmap_section, get_cached_roadmap, write_roadmap_cache
+from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd, parse_roadmap_section, get_cached_roadmap, write_roadmap_cache, validate_config, load_config
 
 
 class TestParseRoadmapNow:
@@ -569,6 +569,21 @@ class TestParseRoadmapSection:
         f.write_text("## Now\n- [ ] now item\n## Next\n- [ ] next item\n")
         assert parse_roadmap_now(f) == ["now item"]
 
+    def test_parse_roadmap_section_delegates_to_content(self, tmp_path, monkeypatch):
+        """parse_roadmap_section must call parse_roadmap_section_content, not re-implement."""
+        import utils as utils_module
+        f = tmp_path / "ROADMAP.md"
+        f.write_text("## Alpha\n- [ ] task one\n")
+        calls = []
+        original = utils_module.parse_roadmap_section_content
+        def spy(content, section_name):
+            calls.append((content, section_name))
+            return original(content, section_name)
+        monkeypatch.setattr(utils_module, "parse_roadmap_section_content", spy)
+        result = parse_roadmap_section(f, "alpha")
+        assert result == ["task one"]
+        assert len(calls) == 1, "parse_roadmap_section must delegate to parse_roadmap_section_content"
+
 
 class TestReadEvent:
     def test_valid_json_returns_dict(self):
@@ -602,24 +617,26 @@ class TestLoadConfig:
         result = load_config(tmp_path)
         assert result.get("safety_check_mode") == "agent"
 
-    def test_returns_empty_dict_when_no_config(self, tmp_path):
+    def test_returns_defaults_when_no_config(self, tmp_path):
         from utils import load_config
-        assert load_config(tmp_path) == {}
+        result = load_config(tmp_path)
+        assert result["subprocess_timeout_s"] == 5
 
-    def test_returns_empty_on_invalid_json(self, tmp_path):
+    def test_returns_defaults_on_invalid_json(self, tmp_path):
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text("not valid json")
         from utils import load_config
         result = load_config(tmp_path)
-        assert result == {}
+        assert result["subprocess_timeout_s"] == 5
 
-    def test_returns_empty_on_empty_file(self, tmp_path):
+    def test_returns_defaults_on_empty_file(self, tmp_path):
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text("")
         from utils import load_config
-        assert load_config(tmp_path) == {}
+        result = load_config(tmp_path)
+        assert result["subprocess_timeout_s"] == 5
 
     def test_boolean_value_preserved(self, tmp_path):
         zf = tmp_path / "zie-framework"
@@ -947,3 +964,115 @@ class TestGitStatusCache:
         monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
         result = get_cached_git_status("nonexistent-sid-xyz", "log", ttl=60)
         assert result is None
+
+
+class TestValidateConfig:
+    def test_empty_dict_returns_all_defaults(self):
+        result = validate_config({})
+        assert result["subprocess_timeout_s"] == 5
+        assert result["safety_agent_timeout_s"] == 30
+        assert result["auto_test_max_wait_s"] == 15
+        assert result["auto_test_timeout_ms"] == 30000
+
+    def test_valid_values_preserved(self):
+        result = validate_config({"subprocess_timeout_s": 10})
+        assert result["subprocess_timeout_s"] == 10
+        assert result["safety_agent_timeout_s"] == 30
+
+    def test_wrong_type_replaced_with_default(self, capsys):
+        result = validate_config({"subprocess_timeout_s": "fast"})
+        assert result["subprocess_timeout_s"] == 5
+        captured = capsys.readouterr()
+        assert "defaulted keys" in captured.err
+        assert "subprocess_timeout_s" in captured.err
+
+    def test_warning_lists_all_defaulted_keys(self, capsys):
+        validate_config({"subprocess_timeout_s": "x", "safety_agent_timeout_s": "y"})
+        captured = capsys.readouterr()
+        assert "subprocess_timeout_s" in captured.err
+        assert "safety_agent_timeout_s" in captured.err
+
+    def test_none_treated_as_empty_dict(self):
+        result = validate_config(None)
+        assert result["subprocess_timeout_s"] == 5
+
+    def test_no_warning_on_full_valid_config(self, capsys):
+        validate_config({
+            "subprocess_timeout_s": 5,
+            "safety_agent_timeout_s": 30,
+            "auto_test_max_wait_s": 15,
+            "auto_test_timeout_ms": 30000,
+        })
+        captured = capsys.readouterr()
+        assert "defaulted" not in captured.err
+
+    def test_no_warning_on_empty_dict(self, capsys):
+        validate_config({})
+        captured = capsys.readouterr()
+        assert "defaulted" not in captured.err
+
+    def test_load_config_returns_fully_typed_dict(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('{"subprocess_timeout_s": 10}')
+        result = load_config(tmp_path)
+        assert result["safety_agent_timeout_s"] == 30
+        assert result["subprocess_timeout_s"] == 10
+
+    def test_load_config_missing_file_returns_defaults(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        result = load_config(tmp_path)
+        assert result["subprocess_timeout_s"] == 5
+
+    def test_load_config_json_array_returns_defaults(self, tmp_path, capsys):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('[1, 2, 3]')
+        result = load_config(tmp_path)
+        assert result["subprocess_timeout_s"] == 5
+        captured = capsys.readouterr()
+        assert "config parse error" in captured.err
+
+
+class TestConfigDefaults:
+    def test_config_defaults_has_all_required_keys(self):
+        from utils import CONFIG_DEFAULTS
+        required = {
+            "safety_check_mode", "test_runner", "auto_test_debounce_ms",
+            "auto_test_timeout_ms", "test_indicators", "project_type", "zie_memory_enabled",
+        }
+        assert required <= set(CONFIG_DEFAULTS.keys())
+
+    def test_config_defaults_correct_types(self):
+        from utils import CONFIG_DEFAULTS
+        assert isinstance(CONFIG_DEFAULTS["safety_check_mode"], str)
+        assert isinstance(CONFIG_DEFAULTS["test_runner"], str)
+        assert isinstance(CONFIG_DEFAULTS["auto_test_debounce_ms"], int)
+        assert isinstance(CONFIG_DEFAULTS["auto_test_timeout_ms"], int)
+        assert isinstance(CONFIG_DEFAULTS["test_indicators"], str)
+        assert isinstance(CONFIG_DEFAULTS["project_type"], str)
+        assert isinstance(CONFIG_DEFAULTS["zie_memory_enabled"], bool)
+
+    def test_load_config_includes_config_defaults_keys(self, tmp_path):
+        from utils import load_config, CONFIG_DEFAULTS
+        result = load_config(tmp_path)
+        for key in CONFIG_DEFAULTS:
+            assert key in result, f"load_config result must include CONFIG_DEFAULTS key: {key}"
+
+    def test_loaded_values_override_defaults(self, tmp_path):
+        from utils import load_config, CONFIG_DEFAULTS
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('{"safety_check_mode": "agent", "auto_test_debounce_ms": 500}')
+        result = load_config(tmp_path)
+        assert result["safety_check_mode"] == "agent"
+        assert result["auto_test_debounce_ms"] == 500
+        assert result["test_runner"] == CONFIG_DEFAULTS["test_runner"]
+        assert result["zie_memory_enabled"] == CONFIG_DEFAULTS["zie_memory_enabled"]
+
+    def test_config_defaults_not_mutated_by_load_config(self, tmp_path):
+        from utils import load_config, CONFIG_DEFAULTS
+        original = dict(CONFIG_DEFAULTS)
+        load_config(tmp_path)
+        assert CONFIG_DEFAULTS == original

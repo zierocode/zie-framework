@@ -51,7 +51,9 @@ zie-framework/              # self-managed SDLC state (this repo uses itself)
 ## Development Commands
 
 ```bash
-make test-unit        # run unit tests (pytest + coverage)
+make test-fast        # fast TDD feedback — changed files + last-failed (use during RED/GREEN)
+make test-ci          # full suite with coverage gate — use before commit and in CI
+make test-unit        # run unit tests with subprocess coverage measurement
 make test-int         # run integration tests (require live Claude session — not in CI)
 make test             # full test suite (unit + integration + md lint)
 make bump NEW=x.y.z   # bump VERSION + plugin.json + PROJECT.md
@@ -59,6 +61,7 @@ make sync-version     # re-sync all version files to current VERSION
 make push m="msg"     # commit + push to dev
 make start            # open Claude with local plugin (ENV=dev)
 make setup            # install git hooks + python deps (run once)
+make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 files)
 ```
 
 ## Agent Mode Sessions
@@ -88,6 +91,10 @@ Optional keys in `zie-framework/.config` (JSON):
 | Key | Default | Values | Description |
 | --- | --- | --- | --- |
 | `safety_check_mode` | `"regex"` | `"regex"`, `"agent"`, `"both"` | Controls `safety_check_agent.py`. `"regex"` — fast pattern matching only, no subprocess spawned. `"agent"` — spawns a Claude subagent on every Bash call to evaluate safety. `"both"` — runs regex first, then agent. Use `"regex"` unless you need AI-level judgment on commands. |
+| `subprocess_timeout_s` | `5` | `int` | Timeout (s) for `git` subprocess calls in `failure-context.py` and `stop-guard.py`. |
+| `safety_agent_timeout_s` | `30` | `int` | Timeout (s) for the Claude subagent subprocess in `safety_check_agent.py`. |
+| `auto_test_max_wait_s` | `15` | `int` | Wall-clock kill limit (s) for `auto-test.py`. Set to `0` to disable (falls back to `auto_test_timeout_ms`). |
+| `auto_test_timeout_ms` | `30000` | `int` | Fallback subprocess timeout (ms) for `auto-test.py` when `auto_test_max_wait_s` is `0`. |
 
 ## Hook Error Handling Convention
 

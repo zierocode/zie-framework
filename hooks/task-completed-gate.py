@@ -33,7 +33,7 @@ def _load_test_indicators(cwd: Path) -> tuple:
     NOTE: load_config() parses JSON. Comma-split on a string value works correctly.
     """
     config = load_config(cwd)
-    raw = config.get("test_indicators", "")
+    raw = config.get("test_indicators")
     if raw:
         return tuple(s.strip() for s in raw.split(",") if s.strip())
     return _DEFAULT_TEST_INDICATORS

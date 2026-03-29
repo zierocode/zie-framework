@@ -44,9 +44,13 @@ Recent activity window:
      `agent_type`. Print table: Type | Count | Last Agent ID | Last Message.
    - If file does not exist or `FileNotFoundError`: print
      "No subagent activity recorded this session." and continue.
-   - If a line fails JSON parse: skip it silently (partial log is still useful).
+   - If a line fails JSON parse: skip silently.
 
 3. Count ADR files in `zie-framework/decisions/` → get next ADR number.
+
+4. **ADR auto-summarization** — if count > 30: keep 10 most-recent;
+   `generate_summary_table(to_compress)` → write `decisions/ADR-000-summary.md`,
+   delete compressed files. ≤30 → skip.
 
 ### สร้าง compact summary
 
@@ -58,7 +62,7 @@ Build compact JSON bundle for retro-format fork:
   "commits_since_tag": "<count from git log>",
   "pain_points": [],
   "decisions": [],
-  "roadmap_done_tail": "<last 5 lines of Done section>"
+  "done_section_current": "<Done section text — pre-extracted for agents>"
 }
 ```
 
@@ -100,14 +104,14 @@ Print: "Running retro-format and docs-sync-check in background. Use /tasks to se
 
 ### บันทึก ADRs + อัปเดต ROADMAP (parallel)
 
-Launch both as parallel Agent calls — two Agent tool uses in one message. ADR files and ROADMAP.md are different paths, no write conflict:
+Launch both as parallel Agent calls — two Agent tool uses in one message. No write conflict (different paths):
 
-1. `Agent(subagent_type="zie-framework:retro-format", run_in_background=True, prompt="Write ADRs for decisions: {decisions_json}. Next ADR number: {next_adr_n}. Write each to zie-framework/decisions/ADR-<NNN>-<slug>.md")` — creates ADR files, printing `[ADR N/total]` for each
-2. `Agent(subagent_type="zie-framework:retro-format", run_in_background=True, prompt="Update ROADMAP Done section for shipped items: {shipped_items}. File: zie-framework/ROADMAP.md")` — updates Done lane in `zie-framework/ROADMAP.md`
+1. `Agent(subagent_type="zie-framework:retro-format", run_in_background=True, prompt="Write ADRs: {decisions_json}. Next ADR: {next_adr_n}. Path: zie-framework/decisions/ADR-<NNN>-<slug>.md. Done context: {done_section_current}")` — creates ADR files, printing `[ADR N/total]` for each
+2. `Agent(subagent_type="zie-framework:retro-format", run_in_background=True, prompt="Update ROADMAP Done section: {shipped_items}. Done context: {done_section_current}. File: zie-framework/ROADMAP.md. Re-read file before writing; replace ## Done block to next --- (or EOF).")` — updates Done lane in `zie-framework/ROADMAP.md`
 
 Await both. Then proceed to brain store.
 
-**Failure mode:** If either Agent call fails → skip brain store entirely. Do not retry.
+**Failure mode:** If either Agent fails → skip brain store. Do not retry.
 
 <!-- fallback: if Agent tool unavailable, run ADR write and ROADMAP update inline (blocking, sequential). ADR format: see zie-framework/decisions/ for examples. Only create for decisions with lasting consequences. ROADMAP: move shipped items to Done with date; if standalone ask Zie to re-prioritize Next. -->
 
@@ -115,9 +119,9 @@ Await both. Then proceed to brain store.
 
 Print: "Updating knowledge docs..."
 
-- ถ้า `zie-framework/project/` ไม่มี → skip + note "run /zie-resync to generate them"
-- อ่าน `zie-framework/project/components.md` → อัปเดต components ที่เปลี่ยน behavior
-- ถ้า architecture เปลี่ยน → อัปเดต `zie-framework/project/architecture.md`
+- ถ้า `project/` ไม่มี → skip + note "run /zie-resync to generate them"
+- อ่าน `project/components.md` → อัปเดต components ที่เปลี่ยน behavior
+- ถ้า architecture เปลี่ยน → อัปเดต `project/architecture.md`
 
 ### บันทึกสู่ brain
 
@@ -144,6 +148,17 @@ Learnings stored: <N memories>
 
 Next session: Run /zie-status to see current state.
 ```
+
+### Archive prune (post-release cleanup)
+
+Run archive TTL rotation — non-blocking (skip on failure):
+
+```bash
+make archive-prune || true
+```
+
+This removes `zie-framework/archive/` files older than 90 days.
+Guard: skips automatically when archive has fewer than 20 files.
 
 ### Suggest next
 

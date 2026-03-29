@@ -36,3 +36,12 @@ def test_retro_failure_mode_documented():
     assert "fail" in text.lower() or "fallback" in text.lower(), (
         "zie-retro.md must document failure handling for parallel agents"
     )
+
+
+class TestRetroLeanContextExtension:
+    def test_retro_compact_bundle_has_done_section_current(self):
+        """Compact bundle must include done_section_current for lean agent context."""
+        text = RETRO_MD.read_text()
+        assert "done_section_current" in text, (
+            "zie-retro.md compact JSON bundle must include 'done_section_current'"
+        )

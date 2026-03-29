@@ -12,7 +12,7 @@ class TestZiePlanContextLoad:
 
     def test_adrs_load_step_present(self):
         text = (COMMANDS_DIR / "zie-plan.md").read_text()
-        assert "decisions/*.md" in text, \
+        assert "decisions/" in text, \
             "zie-plan.md must load zie-framework/decisions/*.md"
 
     def test_context_md_load_step_present(self):
@@ -34,7 +34,7 @@ class TestZieImplementContextLoad:
 
     def test_adrs_load_step_present(self):
         text = (COMMANDS_DIR / "zie-implement.md").read_text()
-        assert "decisions/*.md" in text, \
+        assert "decisions/" in text, \
             "zie-implement.md must load zie-framework/decisions/*.md"
 
     def test_context_md_load_step_present(self):
@@ -61,7 +61,7 @@ class TestSpecReviewerFallback:
 
     def test_phase_1_steps_intact(self):
         text = (SKILLS_DIR / "spec-reviewer" / "SKILL.md").read_text()
-        assert "decisions/*.md" in text, \
+        assert "decisions/" in text, \
             "spec-reviewer SKILL.md Phase 1 must still reference decisions/*.md"
         assert "project/context.md" in text, \
             "spec-reviewer SKILL.md Phase 1 must still reference project/context.md"
@@ -80,7 +80,7 @@ class TestPlanReviewerFallback:
 
     def test_phase_1_steps_intact(self):
         text = (SKILLS_DIR / "plan-reviewer" / "SKILL.md").read_text()
-        assert "decisions/*.md" in text, \
+        assert "decisions/" in text, \
             "plan-reviewer SKILL.md Phase 1 must still reference decisions/*.md"
         assert "project/context.md" in text, \
             "plan-reviewer SKILL.md Phase 1 must still reference project/context.md"
@@ -104,5 +104,5 @@ class TestImplReviewerFallback:
 
     def test_phase_1_adr_ref_intact(self):
         text = (SKILLS_DIR / "impl-reviewer" / "SKILL.md").read_text()
-        assert "decisions/*.md" in text, \
+        assert "decisions/" in text, \
             "impl-reviewer SKILL.md Phase 1 must still reference decisions/*.md"

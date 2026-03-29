@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event, get_cwd, parse_roadmap_section_content, read_roadmap_cached, get_cached_git_status, write_git_status_cache
+from utils import read_event, get_cwd, load_config, parse_roadmap_section_content, read_roadmap_cached, get_cached_git_status, write_git_status_cache
 
 ALLOWED_TOOLS = {"Bash", "Write", "Edit"}
 
@@ -32,6 +32,8 @@ except Exception:
 
 try:
     cwd = get_cwd()
+    config = load_config(cwd)
+    subprocess_timeout = config["subprocess_timeout_s"]
     session_id = event.get("session_id", "default")
 
     # ROADMAP Now lane (via session cache)
@@ -51,7 +53,7 @@ try:
         else:
             log_result = subprocess.run(
                 ["git", "log", "-1", "--pretty=%h %s"],
-                capture_output=True, text=True, cwd=str(cwd), timeout=5,
+                capture_output=True, text=True, cwd=str(cwd), timeout=subprocess_timeout,
             )
             last_commit = (
                 log_result.stdout.strip()
@@ -71,7 +73,7 @@ try:
         else:
             branch_result = subprocess.run(
                 ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-                capture_output=True, text=True, cwd=str(cwd), timeout=5,
+                capture_output=True, text=True, cwd=str(cwd), timeout=subprocess_timeout,
             )
             branch = (
                 branch_result.stdout.strip()

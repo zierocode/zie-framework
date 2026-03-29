@@ -33,13 +33,13 @@ def test_load_config_malformed_json_returns_empty(tmp_path, capsys):
     config_dir.mkdir()
     (config_dir / ".config").write_text("{invalid json}")
     result = load_config(tmp_path)
-    assert result == {}
+    assert result["subprocess_timeout_s"] == 5  # defaults filled in
     captured = capsys.readouterr()
     assert "[zie-framework] config parse error:" in captured.err
 
 def test_load_config_missing_file_no_stderr(tmp_path, capsys):
     result = load_config(tmp_path)
-    assert result == {}
+    assert result["subprocess_timeout_s"] == 5  # defaults filled in
     captured = capsys.readouterr()
     assert captured.err == ""  # no error for missing file (expected state)
 
@@ -48,4 +48,5 @@ def test_load_config_valid_json(tmp_path):
     config_dir.mkdir()
     (config_dir / ".config").write_text('{"test_runner": "pytest"}')
     result = load_config(tmp_path)
-    assert result == {"test_runner": "pytest"}
+    assert result["test_runner"] == "pytest"
+    assert result["subprocess_timeout_s"] == 5  # defaults also present

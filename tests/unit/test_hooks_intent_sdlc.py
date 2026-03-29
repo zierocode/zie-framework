@@ -129,3 +129,206 @@ class TestIntentSdlcRoadmapCache:
         assert r.returncode == 0
         ctx = json.loads(r.stdout)["additionalContext"]
         assert "disk-feature" in ctx or "implement" in ctx.lower()
+
+
+class TestPipelineGates:
+    """Gate enforcement: plan intent + no approved spec → ⛔; implement + no Now item → ⛔."""
+
+    def _ctx(self, r):
+        assert r.returncode == 0
+        assert r.stdout.strip() != ""
+        return json.loads(r.stdout)["additionalContext"]
+
+    def _make_spec(self, specs_dir, slug, approved=True):
+        specs_dir.mkdir(parents=True, exist_ok=True)
+        content = f"---\napproved: {'true' if approved else 'false'}\n---\n# Spec\n"
+        (specs_dir / f"2026-01-01-{slug}-design.md").write_text(content)
+
+    def test_plan_intent_no_spec_blocks(self, tmp_path):
+        roadmap = "## Now\n\n## Next\n- [ ] my-feature — spec\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        r = run_hook({"prompt": "let's plan my-feature"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "⛔" in ctx
+        assert "my-feature" in ctx
+
+    def test_plan_intent_approved_spec_passes(self, tmp_path):
+        roadmap = "## Now\n\n## Next\n- [ ] my-feature — spec\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        self._make_spec(cwd / "zie-framework" / "specs", "my-feature", approved=True)
+        r = run_hook({"prompt": "let's plan my-feature"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "⛔" not in ctx
+
+    def test_plan_intent_draft_spec_blocks(self, tmp_path):
+        roadmap = "## Now\n\n## Next\n- [ ] my-feature — spec\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        self._make_spec(cwd / "zie-framework" / "specs", "my-feature", approved=False)
+        r = run_hook({"prompt": "let's plan my-feature"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "⛔" in ctx
+
+    def test_plan_intent_no_roadmap_slug_no_gate(self, tmp_path):
+        roadmap = "## Now\n\n## Next\n- [ ] my-feature — spec\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        r = run_hook({"prompt": "ready to plan"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "⛔" not in ctx
+
+    def test_plan_intent_multiple_slugs_any_missing_blocks(self, tmp_path):
+        roadmap = (
+            "## Now\n\n"
+            "## Next\n- [ ] feat-a — spec\n- [ ] feat-b — spec\n\n"
+            "## Ready\n"
+        )
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        self._make_spec(cwd / "zie-framework" / "specs", "feat-a", approved=True)
+        r = run_hook({"prompt": "plan feat-a and feat-b together"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "⛔" in ctx
+        assert "feat-b" in ctx
+
+    def test_plan_false_positive_generic_phrase(self, tmp_path):
+        roadmap = "## Now\n\n## Next\n- [ ] my-feature — spec\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        r = run_hook({"prompt": "plan this design pattern for our api"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "⛔" not in ctx
+
+    def test_implement_intent_no_now_item_blocks(self, tmp_path):
+        roadmap = "## Now\n\n## Next\n- [ ] my-feature — plan\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        r = run_hook({"prompt": "let's start coding now"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "⛔" in ctx
+
+    def test_implement_intent_all_done_now_blocks(self, tmp_path):
+        roadmap = "## Now\n- [x] my-feature — implement\n\n## Next\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        r = run_hook({"prompt": "continue implementing"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "⛔" in ctx
+
+    def test_implement_intent_active_now_passes(self, tmp_path):
+        roadmap = "## Now\n- [ ] my-feature — implement\n\n## Next\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        r = run_hook({"prompt": "let's implement the next task"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "⛔" not in ctx
+
+
+class TestHelperFunctions:
+    """Unit tests for _extract_roadmap_slugs and _spec_approved."""
+
+    @classmethod
+    def setup_class(cls):
+        path = os.path.join(REPO_ROOT, "hooks", "intent-sdlc.py")
+        source = open(path).read()
+        stop_marker = "# ── Outer guard"
+        idx = source.find(stop_marker)
+        safe_src = source[:idx] if idx != -1 else source
+        ns: dict = {"__file__": path}
+        exec(compile(safe_src, path, "exec"), ns)  # noqa: S102
+        cls.extract = staticmethod(ns["_extract_roadmap_slugs"])
+        cls.spec_approved = staticmethod(ns["_spec_approved"])
+
+    def test_extract_slugs_from_next(self):
+        content = "## Next\n- [ ] cool-feature — spec\n- [ ] auth-login — plan\n"
+        slugs = self.extract(content)
+        assert "cool-feature" in slugs
+        assert "auth-login" in slugs
+
+    def test_extract_slugs_from_ready(self):
+        content = "## Ready\n- [ ] pipeline-gate — plan ✓\n"
+        slugs = self.extract(content)
+        assert "pipeline-gate" in slugs
+
+    def test_extract_slugs_excludes_now(self):
+        content = "## Now\n- [ ] now-feature — implement\n\n## Next\n- [ ] next-feature — spec\n"
+        slugs = self.extract(content)
+        assert "now-feature" not in slugs
+        assert "next-feature" in slugs
+
+    def test_extract_slugs_deduplicates(self):
+        content = "## Next\n- [ ] cool-feature — spec\n- [ ] cool-feature — plan\n"
+        slugs = self.extract(content)
+        assert slugs.count("cool-feature") == 1
+
+    def test_extract_slugs_ignores_single_words(self):
+        content = "## Next\n- [ ] spec\n- [ ] plan\n"
+        slugs = self.extract(content)
+        assert "spec" not in slugs
+        assert "plan" not in slugs
+
+    def test_spec_approved_true(self, tmp_path):
+        specs = tmp_path / "zie-framework" / "specs"
+        specs.mkdir(parents=True)
+        (specs / "2026-01-01-my-feat-design.md").write_text(
+            "---\napproved: true\n---\n# Spec\n"
+        )
+        assert self.spec_approved(tmp_path, "my-feat") is True
+
+    def test_spec_approved_false_flag(self, tmp_path):
+        specs = tmp_path / "zie-framework" / "specs"
+        specs.mkdir(parents=True)
+        (specs / "2026-01-01-my-feat-design.md").write_text(
+            "---\napproved: false\n---\n# Spec\n"
+        )
+        assert self.spec_approved(tmp_path, "my-feat") is False
+
+    def test_spec_approved_missing_file(self, tmp_path):
+        (tmp_path / "zie-framework" / "specs").mkdir(parents=True)
+        assert self.spec_approved(tmp_path, "missing-feat") is False
+
+    def test_spec_approved_no_specs_dir(self, tmp_path):
+        (tmp_path / "zie-framework").mkdir(parents=True)
+        assert self.spec_approved(tmp_path, "any-feat") is False
+
+
+class TestPositionalGuidance:
+    """Positional guidance nudges when no dominant intent and slug matched."""
+
+    def _ctx(self, r):
+        assert r.returncode == 0
+        assert r.stdout.strip() != ""
+        return json.loads(r.stdout)["additionalContext"]
+
+    def _make_spec(self, specs_dir, slug, approved=True):
+        specs_dir.mkdir(parents=True, exist_ok=True)
+        content = f"---\napproved: {'true' if approved else 'false'}\n---\n# Spec\n"
+        (specs_dir / f"2026-01-01-{slug}-design.md").write_text(content)
+
+    def test_no_spec_nudges_zie_spec(self, tmp_path):
+        roadmap = "## Now\n\n## Next\n- [ ] auth-login — backlog\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        r = run_hook({"prompt": "what about auth-login"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "zie-spec" in ctx
+
+    def test_approved_spec_no_ready_nudges_zie_plan(self, tmp_path):
+        roadmap = "## Now\n\n## Next\n- [ ] auth-login — spec\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        self._make_spec(cwd / "zie-framework" / "specs", "auth-login", approved=True)
+        r = run_hook({"prompt": "what about auth-login"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "zie-plan" in ctx
+
+    def test_slug_in_ready_nudges_zie_implement(self, tmp_path):
+        roadmap = (
+            "## Now\n\n"
+            "## Next\n\n"
+            "## Ready\n- [ ] auth-login — plan ✓\n"
+        )
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        self._make_spec(cwd / "zie-framework" / "specs", "auth-login", approved=True)
+        r = run_hook({"prompt": "what about auth-login"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "zie-implement" in ctx
+
+    def test_no_slug_in_prompt_no_guidance(self, tmp_path):
+        roadmap = "## Now\n\n## Next\n- [ ] auth-login — backlog\n\n## Ready\n"
+        cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
+        r = run_hook({"prompt": "what should I do next"}, tmp_cwd=cwd)
+        if r.stdout.strip():
+            ctx = json.loads(r.stdout)["additionalContext"]
+            assert "auth-login" not in ctx

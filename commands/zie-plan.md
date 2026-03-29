@@ -32,6 +32,21 @@ before building. Supports multiple items in parallel.
      Run /zie-spec SLUG first." STOP.
    - Ask: "Which items to plan? Enter numbers (e.g. 1, 3)"
 
+## ตรวจสอบ spec ก่อน plan (ทุก slug)
+
+For each resolved slug (whether from args or from no-args selection):
+
+1. Glob `zie-framework/specs/*-<slug>-design.md`.
+   - If no file found → print:
+     `⛔ No spec found for '<slug>'. Run /zie-spec <slug> first.`
+     STOP — do not proceed with this slug.
+   - If file found → read frontmatter.
+2. Check `approved: true` in frontmatter.
+   - If `approved: false` or key absent → print:
+     `⛔ Spec exists but not approved. Complete /zie-spec <slug> review first.`
+     STOP — do not proceed with this slug.
+   - If `approved: true` → gate passes, continue.
+
 ## ร่าง plan สำหรับ slug ที่เลือก
 
 1. If `zie_memory_enabled=true` — READ (1 batch query per slug):

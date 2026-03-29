@@ -80,6 +80,24 @@ then re-run /zie-init."`
         `.next/`, `__pycache__/`, `*.pyc`, `coverage/`,
         `zie-framework/`
       - Return: structured markdown report (not the final docs)
+      - Additionally, detect migratable documentation: list all files
+        matching `**/specs/*.md`, `**/spec/*.md`, `**/plans/*.md`,
+        `**/plan/*.md`, `**/decisions/*.md`, `**/adr/*.md`,
+        `ADR-*.md` (at project root), `**/backlog/*.md` —
+        exclude any files already inside `zie-framework/`.
+        Return these as a `migratable_docs` object in the report with
+        keys `specs`, `plans`, `decisions`, `backlog` (each an array
+        of relative file paths). Example:
+        ```json
+        {
+          "migratable_docs": {
+            "specs": ["docs/specs/foo.md"],
+            "plans": [],
+            "decisions": ["docs/adr-001.md"],
+            "backlog": []
+          }
+        }
+        ```
 
    b. Read Agent report and draft all four knowledge files:
       - `zie-framework/PROJECT.md`
@@ -128,39 +146,53 @@ then re-run /zie-init."`
       }
       ```
 
-   h. **Detect migratable documentation** — scan project root
-      (excluding `zie-framework/`, `node_modules/`, `.git/`) for
-      files matching these patterns:
+   h. **Present migratable documentation** — parse `migratable_docs`
+      from the Explore agent report produced in step 2a:
 
-      | Pattern | Destination |
-      | --- | --- |
-      | `**/specs/*.md`, `**/spec/*.md` | `zie-framework/specs/` |
-      | `**/plans/*.md`, `**/plan/*.md` | `zie-framework/plans/` |
-      | `**/decisions/*.md`, `**/adr/*.md` | `zie-framework/decisions/` |
-      | `ADR-*.md` (at project root) | `zie-framework/decisions/` |
+      - If `migratable_docs` key is missing or all arrays are empty →
+        skip silently.
+      - If agent returned malformed JSON or omitted `migratable_docs` →
+        warn: "Could not detect migratable docs from agent report" then
+        skip (no error, continue to step 3).
+      - If agent timed out before completing → warn: "Agent scan
+        incomplete, skipping migration detection" then skip.
+      - Otherwise: map each path to its destination using the same
+        destination table as before:
 
-      Skip always: `README.md`, `CHANGELOG.md`, `LICENSE*`,
-      `CLAUDE.md`, `AGENTS.md`, files already inside
-      `zie-framework/`, and any `docs/` tree that contains
-      `index.md` or `_sidebar.md` at its root (public doc site).
+        | Source key | Destination |
+        | --- | --- |
+        | `specs` | `zie-framework/specs/` |
+        | `plans` | `zie-framework/plans/` |
+        | `decisions` | `zie-framework/decisions/` |
+        | `backlog` | `zie-framework/backlog/` |
 
-      If candidates found, print:
+        Skip always: `README.md`, `CHANGELOG.md`, `LICENSE*`,
+        `CLAUDE.md`, `AGENTS.md`, files already inside
+        `zie-framework/`, and any `docs/` tree that contains
+        `index.md` or `_sidebar.md` at its root (public doc site).
 
-      ```text
-      Found documentation that can be migrated into zie-framework/:
+        Validate each reported path exists on disk before presenting
+        (graceful degradation for symlinks or stale agent results).
 
-        docs/specs/foo.md  →  zie-framework/specs/foo.md
-        docs/plans/bar.md  →  zie-framework/plans/bar.md
+        If candidates remain after filtering, print:
 
-      Migrate these files? (yes / no / select)
-      ```
+        ```text
+        Found documentation that can be migrated into zie-framework/:
 
-      - `yes` → migrate all using `git mv`
-      - `no` → skip silently
-      - `select` → confirm each file individually (y/n per file)
+          docs/specs/foo.md  →  zie-framework/specs/foo.md
+          docs/plans/bar.md  →  zie-framework/plans/bar.md
 
-      After migration, print the list of moved files.
-      If no candidates found, skip silently.
+        Migrate these files? (yes / no / select)
+        ```
+
+        - `yes` → migrate all using `git mv`
+        - `no` → skip silently
+        - `select` → confirm each file individually (y/n per file)
+
+        If `git mv` fails for a candidate (e.g. destination already
+        exists) → present error to user with retry option.
+
+        After migration, print the list of moved files.
 
    i. Continue to step 3 (create zie-framework/ directory structure —
       skip the four knowledge docs since they were already written).
@@ -331,6 +363,16 @@ then re-run /zie-init."`
 
    Next: Run /zie-status to see current state.
          Run /zie-backlog to start your first feature.
+
+   SDLC pipeline:
+     /zie-backlog → /zie-spec → /zie-plan → /zie-implement → /zie-release → /zie-retro
+   Each stage enforces quality gates. Run /zie-status to see where you are.
+   First feature: /zie-backlog "your idea"
+   ```
+
+   If migration ran in step 2.h, append:
+   ```text
+   Migration complete: <N> files moved to zie-framework/specs|plans|decisions/
    ```
 
 ## Notes

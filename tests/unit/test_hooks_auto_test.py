@@ -700,3 +700,26 @@ class TestAutoTestEmptyConfig:
         )
         assert r.returncode == 0
         assert "[zie] warning" not in r.stderr
+
+
+class TestAutoTestWallClockGuard:
+    """Source-level checks for wall-clock timer guard."""
+
+    def test_auto_test_max_wait_s_in_source(self):
+        source = Path(HOOK).read_text()
+        assert "auto_test_max_wait_s" in source
+
+    def test_timer_cancel_in_source(self):
+        source = Path(HOOK).read_text()
+        assert "timer.cancel()" in source, \
+            "threading.Timer must be cancelled in finally block"
+
+    def test_uses_process_group_kill(self):
+        source = Path(HOOK).read_text()
+        assert "os.killpg" in source, \
+            "auto-test.py must use os.killpg to kill hanging process group"
+
+    def test_zero_max_wait_does_not_arm_timer(self):
+        source = Path(HOOK).read_text()
+        # The guard condition must check max_wait > 0
+        assert "auto_test_max_wait_s" in source

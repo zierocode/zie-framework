@@ -221,3 +221,14 @@ class TestFailureContextGitCache:
         assert r.returncode == 0
         ctx = json.loads(r.stdout)["additionalContext"]
         assert "abc1234 cached commit message" in ctx
+
+
+class TestFailureContextTimeoutFromConfig:
+    def test_subprocess_timeout_s_read_from_config(self):
+        """failure-context.py must read subprocess_timeout_s from validated config."""
+        from pathlib import Path
+        source = Path(HOOK).read_text()
+        assert 'config["subprocess_timeout_s"]' in source, \
+            "failure-context.py must use config['subprocess_timeout_s'], not hardcoded timeout"
+        assert "timeout=5" not in source, \
+            "hardcoded timeout=5 must be removed from failure-context.py"

@@ -9,7 +9,6 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-<!-- -->
 
 ---
 
@@ -23,7 +22,9 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-
+- [ ] user-onboarding-sdlc — /zie-init pipeline orientation + SessionStart drift warning — [plan](plans/2026-03-29-user-onboarding-sdlc.md)
+- [ ] hook-resilience-tests — error path + edge case tests for all hooks — [plan](plans/2026-03-29-hook-resilience-tests.md)
+- [ ] test-suite-tiering — make test-fast (dev loop) vs make test-ci (full suite) — [plan](plans/2026-03-29-test-suite-tiering.md)
 <!-- LOW -->
 
 ---
@@ -50,6 +51,12 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint5-pipeline-quality — 13 features: pipeline-gate-enforcement, adr-session-cache,
+  adr-auto-summarization, user-onboarding-sdlc, retro-release-lean-context, hook-resilience-tests,
+  test-suite-tiering, roadmap-done-compaction, hook-config-hardening, dry-utils-cleanup,
+  zie-init-single-scan, archive-ttl-rotation, coverage-make-clean — 1784 unit + 63 integration
+  tests — v1.12.0 2026-03-30
 
 - [x] sprint4-final-clearance — git status caching (hot path), stronger test assertions (5 files),
   safety_check_mode documented in CLAUDE.md — 1566 unit + 62 integration tests — v1.11.1 2026-03-29

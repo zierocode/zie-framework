@@ -20,6 +20,50 @@ import time
 import urllib.request
 from pathlib import Path
 
+CONFIG_SCHEMA: dict = {
+    "subprocess_timeout_s": (5, int),
+    "safety_agent_timeout_s": (30, int),
+    "auto_test_max_wait_s": (15, int),
+    "auto_test_timeout_ms": (30000, int),
+}
+
+
+def validate_config(config: dict) -> dict:
+    """Fill all CONFIG_SCHEMA keys with typed defaults.
+
+    Missing keys → filled with schema default (no warning).
+    Wrong-type keys → replaced with schema default (warning emitted).
+    None input → treated as {}.
+    Returns a new dict with all schema keys guaranteed present and correctly typed.
+    """
+    if config is None:
+        config = {}
+    result = dict(config)
+    wrong_type_keys = []
+    for key, (default, expected_type) in CONFIG_SCHEMA.items():
+        if key not in result:
+            result[key] = default
+        elif not isinstance(result[key], expected_type):
+            wrong_type_keys.append(key)
+            result[key] = default
+    if wrong_type_keys:
+        print(
+            f"[zie-framework] config: defaulted keys: {', '.join(wrong_type_keys)}",
+            file=sys.stderr,
+        )
+    return result
+
+
+CONFIG_DEFAULTS: dict = {
+    "safety_check_mode": "regex",
+    "test_runner": "",
+    "auto_test_debounce_ms": 3000,
+    "auto_test_timeout_ms": 30000,
+    "test_indicators": "",
+    "project_type": "unknown",
+    "zie_memory_enabled": False,
+}
+
 SDLC_STAGES: list = [
     "init", "backlog", "spec", "plan",
     "implement", "fix", "release", "retro",
@@ -40,25 +84,12 @@ def parse_roadmap_section(roadmap_path, section_name: str) -> list:
 
     section_name is matched case-insensitively against ## headers.
     Returns [] if file missing, section absent, or section empty.
-    Accepts Path or str.
+    Accepts Path or str. Delegates to parse_roadmap_section_content.
     """
     path = Path(roadmap_path)
     if not path.exists():
         return []
-    lines = []
-    in_section = False
-    for line in path.read_text().splitlines():
-        if line.startswith("##") and section_name.lower() in line.lower():
-            in_section = True
-            continue
-        if line.startswith("##") and in_section:
-            break
-        if in_section and line.strip().startswith("- "):
-            clean = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', line.strip())
-            clean = clean.lstrip("- ").lstrip("[ ]").lstrip("[x]").strip()
-            if clean:
-                lines.append(clean)
-    return lines
+    return parse_roadmap_section_content(path.read_text(), section_name)
 
 
 def parse_roadmap_now(roadmap_path, warn_on_empty: bool = False) -> list:
@@ -298,6 +329,65 @@ def write_git_status_cache(session_id: str, key: str, content: str) -> None:
         pass
 
 
+def get_cached_adrs(
+    session_id: str,
+    decisions_dir,
+    tmp_dir=None,
+) -> "str | None":
+    """Return cached ADR content if stored mtime matches current max mtime.
+
+    decisions_dir: Path or str pointing to zie-framework/decisions/.
+    tmp_dir: override tempfile.gettempdir() (test injection point).
+    Returns None on cache miss, mtime mismatch, empty/missing dir, or any error.
+    """
+    try:
+        decisions_path = Path(decisions_dir)
+        adr_files = list(decisions_path.glob("*.md"))
+        if not adr_files:
+            return None
+        current_max_mtime = max(f.stat().st_mtime for f in adr_files)
+        base = Path(tmp_dir) if tmp_dir else Path(tempfile.gettempdir())
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        cache_path = base / f"zie-{safe_id}" / "adr-cache.json"
+        if not cache_path.exists():
+            return None
+        data = json.loads(cache_path.read_text())
+        if abs(data["mtime"] - current_max_mtime) > 0.001:
+            return None
+        return data["content"]
+    except Exception:
+        return None
+
+
+def write_adr_cache(
+    session_id: str,
+    content: str,
+    decisions_dir,
+    tmp_dir=None,
+) -> bool:
+    """Write ADR content to session cache keyed by max mtime of decisions_dir.
+
+    decisions_dir: Path or str pointing to zie-framework/decisions/.
+    tmp_dir: override tempfile.gettempdir() (test injection point).
+    Returns True on success, False if decisions_dir is empty/missing or write fails.
+    """
+    try:
+        decisions_path = Path(decisions_dir)
+        adr_files = list(decisions_path.glob("*.md"))
+        if not adr_files:
+            return False
+        max_mtime = max(f.stat().st_mtime for f in adr_files)
+        base = Path(tmp_dir) if tmp_dir else Path(tempfile.gettempdir())
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        cache_dir = base / f"zie-{safe_id}"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        cache_path = cache_dir / "adr-cache.json"
+        payload = json.dumps({"mtime": max_mtime, "content": content})
+        return safe_write_tmp(cache_path, payload)
+    except Exception:
+        return False
+
+
 def persistent_project_path(name: str, project: str) -> Path:
     """Return a project-scoped persistent path under CLAUDE_PLUGIN_DATA.
 
@@ -327,19 +417,24 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
 
 
 def load_config(cwd: Path) -> dict:
-    """Read zie-framework/.config as JSON and return a dict.
+    """Read zie-framework/.config as JSON and return a validated dict.
 
-    Returns {} on any error (missing file, parse failure, permission denied).
-    Logs parse errors to stderr for operator visibility (ADR-019).
+    Merges CONFIG_DEFAULTS first, then loaded values, then validates CONFIG_SCHEMA
+    keys for type safety. Always returns a fully-typed dict with all known keys.
+    Absent file returns all defaults silently. Parse errors logged to stderr.
     """
     config_path = cwd / "zie-framework" / ".config"
     try:
-        return json.loads(config_path.read_text())
+        raw = json.loads(config_path.read_text())
+        if not isinstance(raw, dict):
+            raise TypeError(f"config must be a JSON object, got {type(raw).__name__}")
+        merged = {**CONFIG_DEFAULTS, **raw}
+        return validate_config(merged)
     except FileNotFoundError:
-        return {}
+        return validate_config(dict(CONFIG_DEFAULTS))
     except Exception as e:
         print(f"[zie-framework] config parse error: {e}", file=sys.stderr)
-        return {}
+        return validate_config(dict(CONFIG_DEFAULTS))
 
 
 def normalize_command(cmd: str) -> str:
@@ -423,3 +518,165 @@ def safe_write_tmp(path: Path, content: str) -> bool:
         except OSError:
             pass
         return False
+
+
+def compact_roadmap_done(
+    roadmap_path,
+    threshold: int = 20,
+    cutoff_months: int = 6,
+    archive_base=None,
+):
+    """Compact the Done section of ROADMAP.md by archiving old entries.
+
+    When entry count > threshold and some entries are older than cutoff_months,
+    archives those entries to a Markdown file under archive_base and replaces
+    them with a single summary line.
+
+    Returns:
+        (was_compacted: bool, old_entry_count: int, version_range: str)
+        On no-op: (False, 0, "")
+
+    Accepts str or Path for roadmap_path and archive_base.
+    """
+    import datetime as _dt
+
+    path = Path(roadmap_path)
+    if not path.exists():
+        return (False, 0, "")
+
+    raw = path.read_text()
+    lines = raw.splitlines(keepends=True)
+
+    # 1. Extract Done section boundaries
+    done_start = None
+    done_end = None
+    for idx, line in enumerate(lines):
+        if line.startswith("##") and "done" in line.lower() and done_start is None:
+            done_start = idx + 1
+            continue
+        if line.startswith("##") and done_start is not None and done_end is None:
+            done_end = idx
+            break
+    if done_start is None:
+        return (False, 0, "")
+    if done_end is None:
+        done_end = len(lines)
+
+    done_lines = lines[done_start:done_end]
+
+    # 2. Separate entry types
+    _ARCHIVE_RE = re.compile(r"^\s*-\s+\[archive\]", re.IGNORECASE)
+    _ENTRY_RE = re.compile(r"^\s*-\s+\[")
+    _DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
+
+    existing_archive_lines = []
+    normal_entries = []
+
+    for line in done_lines:
+        stripped = line.rstrip("\n")
+        if not stripped.strip():
+            continue
+        if _ARCHIVE_RE.match(stripped):
+            existing_archive_lines.append(stripped)
+            continue
+        if _ENTRY_RE.match(stripped):
+            m = _DATE_RE.search(stripped)
+            if m:
+                try:
+                    parsed = _dt.date.fromisoformat(m.group(1))
+                    normal_entries.append((stripped, parsed))
+                except ValueError:
+                    print(
+                        f"[zie-framework] compact_roadmap_done: skipping malformed date: {stripped!r}",
+                        file=sys.stderr,
+                    )
+                    normal_entries.append((stripped, None))
+            else:
+                normal_entries.append((stripped, None))
+
+    if len(normal_entries) <= threshold:
+        return (False, 0, "")
+
+    # 3. Identify old entries
+    today = _dt.date.today()
+    cutoff = today - _dt.timedelta(days=cutoff_months * 30)
+    old_entries = [(l, d) for l, d in normal_entries if d is not None and d < cutoff]
+
+    if not old_entries:
+        return (False, 0, "")
+
+    # 4. Derive version range
+    _VERSION_RE = re.compile(r"v(\d+\.\d+(?:\.\d+)?)")
+    versions = []
+    dates_found = []
+    for line, d in old_entries:
+        vm = _VERSION_RE.search(line)
+        if vm:
+            versions.append(vm.group(0))
+        if d:
+            dates_found.append(d)
+
+    if versions:
+        v_start = versions[-1]
+        v_end = versions[0]
+        version_range = f"{v_start}-{v_end}"
+        label = f"{v_start}\u2013{v_end}"
+    else:
+        version_range = "unknown"
+        label = "unknown"
+
+    if dates_found:
+        d_start = min(dates_found).strftime("%Y-%m")
+        d_end = max(dates_found).strftime("%Y-%m")
+        date_range_label = f"{d_start} to {d_end}"
+    else:
+        date_range_label = "unknown"
+
+    n_old = len(old_entries)
+
+    # 5. Resolve archive_base
+    if archive_base is None:
+        archive_dir = path.parent / "zie-framework" / "archive"
+    else:
+        archive_dir = Path(archive_base)
+    archive_dir.mkdir(parents=True, exist_ok=True)
+
+    # 6. Write archive file
+    safe_range = re.sub(r"[^a-zA-Z0-9._-]", "-", version_range)
+    archive_path = archive_dir / f"ROADMAP-{safe_range}.md"
+    archive_content = (
+        f"# ROADMAP Archive \u2014 {label} ({date_range_label})\n\n"
+        f"Archived by compact_roadmap_done on {today.isoformat()}.\n"
+        f"{n_old} entries older than {cutoff_months} months.\n\n"
+        + "\n".join(line for line, _ in old_entries)
+        + "\n"
+    )
+    atomic_write(archive_path, archive_content)
+
+    # 7. Build summary line
+    archive_rel = str(archive_path).replace(str(path.parent) + "/", "")
+    summary_line = (
+        f"- [archive] {label} ({date_range_label}): "
+        f"{n_old} features shipped \u2014 see {archive_rel}"
+    )
+
+    # 8. Rebuild Done section
+    old_entry_lines = {line for line, _ in old_entries}
+    kept_normal = [line for line, d in normal_entries if line not in old_entry_lines]
+
+    new_done_lines = (
+        [summary_line + "\n"]
+        + [l + "\n" for l in existing_archive_lines]
+        + [l + "\n" for l in kept_normal]
+    )
+
+    new_lines = (
+        lines[:done_start]
+        + ["\n"]
+        + new_done_lines
+        + ["\n"]
+        + lines[done_end:]
+    )
+
+    atomic_write(path, "".join(new_lines))
+    return (True, n_old, version_range)

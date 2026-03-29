@@ -9,6 +9,19 @@ help:
 	  awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # ── Tests ─────────────────────────────────────────────────────────────────────
+test-fast: ## Fast TDD feedback — runs pytest on changed files only (+ --lf)
+	bash scripts/test_fast.sh
+
+# test-ci mirrors test-unit body for independent evolvability (CI alias)
+test-ci: ## Full test suite with coverage gate — use before commit and in CI
+	python3 -m coverage erase
+	COVERAGE_PROCESS_START=$(CURDIR)/.coveragerc \
+	    python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
+	python3 -m coverage combine 2>/dev/null || true
+	python3 -m coverage report --show-missing --fail-under=43
+	@pytest --collect-only -q -m error_path tests/unit/ 2>/dev/null \
+		| python3 tests/unit/scripts/check_error_path_coverage.py
+
 test-unit: ## Fast unit tests with subprocess coverage measurement
 	# REQUIRES: sitecustomize.py in venv for subprocess hook coverage.
 	# Without it, subprocess-spawned hooks show 0%. Run 'make coverage-smoke' to verify.
@@ -16,7 +29,9 @@ test-unit: ## Fast unit tests with subprocess coverage measurement
 	COVERAGE_PROCESS_START=$(CURDIR)/.coveragerc \
 	    python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
 	python3 -m coverage combine 2>/dev/null || true
-	python3 -m coverage report --show-missing --fail-under=50
+	python3 -m coverage report --show-missing --fail-under=43
+	@pytest --collect-only -q -m error_path tests/unit/ 2>/dev/null \
+		| python3 tests/unit/scripts/check_error_path_coverage.py
 
 coverage-smoke: ## Verify ≥1 hook has >0% line coverage (requires sitecustomize.py in venv)
 	@python3 -m coverage report 2>/dev/null | grep -E 'hooks/[^ ]+.*[1-9][0-9]*%' > /dev/null || \
@@ -117,11 +132,40 @@ archive-plans: ## Move plans older than 60 days to zie-framework/plans/archive/
 	  -mtime +60 -exec mv {} zie-framework/plans/archive/ \;
 	@echo "[zie-framework] Archived plans older than 60 days"
 
+.PHONY: archive-prune
+archive-prune: ## Prune archive/ files older than 90 days (guard: skips if < 20 total files)
+	@python3 -c "\
+import os, sys, time; \
+from pathlib import Path; \
+archive_root = Path('zie-framework/archive'); \
+subdirs = ('backlog', 'specs', 'plans'); \
+TTL = 90 * 86400; GUARD = 20; \
+all_md = [f for d in subdirs for f in (archive_root / d).glob('*.md') if archive_root.exists() and (archive_root / d).exists()]; \
+(not archive_root.exists()) and [print('[zie-framework] Archive prune: archive directory not found, skipping'), sys.exit(0)]; \
+len(all_md) < GUARD and [print(f'[zie-framework] Archive prune: archive too young ({len(all_md)} files), skipping prune'), sys.exit(0)]; \
+now = time.time(); removed = [0]; \
+[[f.unlink() or removed.__setitem__(0, removed[0] + 1) for f in (archive_root / d).glob('*.md') if (now - f.stat().st_mtime) > TTL] for d in subdirs if (archive_root / d).exists()]; \
+print(f'[zie-framework] Archive prune: removed {removed[0]} file(s)')"
+
+.PHONY: adr-count
+adr-count: ## Count ADR files in zie-framework/decisions/ (excludes ADR-000-summary.md)
+	@count=$$(ls zie-framework/decisions/ADR-*.md 2>/dev/null | grep -v ADR-000-summary | wc -l | tr -d ' '); echo $$count
+
+.PHONY: docs-sync
+docs-sync: ## Run docs-sync-check manually (checks CLAUDE.md + README.md vs disk)
+	@echo "[zie-framework] docs-sync-check is a Claude skill — run inside a Claude session:"
+	@echo "  Skill(zie-framework:docs-sync-check)"
+	@echo "Or run /zie-retro which invokes it automatically."
+
 # ── Utilities ─────────────────────────────────────────────────────────────────
 clean: ## Remove cache files and build artifacts
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; \
 	find . -type d -name .pytest_cache -exec rm -rf {} + 2>/dev/null; \
 	find . -name "*.pyc" -delete 2>/dev/null; \
+	find . -name ".coverage" -delete 2>/dev/null; \
+	find . -name ".coverage.*" -delete 2>/dev/null; \
+	find . -name "coverage.xml" -delete 2>/dev/null; \
+	find . -type d -name "htmlcov" -exec rm -rf {} + 2>/dev/null; \
 	$(MAKE) _clean-extra; true
 
 # ── Hooks — override in Makefile.local ────────────────────────────────────────

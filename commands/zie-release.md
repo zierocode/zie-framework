@@ -93,7 +93,7 @@ TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md aga
 
 Await docs-sync-check Agent completion. **TaskUpdate** → completed.
 
-<!-- fallback: if Agent tool unavailable, call Skill(zie-framework:docs-sync-check) inline -->
+<!-- fallback: if Agent unavailable → print `[zie-framework] docs-sync-check unavailable — skipping (manual check: make docs-sync)` and continue. -->
 
 ### รวมผลลัพธ์ Quality Forks
 
@@ -106,7 +106,7 @@ Collect results from the parallel forks started after Gate 1:
   (`CLAUDE.md` and `README.md` must reflect current commands/skills/hooks.)
 - **TODOs/secrets**: any hits in new code? Fix or create a tracked backlog
   item before proceeding. Any secrets detected → STOP immediately.
-- If either fork did not complete → run inline (blocking) before continuing.
+- If docs-sync-check did not complete → print `[zie-framework] docs-sync-check unavailable — skipping (manual check: make docs-sync)`.
 
 ### ตรวจสอบ: Code diff ก่อน merge
 

@@ -48,5 +48,5 @@ class TestAsyncSkillPatterns:
             "zie-retro.md must have fallback comment for retro-format"
 
         release = (CMD_DIR / "zie-release.md").read_text()
-        assert "<!-- fallback:" in release and "Skill(zie-framework:docs-sync-check)" in release, \
-            "zie-release.md must have fallback comment for docs-sync-check"
+        assert "<!-- fallback:" in release and "docs-sync-check" in release, \
+            "zie-release.md must have fallback comment referencing docs-sync-check"

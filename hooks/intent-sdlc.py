@@ -114,6 +114,105 @@ STAGE_COMMANDS = {
 STALE_THRESHOLD_SECS = 300
 
 
+def _extract_roadmap_slugs(roadmap_content: str) -> list:
+    """Return deduplicated kebab-case slugs from Next and Ready lane items."""
+    slugs = []
+    in_target = False
+    for line in roadmap_content.splitlines():
+        if line.startswith("##") and any(
+            s in line.lower() for s in ("next", "ready")
+        ):
+            in_target = True
+            continue
+        if line.startswith("##") and in_target:
+            in_target = False
+            continue
+        if in_target and line.strip().startswith("- "):
+            tokens = re.findall(r'[a-z][a-z0-9]*(?:-[a-z0-9]+)+', line.lower())
+            slugs.extend(tokens)
+    return list(dict.fromkeys(slugs))
+
+
+def _spec_approved(cwd: Path, slug: str) -> bool:
+    """Return True if zie-framework/specs/*-<slug>-design.md has approved: true."""
+    specs_dir = cwd / "zie-framework" / "specs"
+    try:
+        matches = list(specs_dir.glob(f"*-{slug}-design.md"))
+    except Exception:
+        return False
+    if not matches:
+        return False
+    try:
+        content = matches[0].read_text()
+        return bool(re.search(r'^approved:\s*true\s*$', content, re.MULTILINE))
+    except Exception:
+        return False
+
+
+def _check_pipeline_preconditions(
+    intent: str, roadmap_content: str, cwd: Path, message: str
+) -> "str | None":
+    """Return a directive block if preconditions fail, else None."""
+    if intent == "plan":
+        slugs = _extract_roadmap_slugs(roadmap_content)
+        matched = [s for s in slugs if s in message]
+        if not matched:
+            return None
+        blocking = [s for s in matched if not _spec_approved(cwd, s)]
+        if not blocking:
+            return None
+        slug_list = ", ".join(f"'{s}'" for s in blocking)
+        return (
+            f"⛔ STOP. No approved spec for {slug_list}. "
+            f"You must run /zie-spec {blocking[0]} first. "
+            f"Do not proceed with planning."
+        )
+
+    if intent == "implement":
+        in_now = False
+        for line in roadmap_content.splitlines():
+            if line.startswith("##") and "now" in line.lower():
+                in_now = True
+                continue
+            if line.startswith("##") and in_now:
+                break
+            if in_now and re.search(r'-\s*\[\s*\]', line):
+                return None  # has open item — gate passes
+        return (
+            "⛔ STOP. No active feature in Now lane. "
+            "Complete /zie-backlog → /zie-spec → /zie-plan first, "
+            "then start /zie-implement. Do not write code."
+        )
+
+    return None
+
+
+def _positional_guidance(roadmap_content: str, cwd: Path, message: str) -> "str | None":
+    """Return stage-aware nudge for a known ROADMAP slug when no gate fired."""
+    slugs = _extract_roadmap_slugs(roadmap_content)
+    matched = [s for s in slugs if s in message]
+    if not matched:
+        return None
+    slug = matched[0]
+    has_approved_spec = _spec_approved(cwd, slug)
+    slug_in_ready = False
+    in_ready_section = False
+    for line in roadmap_content.splitlines():
+        if line.startswith("##") and "ready" in line.lower():
+            in_ready_section = True
+            continue
+        if line.startswith("##") and in_ready_section:
+            break
+        if in_ready_section and slug in line.lower():
+            slug_in_ready = True
+            break
+    if not has_approved_spec:
+        return f"Feature '{slug}' is in backlog. Start with /zie-spec {slug}"
+    if has_approved_spec and not slug_in_ready:
+        return f"Spec approved for '{slug}'. Run /zie-plan {slug}"
+    return f"Plan ready for '{slug}'. Run /zie-implement to start"
+
+
 def derive_stage(task_text: str) -> str:
     main = task_text.split("—")[0].strip()
     lower = main.lower()
@@ -165,6 +264,7 @@ try:
 
     # ── Intent detection (no ROADMAP needed) ─────────────────────────────────
     intent_cmd = None
+    best = None
     scores = {}
     for category, compiled_pats in COMPILED_PATTERNS.items():
         score = sum(1 for p in compiled_pats if p.search(message))
@@ -195,10 +295,24 @@ try:
     suggested_cmd = STAGE_COMMANDS.get(stage, "/zie-status")
     test_status = get_test_status(cwd)
 
+    # ── Pipeline gate check ───────────────────────────────────────────────────
+    gate_msg = None
+    if best and best in ("plan", "implement"):
+        gate_msg = _check_pipeline_preconditions(best, roadmap_content, cwd, message)
+
+    # ── Positional guidance (only when no gate and no dominant intent) ────────
+    guidance_msg = None
+    if gate_msg is None and not intent_cmd:
+        guidance_msg = _positional_guidance(roadmap_content, cwd, message)
+
     # ── Build combined context ────────────────────────────────────────────────
     parts = []
-    if intent_cmd:
+    if gate_msg:
+        parts.append(gate_msg)
+    elif intent_cmd:
         parts.append(f"intent:{best} → {intent_cmd}")
+    if guidance_msg:
+        parts.append(guidance_msg)
     parts.append(
         f"task:{active_task} | stage:{stage} | next:{suggested_cmd} | tests:{test_status}"
     )

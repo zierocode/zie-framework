@@ -42,6 +42,7 @@ Skills are invoked automatically by commands as subagents — not called directl
 | `retro-format` | Format retrospective findings as ADRs |
 | `debug` | Systematic bug diagnosis and fix path |
 | `zie-audit` | 9-dimension audit analysis (invoked by /zie-audit) |
+| `docs-sync-check` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
 
 ## Pipeline
 

@@ -276,3 +276,53 @@ class TestSessionResumeEnvFile:
         r = run_hook_with_env_file(tmp_path, env_file_path=env_file)
         assert r.returncode == 0
         assert not env_file.exists()
+
+
+# ---------------------------------------------------------------------------
+# Drift detection tests (Task 2)
+# ---------------------------------------------------------------------------
+
+class TestSessionResumeDriftDetection:
+    def test_prints_drift_warning_when_hash_mismatch(self, tmp_path):
+        """session-resume must print drift warning when knowledge-hash.py --check outputs one."""
+        cwd = make_cwd(tmp_path, config={"knowledge_hash": "deadbeef0000"},
+                       roadmap=SAMPLE_ROADMAP)
+        r = run_hook(tmp_cwd=cwd)
+        assert r.returncode == 0
+        assert "Knowledge drift detected" in r.stdout
+
+    def test_silent_when_hash_matches(self, tmp_path):
+        """No drift warning printed when hashes match."""
+        REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        kh = os.path.join(REPO, "hooks", "knowledge-hash.py")
+        result = subprocess.run([sys.executable, kh, "--root", str(tmp_path)],
+                                capture_output=True, text=True)
+        current_hash = result.stdout.strip()
+        cwd = make_cwd(tmp_path, config={"knowledge_hash": current_hash},
+                       roadmap=SAMPLE_ROADMAP)
+        r = run_hook(tmp_cwd=cwd)
+        assert r.returncode == 0
+        assert "drift" not in r.stdout.lower()
+
+    def test_exits_zero_when_knowledge_hash_crashes(self, tmp_path):
+        """If knowledge-hash.py is missing/crashes, hook exits 0 and logs to stderr."""
+        cwd = make_cwd(tmp_path, config={"knowledge_hash": "abc"},
+                       roadmap=SAMPLE_ROADMAP)
+        env = {**os.environ, "CLAUDE_CWD": str(cwd),
+               "ZIE_KNOWLEDGE_HASH_SCRIPT": "/nonexistent/knowledge-hash.py"}
+        result = subprocess.run([sys.executable, HOOK],
+                                input=json.dumps({}),
+                                capture_output=True, text=True, env=env)
+        assert result.returncode == 0
+
+    def test_output_line_count_unchanged_without_drift(self, tmp_path):
+        """Without drift, output remains exactly 4 lines."""
+        REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        kh = os.path.join(REPO, "hooks", "knowledge-hash.py")
+        result = subprocess.run([sys.executable, kh, "--root", str(tmp_path)],
+                                capture_output=True, text=True)
+        current_hash = result.stdout.strip()
+        cwd = make_cwd(tmp_path, config={"knowledge_hash": current_hash},
+                       roadmap=SAMPLE_ROADMAP)
+        r = run_hook(tmp_cwd=cwd)
+        assert len(r.stdout.strip().splitlines()) == 4

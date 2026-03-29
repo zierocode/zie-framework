@@ -43,7 +43,7 @@ def _regex_evaluate(command: str) -> int:
     return 0
 
 
-def invoke_subagent(command: str) -> str:
+def invoke_subagent(command: str, timeout: int = 30) -> str:
     """Call claude CLI to evaluate the command. Returns agent response text."""
     prompt = (
         "You are a safety agent for a developer terminal. "
@@ -55,15 +55,15 @@ def invoke_subagent(command: str) -> str:
         ["claude", "--print", prompt],
         capture_output=True,
         text=True,
-        timeout=30,
+        timeout=timeout,
     )
     return result.stdout.strip()
 
 
-def evaluate(command: str, mode: str) -> int:
+def evaluate(command: str, mode: str, timeout: int = 30) -> int:
     """Evaluate command via agent with regex fallback. Returns 0 (allow) or 2 (block)."""
     try:
-        response = invoke_subagent(command)
+        response = invoke_subagent(command, timeout=timeout)
         decision = parse_agent_response(response)
         return 2 if decision == "BLOCK" else 0
     except Exception as e:
@@ -88,12 +88,12 @@ if __name__ == "__main__":
 
         cwd = get_cwd()
         config = load_config(cwd)
-        mode = config.get("safety_check_mode", "regex")
+        mode = config.get("safety_check_mode")
 
         if mode not in ("agent", "both"):
             sys.exit(0)  # defer to safety-check.py in regex mode
 
-        result = evaluate(command, mode)
+        result = evaluate(command, mode, timeout=config["safety_agent_timeout_s"])
         sys.exit(result)
     except Exception:
         sys.exit(0)

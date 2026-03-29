@@ -376,3 +376,14 @@ class TestRenameArrowInFilename:
         r = run_hook({}, cwd=str(tmp_path))
         assert r.returncode == 0
         assert "Traceback" not in r.stderr
+
+
+class TestStopGuardTimeoutFromConfig:
+    def test_subprocess_timeout_s_read_from_config(self):
+        """stop-guard.py must read subprocess_timeout_s from validated config."""
+        from pathlib import Path
+        source = Path(HOOK).read_text()
+        assert 'config["subprocess_timeout_s"]' in source, \
+            "stop-guard.py must use config['subprocess_timeout_s'], not hardcoded timeout"
+        assert "timeout=5" not in source, \
+            "hardcoded timeout=5 must be removed from stop-guard.py"

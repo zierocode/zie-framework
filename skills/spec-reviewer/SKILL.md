@@ -37,8 +37,16 @@ never block review):
    read each listed file if it exists; note "FILE NOT FOUND" if missing.
    Exception: if the spec marks a file as "Create", this is expected — note
    it but do not flag as missing.
-2. **ADRs** — read all `zie-framework/decisions/*.md`.
-   If directory empty or missing → note "No ADRs found", skip ADR checks.
+2. **ADRs** — load via session cache (cache-first, summary-aware):
+   a. Call `get_cached_adrs(session_id, "zie-framework/decisions/")`.
+      - Cache hit → use returned string as `adrs_content`. Skip individual file reads.
+      - Cache miss → load from disk:
+        - If `ADR-000-summary.md` exists → read it first (compressed history).
+        - Read remaining individual `zie-framework/decisions/ADR-*.md` files
+          (excluding `ADR-000-summary.md`); concatenate all into `adrs_content`.
+        - Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`.
+   b. If `decisions/` directory is empty or missing → `adrs_content = "No ADRs found"`.
+   `session_id` is available from the Claude Code session context.
 3. **Design context** — read `zie-framework/project/context.md` if it
    exists. If missing → note "No context doc", skip.
 4. **ROADMAP** — read `zie-framework/ROADMAP.md`, Now + Ready + Next lanes
