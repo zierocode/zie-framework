@@ -482,3 +482,165 @@ def safe_write_tmp(path: Path, content: str) -> bool:
         except OSError:
             pass
         return False
+
+
+def compact_roadmap_done(
+    roadmap_path,
+    threshold: int = 20,
+    cutoff_months: int = 6,
+    archive_base=None,
+):
+    """Compact the Done section of ROADMAP.md by archiving old entries.
+
+    When entry count > threshold and some entries are older than cutoff_months,
+    archives those entries to a Markdown file under archive_base and replaces
+    them with a single summary line.
+
+    Returns:
+        (was_compacted: bool, old_entry_count: int, version_range: str)
+        On no-op: (False, 0, "")
+
+    Accepts str or Path for roadmap_path and archive_base.
+    """
+    import datetime as _dt
+
+    path = Path(roadmap_path)
+    if not path.exists():
+        return (False, 0, "")
+
+    raw = path.read_text()
+    lines = raw.splitlines(keepends=True)
+
+    # 1. Extract Done section boundaries
+    done_start = None
+    done_end = None
+    for idx, line in enumerate(lines):
+        if line.startswith("##") and "done" in line.lower() and done_start is None:
+            done_start = idx + 1
+            continue
+        if line.startswith("##") and done_start is not None and done_end is None:
+            done_end = idx
+            break
+    if done_start is None:
+        return (False, 0, "")
+    if done_end is None:
+        done_end = len(lines)
+
+    done_lines = lines[done_start:done_end]
+
+    # 2. Separate entry types
+    _ARCHIVE_RE = re.compile(r"^\s*-\s+\[archive\]", re.IGNORECASE)
+    _ENTRY_RE = re.compile(r"^\s*-\s+\[")
+    _DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
+
+    existing_archive_lines = []
+    normal_entries = []
+
+    for line in done_lines:
+        stripped = line.rstrip("\n")
+        if not stripped.strip():
+            continue
+        if _ARCHIVE_RE.match(stripped):
+            existing_archive_lines.append(stripped)
+            continue
+        if _ENTRY_RE.match(stripped):
+            m = _DATE_RE.search(stripped)
+            if m:
+                try:
+                    parsed = _dt.date.fromisoformat(m.group(1))
+                    normal_entries.append((stripped, parsed))
+                except ValueError:
+                    print(
+                        f"[zie-framework] compact_roadmap_done: skipping malformed date: {stripped!r}",
+                        file=sys.stderr,
+                    )
+                    normal_entries.append((stripped, None))
+            else:
+                normal_entries.append((stripped, None))
+
+    if len(normal_entries) <= threshold:
+        return (False, 0, "")
+
+    # 3. Identify old entries
+    today = _dt.date.today()
+    cutoff = today - _dt.timedelta(days=cutoff_months * 30)
+    old_entries = [(l, d) for l, d in normal_entries if d is not None and d < cutoff]
+
+    if not old_entries:
+        return (False, 0, "")
+
+    # 4. Derive version range
+    _VERSION_RE = re.compile(r"v(\d+\.\d+(?:\.\d+)?)")
+    versions = []
+    dates_found = []
+    for line, d in old_entries:
+        vm = _VERSION_RE.search(line)
+        if vm:
+            versions.append(vm.group(0))
+        if d:
+            dates_found.append(d)
+
+    if versions:
+        v_start = versions[-1]
+        v_end = versions[0]
+        version_range = f"{v_start}-{v_end}"
+        label = f"{v_start}\u2013{v_end}"
+    else:
+        version_range = "unknown"
+        label = "unknown"
+
+    if dates_found:
+        d_start = min(dates_found).strftime("%Y-%m")
+        d_end = max(dates_found).strftime("%Y-%m")
+        date_range_label = f"{d_start} to {d_end}"
+    else:
+        date_range_label = "unknown"
+
+    n_old = len(old_entries)
+
+    # 5. Resolve archive_base
+    if archive_base is None:
+        archive_dir = path.parent / "zie-framework" / "archive"
+    else:
+        archive_dir = Path(archive_base)
+    archive_dir.mkdir(parents=True, exist_ok=True)
+
+    # 6. Write archive file
+    safe_range = re.sub(r"[^a-zA-Z0-9._-]", "-", version_range)
+    archive_path = archive_dir / f"ROADMAP-{safe_range}.md"
+    archive_content = (
+        f"# ROADMAP Archive \u2014 {label} ({date_range_label})\n\n"
+        f"Archived by compact_roadmap_done on {today.isoformat()}.\n"
+        f"{n_old} entries older than {cutoff_months} months.\n\n"
+        + "\n".join(line for line, _ in old_entries)
+        + "\n"
+    )
+    atomic_write(archive_path, archive_content)
+
+    # 7. Build summary line
+    archive_rel = str(archive_path).replace(str(path.parent) + "/", "")
+    summary_line = (
+        f"- [archive] {label} ({date_range_label}): "
+        f"{n_old} features shipped \u2014 see {archive_rel}"
+    )
+
+    # 8. Rebuild Done section
+    old_entry_lines = {line for line, _ in old_entries}
+    kept_normal = [line for line, d in normal_entries if line not in old_entry_lines]
+
+    new_done_lines = (
+        [summary_line + "\n"]
+        + [l + "\n" for l in existing_archive_lines]
+        + [l + "\n" for l in kept_normal]
+    )
+
+    new_lines = (
+        lines[:done_start]
+        + ["\n"]
+        + new_done_lines
+        + ["\n"]
+        + lines[done_end:]
+    )
+
+    atomic_write(path, "".join(new_lines))
+    return (True, n_old, version_range)

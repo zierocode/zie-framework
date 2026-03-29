@@ -109,3 +109,24 @@ After every retro, review ROADMAP.md:
 - [ ] Any Icebox items that became relevant moved to Next
 - [ ] New items discovered during the session added
 - [ ] Remove items that are no longer relevant
+
+## Compaction Check
+
+After updating the ROADMAP Done section, run compaction:
+
+```python
+import sys
+from pathlib import Path
+
+roadmap_path = Path("zie-framework/ROADMAP.md")
+if not roadmap_path.exists():
+    print("[zie-framework] retro-format: ROADMAP.md not found, skip compaction", file=sys.stderr)
+else:
+    sys.path.insert(0, str(Path("hooks")))
+    from utils import compact_roadmap_done
+    was_compacted, old_count, version_range = compact_roadmap_done(str(roadmap_path))
+    if was_compacted:
+        print(f"Compacted {old_count} old entries ({version_range.replace('-', '\u2013')}) into archive. Keep 20 recent entries in ROADMAP. {old_count} features shipped.")
+    else:
+        print("Done section has only recent entries, no archival needed")
+```
