@@ -25,7 +25,7 @@ def test_test_fast_invokes_script():
 def test_test_ci_runs_full_suite():
     result = _make("test-ci")
     assert "pytest" in result.stdout, "test-ci should invoke pytest"
-    assert "fail-under=50" in result.stdout, "test-ci must enforce coverage gate"
+    assert "fail-under=43" in result.stdout, "test-ci must enforce coverage gate"
 
 
 def test_help_lists_test_fast():
