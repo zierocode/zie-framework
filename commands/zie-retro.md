@@ -48,6 +48,10 @@ Recent activity window:
 
 3. Count ADR files in `zie-framework/decisions/` → get next ADR number.
 
+4. **ADR auto-summarization** — if count > 30: keep 10 most-recent;
+   `generate_summary_table(to_compress)` → write `decisions/ADR-000-summary.md`,
+   delete compressed files. ≤30 → skip.
+
 ### สร้าง compact summary
 
 Build compact JSON bundle for retro-format fork:

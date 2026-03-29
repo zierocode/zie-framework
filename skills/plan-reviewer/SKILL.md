@@ -36,14 +36,15 @@ never block review):
 1. **File map files** — parse the plan's file map section → read each listed
    file if it exists; note "FILE NOT FOUND" if missing. Files marked "Create"
    are expected to not exist — note but do not flag.
-2. **ADRs** — load via session cache (cache-first):
+2. **ADRs** — load via session cache (cache-first, summary-aware):
    a. Call `get_cached_adrs(session_id, "zie-framework/decisions/")`.
       - Cache hit → use returned string as `adrs_content`. Skip individual file reads.
-      - Cache miss or `None` returned → read all `zie-framework/decisions/*.md` files,
-        concatenate into `adrs_content`, then call
-        `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`.
-   b. If `decisions/` directory is empty or missing → `adrs_content = "No ADRs found"`;
-      skip ADR checks. (Existing behavior preserved.)
+      - Cache miss → load from disk:
+        - If `ADR-000-summary.md` exists → read it first (compressed history).
+        - Read remaining individual `zie-framework/decisions/ADR-*.md` files
+          (excluding `ADR-000-summary.md`); concatenate all into `adrs_content`.
+        - Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`.
+   b. If `decisions/` directory is empty or missing → `adrs_content = "No ADRs found"`.
    `session_id` is available from the Claude Code session context.
 3. **Design context** — read `zie-framework/project/context.md` if it
    exists. If missing → note "No context doc", skip.

@@ -117,6 +117,10 @@ archive-plans: ## Move plans older than 60 days to zie-framework/plans/archive/
 	  -mtime +60 -exec mv {} zie-framework/plans/archive/ \;
 	@echo "[zie-framework] Archived plans older than 60 days"
 
+.PHONY: adr-count
+adr-count: ## Count ADR files in zie-framework/decisions/ (excludes ADR-000-summary.md)
+	@count=$$(ls zie-framework/decisions/ADR-*.md 2>/dev/null | grep -v ADR-000-summary | wc -l | tr -d ' '); echo $$count
+
 # ── Utilities ─────────────────────────────────────────────────────────────────
 clean: ## Remove cache files and build artifacts
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; \
