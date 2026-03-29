@@ -134,3 +134,15 @@ class TestHookEntryPoint:
             capture_output=True, text=True, env=env,
         )
         assert r.returncode == 0
+
+
+class TestSafetyAgentTimeoutFromConfig:
+    def test_timeout_read_from_config(self):
+        """safety_check_agent.py must use config['safety_agent_timeout_s'], not hardcoded 30."""
+        from pathlib import Path
+        hook_path = Path(REPO_ROOT) / "hooks" / "safety_check_agent.py"
+        source = hook_path.read_text()
+        assert "timeout=30" not in source, \
+            "hardcoded timeout=30 must be removed from safety_check_agent.py"
+        assert "safety_agent_timeout_s" in source, \
+            "safety_agent_timeout_s must be used in safety_check_agent.py"

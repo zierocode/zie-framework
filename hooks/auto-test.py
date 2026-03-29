@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """PostToolUse:Edit/Write hook — run relevant unit tests after file edits."""
-import sys
-import json
 import os
+import signal
 import subprocess
+import sys
+import threading
 import time
+import json
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -71,10 +73,8 @@ if __name__ == "__main__":
     test_runner = os.environ.get("ZIE_TEST_RUNNER", "").strip()
     _debounce_env = os.environ.get("ZIE_AUTO_TEST_DEBOUNCE_MS", "").strip()
 
-    # Fallback: read .config when env vars are absent
-    config = {}
-    if not test_runner or not _debounce_env:
-        config = load_config(cwd)
+    # Always load config for validated defaults (env vars override specific keys below)
+    config = load_config(cwd)
 
     if not test_runner:
         test_runner = config.get("test_runner", "")
@@ -109,7 +109,9 @@ if __name__ == "__main__":
             sys.exit(0)
     safe_write_tmp(debounce_file, file_path)
 
-    timeout = config.get("auto_test_timeout_ms", 30000) // 1000
+    auto_test_timeout_ms = config["auto_test_timeout_ms"]
+    auto_test_max_wait_s = config["auto_test_max_wait_s"]
+    timeout = auto_test_timeout_ms // 1000
 
     # Build test command
     if test_runner == "pytest":
@@ -127,22 +129,68 @@ if __name__ == "__main__":
         sys.exit(0)
 
     try:
-        result = subprocess.run(
-            cmd,
-            cwd=str(cwd),
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-        )
-        if result.returncode == 0:
-            print(f"[zie-framework] Tests pass ✓")
+        if auto_test_max_wait_s > 0:
+            # Wall-clock guard path: Popen + threading.Timer
+            timed_out = threading.Event()
+
+            def _kill_on_timeout(proc):
+                try:
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                except OSError:
+                    try:
+                        proc.kill()
+                    except Exception:
+                        pass
+                timed_out.set()
+                print(
+                    f"[zie-framework] auto-test: timed out after {auto_test_max_wait_s}s"
+                    f" — tests may be hanging. Run make test-unit manually."
+                )
+
+            proc = subprocess.Popen(
+                cmd,
+                cwd=str(cwd),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                start_new_session=True,
+            )
+            timer = threading.Timer(auto_test_max_wait_s, _kill_on_timeout, args=[proc])
+            try:
+                timer.start()
+                stdout_data, stderr_data = proc.communicate()
+                rc = proc.returncode
+            finally:
+                timer.cancel()
+
+            if timed_out.is_set():
+                sys.exit(0)
+
+            if rc == 0:
+                print("[zie-framework] Tests pass ✓")
+            else:
+                print("[zie-framework] Tests FAILED — fix before continuing")
+                lines = (stdout_data + stderr_data).splitlines()
+                for line in lines[:20]:
+                    if line.strip():
+                        print(f"  {line}")
         else:
-            print(f"[zie-framework] Tests FAILED — fix before continuing")
-            # Print first 20 lines of failure output
-            lines = (result.stdout + result.stderr).splitlines()
-            for line in lines[:20]:
-                if line.strip():
-                    print(f"  {line}")
+            # Fallback path: subprocess.run with auto_test_timeout_ms
+            result = subprocess.run(
+                cmd,
+                cwd=str(cwd),
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+            )
+            if result.returncode == 0:
+                print("[zie-framework] Tests pass ✓")
+            else:
+                print("[zie-framework] Tests FAILED — fix before continuing")
+                lines = (result.stdout + result.stderr).splitlines()
+                for line in lines[:20]:
+                    if line.strip():
+                        print(f"  {line}")
     except subprocess.TimeoutExpired:
         print(f"[zie-framework] Tests timed out ({timeout}s) — check for hanging tests")
     except FileNotFoundError:

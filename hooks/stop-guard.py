@@ -16,7 +16,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event, get_cwd
+from utils import read_event, get_cwd, load_config
 
 # Canonical implementation file patterns for zie-framework layout.
 # Paths are matched against the raw path token from `git status --short`
@@ -50,12 +50,14 @@ except Exception:
 # ---------------------------------------------------------------------------
 try:
     cwd = get_cwd()
+    config = load_config(cwd)
+    subprocess_timeout = config["subprocess_timeout_s"]
     result = subprocess.run(
         ["git", "status", "--short", "--untracked-files=all"],
         cwd=str(cwd),
         capture_output=True,
         text=True,
-        timeout=5,
+        timeout=subprocess_timeout,
     )
     # Non-zero return code means not a git repo, detached HEAD, or bare repo.
     if result.returncode != 0:

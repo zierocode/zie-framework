@@ -12,7 +12,7 @@ sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
 import json
 from unittest.mock import patch
-from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd, parse_roadmap_section, get_cached_roadmap, write_roadmap_cache
+from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd, parse_roadmap_section, get_cached_roadmap, write_roadmap_cache, validate_config, load_config
 
 
 class TestParseRoadmapNow:
@@ -602,24 +602,26 @@ class TestLoadConfig:
         result = load_config(tmp_path)
         assert result.get("safety_check_mode") == "agent"
 
-    def test_returns_empty_dict_when_no_config(self, tmp_path):
+    def test_returns_defaults_when_no_config(self, tmp_path):
         from utils import load_config
-        assert load_config(tmp_path) == {}
+        result = load_config(tmp_path)
+        assert result["subprocess_timeout_s"] == 5
 
-    def test_returns_empty_on_invalid_json(self, tmp_path):
+    def test_returns_defaults_on_invalid_json(self, tmp_path):
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text("not valid json")
         from utils import load_config
         result = load_config(tmp_path)
-        assert result == {}
+        assert result["subprocess_timeout_s"] == 5
 
-    def test_returns_empty_on_empty_file(self, tmp_path):
+    def test_returns_defaults_on_empty_file(self, tmp_path):
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text("")
         from utils import load_config
-        assert load_config(tmp_path) == {}
+        result = load_config(tmp_path)
+        assert result["subprocess_timeout_s"] == 5
 
     def test_boolean_value_preserved(self, tmp_path):
         zf = tmp_path / "zie-framework"
@@ -947,3 +949,72 @@ class TestGitStatusCache:
         monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
         result = get_cached_git_status("nonexistent-sid-xyz", "log", ttl=60)
         assert result is None
+
+
+class TestValidateConfig:
+    def test_empty_dict_returns_all_defaults(self):
+        result = validate_config({})
+        assert result["subprocess_timeout_s"] == 5
+        assert result["safety_agent_timeout_s"] == 30
+        assert result["auto_test_max_wait_s"] == 15
+        assert result["auto_test_timeout_ms"] == 30000
+
+    def test_valid_values_preserved(self):
+        result = validate_config({"subprocess_timeout_s": 10})
+        assert result["subprocess_timeout_s"] == 10
+        assert result["safety_agent_timeout_s"] == 30
+
+    def test_wrong_type_replaced_with_default(self, capsys):
+        result = validate_config({"subprocess_timeout_s": "fast"})
+        assert result["subprocess_timeout_s"] == 5
+        captured = capsys.readouterr()
+        assert "defaulted keys" in captured.err
+        assert "subprocess_timeout_s" in captured.err
+
+    def test_warning_lists_all_defaulted_keys(self, capsys):
+        validate_config({"subprocess_timeout_s": "x", "safety_agent_timeout_s": "y"})
+        captured = capsys.readouterr()
+        assert "subprocess_timeout_s" in captured.err
+        assert "safety_agent_timeout_s" in captured.err
+
+    def test_none_treated_as_empty_dict(self):
+        result = validate_config(None)
+        assert result["subprocess_timeout_s"] == 5
+
+    def test_no_warning_on_full_valid_config(self, capsys):
+        validate_config({
+            "subprocess_timeout_s": 5,
+            "safety_agent_timeout_s": 30,
+            "auto_test_max_wait_s": 15,
+            "auto_test_timeout_ms": 30000,
+        })
+        captured = capsys.readouterr()
+        assert "defaulted" not in captured.err
+
+    def test_no_warning_on_empty_dict(self, capsys):
+        validate_config({})
+        captured = capsys.readouterr()
+        assert "defaulted" not in captured.err
+
+    def test_load_config_returns_fully_typed_dict(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('{"subprocess_timeout_s": 10}')
+        result = load_config(tmp_path)
+        assert result["safety_agent_timeout_s"] == 30
+        assert result["subprocess_timeout_s"] == 10
+
+    def test_load_config_missing_file_returns_defaults(self, tmp_path):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        result = load_config(tmp_path)
+        assert result["subprocess_timeout_s"] == 5
+
+    def test_load_config_json_array_returns_defaults(self, tmp_path, capsys):
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / ".config").write_text('[1, 2, 3]')
+        result = load_config(tmp_path)
+        assert result["subprocess_timeout_s"] == 5
+        captured = capsys.readouterr()
+        assert "config parse error" in captured.err
