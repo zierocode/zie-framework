@@ -10,7 +10,7 @@
 set -uo pipefail
 
 TESTS_UNIT="tests/unit"
-FULL_SUITE_CMD="make test-unit"
+FULL_SUITE_CMD="python3 -m pytest tests/unit/ -q --tb=short --no-header"
 
 # ── Discover changed files ────────────────────────────────────────────────────
 if [[ -n "${_FAST_CHANGED:-}" ]]; then
