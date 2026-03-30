@@ -33,6 +33,7 @@
 <!-- Audit 2026-03-26: 53 findings, score 73/100 -->
 
 <!-- CRITICAL -->
+- [ ] agentic-pipeline-v2 — [backlog](backlog/agentic-pipeline-v2.md)
 
 <!-- HIGH -->
 
