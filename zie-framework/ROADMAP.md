@@ -22,9 +22,7 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [ ] user-onboarding-sdlc — /zie-init pipeline orientation + SessionStart drift warning — [plan](plans/2026-03-29-user-onboarding-sdlc.md)
-- [ ] hook-resilience-tests — error path + edge case tests for all hooks — [plan](plans/2026-03-29-hook-resilience-tests.md)
-- [ ] test-suite-tiering — make test-fast (dev loop) vs make test-ci (full suite) — [plan](plans/2026-03-29-test-suite-tiering.md)
+
 <!-- LOW -->
 
 ---
@@ -51,6 +49,8 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint6-audit-v2-portability — zie-audit v2 (7 dimensions + external research), 5 portability fixes (agents, safety hook, markdownlint, venv python, dev branch), plugin marketplace decoupling — v1.13.0 2026-03-30
 
 - [x] sprint5-pipeline-quality — 13 features: pipeline-gate-enforcement, adr-session-cache,
   adr-auto-summarization, user-onboarding-sdlc, retro-release-lean-context, hook-resilience-tests,

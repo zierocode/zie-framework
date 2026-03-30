@@ -2,16 +2,20 @@
 # Copy to Makefile.local (gitignore-able or commit as-is).
 # This file is auto-included by the base Makefile via: -include Makefile.local
 
+# Pin to venv Python to avoid system/Homebrew version mismatches.
+# Override: PYTHON=/usr/bin/python3 make test-unit
+PYTHON ?= .venv/bin/python3
+
 # ── Tests ─────────────────────────────────────────────────────────────────────
 test-unit: ## Run unit tests
-	python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
+	$(PYTHON) -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
 
 test-int: ## Run integration tests
-	python3 -m pytest tests/ -v -m "integration" --tb=short
+	$(PYTHON) -m pytest tests/ -v -m "integration" --tb=short
 
 # ── Lint ──────────────────────────────────────────────────────────────────────
 lint: ## Lint Python source (syntax check)
-	python3 -m py_compile src/**/*.py && echo "All files compile OK"
+	$(PYTHON) -m py_compile src/**/*.py && echo "All files compile OK"
 
 # ── Environment lifecycle ─────────────────────────────────────────────────────
 _start-dev:
@@ -41,7 +45,7 @@ _publish:
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
 _setup-extra:
-	pip3 install -r requirements.txt
+	$(PYTHON) -m pip install -r requirements.txt
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
 logs: ## Tail application logs

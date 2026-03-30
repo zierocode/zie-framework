@@ -66,12 +66,15 @@ make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 fi
 
 ## Agent Mode Sessions
 
+Plugin loads from marketplace cache (`github:zierocode/zie-framework`).
+After `make release`, restart Claude to pick up the new version.
+
 ```bash
 # TDD-focused session — permissionMode: acceptEdits, all tools
-claude --plugin-dir . --agent zie-framework:zie-implement-mode
+claude --agent zie-framework:zie-implement-mode
 
 # Read-only audit session — permissionMode: plan, restricted tools
-claude --plugin-dir . --agent zie-framework:zie-audit-mode
+claude --agent zie-framework:zie-audit-mode
 ```
 
 ## Key Rules

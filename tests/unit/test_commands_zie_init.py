@@ -34,15 +34,15 @@ class TestZieInitPipelineSummary:
         content = read_init()
         assert 'First feature: /zie-backlog' in content
 
-    def test_pipeline_summary_after_step_13(self):
-        """Pipeline block must appear within or after the Step 13 section."""
+    def test_pipeline_summary_after_print_summary_step(self):
+        """Pipeline block must appear within or after the Print summary step."""
         content = read_init()
-        step13_idx = content.find("13. **Print summary**")
+        print_summary_idx = content.find("**Print summary**")
         pipeline_idx = content.find("SDLC pipeline:")
-        assert step13_idx != -1, "Step 13 not found in zie-init.md"
+        assert print_summary_idx != -1, "Print summary step not found in zie-init.md"
         assert pipeline_idx != -1, "SDLC pipeline block not found"
-        assert pipeline_idx > step13_idx, (
-            "Pipeline summary must appear after Step 13 header"
+        assert pipeline_idx > print_summary_idx, (
+            "Pipeline summary must appear after Print summary header"
         )
 
     def test_migration_complete_line_documented(self):

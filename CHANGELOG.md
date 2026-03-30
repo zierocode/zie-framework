@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.13.0 — 2026-03-30
+
+### Features
+- **zie-audit v2** — upgraded from 3 to 7 audit dimensions: Security, Code Health,
+  Performance, Structural, Dependency Health, Observability, and a new dedicated
+  External Research agent that searches for stack/domain-specific improvements
+  (not just bugs). Phase 3 synthesis is now inline (saves 1 agent call). Phase 4
+  uses batch backlog prompts (all/select/skip) instead of one-by-one. Scoring
+  now categorizes findings as Quick Win, Strategic, or Defer.
+
+### Fixed / Changed
+- **5 portability fixes** for using zie-framework in other repos: missing
+  `retro-format` and `docs-sync-check` agents now registered; `zie-init` creates
+  `dev` branch automatically (required by `make release`); `zie-init` creates
+  `.markdownlintignore` so generated SDLC files don't fail pre-commit lint;
+  safety hook now allows `git push origin main --tags` (used by `make release`);
+  Makefile.local template uses `PYTHON ?= .venv/bin/python3` to avoid
+  system/Homebrew version mismatches
+- **Plugin marketplace decoupled** — zie-framework and zie-memory no longer
+  cross-update each other on release. Each plugin self-contained via
+  `github:zierocode/zie-framework` in settings.json. `make release` creates a
+  GitHub release directly without touching other repos.
+
 ## v1.12.0 — 2026-03-30
 
 ### Features
