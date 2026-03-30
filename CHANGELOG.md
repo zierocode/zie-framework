@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.14.2 — 2026-03-30
+
+### Changed
+- `make test-fast` no longer runs the full suite when no files have changed — uses `--lfnf=none` so it exits in <1s instead of 2+ minutes
+- `make test-fast` fallback (unmapped .py files) now runs raw `pytest tests/unit/` without coverage overhead, instead of `make test-unit`
+
 ## v1.14.1 — 2026-03-30
 
 ### Changed
