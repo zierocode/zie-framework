@@ -123,7 +123,7 @@ class TestGateDescriptionsRelease:
                       if ln.strip()
                       and not ln.strip().startswith("#")
                       and not ln.strip().startswith("```")
-                      and ln.strip() != "make test-unit"]
+                      and ln.strip() not in ("make test-unit", "make test-fast")]
         assert len(desc_lines) <= 3, \
             f"zie-release unit gate must be concise (≤ 3 description lines), found {len(desc_lines)}: {desc_lines}"
 
