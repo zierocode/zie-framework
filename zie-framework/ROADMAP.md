@@ -36,8 +36,13 @@
 - [ ] agentic-pipeline-v2 — [backlog](backlog/agentic-pipeline-v2.md)
 
 <!-- HIGH -->
+- [ ] context-lean-sprint — [backlog](backlog/context-lean-sprint.md)
+- [ ] parallel-release-gates — [backlog](backlog/parallel-release-gates.md)
+- [ ] model-routing-v2 — [backlog](backlog/model-routing-v2.md)
 
 <!-- MEDIUM -->
+- [ ] workflow-lean — [backlog](backlog/workflow-lean.md)
+- [ ] dx-polish — [backlog](backlog/dx-polish.md)
 
 <!-- LOW -->
 
