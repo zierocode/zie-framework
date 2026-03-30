@@ -89,9 +89,12 @@ if [[ "$NEEDS_FULL_FALLBACK" -eq 1 ]]; then
   exec ${FULL_SUITE_CMD}
 fi
 
-PYTEST_ARGS=("--lf" "-q" "--tb=short" "--no-header")
 if [[ "${#TEST_PATHS[@]}" -gt 0 ]]; then
-  PYTEST_ARGS+=("${TEST_PATHS[@]}")
+  # Specific files changed — run them directly, no --lf filter (ensures new tests run)
+  PYTEST_ARGS=("-q" "--tb=short" "--no-header" "${TEST_PATHS[@]}")
+else
+  # No mapped changes — run only lastfailed; if none, exit clean (don't rerun all)
+  PYTEST_ARGS=("--lf" "--lfnf=none" "-q" "--tb=short" "--no-header" "${TESTS_UNIT}")
 fi
 
 if [[ "${_FAST_DRY_RUN:-0}" == "1" ]]; then
