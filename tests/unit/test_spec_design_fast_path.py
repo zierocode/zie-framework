@@ -53,7 +53,6 @@ class TestSpecDesignFastPath:
             "Spec reviewer loop",
             "Record approval",
             "Store spec approval",
-            "Ask user to review",
             "Print handoff",
         ):
             assert step_phrase in text, \

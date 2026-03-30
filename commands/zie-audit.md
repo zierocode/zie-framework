@@ -10,6 +10,41 @@ effort: medium
 Audit the codebase across 7 dimensions plus external research.
 Produces scored findings filtered against existing backlog.
 
+## Arguments
+
+| Flag | Values | Description |
+| --- | --- | --- |
+| `--focus` | `security`, `deps`, `code`, `perf`, `structure`, `obs`, `external` | Limit audit to specific dimensions. Comma-separated for multiple (e.g. `--focus security,code`). Omit to run all 4 agents. |
+
+**Focus map:** `security` → Agent 1 | `deps` → Agent 1 | `code` → Agent 2 | `perf` → Agent 2 | `structure` → Agent 3 | `obs` → Agent 3 | `external` → Agent 4
+
+**Parse at command start:**
+```python
+focus_tokens = []
+for arg in ARGUMENTS.split():
+    if arg.startswith("--focus"):
+        val = arg.split("=")[-1] if "=" in arg else ""
+        focus_tokens = [t.strip() for t in val.split(",") if t.strip()]
+        break
+
+focus_map = {
+    "security": [1], "deps": [1],
+    "code": [2], "perf": [2],
+    "structure": [3], "obs": [3],
+    "external": [4],
+}
+active_agents = set()
+for token in focus_tokens:
+    if token in focus_map:
+        active_agents.update(focus_map[token])
+    else:
+        print(f"⚠ Unknown focus value '{token}' — running full audit")
+        active_agents = {1, 2, 3, 4}
+        break
+if not active_agents:
+    active_agents = {1, 2, 3, 4}  # default: all agents
+```
+
 ## Phase 1 — Context Bundle
 
 Build a context bundle for all downstream agents. All reads are inline — no
@@ -26,17 +61,26 @@ Extract:
 
 **SDLC context** — read to avoid redundant findings:
 - `zie-framework/ROADMAP.md` → extract backlog slugs from Next + Ready lanes
-- `zie-framework/decisions/` → list ADR filenames (intentional decisions — skip flagging these)
+- `zie-framework/decisions/` → list ADR filenames + read content (intentional decisions — skip flagging these)
 
-**Recent activity** — run `git log --oneline -15` → note recently changed files
-(audit gives higher weight to new code)
+**Recent activity** — run `git log --oneline -15` → `git_log` (audit gives higher weight to new code)
+
+**ADR cache** — call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`:
+- Returns `(True, adr_cache_path)` → save path
+- Returns `(False, None)` → set `adr_cache_path = None`
+
+**Bundle:** `shared_context = { stack, domain, deps, backlog_slugs, adrs_filenames, git_log, adr_cache_path }`
 
 ## Phase 2 — Parallel Dimension Scan
 
-Spawn 4 Agents **simultaneously** (`run_in_background: true`). Pass `stack`,
-`domain`, `deps` to each.
+Print header: `## Phase 2 — Parallel Dimension Scan (active: Agent N, ...)`. Each agent is conditional: only spawn if agent number in `active_agents`.
+
+Spawn up to 4 Agents **simultaneously** (`run_in_background: true`). Pass `shared_context`
+to each with instruction: **"Do not re-read project manifests, git log, or ADR lists — they are in shared_context."**
 
 **Agent 1 — Security + Dependency Health**
+
+Receives `shared_context` — use `deps` and `stack` directly; do not re-read manifests.
 
 Security focus: hardcoded secrets, shell injection, input validation gaps, auth
 holes, error message leakage, path traversal, unsafe deserialization.
@@ -45,13 +89,15 @@ Dependency Health focus: outdated deps with known issues, unused deps,
 overly-loose version pins, license risks, deps with actively maintained
 alternatives.
 
-WebSearch: max 6 queries — CVEs for specific `{deps}` versions, dependency
+WebSearch: max 6 queries — CVEs for specific `{shared_context.deps}` versions, dependency
 advisories. No generic searches; queries must reference actual dep names+versions
-from Phase 1.
+from shared_context.
 
 Output: findings list with severity (CRITICAL / HIGH / MEDIUM / LOW).
 
 **Agent 2 — Code Health + Performance**
+
+Receives `shared_context` — use `stack` and `git_log` directly; do not re-read git history.
 
 Code Health focus: dead code, duplication above threshold, over-engineering,
 untested modules, weak assertions, coverage gaps, fragile tests, error paths
@@ -62,11 +108,13 @@ missing caching for repeated expensive calls, blocking calls in hot paths,
 connection pool exhaustion risks, unbounded memory growth patterns.
 
 WebSearch: max 2 queries — only if a specific dep/framework has known
-performance footguns relevant to `{stack}`.
+performance footguns relevant to `{shared_context.stack}`.
 
 Output: findings list with severity.
 
 **Agent 3 — Structural + Observability**
+
+Receives `shared_context` — use `adrs_filenames` to avoid flagging intentional decisions.
 
 Structural focus: stale/wrong docs, broken examples, coupling violations,
 SRP issues, inconsistent naming conventions, missing abstractions causing
@@ -76,18 +124,20 @@ Observability focus: missing health check endpoints, unstructured error
 reporting (no log levels / no error IDs), missing metrics hooks, no graceful
 shutdown handling, silent crash paths.
 
-WebSearch: max 2 queries — only for `{domain}`-specific structural conventions
+WebSearch: max 2 queries — only for `{shared_context.domain}`-specific structural conventions
 (e.g., "REST API versioning patterns" if domain is web API).
 
 Output: findings list with severity.
 
 **Agent 4 — External Research** ← improvement-focused, not bug-finding
 
-Goal: discover what projects using `{stack}` for `{domain}` *should have* that
+Receives `shared_context` — use `stack` and `domain` directly.
+
+Goal: discover what projects using `{shared_context.stack}` for `{shared_context.domain}` *should have* that
 this project is likely missing. Frame every finding as an actionable improvement,
 not a defect.
 
-Research vectors (use detected `{stack}` and `{domain}` as search terms — do
+Research vectors (use detected `{shared_context.stack}` and `{shared_context.domain}` as search terms — do
 NOT hardcode language names):
 - Best practices: `"{stack} {domain} production best practices"`
 - Ecosystem norms: `"{stack} project structure conventions"`
@@ -95,7 +145,7 @@ NOT hardcode language names):
 - Resilience patterns: `"{domain} resilience patterns {stack}"`
 - Community standards: what does the `{stack}` community consider table stakes?
 
-WebSearch: max 6 queries — all must reference detected `{stack}` or `{domain}`.
+WebSearch: max 6 queries — all must reference detected `{shared_context.stack}` or `{shared_context.domain}`.
 WebFetch: follow top 2 authoritative results (official docs, well-known guides).
 
 Output: improvement opportunities list with rationale and source URLs. Format:

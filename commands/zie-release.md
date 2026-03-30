@@ -1,7 +1,7 @@
 ---
 description: Full release gate — run all test gates, bump version, merge dev→main, tag, and trigger retrospective.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
-model: sonnet
+model: haiku
 effort: medium
 ---
 
@@ -24,6 +24,17 @@ effort: medium
 
 ## ลำดับการตรวจสอบ (ต้องผ่านทุกขั้น)
 
+### Pre-Gate-1: Docs Sync (background)
+
+Spawn docs-sync-check before unit tests — runs concurrently:
+
+```python
+TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md against changed files", activeForm="Checking docs sync")
+Agent(subagent_type="general-purpose", run_in_background=True, prompt="Check CLAUDE.md and README.md for staleness. (1) Scan zie-framework/commands/*.md — extract all /zie-* command names. (2) Scan zie-framework/skills/*/*.md — extract all skill names. (3) Scan zie-framework/hooks/*.py — extract hook event types. (4) Check CLAUDE.md Development Commands section lists all commands. (5) Check README.md skills table lists all skills. Report: [docs-sync] PASSED or [docs-sync] FAILED: <what's stale>. Return JSON: { 'in_sync': bool, 'missing_from_docs': [...], 'extra_in_docs': [...], 'details': str }")
+```
+
+<!-- fallback: if Agent unavailable → print `[zie-framework] docs-sync-check unavailable — skipping` and continue. Manual check: make docs-sync -->
+
 ### ตรวจสอบ: Unit Tests
 
 Print: `[Gate 1/5] Unit Tests`
@@ -33,80 +44,55 @@ make test-unit
 ```
 
 - Must exit 0. On failure → STOP: "Gate 1 FAILED: unit tests. Run /zie-fix before releasing."
-- **On pass:** immediately start Fork: Quality Checks (see section below — runs concurrently with Gates 2/3).
+- **On pass:** immediately spawn Gates 2, 3, 4 in parallel (see next section).
 
-### ตรวจสอบ: Integration Tests
+### ตรวจสอบ: Parallel Gates 2–4
 
-Print: `[Gate 2/5] Integration Tests`
-
-```bash
-make test-int
-```
-
-- Must exit 0, OR skip if no integration tests exist.
-- On failure → STOP. Print: "Gate 2 FAILED: integration tests."
-
-### ตรวจสอบ: E2E Tests (ถ้า playwright_enabled=true)
-
-Print: `[Gate 3/5] E2E Tests`
-
-```bash
-make test-e2e
-```
-
-- Must exit 0.
-- On failure → STOP. Print: "Gate 3 FAILED: e2e tests."
-- If `playwright_enabled=false` → skip this gate, note it.
-
-### ตรวจสอบ: Visual (ถ้า has_frontend=true)
-
-Print: `[Gate 4/5] Visual Check`
-
-- If `has_frontend=true` AND `playwright_enabled=true`:
-  - E2E gate above already covers this — skip.
-- If `has_frontend=true` AND `playwright_enabled=false`:
-  - Start dev server → manually verify key pages load, no console errors.
-  - Ask Zie to confirm: "Visual check passed? (yes/no)"
-  - If no → STOP. Fix and re-run.
-- If `has_frontend=false` → skip this gate.
-
-### Quality Checks (background Agents + Bash)
-
-**TaskCreate** — create task before launching Agent:
+Upon Gate 1 success, immediately spawn three Agents simultaneously:
 
 ```python
-TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md against changed files", activeForm="Checking docs sync")
+Agent(subagent_type="general-purpose", run_in_background=True, prompt="Run integration tests: execute `make test-int`. Report result: [Gate 2/5] PASSED or [Gate 2/5] FAILED: <reason>. If no integration tests exist, report [Gate 2/5] SKIPPED.")
+
+Agent(subagent_type="general-purpose", run_in_background=True, prompt="Run e2e tests if enabled: check playwright_enabled in zie-framework/.config. If true, execute `make test-e2e`. If false, skip. Report: [Gate 3] PASSED or [Gate 3] SKIPPED or [Gate 3] FAILED: <reason>.")
+
+Agent(subagent_type="general-purpose", run_in_background=True, prompt="Visual check if applicable: check has_frontend and playwright_enabled in zie-framework/.config. If has_frontend=true and playwright_enabled=false, start dev server and verify key pages load without console errors. Report: [Gate 4] PASSED or [Gate 4] SKIPPED or [Gate 4] FAILED: <reason>.")
 ```
 
-**Invoke simultaneously:**
+<!-- fallback: if Agent unavailable → run sequentially: make test-int → make test-e2e → visual check -->
 
-1. `Agent(subagent_type="zie-framework:docs-sync-check", run_in_background=True)`
-   - prompt: `"Check docs sync for changed files: {changed_files}"` (`git diff main..HEAD --name-only`)
+### Collect Parallel Gate Results
 
-2. Bash: TODOs and secrets scan (runs in parallel with Agent):
+Wait for all three gate Agents to complete. Collect results from each (do NOT stop at first failure):
 
-   ```bash
-   grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
-   ```
+- If all three pass (or skip) → print "Gates 2, 3, 4 PASSED" → continue
+- If any fail → print all failures together, then STOP before version bump:
+  ```
+  [Gate 2] FAILED: integration tests failed
+  [Gate 3] FAILED: e2e tests timed out
+  ```
+- Also collect docs-sync-check result (Pre-Gate-1 Agent):
+  - `[docs-sync] PASSED` → print "Docs in sync"
+  - `[docs-sync] FAILED` → update stale docs now before version bump
+  - Not yet complete → wait for it (non-critical: does not block release if unavailable)
 
-   Also check changed files for hardcoded API keys, tokens, or credentials.
+Also run TODOs and secrets scan (Bash, parallel with gate agents):
 
-Await docs-sync-check Agent completion. **TaskUpdate** → completed.
+```bash
+grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
+```
 
-<!-- fallback: if Agent unavailable → print `[zie-framework] docs-sync-check unavailable — skipping (manual check: make docs-sync)` and continue. -->
+Any secrets detected → STOP immediately.
 
 ### รวมผลลัพธ์ Quality Forks
 
 Print: `[Quality Forks] Collecting results`
 
-Collect results from the parallel forks started after Gate 1:
+All parallel results collected in "Collect Parallel Gate Results" above.
+This section confirms before proceeding to version bump:
 
-- **Docs sync**: if `claude_md_stale=true` or `readme_stale=true` → update
-  stale docs now, before version bump. If in sync → print "Docs in sync".
-  (`CLAUDE.md` and `README.md` must reflect current commands/skills/hooks.)
-- **TODOs/secrets**: any hits in new code? Fix or create a tracked backlog
-  item before proceeding. Any secrets detected → STOP immediately.
-- If docs-sync-check did not complete → print `[zie-framework] docs-sync-check unavailable — skipping (manual check: make docs-sync)`.
+- Gates 2, 3, 4: all PASSED or SKIPPED → continue
+- Docs sync: stale docs updated if needed → continue
+- TODOs/secrets: no secrets detected → continue
 
 ### ตรวจสอบ: Code diff ก่อน merge
 
@@ -117,75 +103,22 @@ merging.
 
 ## All Gates Passed — Release
 
-1. **[Step 1/10] Suggest version bump** based on what's in Now lane:
-   - Scan `[x]` items in Now + git log since last tag
-   - Apply rule (take highest that applies):
-     - **major** — breaking change: existing users/callers ต้องแก้ code/config
-       ของตัวเองเพื่อ upgrade
-     - **minor** — new capability: มีของใหม่ที่ใช้ได้เลย โดยไม่ต้องแก้อะไรเดิม
-     - **patch** — no new capability: bug fix, docs, tests, refactor, rename,
-       style
-   - Present suggestion with reasoning:
+<!-- model: sonnet reasoning: version suggestion compares commits against semver rules and requires judgment about breaking changes vs new features. -->
+1. **[Step 1/10] Suggest version bump** — scan `[x]` Now items + git log. Apply: major (breaking change), minor (new capability), patch (fix/docs/refactor). Display:
+   `Bumped to vX.Y.Z (CHANGE_TYPE). Send override if wrong. Override: /zie-release --bump-to=X.Y.Z`
 
-     ```text
-     Suggested bump: minor
-     Reason: <what changed>
-     Current: <VERSION> → <new version>
-     Confirm? (Enter = accept / major / minor / patch to override)
-     ```
-
-2. **Bump VERSION**:
-   - Enter → accept the suggested bump shown above
-   - Or read `major|minor|patch` from user override
-   - Calculate new version: e.g., `1.0.10` + `patch` → `1.0.11`
-   - Write new version to `VERSION`
+2. **Bump VERSION**: auto-accept suggestion or use `--bump-to=X.Y.Z` override. Write to `VERSION`.
 
 3. **Update ROADMAP.md** *(before commit)*:
    - Move all `[x]` items from "Now" → "Done" with date and version tag.
    - Clear Now lane (leave `<!-- -->` comment).
 
-4. **Cleanup shipped SDLC artifacts** — for each shipped slug derived from Now lane:
-   - Delete `zie-framework/backlog/<slug>.md` (if exists)
-   - Delete `zie-framework/specs/*-<slug>-design.md` (glob first match, if exists)
-   - Delete `zie-framework/plans/*-<slug>.md` (glob first match, if exists)
-   - Stage and include these deletions in the release commit.
-   - Rationale: git history preserves all content — working tree contains only
-     active work. `zie-framework/decisions/` is never cleaned (ADRs are permanent).
+4. **Cleanup shipped SDLC artifacts** — delete `backlog/<slug>.md`, `specs/*-<slug>-design.md`, `plans/*-<slug>.md` for each shipped slug. Stage deletions in release commit. (ADRs permanent — never cleaned.)
 
-5. **Draft CHANGELOG entry**:
-   - Run: `git log $(git describe --tags --abbrev=0 2>/dev/null || git
-     rev-list --max-parents=0 HEAD)..HEAD --oneline --no-merges`
-   - Rewrite commits เป็นภาษาที่คนอ่านเข้าใจ — ไม่ใช่แค่ copy commit messages:
-     - Group เป็น **Features**, **Fixed**, **Changed** (ข้าม group ที่ว่าง)
-     - แต่ละ item: อธิบาย *what changed and why it matters*
-   - Present draft ให้ Zie approve:
+<!-- model: sonnet reasoning: narrative rewrite of commit messages into human-readable feature/fix groups requires editorial judgment and understanding of change impact. -->
+5. **Draft CHANGELOG entry**: run `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline --no-merges`. Rewrite into Features/Fixed/Changed groups. Present for approve/edit. On `yes` → append to `CHANGELOG.md`; on `edit` → apply changes → write.
 
-     ```text
-     ## v<NEW_VERSION> — YYYY-MM-DD
-
-     ### Features
-     - <human-readable description>
-
-     ### Fixed / Changed
-     - <human-readable description>
-
-     Approve this CHANGELOG entry? (yes / edit)
-     ```
-
-   - **yes** → append section at top of `CHANGELOG.md`
-   - **edit** → Zie แก้ text → write → continue
-
-6. **Pre-flight: ตรวจสอบ uncommitted files**:
-
-   ```bash
-   git status --short
-   ```
-
-   - Release commit ควรมีแค่ 3 ไฟล์: `VERSION`, `CHANGELOG.md`,
-     `zie-framework/ROADMAP.md`
-     (project-specific files เช่น plugin.json จะถูก commit โดย `make release` ต่อไป)
-   - ถ้าเจอ implementation files → STOP: "Uncommitted feature files found. Commit with `git add -A && git commit -m "feat: SLUG"` first."
-   - ถ้าเจอแค่ docs ที่ release gate เพิ่งอัปเดต → include ได้
+6. **Pre-flight: ตรวจสอบ uncommitted files**: run `git status --short`. Release commit should have only `VERSION`, `CHANGELOG.md`, `ROADMAP.md` (project files like `plugin.json` committed by `make release`). Implementation files found → STOP. Docs from this gate → include.
 
 7. **Commit release files**:
 
@@ -210,15 +143,7 @@ merging.
    - Then WRITE: Call `mcp__plugin_zie-memory_zie-memory__remember`
      with `"Shipped: <feature> v<NEW_VERSION>. Tasks: N. Actual: <vs estimate>." tags=[shipped, <project>, <domain>]`
 
-10. **Archive shipped SDLC artifacts**:
-
-    ```bash
-    make archive
-    ```
-
-    Moves completed backlog items, specs, and plans from active directories to
-    `zie-framework/archive/` by slug matching Done-lane entries. Git history
-    preserves all content — working tree reflects only active work.
+10. **Archive**: `make archive` — moves backlog/specs/plans for shipped slugs to `zie-framework/archive/`.
 
 11. **Auto-run `/zie-retro`**.
 

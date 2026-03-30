@@ -65,6 +65,24 @@ Before defining tasks, map out which files will be created or modified:
 | Create | `path/to/file.py` | What this file does |
 | Modify | `path/to/existing.py` | What changes |
 
+## Task Sizing Guidance
+
+**Right-size tasks before writing them:**
+
+| Size | Description | Signals |
+| --- | --- | --- |
+| Too big | More than one file changed, or multiple unrelated behaviors | Split into 2+ tasks |
+| Right | Single file/function changed, single behavior tested | Proceed |
+| Too small | Only renaming or constant change | Merge with adjacent task |
+
+**Task count guidance:**
+- S plan: ≤3 tasks (single-session feature)
+- M plan: 4–7 tasks (multi-session, one sprint)
+- L plan: 8–15 tasks (multi-sprint — consider splitting)
+- ⚠️ >15 tasks: plan is too large — split by feature boundary
+
+**File conflict check:** Before assigning tasks, verify no two independent tasks write to the same output file. If they do, add `<!-- depends_on: TN -->` to serialize them.
+
 ## โครงสร้าง Task
 
 Each task follows TDD RED → GREEN → REFACTOR:

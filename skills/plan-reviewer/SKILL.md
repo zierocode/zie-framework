@@ -114,6 +114,34 @@ If issues found:
 Fix these and re-submit for review.
 ```
 
+## Plan Size Warning
+
+If plan has more than 15 tasks, output warning:
+
+```text
+⚠️ Large plan detected (N tasks). Consider splitting into:
+1. <slug>-core — essential tasks only
+2. <slug>-extras — enhancements that can ship separately
+Large plans increase WIP time and context overhead.
+```
+
+This is advisory only — does not block APPROVED verdict.
+
+## Max Iterations Reached
+
+If plan-reviewer has been invoked 3 times and issues persist, output:
+
+```text
+⚠️ Max review iterations reached (3). Persistent issues:
+
+<list remaining issues>
+
+Next steps:
+- Fix issues above, then re-run: /zie-plan <slug>
+- Or split plan into smaller tasks and re-submit
+- Or ask Zie to review the plan section manually
+```
+
 ## Notes
 
 - Reject plans with vague steps like "implement the feature" or "add tests"

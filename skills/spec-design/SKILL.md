@@ -19,6 +19,11 @@ Turn an idea into a written spec through collaborative dialogue. Output lives in
 | --- | --- | --- | --- |
 | 0 | `$ARGUMENTS[0]` | Backlog slug (e.g. `my-feature`) | absent → prompt user for slug |
 | 1 | `$ARGUMENTS[1]` | Mode: `full` (full dialogue) or `quick` (skip clarification, draft directly) | absent/empty → `full` |
+| 2 | `$ARGUMENTS[2]` | Pass-through flags (e.g. `--draft-plan`); handled by `/zie-spec` control plane, not evaluated by skill | absent/empty → no flags |
+
+**Flag Handling:** `--draft-plan` is parsed and handled by `/zie-spec` command (control plane, per ADR-003).
+The skill receives the flag string but does not act on it. Spec-design always writes the spec and runs
+the spec-reviewer loop; `/zie-spec` decides whether to auto-proceed to planning.
 
 When `$ARGUMENTS[0]` is absent, fall back to listing the backlog menu and
 prompting the user to choose — matching the behaviour of `/zie-spec` with no
@@ -130,12 +135,10 @@ are always asked regardless of completeness.
    - Call `mcp__plugin_zie-memory_zie-memory__remember`
      with `"Spec approved: <feature>. Key decisions: [<d1>]." tags=[spec, <project>, <feature-area>]`
 
-8. **Ask user to review** the written spec before proceeding.
-
-9. Print handoff — do NOT auto-invoke write-plan:
+8. Print handoff — do NOT auto-invoke write-plan:
 
    ```text
-   Spec approved ✓ → zie-framework/specs/YYYY-MM-DD-<slug>-design.md
+   Spec approved ✓ (reviewed by spec-reviewer) → zie-framework/specs/YYYY-MM-DD-<slug>-design.md
 
    Next: Run /zie-plan <slug> to draft the implementation plan.
    ```

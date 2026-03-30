@@ -76,11 +76,14 @@ For each resolved slug (whether from args or from no-args selection):
 
 Before invoking any reviewer, load shared context once:
 
-1. Read all `zie-framework/decisions/*.md` → store as `adrs_content`
-   (list of `{filename, content}` pairs; empty list if directory missing)
-2. Read `zie-framework/project/context.md` → store as `context_content`
-   (string; empty string if file missing)
-3. Bundle as `context_bundle = { adrs: adrs_content, context: context_content }`
+1. Read all `zie-framework/decisions/*.md` → concatenate → `adrs_content`
+   (empty string if directory missing)
+2. Read `zie-framework/project/context.md` → `context_content`
+   (empty string if file missing)
+3. Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`:
+   - Returns `(True, adr_cache_path)` → save path
+   - Returns `(False, None)` → set `adr_cache_path = None`
+4. Bundle as `context_bundle = { adr_cache_path: <path or None>, adrs: adrs_content, context: context_content }`
 
 Pass `context_bundle` to every reviewer invocation below.
 
@@ -107,9 +110,9 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
 ## ขออนุมัติ plan (ทีละ plan)
 
 1. For each reviewer-approved plan:
-   - Display plan to Zie.
-   - Ask: "Approve this plan? (yes / re-draft / drop back to Next)"
-   - **yes** → add frontmatter to plan file:
+   - **Auto-approve** — when plan-reviewer returns ✅ APPROVED, proceed automatically
+     (no user confirmation required — reviewer verdict IS the gate):
+   - Add frontmatter to plan file:
 
      ```yaml
      ---
@@ -136,9 +139,12 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
      git commit -m "plan: <slug>"
      ```
 
-   - **re-draft** → revise plan and re-run plan-reviewer gate before
-     re-presenting (keeps pending state)
-   - **drop** → leave item in Next unchanged, skip this plan
+     Display: `"✓ Plan approved & moved to Ready. Run /zie-implement to start building."`
+     Override options (send as next message if needed):
+     - **re-draft** → revise plan and re-run plan-reviewer gate (keeps pending state)
+     - **drop** → leave item in Next unchanged, skip this plan
+
+   - **If plan-reviewer returns ❌ Issues Found**: ask user: "Fix and re-run, re-draft, or drop?" (old flow preserved)
 
 2. If `zie_memory_enabled=true` — WRITE after approval:
    - Complexity: ≤3 tasks = S, 4–7 = M, 8+ = L

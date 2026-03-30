@@ -102,6 +102,23 @@ Knowledge hash:
 
    **ขั้นตอนถัดไป**: \<context-appropriate suggestion>
 
+7.5 **Pipeline Stage Indicator** — detect active feature's pipeline stage:
+
+   For each item in ROADMAP Now lane, detect which stages are complete:
+   - **backlog** ✓ — `zie-framework/backlog/<slug>.md` exists
+   - **spec** ✓ — `zie-framework/specs/*-<slug>-design.md` exists with `approved: true`
+   - **plan** ✓ — `zie-framework/plans/*-<slug>.md` exists with `approved: true`
+   - **implement** ▶ — Now lane has `[ ]` item (in progress)
+   - **implement** ✓ — Now lane has `[x]` item (complete, pending release)
+   - **release** ✓ — git tag matching current VERSION exists
+   - **retro** ✓ — `zie-framework/decisions/` has ADRs dated today
+
+   Print pipeline row:
+   ```
+   Pipeline: backlog ✓ → spec ✓ → plan ✓ → implement ▶ → release — → retro —
+   ```
+   If Now lane is empty: skip pipeline row.
+
 8. **ตรรกะขั้นตอนถัดไป** (เลือกที่เกี่ยวข้องที่สุด):
    - Nothing in ROADMAP Now → "Start a feature: /zie-backlog"
    - Active plan exists, tasks incomplete → "Continue: /zie-implement"

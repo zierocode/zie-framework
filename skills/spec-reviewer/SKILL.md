@@ -99,6 +99,21 @@ If issues found:
 Fix these and re-submit for review.
 ```
 
+## Max Iterations Reached
+
+If spec-reviewer has been invoked 3 times and issues persist, output:
+
+```text
+⚠️ Max review iterations reached (3). Persistent issues:
+
+<list remaining issues>
+
+Next steps:
+- Fix issues above, then re-run: /zie-spec <slug>
+- Or simplify spec scope and re-submit
+- Or ask Zie to review the spec section manually
+```
+
 ## Notes
 
 - Be specific — don't approve vague specs
