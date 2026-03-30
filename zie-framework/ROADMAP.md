@@ -18,10 +18,16 @@
 <!-- Order: Critical → High → Medium → Low -->
 
 <!-- CRITICAL -->
+- [ ] agentic-pipeline-v2 — [plan](plans/2026-03-30-agentic-pipeline-v2.md) ✓
 
 <!-- HIGH -->
+- [ ] context-lean-sprint — [plan](plans/2026-03-30-context-lean-sprint.md) ✓
+- [ ] parallel-release-gates — [plan](plans/2026-03-30-parallel-release-gates.md) ✓
+- [ ] model-routing-v2 — [plan](plans/2026-03-30-model-routing-v2.md) ✓
 
 <!-- MEDIUM -->
+- [ ] workflow-lean — [plan](plans/2026-03-30-workflow-lean.md) ✓
+- [ ] dx-polish — [plan](plans/2026-03-30-dx-polish.md) ✓
 
 <!-- LOW -->
 
@@ -33,16 +39,10 @@
 <!-- Audit 2026-03-26: 53 findings, score 73/100 -->
 
 <!-- CRITICAL -->
-- [ ] agentic-pipeline-v2 — [backlog](backlog/agentic-pipeline-v2.md)
 
 <!-- HIGH -->
-- [ ] context-lean-sprint — [backlog](backlog/context-lean-sprint.md)
-- [ ] parallel-release-gates — [backlog](backlog/parallel-release-gates.md)
-- [ ] model-routing-v2 — [backlog](backlog/model-routing-v2.md)
 
 <!-- MEDIUM -->
-- [ ] workflow-lean — [backlog](backlog/workflow-lean.md)
-- [ ] dx-polish — [backlog](backlog/dx-polish.md)
 
 <!-- LOW -->
 
