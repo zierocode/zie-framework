@@ -106,12 +106,19 @@ then re-run /zie-init."`
       - `zie-framework/project/context.md`
         (only real decisions found; unknowns marked TBD)
 
-   c. Present all four drafts inline as markdown code blocks. Ask:
-      "Does this look accurate? Reply 'yes' to write, or describe
-      corrections."
+   c. Present all four drafts inline as markdown code blocks.
 
-   d. If corrections → apply → re-present → repeat until user replies
-      'yes' or 'y' (case-insensitive). No iteration limit.
+   d. **Section-targeted revision loop** — prompt:
+      ```
+      Which section to revise? (project / architecture / components / context / all good)
+      ```
+      - User replies `"project"` → re-run only PROJECT.md agent, re-present that section
+      - User replies `"architecture"` → re-run only architecture.md agent, re-present
+      - User replies `"components"` → re-run only components.md agent, re-present
+      - User replies `"context"` → re-run only context.md agent, re-present
+      - User replies `"all good"` or `"y"` or `"yes"` → exit loop, proceed to step 2e
+      - Unrecognized input → re-prompt (no crash, no iteration limit)
+      - User can loop multiple times revising different sections; other sections retain prior state
 
    e. Write all four files to disk.
 

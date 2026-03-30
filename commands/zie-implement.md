@@ -14,6 +14,10 @@ effort: medium
 !`git status --short`
 !`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now 2>/dev/null || echo "knowledge-hash: unavailable"`
 
+0. **Pre-flight: Agent mode check** — if not running with `--agent zie-framework:zie-implement-mode`:
+   display `⚠️ Running /zie-implement outside agent session. Recommend: claude --agent zie-framework:zie-implement-mode. Continue anyway? (yes / cancel)`
+   yes → continue, cancel → stop.
+
 1. Check `zie-framework/` exists → if not, run `/zie-init` first.
 2. **Pre-flight: ROADMAP guard** — check `zie-framework/ROADMAP.md` exists:
    - Missing → STOP: "ROADMAP.md not found — run /zie-init to initialize this project."
@@ -39,15 +43,7 @@ Tasks without `depends_on` run in parallel (max 4 concurrent). Tasks with `<!-- 
 
 <!-- context-load: adrs + project context -->
 
-Load once before the task loop:
-1. Read `zie-framework/decisions/*.md` → concatenate → `adrs_content`
-2. `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`:
-   `True` → save path as `adr_cache_path` | `False` → `adr_cache_path = None`
-3. Read `zie-framework/project/context.md` → `context_content`
-
-Pass `context_bundle` to every impl-reviewer call:
-- `adr_cache_path` (preferred, if not None) or `adrs` = `adrs_content` (fallback)
-- `context` = `context_content`
+Load once: Read `decisions/*.md` → `write_adr_cache` → `adr_cache_path`. Read `project/context.md` → `context_content`. Pass `context_bundle={adr_cache_path, context}` to every impl-reviewer call.
 
 **TDD:** RED → GREEN → REFACTOR per task. `tdd: deep` in plan → invoke `Skill(zie-framework:tdd-loop)`.
 
@@ -68,15 +64,11 @@ Test level selection (print once before task loop, not per task):
 5. **Risk Classification** — set `risk_level = HIGH` or `LOW`:
    - HIGH: new function/class, changed behavior, external API call, file I/O, subprocess, non-test production code changed, or `<!-- review: required -->`
    - LOW: test-only, docs/config, rename/reformat, minor constant addition
-6. **Spawn async impl-reviewer** (HIGH only): `@agent-impl-reviewer` (background: true) with task description, Acceptance Criteria, changed files, `context_bundle`. Record in pending-reviewers list. Do NOT block.
-   - Deferred-check at each loop start: poll `reviewer_status` for pending reviewers.
-     - `reviewer_status: approved` → clear, continue
-     - `reviewer_status: issues_found` → halt, fix all, re-run `make test-unit`, re-invoke synchronously (confirm pass). Max 2 total iterations. If 0 issues → APPROVED immediately.
+6. **Spawn async impl-reviewer** (HIGH only): `@agent-impl-reviewer` (background) with task description, AC, changed files, `context_bundle`. Record in pending list. Do NOT block.
+   - At each loop start: poll `reviewer_status` → `approved` clear; `issues_found` halt, fix, re-run `make test-unit`, re-invoke. Max 2 total iterations; confirm pass required. If 0 issues → APPROVED immediately.
 7. **→ LOW risk:** `make test-unit` + `[risk: LOW] Skipping impl-reviewer`.
 8. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ done — {remaining} remaining`.
-   - Checkpoint every 3 tasks or halfway.
-   - Brain write (every 5 tasks): `tags=[wip]` WIP memory with `supersedes=[wip, <project>, <slug>]`.
-   - Unexpected friction: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[build-learning]`.
+   - Checkpoint every 3 tasks. Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
 
 ## When All Tasks Complete
 

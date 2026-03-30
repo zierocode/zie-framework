@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-03-30 (v1.12.0)
+**Last updated:** 2026-03-30 (v1.13.0)
 
 ## Commands
 

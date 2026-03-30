@@ -20,6 +20,19 @@ reviewer loop. Output lives in `zie-framework/specs/`.
      written in parallel but focus is split. Continue? (yes/no)"
    - If no → stop.
 
+## Arguments
+
+| Flag | Description |
+| --- | --- |
+| `--draft-plan` | After spec is approved, auto-invoke `write-plan` and move plan to Ready if approved. Skips manual `/zie-plan` step. |
+
+**Parse before step 1:**
+```python
+draft_plan = "--draft-plan" in ARGUMENTS
+clean_args = " ".join(arg for arg in ARGUMENTS.split() if arg != "--draft-plan")
+# Use clean_args for all slug/idea extraction below
+```
+
 ## Steps
 
 1. **Detect input mode:**
@@ -71,7 +84,21 @@ reviewer loop. Output lives in `zie-framework/specs/`.
    git commit -m "spec: <slug>"
    ```
 
-4. Print handoff (both modes):
+4. **--draft-plan branch** (if `draft_plan=true`):
+
+   After spec commit, auto-invoke `Skill(zie-framework:write-plan)` with slug:
+   - On plan APPROVED: write `approved: true` frontmatter, move ROADMAP Next → Ready, commit
+   - Combined handoff:
+     ```text
+     Spec approved ✓ → zie-framework/specs/YYYY-MM-DD-<slug>-design.md
+     Plan approved ✓ → zie-framework/plans/YYYY-MM-DD-<slug>.md
+                       ROADMAP: <slug> moved Next → Ready
+
+     Next: /zie-implement <slug>
+     ```
+   - On plan ISSUES: spec remains approved; print "Address plan issues and re-run: /zie-plan <slug>"
+
+5. Print handoff (no `--draft-plan` flag):
 
    ```text
    Spec approved ✓ → zie-framework/specs/YYYY-MM-DD-<slug>-design.md

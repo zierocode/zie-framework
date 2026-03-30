@@ -19,14 +19,8 @@ Recent activity window:
 
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
 2. Read `zie-framework/.config` → project, zie_memory_enabled.
-3. Targeted ROADMAP reads (do not read full file):
-   - **Now section**: Grep `## Now` in `zie-framework/ROADMAP.md` → Read from
-     that line to next `---` separator.
-   - **Done section (recent)**: Grep `## Done` → Read from that line, limit
-     to ~20 lines (recent shipped items only — full Done history not needed).
-4. Print: "Analyzing git log..."
-   Git context is available in the injected snapshots above ("Commits since last
-   tag" and "Recent activity window"). No additional Bash call needed.
+3. Targeted ROADMAP reads: Grep `## Now` → read to next `---`. Grep `## Done` → read ~20 lines only.
+4. Print: "Analyzing git log..." — git context already injected above, no Bash needed.
 
 ## Steps
 
@@ -36,15 +30,7 @@ Recent activity window:
    - Call `mcp__plugin_zie-memory_zie-memory__recall` with `project=<project> tags=[wip, build-learning, shipped] limit=20`
    - Use recalled learnings and decisions as context for retro analysis.
 
-2. **Subagent Activity** — read subagent log for this session:
-
-   - Resolve log path: `project_tmp_path("subagent-log", project)` →
-     `/tmp/zie-<project>-subagent-log`
-   - If file exists: read line-by-line, parse each JSON record, group by
-     `agent_type`. Print table: Type | Count | Last Agent ID | Last Message.
-   - If file does not exist or `FileNotFoundError`: print
-     "No subagent activity recorded this session." and continue.
-   - If a line fails JSON parse: skip silently.
+2. **Subagent Activity** — read `project_tmp_path("subagent-log", project)`. If exists: parse JSON lines, group by `agent_type`, print Type/Count table. If missing → "No subagent activity recorded." Skip bad lines silently.
 
 3. Count ADR files in `zie-framework/decisions/` → get next ADR number.
 
@@ -68,25 +54,21 @@ Build compact JSON bundle for retro-format fork:
 
 ### Invoke Background Agents (concurrent)
 
-Invoke both Agents **simultaneously** with `run_in_background=true` — do NOT wait for either before starting:
+Invoke both simultaneously — `run_in_background=true`:
 
-**TaskCreate** — create tasks before launching Agents:
 ```python
-TaskCreate(subject="Format retrospective summary", description="Run retro-format to structure retro output", activeForm="Formatting retro summary")
-TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md against changed files", activeForm="Checking docs sync")
+TaskCreate(subject="Format retrospective summary", activeForm="Formatting retro summary")
+TaskCreate(subject="Check docs sync", activeForm="Checking docs sync")
 ```
 
 **Invoke Agents:**
-1. `Agent(subagent_type="zie-framework:retro-format", run_in_background=True, prompt="Format retrospective summary from: {compact_json}")`
-2. `Agent(subagent_type="zie-framework:docs-sync-check", run_in_background=True, prompt="Check docs sync for changed files: {changed_files}")`
+1. `Agent(subagent_type="general-purpose", run_in_background=True, prompt="Format retrospective summary. You are a retro format assistant. Given compact_json: {compact_json}. Structure output as five sections: (1) สิ่งที่ Ship ออกไป — list shipped features/fixes; (2) สิ่งที่ทำงานได้ดี — what worked well; (3) สิ่งที่เจ็บปวด — pain points; (4) การตัดสินใจสำคัญ — key decisions with lasting consequences; (5) Pattern ที่ควรจำ — reusable techniques. ADR format: Status, Context, Decision, Consequences. Return full five-section retro text.")`
+2. `Agent(subagent_type="general-purpose", run_in_background=True, prompt="Check docs sync for changed files: {changed_files}. Scan zie-framework/commands/*.md (extract /zie-* command names), zie-framework/skills/*/*.md (extract skill names), zie-framework/hooks/*.py (extract hook events). Check CLAUDE.md Development Commands section lists all commands. Check README.md skills table lists all skills. Return JSON: { 'in_sync': bool, 'missing_from_docs': [...], 'extra_in_docs': [...], 'details': str }")`
 
 Print: "Running retro-format and docs-sync-check in background. Use /tasks to see progress."
+Wait for both → **TaskUpdate** completed.
 
-**Wait for completion:**
-- Wait for both Agents to complete (via task completion notifications or TaskOutput polling)
-- **TaskUpdate** — mark both tasks as "completed" when Agents finish
-
-<!-- fallback: if Agent tool unavailable, call Skill(zie-framework:retro-format) and Skill(zie-framework:docs-sync-check) inline -->
+<!-- fallback: if Agent unavailable, call Skill(zie-framework:retro-format) and Skill(zie-framework:docs-sync-check) inline -->
 
 ### รวมผลลัพธ์ forks
 
@@ -106,8 +88,8 @@ Print: "Running retro-format and docs-sync-check in background. Use /tasks to se
 
 Launch both as parallel Agent calls — two Agent tool uses in one message. No write conflict (different paths):
 
-1. `Agent(subagent_type="zie-framework:retro-format", run_in_background=True, prompt="Write ADRs: {decisions_json}. Next ADR: {next_adr_n}. Path: zie-framework/decisions/ADR-<NNN>-<slug>.md. Done context: {done_section_current}")` — creates ADR files, printing `[ADR N/total]` for each
-2. `Agent(subagent_type="zie-framework:retro-format", run_in_background=True, prompt="Update ROADMAP Done section: {shipped_items}. Done context: {done_section_current}. File: zie-framework/ROADMAP.md. Re-read file before writing; replace ## Done block to next --- (or EOF).")` — updates Done lane in `zie-framework/ROADMAP.md`
+1. `Agent(subagent_type="general-purpose", run_in_background=True, prompt="Write ADRs for decisions made this session. Context: done_section_current={done_section_current}. For each decision in {decisions_json}: create file zie-framework/decisions/ADR-<NNN>-<slug>.md with 5-section format: Status (Accepted), Context (1-3 sentences), Decision (1-3 sentences), Consequences (Positive/Negative/Neutral), Alternatives. Next ADR number: {next_adr_n}. Print [ADR N/total] for each file created.")` — creates ADR files, printing `[ADR N/total]` for each
+2. `Agent(subagent_type="general-purpose", run_in_background=True, prompt="Update ROADMAP Done section. Read zie-framework/ROADMAP.md. Find ## Done section. Move shipped items from {shipped_items} to Done with date and version tag. Replace ## Done block (from heading to next --- separator or EOF). Done context for reference: {done_section_current}.")` — updates Done lane in `zie-framework/ROADMAP.md`
 
 Await both. Then proceed to brain store.
 
@@ -115,39 +97,35 @@ Await both. Then proceed to brain store.
 
 <!-- fallback: if Agent tool unavailable, run ADR write and ROADMAP update inline (blocking, sequential). ADR format: see zie-framework/decisions/ for examples. Only create for decisions with lasting consequences. ROADMAP: move shipped items to Done with date; if standalone ask Zie to re-prioritize Next. -->
 
+### Auto-commit retro outputs
+
+After ADR + ROADMAP agents complete, auto-commit:
+
+```bash
+git add zie-framework/decisions/*.md zie-framework/project/components.md
+git commit -m "chore: retro v${VERSION}"
+git push origin dev
+```
+
+If git push fails → log error and display:
+`"⚠️ Retro git push failed. Manual push: git push origin dev"` then continue (non-blocking).
+On success → print `"✓ Retro complete. Committed <hash>"`
+
 ### อัปเดต project knowledge
 
-Print: "Updating knowledge docs..."
-
-- ถ้า `project/` ไม่มี → skip + note "run /zie-resync to generate them"
-- อ่าน `project/components.md` → อัปเดต components ที่เปลี่ยน behavior
-- ถ้า architecture เปลี่ยน → อัปเดต `project/architecture.md`
+Print: "Updating knowledge docs..." — if `project/` missing → skip.
+Update `project/components.md` for changed behavior; `project/architecture.md` if architecture changed.
 
 ### บันทึกสู่ brain
 
 If `zie_memory_enabled=true`:
-
-- Store P1 preferences (what worked): Call `mcp__plugin_zie-memory_zie-memory__remember`
-  with `"<what worked>. Preference: always use this approach for <context>." priority=preference tags=[retro, <slug>]`
-- Store P2 project learnings: Call `mcp__plugin_zie-memory_zie-memory__remember`
-  with `"Retro <version>: <key learning>. Decision: <ADR slug>." priority=project tags=[retro, <project>] project=<project>`
-- Downvote incorrect memories via `mcp__plugin_zie-memory_zie-memory__downvote_memory`.
+- P1 preferences: `remember` `"<what worked>. Preference: always use this approach for <context>." priority=preference tags=[retro, <slug>]`
+- P2 learnings: `remember` `"Retro <version>: <key learning>. Decision: <ADR slug>." priority=project tags=[retro, <project>]`
+- Downvote incorrect: `mcp__plugin_zie-memory_zie-memory__downvote_memory`.
 
 ### สรุปผล
 
-Print:
-
-```text
-Retrospective complete
-
-Shipped  : <N features/fixes>
-ADRs     : <list of ADR files created>
-ROADMAP  : Done section updated
-
-Learnings stored: <N memories>
-
-Next session: Run /zie-status to see current state.
-```
+Print: `Retrospective complete | Shipped: <N> | ADRs: <list> | Learnings: <N> | Next: /zie-status`
 
 ### Archive prune (post-release cleanup)
 
@@ -165,33 +143,10 @@ Guard: skips automatically when archive has fewer than 20 files.
 After printing the retrospective summary, read `zie-framework/ROADMAP.md` and
 extract all items in the **Next** lane.
 
-**Ranking order:**
-1. Priority: Critical first, then High, then Medium, then unlabelled.
-2. Retro-theme alignment: items whose title or description overlaps with pain
-   points or themes identified in the retro write-up rank higher within the
-   same priority tier.
+Rank by: Critical → High → Medium → unlabelled; break ties by retro-theme alignment.
 
-**Output — items found (print top 1–3):**
+Print top 1–3: `<slug> — <title> [<priority>] | Run: /zie-plan <slug>`
+If Next lane empty: `"Backlog is empty — add items with /zie-backlog"`
 
-```text
-Suggested next
-──────────────────────────────────────────
-1. <slug> — <title> [<priority>]
-   Run: /zie-plan <slug> to start
-
-2. <slug> — <title> [<priority>]
-   Run: /zie-plan <slug> to start
-
-3. <slug> — <title> [<priority>]
-   Run: /zie-plan <slug> to start
-──────────────────────────────────────────
-```
-
-**Output — Next lane is empty:**
-
-```text
-Backlog is empty — add items with /zie-backlog
-```
-
-This step is advisory only. Nothing is automatically started.
+Advisory only — nothing auto-started.
 

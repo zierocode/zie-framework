@@ -6,7 +6,7 @@ context: fork
 agent: general-purpose
 allowed-tools: Read, Grep, Glob, Bash
 argument-hint: ""
-model: sonnet
+model: haiku
 effort: medium
 ---
 
@@ -57,6 +57,8 @@ never block review):
 
 Read the changed files and check each item:
 
+<!-- model: sonnet escalation note: Routine checks (AC coverage, test exists, security scanning) run on haiku. If this review detects new patterns, security concerns, or architectural changes that conflict with existing ADRs, flag for human review or escalate to sonnet reasoning. -->
+
 1. **AC coverage** — Does the implementation satisfy every acceptance criterion?
 2. **Tests exist** — Are there tests for the new behavior?
 3. **Tests pass** — Did `make test-unit` exit 0? (Caller confirms — reviewer
@@ -98,6 +100,21 @@ If issues found:
 2. [File:line] <specific issue and what to fix>
 
 Fix these, re-run make test-unit, and re-invoke impl-reviewer.
+```
+
+## Max Iterations Reached
+
+If impl-reviewer has been invoked 2 times and issues persist, output:
+
+```text
+⚠️ Max review iterations reached (2). Persistent issues:
+
+<list remaining issues>
+
+Next steps:
+- Fix issues above and re-run: make test-unit
+- Or discuss the issue with Zie before re-submitting
+- Or run /zie-fix to debug the root cause
 ```
 
 ## Notes

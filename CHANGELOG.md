@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.14.0 — 2026-03-30
+
+### Features
+- **agentic-pipeline-v2** — Removed human confirmation gates from spec/plan/retro/release flows; auto-approve when reviewers pass, with override options
+- **context-lean-sprint** — ADR session caching (`write_adr_cache`/`get_cached_adrs`) + shared_context bundle in `zie-audit` eliminates redundant reads across agents
+- **parallel-release-gates** — Gates 2–4 now spawn simultaneously after Gate 1 passes; docs-sync runs before Gate 1; all failures collected before stopping
+- **model-routing-v2** — `zie-release` and `impl-reviewer` use `haiku` with inline `<!-- model: sonnet -->` escalation annotations for judgment-heavy steps
+- **workflow-lean** — `--focus` flag for `zie-audit`, `--draft-plan` for `zie-spec`, section-targeted revision loop in `zie-init`
+- **dx-polish** — Pipeline stage indicator in `zie-status`, max-iterations next-steps blocks in reviewers, task sizing guidance (S/M/L) in `write-plan`
+
+### Changed
+- `zie-retro` and `zie-release` use `general-purpose` agent instead of plugin-specific agents (no plugin reload required)
+- `zie-implement` shows agent mode warning when run outside `--agent zie-framework:zie-implement-mode`
+
 ## v1.13.0 — 2026-03-30
 
 ### Features
