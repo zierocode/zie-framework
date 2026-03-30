@@ -1,21 +1,21 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-03-30 (v1.13.0)
+**Last updated:** 2026-03-30 (v1.14.0)
 
 ## Commands
 
 | Command | Input | Output | Dependencies |
 | --- | --- | --- | --- |
 | /zie-backlog | idea title (optional) | backlog item file | none |
-| /zie-spec | backlog slug OR inline idea string | approved spec | spec-design |
-| /zie-plan | slug(s) | approved plan in Ready | write-plan skill |
+| /zie-spec | backlog slug OR inline idea string; `--draft-plan` flag | approved spec + optional plan | spec-design |
+| /zie-plan | slug(s) | approved plan in Ready; auto-approves on reviewer ✅ APPROVED | write-plan skill |
 | /zie-implement | (reads ROADMAP Now) | feature tasks | tdd-loop, test-pyr |
 | /zie-fix | bug description | regression test + fix | debug, verify |
-| /zie-release | (ROADMAP Now) | release tag + ADRs | verify, make release |
+| /zie-release | (ROADMAP Now) | release tag + ADRs; parallel gates 2-4; haiku model | verify, make release |
 | /zie-status | (reads files) | status snapshot | none |
 | /zie-resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
 | /zie-retro | (reads git log) | ADRs + brain memories | retro-format skill |
-| /zie-audit | --focus dim | audit report + backlog | Agent, WebSearch |
+| /zie-audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | audit report + backlog; shared_context bundle | Agent, WebSearch |
 
 ## Skills
 
@@ -26,7 +26,7 @@
 | write-plan | Spec → task plan + plan-reviewer loop | /zie-plan, spec-design |
 | plan-reviewer | Phase 1-3 review with context bundle | write-plan |
 | tdd-loop | RED/GREEN/REFACTOR guide | /zie-implement |
-| impl-reviewer | Phase 1-3 review with context bundle; `model: sonnet, effort: medium, context: fork` | /zie-implement |
+| impl-reviewer | Phase 1-3 review with context bundle; `model: haiku` with sonnet escalation for security/arch changes | /zie-implement |
 | test-pyramid | Choose test level (unit/int/e2e) | /zie-implement (RED phase) |
 | debug | Reproduce → isolate → fix | /zie-implement, /zie-fix |
 | verify | Pre-release verification checklist; `context: fork` with optional captured `test_output` | /zie-fix, /zie-release, /zie-implement |
@@ -57,7 +57,7 @@
 | stopfailure-log.py | StopFailure | capture API errors and rate-limit notifications to per-project tmp log |
 | subagent-stop.py | SubagentStop | capture subagent completion with ID; enables resume-by-ID pattern in same session |
 | task-completed-gate.py | TaskCompleted | block on failing tests; warn on uncommitted files at task completion |
-| utils.py | (shared library) | read_event(), get_cwd(), load_config() (JSON + validate_config, CONFIG_DEFAULTS, CONFIG_SCHEMA), parse_roadmap_now(), parse_roadmap_section(), parse_roadmap_ready(), compact_roadmap_done(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp() (symlink-safe, atomic write), normalize_command(), safe_project_name(), get_cached_git_status(session_id, key, ttl=5), write_git_status_cache(session_id, key, content), get_cached_adrs(adr_dir, session_id) (mtime-keyed ADR cache), BLOCKS, WARNS, SDLC_STAGES |
+| utils.py | (shared library) | read_event(), get_cwd(), load_config(), parse_roadmap_now/section/ready(), compact_roadmap_done(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp(), normalize_command(), safe_project_name(), get_cached_git_status/write_git_status_cache(), get_cached_adrs(adr_dir, session_id) + write_adr_cache(session_id, adrs_content, adr_dir) (session-scoped ADR cache for parallel agents), BLOCKS, WARNS, SDLC_STAGES |
 
 ## Agents
 

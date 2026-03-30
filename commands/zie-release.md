@@ -40,10 +40,10 @@ Agent(subagent_type="general-purpose", run_in_background=True, prompt="Check CLA
 Print: `[Gate 1/5] Unit Tests`
 
 ```bash
-make test-unit
+make test-fast
 ```
 
-- Must exit 0. On failure → STOP: "Gate 1 FAILED: unit tests. Run /zie-fix before releasing."
+- Must exit 0. On failure → run `make test-unit` (full suite) to confirm; if still fails → STOP: "Gate 1 FAILED: unit tests. Run /zie-fix before releasing."
 - **On pass:** immediately spawn Gates 2, 3, 4 in parallel (see next section).
 
 ### ตรวจสอบ: Parallel Gates 2–4

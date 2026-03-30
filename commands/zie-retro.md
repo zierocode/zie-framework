@@ -19,7 +19,7 @@ Recent activity window:
 
 1. Check `zie-framework/` exists → if not, tell user to run `/zie-init` first.
 2. Read `zie-framework/.config` → project, zie_memory_enabled.
-3. Targeted ROADMAP reads: Grep `## Now` → read to next `---`. Grep `## Done` → read ~20 lines only.
+3. Targeted ROADMAP reads: Grep `## Now` → read to next `---`. Grep `## Done` → read ~20 lines only. Grep `## Next` → read to next `---` (cache as `next_lane` — reused by Suggest next, no second read).
 4. Print: "Analyzing git log..." — git context already injected above, no Bash needed.
 
 ## Steps
@@ -60,6 +60,8 @@ Invoke both simultaneously — `run_in_background=true`:
 TaskCreate(subject="Format retrospective summary", activeForm="Formatting retro summary")
 TaskCreate(subject="Check docs sync", activeForm="Checking docs sync")
 ```
+
+**Docs-sync skip:** if `git log -1 --format="%s"` starts with `release:` → skip docs-sync agent (just ran during release), print `"Docs-sync: skipped (ran during release)"`. Otherwise spawn normally.
 
 **Invoke Agents:**
 1. `Agent(subagent_type="general-purpose", run_in_background=True, prompt="Format retrospective summary. You are a retro format assistant. Given compact_json: {compact_json}. Structure output as five sections: (1) สิ่งที่ Ship ออกไป — list shipped features/fixes; (2) สิ่งที่ทำงานได้ดี — what worked well; (3) สิ่งที่เจ็บปวด — pain points; (4) การตัดสินใจสำคัญ — key decisions with lasting consequences; (5) Pattern ที่ควรจำ — reusable techniques. ADR format: Status, Context, Decision, Consequences. Return full five-section retro text.")`
@@ -140,8 +142,7 @@ Guard: skips automatically when archive has fewer than 20 files.
 
 ### Suggest next
 
-After printing the retrospective summary, read `zie-framework/ROADMAP.md` and
-extract all items in the **Next** lane.
+Use pre-loaded `next_lane` from pre-flight step 3 (no re-read).
 
 Rank by: Critical → High → Medium → unlabelled; break ties by retro-theme alignment.
 

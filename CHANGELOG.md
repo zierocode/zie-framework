@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.14.1 — 2026-03-30
+
+### Changed
+- Release Gate 1 now uses `make test-fast` — after a clean implement commit, runs ~0 tests instead of the full suite (~90s → ~1s)
+- Word count limits standardized to 1000 across zie-implement/release/retro — eliminates per-file threshold management
+- `/zie-implement` passes captured test output to `verify` skill — eliminates the third consecutive `make test-unit` run at end of implement
+- `zie-retro` skips docs-sync agent when called immediately after `/zie-release` (already ran during release)
+- `zie-retro` pre-loads ROADMAP Next lane in pre-flight — removes second ROADMAP read in "Suggest next"
+- `make test-fast` no longer prints `mapfile: command not found` warnings on macOS (bash 3.2 compatibility)
+
 ## v1.14.0 — 2026-03-30
 
 ### Features

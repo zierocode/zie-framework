@@ -17,9 +17,11 @@ if [[ -n "${_FAST_CHANGED:-}" ]]; then
   # Test override: space-separated list
   IFS=' ' read -r -a CHANGED <<< "${_FAST_CHANGED}"
 elif git rev-parse --verify HEAD >/dev/null 2>&1; then
-  mapfile -t CHANGED < <(git diff --name-only HEAD 2>/dev/null)
-  mapfile -t STAGED < <(git diff --name-only --cached 2>/dev/null)
-  CHANGED=("${CHANGED[@]:-}" "${STAGED[@]:-}")
+  CHANGED=()
+  while IFS= read -r line; do [[ -n "$line" ]] && CHANGED+=("$line"); done \
+    < <(git diff --name-only HEAD 2>/dev/null)
+  while IFS= read -r line; do [[ -n "$line" ]] && CHANGED+=("$line"); done \
+    < <(git diff --name-only --cached 2>/dev/null)
 else
   echo "[test-fast] No HEAD ref found — falling back to full suite"
   exec ${FULL_SUITE_CMD}
