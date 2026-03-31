@@ -35,6 +35,8 @@
 
 <!-- CRITICAL -->
 
+- [ ] zie-sprint — sprint clear command for batch pipeline — [backlog](backlog/zie-sprint.md)
+
 <!-- HIGH -->
 
 <!-- MEDIUM -->
