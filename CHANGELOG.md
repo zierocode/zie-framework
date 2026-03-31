@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.15.0 — 2026-04-01
+
+### Features
+- **zie-sprint** — Batch backlog processor for phase-parallel execution: all items through spec/plan together (parallel), then implement (sequential WIP=1), batch release (single tag), single retro. Reduces N releases→1, N retros→1, context loads~25N→1
+- **sprint intent detection** — Added 8 patterns to `intent-sdlc.py` for detecting sprint intent from natural language ("sprint", "clear backlog", "ship all", etc.)
+
 ## v1.14.2 — 2026-03-30
 
 ### Changed

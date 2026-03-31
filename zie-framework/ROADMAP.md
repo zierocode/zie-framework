@@ -9,7 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-- [x] zie-sprint — sprint clear command for batch pipeline
+<!-- -->
 
 ---
 
@@ -50,6 +50,8 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] zie-sprint — sprint clear command for batch pipeline (phase-parallel orchestration) — v1.15.0 2026-04-01
 
 - [x] test-fast-fix — --lfnf=none + raw pytest fallback, make test-fast <1s after clean commit — v1.14.2 2026-03-30
 
