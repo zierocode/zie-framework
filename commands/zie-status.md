@@ -125,7 +125,7 @@ Knowledge hash:
    - Tests stale or failing → "Fix tests: /zie-fix"
    - All tasks in plan complete → "Ready to release: /zie-release"
    - Always available: "/zie-status | /zie-backlog | /zie-implement | /zie-fix |
-     /zie-release | /zie-retro"
+     /zie-release | /zie-retro | /zie-sprint"
 
 ## Notes
 
