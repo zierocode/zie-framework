@@ -66,6 +66,12 @@ PATTERNS = {
         r"review.*session", r"what.*did.*we", r"what.*we.*learned",
         r"what.*worked",
     ],
+    "sprint": [
+        r"\bsprint\b", r"zie.?sprint",
+        r"clear.*backlog", r"เคลียร์.*backlog",
+        r"ship.*all", r"ทำ.*ทั้งหมด",
+        r"batch.*release", r"full.*pipeline",
+    ],
     "status": [
         r"\bstatus\b", r"ทำอะไรอยู่", r"where.*am.*i", r"progress",
         r"what.*next", r"ต่อไปทำ", r"ถัดไป", r"สถานะ",
@@ -86,6 +92,7 @@ SUGGESTIONS = {
     "fix":       "/zie-fix",
     "release":   "/zie-release",
     "retro":     "/zie-retro",
+    "sprint":    "/zie-sprint",
     "status":    "/zie-status",
 }
 

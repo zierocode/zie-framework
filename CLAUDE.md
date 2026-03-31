@@ -111,6 +111,21 @@ All hooks follow a two-tier pattern:
 
 Never raise an unhandled exception from a hook. Never use a non-zero exit code.
 
+## SDLC Commands
+
+| Command | Purpose |
+| --- | --- |
+| `/zie-backlog` | Capture a new idea as a backlog item |
+| `/zie-spec` | Write design spec for a backlog item |
+| `/zie-plan` | Draft implementation plan from spec |
+| `/zie-implement` | TDD implementation loop (WIP=1) |
+| `/zie-release` | Release gate — merge dev→main, version bump |
+| `/zie-retro` | Post-release retrospective + ADRs |
+| `/zie-sprint` | Sprint clear — batch all items: spec + plan + implement + release + retro |
+| `/zie-fix` | Debug and fix failing tests or broken features |
+| `/zie-status` | Show current SDLC state |
+| `/zie-audit` | Project audit across 9 dimensions |
+
 ## SDLC State
 
 Managed by zie-framework itself — see `zie-framework/ROADMAP.md` for current

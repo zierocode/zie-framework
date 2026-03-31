@@ -9,7 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-<!-- -->
+- [x] zie-sprint — sprint clear command for batch pipeline
 
 ---
 
@@ -19,8 +19,6 @@
 <!-- Order: Critical → High → Medium → Low -->
 
 <!-- CRITICAL -->
-
-- [ ] zie-sprint — sprint clear command for batch pipeline — [plan](plans/2026-04-01-zie-sprint.md) ✓
 
 <!-- HIGH -->
 
