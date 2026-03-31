@@ -20,6 +20,8 @@
 
 <!-- CRITICAL -->
 
+- [ ] zie-sprint — sprint clear command for batch pipeline — [plan](plans/2026-04-01-zie-sprint.md) ✓
+
 <!-- HIGH -->
 
 <!-- MEDIUM -->
@@ -34,8 +36,6 @@
 <!-- Audit 2026-03-26: 53 findings, score 73/100 -->
 
 <!-- CRITICAL -->
-
-- [ ] zie-sprint — sprint clear command for batch pipeline — [backlog](backlog/zie-sprint.md)
 
 <!-- HIGH -->
 
