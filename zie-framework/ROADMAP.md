@@ -9,10 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-- [x] [audit-write-adr-cache-contract](backlog/audit-write-adr-cache-contract.md) — fix write_adr_cache return type contract
-- [x] [audit-hook-outer-guard](backlog/audit-hook-outer-guard.md) — outer try/except for session-resume/session-learn/wip-checkpoint
-- [x] [audit-pytest-cve-requirements](backlog/audit-pytest-cve-requirements.md) — requirements-dev.txt + CVE pytest pin
-- [x] [audit-roadmap-cache-sanitize](backlog/audit-roadmap-cache-sanitize.md) — path injection + cleanup fix
+<!-- -->
 
 ---
 
@@ -26,52 +23,8 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
-- [x] [audit-playwright-version-check](backlog/audit-playwright-version-check.md) — CVE-2025-59288
-  Playwright <1.55.1 MitM installer; no startup version check when playwright_enabled
-- [x] [audit-safety-check-regex-precompile](backlog/audit-safety-check-regex-precompile.md) —
-  BLOCKS/WARNS recompiled on every PreToolUse:Bash hot path; use COMPILED_PATTERNS pattern
-- [x] [audit-readme-sprint-command](backlog/audit-readme-sprint-command.md) — /zie-sprint added
-  v1.15.0 but absent from README.md commands table (primary public doc)
-- [x] [audit-ruff-lint-gate](backlog/audit-ruff-lint-gate.md) — no Python linter in
-  pre-commit/Makefile/CI; ruff is community standard; hooks already use type annotations
-- [x] [audit-coverage-gate-raise](backlog/audit-coverage-gate-raise.md) — gate at 43% (ADR-027);
-  sitecustomize.py stable; incrementally raise toward community standard 70%
-- [x] [audit-knowledge-hash-mtime-gate](backlog/audit-knowledge-hash-mtime-gate.md) — rglob twice
-  on every SessionStart; gate on mtime delta to skip recompute
-- [x] [audit-subagent-stop-atomic](backlog/audit-subagent-stop-atomic.md) — bare open("a") not
-  atomic under concurrent sprint mode; use atomic rename pattern
-- [x] [audit-project-md-docs-sync](backlog/audit-project-md-docs-sync.md) — docs-sync-check skill
-  absent from PROJECT.md skills table
 
 <!-- LOW -->
-- [x] [audit-stopfailure-stderr](backlog/audit-stopfailure-stderr.md) — only rate_limit/billing_error
-  surfaced to stderr; context_limit + others silent
-- [x] [audit-cache-write-silent-failure](backlog/audit-cache-write-silent-failure.md) — bare
-  except:pass in write_roadmap_cache/write_git_status_cache; add stderr log per ADR two-tier
-- [x] [audit-ci-matrix](backlog/audit-ci-matrix.md) — CI single ubuntu+3.13 only; add macOS +
-  Python 3.11 matrix
-- [x] [audit-session-resume-chmod](backlog/audit-session-resume-chmod.md) — CLAUDE_ENV_FILE written
-  without 0o600 chmod unlike all other write helpers
-- [x] [audit-brace-guard](backlog/audit-brace-guard.md) — bare } not blocked by
-  _DANGEROUS_COMPOUND_RE in confirmation wrapper
-- [x] [audit-intent-sdlc-dead-code](backlog/audit-intent-sdlc-dead-code.md) — dead
-  if __name__=="__main__": pass artifact at lines 335-336
-- [x] [audit-adr-summary-tests](backlog/audit-adr-summary-tests.md) — pipe-escaping +
-  truncation boundary cases untested in adr_summary.py
-- [x] [audit-readme-dir-fix](backlog/audit-readme-dir-fix.md) — doubled project/project/ path
-  component in README directory structure
-- [x] [audit-weak-keyword-assertions](backlog/audit-weak-keyword-assertions.md) — ~335
-  assert "keyword" in content checks; replace with structural assertions
-- [x] [audit-hook-timing-log](backlog/audit-hook-timing-log.md) — no hook execution timing;
-  append structured entry to session log
-- [x] [audit-pytest-markers-consolidate](backlog/audit-pytest-markers-consolidate.md) — error_path
-  marker in conftest.py not pytest.ini; consolidate
-- [x] [audit-safety-agent-length-cap](backlog/audit-safety-agent-length-cap.md) — no command
-  length cap before subagent prompt in safety_check_agent
-- [x] [audit-nosec-annotation](backlog/audit-nosec-annotation.md) — nosec B310 in
-  call_zie_memory_api has no justification comment; add rationale
-- [x] [audit-commitizen-pin](backlog/audit-commitizen-pin.md) — commitizen unpinned; add to
-  requirements-dev.txt once audit-pytest-cve-requirements is done
 
 ---
 
@@ -98,6 +51,13 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] audit-comprehensive-v1 — 26 fixes:
+  hook timing instrumentation, env permissions (0o600), input guarding (braces),
+  test improvements (6 ADR boundary cases, structural assertions), security
+  hardening (command length cap, nosec annotation), coverage gate 43%→48%,
+  pytest markers consolidated, dead code removed, README path fixed
+  2065 unit + 63 integration tests — v1.16.0 2026-04-01
 
 - [x] zie-sprint — sprint clear command for batch pipeline (phase-parallel orchestration) — v1.15.0 2026-04-01
 
