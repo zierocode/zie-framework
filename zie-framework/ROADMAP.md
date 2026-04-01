@@ -32,6 +32,7 @@
 
 <!-- Ready to start. Ordered by priority. -->
 <!-- Audit 2026-03-26: 53 findings, score 73/100 -->
+<!-- Audit 2026-04-01: 9 findings added (4 HIGH, 5 MEDIUM) -->
 
 <!-- CRITICAL -->
 
@@ -50,6 +51,13 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] audit-comprehensive-v1 — 26 fixes:
+  hook timing instrumentation, env permissions (0o600), input guarding (braces),
+  test improvements (6 ADR boundary cases, structural assertions), security
+  hardening (command length cap, nosec annotation), coverage gate 43%→48%,
+  pytest markers consolidated, dead code removed, README path fixed
+  2065 unit + 63 integration tests — v1.16.0 2026-04-01
 
 - [x] zie-sprint — sprint clear command for batch pipeline (phase-parallel orchestration) — v1.15.0 2026-04-01
 

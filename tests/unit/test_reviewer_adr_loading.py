@@ -1,6 +1,7 @@
 """Verify that all three reviewer skills contain the ADR-000-summary loading instruction."""
-import pytest
 from pathlib import Path
+
+import pytest
 
 SKILLS_DIR = Path(__file__).parents[2] / "skills"
 

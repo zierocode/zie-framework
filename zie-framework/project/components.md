@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-03-30 (v1.14.0)
+**Last updated:** 2026-04-01 (v1.15.0)
 
 ## Commands
 
@@ -15,6 +15,7 @@
 | /zie-status | (reads files) | status snapshot | none |
 | /zie-resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
 | /zie-retro | (reads git log) | ADRs + brain memories | retro-format skill |
+| /zie-sprint | (reads ROADMAP Next/Ready) | batch pipeline: spec→plan→implement→release→retro for all items; phase-parallel, dependency-detected | Agent, Skill |
 | /zie-audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | audit report + backlog; shared_context bundle | Agent, WebSearch |
 
 ## Skills

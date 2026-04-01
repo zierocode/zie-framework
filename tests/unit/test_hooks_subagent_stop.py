@@ -3,7 +3,6 @@ import json
 import os
 import subprocess
 import sys
-from pathlib import Path
 
 import pytest
 
@@ -68,7 +67,7 @@ class TestSubagentStopNormalWrite:
         cwd = make_cwd(tmp_path)
         run_hook(VALID_EVENT, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        lines = [l for l in log.read_text().splitlines() if l.strip()]
+        lines = [ln for ln in log.read_text().splitlines() if ln.strip()]
         assert len(lines) == 1
 
     def test_log_line_is_valid_json(self, tmp_path):
@@ -260,7 +259,7 @@ class TestSubagentStopMultipleEvents:
         for ev in events:
             run_hook(ev, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
-        lines = [l for l in log.read_text().splitlines() if l.strip()]
+        lines = [ln for ln in log.read_text().splitlines() if ln.strip()]
         assert len(lines) == 3
 
     def test_multiple_events_each_line_parseable(self, tmp_path):
@@ -272,7 +271,7 @@ class TestSubagentStopMultipleEvents:
                 tmp_cwd=cwd,
             )
         log = project_tmp_path("subagent-log", tmp_path.name)
-        records = [json.loads(l) for l in log.read_text().splitlines() if l.strip()]
+        records = [json.loads(ln) for ln in log.read_text().splitlines() if ln.strip()]
         assert [r["agent_id"] for r in records] == ["id-0", "id-1", "id-2"]
 
     def test_multiple_events_order_preserved(self, tmp_path):
@@ -284,5 +283,5 @@ class TestSubagentStopMultipleEvents:
                 tmp_cwd=cwd,
             )
         log = project_tmp_path("subagent-log", tmp_path.name)
-        records = [json.loads(l) for l in log.read_text().splitlines() if l.strip()]
+        records = [json.loads(ln) for ln in log.read_text().splitlines() if ln.strip()]
         assert [r["agent_type"] for r in records] == types

@@ -15,6 +15,6 @@ def test_no_bare_zie_prefix_in_hooks():
             if pattern.search(line):
                 violations.append(f"{hook_py.name}:{lineno}: {line.strip()}")
     assert not violations, (
-        f"Bare [zie] log prefix found (use [zie-framework] instead):\n"
+        "Bare [zie] log prefix found (use [zie-framework] instead):\n"
         + "\n".join(violations)
     )

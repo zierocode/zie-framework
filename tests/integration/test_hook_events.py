@@ -14,8 +14,9 @@ import json
 import os
 import subprocess
 import sys
-import pytest
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
 HOOKS_DIR = REPO_ROOT / "hooks"

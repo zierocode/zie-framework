@@ -5,8 +5,9 @@ Simulates session-cleanup deleting /tmp/zie-<session> while notification-log wri
 import os
 import shutil
 import threading
-import pytest
 from pathlib import Path
+
+import pytest
 
 
 def _run_cleanup(session_dir: Path, results: list, idx: int):

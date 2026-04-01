@@ -5,8 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "notification-log.py")
 
@@ -266,7 +264,7 @@ class TestCorruptLogMixedContent:
             project,
         )
         assert r.returncode == 0
-        lines = [l for l in log.read_text().splitlines() if l.strip()]
+        lines = [ln for ln in log.read_text().splitlines() if ln.strip()]
         for line in lines:
             json.loads(line)  # must not raise
         log.unlink(missing_ok=True)

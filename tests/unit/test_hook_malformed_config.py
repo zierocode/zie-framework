@@ -2,8 +2,8 @@
 Error-path tests: hooks must exit 0 on empty, invalid, or unrecognized .config.
 Validates load_config() graceful degradation (returns {} on any error).
 """
+
 import pytest
-from pathlib import Path
 
 
 def _make_zf_dir(tmp_path):

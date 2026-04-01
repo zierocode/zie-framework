@@ -1,6 +1,11 @@
 """Tests for hooks/wip-checkpoint.py"""
-import os, sys, json, subprocess, pytest
+import json
+import os
+import subprocess
+import sys
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "wip-checkpoint.py")
@@ -330,3 +335,15 @@ class TestWipCheckpointUrlSafety:
         )
         assert r.returncode == 0
         assert "Traceback" not in r.stderr
+
+
+class TestWipCheckpointOuterGuard:
+    def test_empty_stdin_exits_zero(self, tmp_path):
+        env = {**os.environ, "ZIE_MEMORY_API_KEY": "", "ZIE_MEMORY_ENABLED": "", "CLAUDE_CWD": str(tmp_path)}
+        r = subprocess.run(
+            [sys.executable, HOOK], input="",
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr
+        assert r.stdout.strip() == ""

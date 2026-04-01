@@ -5,8 +5,9 @@ Valid model values: haiku | sonnet | opus
 Valid effort values: low | medium | high
 """
 import re
-import yaml
 from pathlib import Path
+
+import yaml
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 
@@ -61,7 +62,7 @@ class TestAllFilesHaveBothKeys:
             fm = parse_frontmatter(rel_path)
             if "model" not in fm:
                 missing.append(rel_path)
-        assert missing == [], f"Missing 'model' key in:\n" + "\n".join(missing)
+        assert missing == [], "Missing 'model' key in:\n" + "\n".join(missing)
 
     def test_no_unofficial_type_field(self):
         unofficial = []
@@ -78,7 +79,7 @@ class TestAllFilesHaveBothKeys:
             fm = parse_frontmatter(rel_path)
             if "effort" not in fm:
                 missing.append(rel_path)
-        assert missing == [], f"Missing 'effort' key in:\n" + "\n".join(missing)
+        assert missing == [], "Missing 'effort' key in:\n" + "\n".join(missing)
 
     def test_all_model_values_are_valid(self):
         errors = []

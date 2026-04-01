@@ -1,5 +1,5 @@
-import subprocess
 import json
+import subprocess
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]

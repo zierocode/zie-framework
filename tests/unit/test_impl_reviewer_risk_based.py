@@ -87,7 +87,7 @@ class TestReviewerGate:
     def test_reviewer_not_invoked_unconditionally(self):
         t = text()
         lines = t.splitlines()
-        reviewer_lines = [i for i, l in enumerate(lines) if "@agent-impl-reviewer" in l]
+        reviewer_lines = [i for i, ln in enumerate(lines) if "@agent-impl-reviewer" in ln]
         assert reviewer_lines, "Reviewer invocation line must exist"
         for idx in reviewer_lines:
             context_block = "\n".join(lines[max(0, idx - 10):idx + 1])

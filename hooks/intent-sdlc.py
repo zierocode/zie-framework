@@ -330,7 +330,3 @@ try:
 except Exception as e:
     print(f"[zie-framework] intent-sdlc: {e}", file=sys.stderr)
     sys.exit(0)
-
-
-if __name__ == "__main__":
-    pass

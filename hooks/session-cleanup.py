@@ -6,7 +6,7 @@ import tempfile
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import safe_project_name, read_event, get_cwd
+from utils import get_cwd, read_event, safe_project_name
 
 event = read_event()
 
@@ -20,3 +20,14 @@ for tmp_file in Path(tempfile.gettempdir()).glob(f"zie-{safe_project}-*"):
         tmp_file.unlink()
     except Exception as e:
         print(f"[zie-framework] session-cleanup: {e}", file=sys.stderr)
+
+# Clean up roadmap cache dirs (zie-<session_id>/roadmap.cache)
+for cache_dir in Path(tempfile.gettempdir()).glob("zie-*/"):
+    roadmap_cache = cache_dir / "roadmap.cache"
+    if roadmap_cache.exists():
+        try:
+            roadmap_cache.unlink()
+            if not any(cache_dir.iterdir()):
+                cache_dir.rmdir()
+        except Exception as e:
+            print(f"[zie-framework] session-cleanup: {e}", file=sys.stderr)

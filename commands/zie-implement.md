@@ -43,7 +43,10 @@ Tasks without `depends_on` run in parallel (max 4 concurrent). Tasks with `<!-- 
 
 <!-- context-load: adrs + project context -->
 
-Load once: Read `decisions/*.md` → `write_adr_cache` → `adr_cache_path`. Read `project/context.md` → `context_content`. Pass `context_bundle={adr_cache_path, context}` to every impl-reviewer call.
+Load once: Read `decisions/*.md` → Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`:
+- Returns `(True, adr_cache_path)` → save path
+- Returns `(False, None)` → set `adr_cache_path = None`
+Read `project/context.md` → `context_content`. Pass `context_bundle={adr_cache_path, context}` to every impl-reviewer call.
 
 **TDD:** RED → GREEN → REFACTOR per task. `tdd: deep` in plan → invoke `Skill(zie-framework:tdd-loop)`.
 

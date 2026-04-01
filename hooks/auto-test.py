@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """PostToolUse:Edit/Write hook — run relevant unit tests after file edits."""
+import json
 import os
 import signal
 import subprocess
 import sys
 import threading
 import time
-import json
 from pathlib import Path
 
+_hook_start = time.monotonic()
+
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, load_config, project_tmp_path, read_event, safe_write_tmp
+from utils import get_cwd, load_config, log_hook_timing, project_tmp_path, read_event, safe_write_tmp  # noqa: E402
 
 
 def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None:
@@ -198,3 +200,10 @@ if __name__ == "__main__":
         pass
     except Exception as e:
         print(f"[zie-framework] auto-test: {e}", file=sys.stderr)
+
+    log_hook_timing(
+        "auto-test",
+        int((time.monotonic() - _hook_start) * 1000),
+        0,
+        session_id=os.environ.get("CLAUDE_SESSION_ID", ""),
+    )

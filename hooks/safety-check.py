@@ -2,25 +2,24 @@
 """PreToolUse:Bash hook — block destructive commands and enforce git workflow."""
 import json
 import os
-import re
 import sys
 import time
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import BLOCKS, get_cwd, load_config, normalize_command, project_tmp_path, read_event, safe_project_name, WARNS
+from utils import COMPILED_BLOCKS, COMPILED_WARNS, get_cwd, load_config, normalize_command, project_tmp_path, read_event
 
 
 def evaluate(command: str) -> int:
     """Run regex evaluation. Returns 0 (allow) or 2 (block)."""
     cmd = normalize_command(command)
 
-    for pattern, message in BLOCKS:
-        if re.search(pattern, cmd):
+    for pattern, message in COMPILED_BLOCKS:
+        if pattern.search(cmd):
             print(f"[zie-framework] BLOCKED: {message}")
             return 2
 
-    for pattern, message in WARNS:
-        if re.search(pattern, cmd):
+    for pattern, message in COMPILED_WARNS:
+        if pattern.search(cmd):
             print(f"[zie-framework] WARNING: {message}")
 
     return 0

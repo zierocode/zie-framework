@@ -2,8 +2,8 @@
 Error-path tests: all hooks must exit 0 when zie-framework/ dir is absent.
 Covers the outer guard of the two-tier error handling convention.
 """
+
 import pytest
-from pathlib import Path
 
 
 def _make_edit_event():

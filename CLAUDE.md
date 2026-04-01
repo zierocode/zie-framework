@@ -52,6 +52,8 @@ zie-framework/              # self-managed SDLC state (this repo uses itself)
 
 ```bash
 make test-fast        # fast TDD feedback — changed files + last-failed (use during RED/GREEN)
+make lint             # run ruff lint check (fast, no I/O)
+make lint-fix         # auto-fix safe ruff violations
 make test-ci          # full suite with coverage gate — use before commit and in CI
 make test-unit        # run unit tests with subprocess coverage measurement
 make test-int         # run integration tests (require live Claude session — not in CI)

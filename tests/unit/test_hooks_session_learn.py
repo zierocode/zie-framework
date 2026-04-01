@@ -1,11 +1,15 @@
 """Tests for hooks/session-learn.py"""
-import os, sys, json, subprocess, pytest
+import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "session-learn.py")
-import sys as _sys
 import os as _os
+import sys as _sys
+
 _sys.path.insert(0, _os.path.join(REPO_ROOT, "hooks"))
 from utils import persistent_project_path
 
@@ -185,3 +189,23 @@ class TestSessionLearnUrlSafety:
         )
         assert r.returncode == 0
         assert r.stdout.strip() == ""
+
+
+class TestSessionLearnOuterGuard:
+    def test_empty_stdin_exits_zero(self, tmp_path):
+        env = {**os.environ, "ZIE_MEMORY_API_KEY": "", "CLAUDE_CWD": str(tmp_path)}
+        r = subprocess.run(
+            [sys.executable, HOOK], input="",
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr
+
+    def test_invalid_json_exits_zero(self, tmp_path):
+        env = {**os.environ, "ZIE_MEMORY_API_KEY": "", "CLAUDE_CWD": str(tmp_path)}
+        r = subprocess.run(
+            [sys.executable, HOOK], input="not json",
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr

@@ -1,4 +1,7 @@
-import json, subprocess, sys, os
+import json
+import subprocess
+import sys
+
 
 def _run_bash_path(command: str) -> dict | None:
     """Run input-sanitizer Bash path with given command. Returns parsed stdout JSON or None."""
@@ -33,3 +36,17 @@ def test_simple_rm_still_wrapped():
     rewritten = result.get("updatedInput", {}).get("command", "")
     assert "Would run:" in rewritten
     assert "Confirm?" in rewritten
+
+def test_brace_close_not_wrapped():
+    """Command with bare } must NOT be wrapped (could break shell {{ cmd; }} wrapper)."""
+    result = _run_bash_path("rm -rf ./}; echo hacked")
+    if result is not None:
+        rewritten = result.get("updatedInput", {}).get("command", "")
+        assert "Would run:" not in rewritten
+
+def test_brace_open_not_wrapped():
+    """Command with bare { must NOT be wrapped."""
+    result = _run_bash_path("echo {hello}")
+    if result is not None:
+        rewritten = result.get("updatedInput", {}).get("command", "")
+        assert "Would run:" not in rewritten

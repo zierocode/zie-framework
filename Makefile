@@ -18,7 +18,7 @@ test-ci: ## Full test suite with coverage gate — use before commit and in CI
 	COVERAGE_PROCESS_START=$(CURDIR)/.coveragerc \
 	    python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
 	python3 -m coverage combine 2>/dev/null || true
-	python3 -m coverage report --show-missing --fail-under=43
+	python3 -m coverage report --show-missing --fail-under=48
 	@pytest --collect-only -q -m error_path tests/unit/ 2>/dev/null \
 		| python3 tests/unit/scripts/check_error_path_coverage.py
 
@@ -29,7 +29,7 @@ test-unit: ## Fast unit tests with subprocess coverage measurement
 	COVERAGE_PROCESS_START=$(CURDIR)/.coveragerc \
 	    python3 -m pytest tests/ -x -q --tb=short --no-header -m "not integration"
 	python3 -m coverage combine 2>/dev/null || true
-	python3 -m coverage report --show-missing --fail-under=43
+	python3 -m coverage report --show-missing --fail-under=48
 	@pytest --collect-only -q -m error_path tests/unit/ 2>/dev/null \
 		| python3 tests/unit/scripts/check_error_path_coverage.py
 
@@ -40,6 +40,12 @@ coverage-smoke: ## Verify ≥1 hook has >0% line coverage (requires sitecustomiz
 
 test-int: ## Integration tests (hook event simulation)
 	python3 -m pytest tests/ -v -m "integration" --tb=short
+
+lint: lint-bandit ## Run all lint checks (ruff + bandit)
+	ruff check .
+
+lint-fix: ## Auto-fix safe ruff violations
+	ruff check . --fix
 
 lint-md: ## Lint all Markdown files (markdownlint, no exceptions)
 	npx markdownlint-cli "**/*.md" --ignore node_modules
@@ -104,6 +110,7 @@ endif
 # ── Setup ─────────────────────────────────────────────────────────────────────
 setup: ## Install git hooks + project deps (run once after cloning)
 	git config core.hooksPath .githooks
+	pip install -r requirements-dev.txt
 	$(MAKE) _setup-extra
 	@echo "Setup complete"
 

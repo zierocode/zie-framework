@@ -1,11 +1,11 @@
 """Tests for hooks/sdlc-compact.py"""
-import os
-import sys
 import json
+import os
 import subprocess
-import pytest
+import sys
 from pathlib import Path
-from unittest.mock import patch
+
+import pytest
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "sdlc-compact.py")

@@ -6,6 +6,7 @@ Two-tier error handling per zie-framework hook convention:
   Tier 1 (outer guard): parse + project check — bare except → sys.exit(0)
   Tier 2 (inner ops):   file I/O — except Exception as e → stderr + exit(0)
 """
+import fcntl
 import json
 import os
 import sys
@@ -13,7 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from utils import get_cwd, project_tmp_path, read_event
+from utils import atomic_write, get_cwd, project_tmp_path, read_event
 
 # --- Tier 1: outer guard ---------------------------------------------------
 try:
@@ -48,8 +49,15 @@ try:
         )
         sys.exit(0)
 
-    with open(log_path, "a") as fh:
-        fh.write(json.dumps(record) + "\n")
+    lock_path = Path(str(log_path) + ".lock")
+    with open(lock_path, "w") as lock_fh:
+        fcntl.flock(lock_fh, fcntl.LOCK_EX)
+        existing = ""
+        if os.path.exists(log_path):
+            with open(log_path) as fh:
+                existing = fh.read()
+        atomic_write(log_path, existing + json.dumps(record) + "\n")
+        fcntl.flock(lock_fh, fcntl.LOCK_UN)
 
 except Exception as e:
     print(f"[zie-framework] subagent-stop: {e}", file=sys.stderr)

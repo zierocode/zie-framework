@@ -4,10 +4,10 @@ Uses importlib.util to load hook in-process and mock.patch to inject TimeoutExpi
 """
 import importlib.util
 import subprocess
-import sys
-import pytest
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 

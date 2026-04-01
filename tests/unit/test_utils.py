@@ -4,6 +4,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+
 import pytest
 
 # Add hooks/ to path so we can import utils directly
@@ -12,7 +13,18 @@ sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
 import json
 from unittest.mock import patch
-from utils import parse_roadmap_now, project_tmp_path, read_event, get_cwd, parse_roadmap_section, get_cached_roadmap, write_roadmap_cache, validate_config, load_config
+
+from utils import (
+    get_cached_roadmap,
+    get_cwd,
+    load_config,
+    parse_roadmap_now,
+    parse_roadmap_section,
+    project_tmp_path,
+    read_event,
+    validate_config,
+    write_roadmap_cache,
+)
 
 
 class TestParseRoadmapNow:
@@ -158,8 +170,9 @@ class TestCallZieMemoryApi:
             )
 
     def test_constructs_correct_request(self):
-        from utils import call_zie_memory_api
         from unittest import mock
+
+        from utils import call_zie_memory_api
         captured = {}
 
         def fake_urlopen(req, timeout=None):
@@ -181,8 +194,9 @@ class TestCallZieMemoryApi:
         assert captured["content_type"] == "application/json"
 
     def test_default_timeout_is_5(self):
-        from utils import call_zie_memory_api
         from unittest import mock
+
+        from utils import call_zie_memory_api
         captured = {}
 
         def fake_urlopen(req, timeout=None):
@@ -302,8 +316,9 @@ class TestSafeWritePersistent:
         assert result is False
 
     def test_oserror_returns_false(self, tmp_path):
-        from utils import safe_write_persistent
         from unittest import mock
+
+        from utils import safe_write_persistent
         target = tmp_path / "err.txt"
         with mock.patch("os.replace", side_effect=OSError("disk full")):
             result = safe_write_persistent(target, "data")
@@ -404,8 +419,9 @@ class TestSafeWriteTmp:
         assert "symlink" in captured.err.lower()
 
     def test_oserror_returns_false(self, tmp_path):
-        from utils import safe_write_tmp
         from unittest import mock
+
+        from utils import safe_write_tmp
         target = tmp_path / "zie-test-err"
         with mock.patch("os.replace", side_effect=OSError("disk full")):
             result = safe_write_tmp(target, "data")
@@ -844,41 +860,38 @@ class TestParseRoadmapNowWarnOnEmpty:
 class TestRoadmapCache:
     """Tests for get_cached_roadmap() and write_roadmap_cache()."""
 
-    # Use unique session IDs per test to avoid cross-test pollution in /tmp
-
-    def test_get_returns_none_when_no_cache(self):
+    def test_get_returns_none_when_no_cache(self, tmp_path):
         """Cache miss returns None (no file written)."""
-        result = get_cached_roadmap("test-sess-nocache-unique-99z", ttl=30)
+        result = get_cached_roadmap("test-sess-nocache-unique-99z", ttl=30, tmp_dir=str(tmp_path))
         assert result is None
 
-    def test_write_then_read_within_ttl(self):
+    def test_write_then_read_within_ttl(self, tmp_path):
         """Fresh cache returns written content."""
         sid = "test-sess-fresh-unique-99z"
-        write_roadmap_cache(sid, "# ROADMAP\n## Now\n")
-        result = get_cached_roadmap(sid, ttl=30)
+        write_roadmap_cache(sid, "# ROADMAP\n## Now\n", tmp_dir=str(tmp_path))
+        result = get_cached_roadmap(sid, ttl=30, tmp_dir=str(tmp_path))
         assert result == "# ROADMAP\n## Now\n"
 
-    def test_get_returns_none_when_expired(self):
+    def test_get_returns_none_when_expired(self, tmp_path):
         """Stale cache (age >= ttl) returns None."""
         sid = "test-sess-stale-unique-99z"
-        write_roadmap_cache(sid, "# ROADMAP\n")
-        cache_file = Path(f"/tmp/zie-{sid}/roadmap.cache")
+        write_roadmap_cache(sid, "# ROADMAP\n", tmp_dir=str(tmp_path))
+        cache_file = tmp_path / f"zie-{sid}" / "roadmap.cache"
         old_time = time.time() - 60
         os.utime(cache_file, (old_time, old_time))
-        result = get_cached_roadmap(sid, ttl=30)
+        result = get_cached_roadmap(sid, ttl=30, tmp_dir=str(tmp_path))
         assert result is None
 
-    def test_get_returns_none_on_bad_session_id(self):
+    def test_get_returns_none_on_bad_session_id(self, tmp_path):
         """Invalid/empty session ID returns None, does not raise."""
-        result = get_cached_roadmap("", ttl=30)
+        result = get_cached_roadmap("", ttl=30, tmp_dir=str(tmp_path))
         assert result is None
 
-    def test_write_creates_parent_dirs(self):
-        """write_roadmap_cache creates /tmp/zie-{session_id}/ if needed."""
+    def test_write_creates_parent_dirs(self, tmp_path):
+        """write_roadmap_cache creates the cache dir if needed."""
         sid = "test-sess-newdir-unique-99z"
-        cache_file = Path(f"/tmp/zie-{sid}/roadmap.cache")
-        cache_file.unlink(missing_ok=True)
-        write_roadmap_cache(sid, "content")
+        write_roadmap_cache(sid, "content", tmp_dir=str(tmp_path))
+        cache_file = tmp_path / f"zie-{sid}" / "roadmap.cache"
         assert cache_file.exists()
         assert cache_file.read_text() == "content"
 
@@ -887,17 +900,37 @@ class TestRoadmapCache:
         monkeypatch.setattr(Path, "mkdir", lambda *a, **kw: (_ for _ in ()).throw(OSError("no perms")))
         write_roadmap_cache("sess-err-unique-99z", "content")  # must not raise
 
-    def test_cache_default_ttl_is_30(self):
+    def test_cache_default_ttl_is_30(self, tmp_path):
         """Default TTL is 30 seconds."""
         sid = "test-sess-ttl-unique-99z"
-        write_roadmap_cache(sid, "data")
-        cache_file = Path(f"/tmp/zie-{sid}/roadmap.cache")
+        write_roadmap_cache(sid, "data", tmp_dir=str(tmp_path))
+        cache_file = tmp_path / f"zie-{sid}" / "roadmap.cache"
         # backdate by 29s — should still be fresh
         os.utime(cache_file, (time.time() - 29, time.time() - 29))
-        assert get_cached_roadmap(sid) == "data"
+        assert get_cached_roadmap(sid, tmp_dir=str(tmp_path)) == "data"
         # backdate by 31s — should be stale
         os.utime(cache_file, (time.time() - 31, time.time() - 31))
-        assert get_cached_roadmap(sid) is None
+        assert get_cached_roadmap(sid, tmp_dir=str(tmp_path)) is None
+
+    def test_session_id_with_path_chars_sanitized(self, tmp_path):
+        """Session IDs with path-traversal chars are sanitized, not used raw."""
+        import re as _re
+        sid = "../../../etc/passwd"
+        safe_id = _re.sub(r'[^a-zA-Z0-9_-]', '-', sid)
+        write_roadmap_cache(sid, "safe", tmp_dir=str(tmp_path))
+        cache_file = tmp_path / f"zie-{safe_id}" / "roadmap.cache"
+        assert cache_file.exists()
+        assert cache_file.read_text() == "safe"
+
+    def test_tmp_dir_injection_isolates_cache(self, tmp_path):
+        """tmp_dir param routes cache to injected directory, not system /tmp."""
+        sid = "test-sess-inject-99z"
+        write_roadmap_cache(sid, "isolated", tmp_dir=str(tmp_path))
+        result = get_cached_roadmap(sid, ttl=60, tmp_dir=str(tmp_path))
+        assert result == "isolated"
+        # Must not exist in system tmp (different path)
+        system_cache = Path(tempfile.gettempdir()) / f"zie-{sid}" / "roadmap.cache"
+        assert not system_cache.exists()
 
 
 # ---------------------------------------------------------------------------
@@ -1055,13 +1088,13 @@ class TestConfigDefaults:
         assert isinstance(CONFIG_DEFAULTS["zie_memory_enabled"], bool)
 
     def test_load_config_includes_config_defaults_keys(self, tmp_path):
-        from utils import load_config, CONFIG_DEFAULTS
+        from utils import CONFIG_DEFAULTS, load_config
         result = load_config(tmp_path)
         for key in CONFIG_DEFAULTS:
             assert key in result, f"load_config result must include CONFIG_DEFAULTS key: {key}"
 
     def test_loaded_values_override_defaults(self, tmp_path):
-        from utils import load_config, CONFIG_DEFAULTS
+        from utils import CONFIG_DEFAULTS, load_config
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text('{"safety_check_mode": "agent", "auto_test_debounce_ms": 500}')
@@ -1072,7 +1105,119 @@ class TestConfigDefaults:
         assert result["zie_memory_enabled"] == CONFIG_DEFAULTS["zie_memory_enabled"]
 
     def test_config_defaults_not_mutated_by_load_config(self, tmp_path):
-        from utils import load_config, CONFIG_DEFAULTS
+        from utils import CONFIG_DEFAULTS, load_config
         original = dict(CONFIG_DEFAULTS)
         load_config(tmp_path)
         assert CONFIG_DEFAULTS == original
+
+
+# ---------------------------------------------------------------------------
+# TestComputeMaxMtime / TestIsMtimeFresh
+# ---------------------------------------------------------------------------
+
+from utils import compute_max_mtime, is_mtime_fresh  # noqa: E402
+
+
+class TestCacheWriteStderrLogs:
+    def test_write_roadmap_cache_logs_on_mkdir_error(self, tmp_path, capsys, monkeypatch):
+        """AC-1: mkdir failure → stderr log, no raise."""
+        import pathlib
+
+        def bad_mkdir(self, **kwargs):
+            raise PermissionError("no permission")
+
+        monkeypatch.setattr(pathlib.Path, "mkdir", bad_mkdir)
+        write_roadmap_cache("test-session", "content")
+        err = capsys.readouterr().err
+        assert "write_roadmap_cache" in err
+        assert "no permission" in err
+
+    def test_write_git_status_cache_logs_on_mkdir_error(self, tmp_path, capsys, monkeypatch):
+        """AC-2: mkdir failure → stderr log, no raise."""
+        import pathlib
+
+        from utils import write_git_status_cache
+
+        def bad_mkdir(self, **kwargs):
+            raise PermissionError("disk full")
+
+        monkeypatch.setattr(pathlib.Path, "mkdir", bad_mkdir)
+        write_git_status_cache("test-session", "log", "content")
+        err = capsys.readouterr().err
+        assert "write_git_status_cache" in err
+        assert "disk full" in err
+
+
+class TestComputeMaxMtime:
+    def test_returns_zero_when_no_md_files(self, tmp_path):
+        assert compute_max_mtime(tmp_path) == 0.0
+
+    def test_returns_mtime_of_single_file(self, tmp_path):
+        f = tmp_path / "a.md"
+        f.write_text("hello")
+        result = compute_max_mtime(tmp_path)
+        assert result == pytest.approx(f.stat().st_mtime)
+
+    def test_returns_max_mtime_across_files(self, tmp_path):
+        import time as _time
+        f1 = tmp_path / "old.md"
+        f1.write_text("old")
+        _time.sleep(0.02)
+        f2 = tmp_path / "new.md"
+        f2.write_text("new")
+        result = compute_max_mtime(tmp_path)
+        assert result == pytest.approx(f2.stat().st_mtime)
+
+    def test_ignores_non_md_files(self, tmp_path):
+        (tmp_path / "skip.txt").write_text("x")
+        assert compute_max_mtime(tmp_path) == 0.0
+
+
+class TestIsMtimeFresh:
+    def test_equal_timestamps_returns_true(self):
+        assert is_mtime_fresh(1000.0, 1000.0) is True
+
+    def test_older_mtime_returns_true(self):
+        assert is_mtime_fresh(999.0, 1000.0) is True
+
+    def test_newer_mtime_returns_false(self):
+        assert is_mtime_fresh(1001.0, 1000.0) is False
+
+
+from utils import log_hook_timing  # noqa: E402
+
+
+class TestLogHookTiming:
+    def test_writes_json_line_to_timing_log(self, tmp_path, monkeypatch):
+        """AC-1: writes {hook, duration_ms, exit_code, ts} to timing log."""
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        log_hook_timing("session-resume", 42, 0, session_id="test-proj")
+        log_path = tmp_path / "zie-test-proj" / "timing.log"
+        assert log_path.exists()
+        entry = json.loads(log_path.read_text().strip())
+        assert entry["hook"] == "session-resume"
+        assert entry["duration_ms"] == 42
+        assert entry["exit_code"] == 0
+        assert "ts" in entry
+
+    def test_noop_when_session_id_empty(self, tmp_path, monkeypatch):
+        """AC-2: no file created when session_id is empty string."""
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        log_hook_timing("session-resume", 10, 0, session_id="")
+        assert not any(tmp_path.rglob("timing.log"))
+
+    def test_noop_when_session_id_none(self, tmp_path, monkeypatch):
+        """AC-2: no file created when session_id is None."""
+        monkeypatch.setattr("tempfile.gettempdir", lambda: str(tmp_path))
+        log_hook_timing("session-resume", 10, 0, session_id=None)
+        assert not any(tmp_path.rglob("timing.log"))
+
+    def test_never_raises_on_bad_path(self):
+        """AC-3: never raises even if tmp dir is non-existent."""
+        import tempfile as _tf
+        original = _tf.gettempdir
+        try:
+            _tf.gettempdir = lambda: "/nonexistent_root_dir_xyz_abc"
+            log_hook_timing("session-resume", 10, 0, session_id="test")
+        finally:
+            _tf.gettempdir = original

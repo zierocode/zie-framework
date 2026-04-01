@@ -31,7 +31,7 @@ CONFIRM_PATTERNS = [
 
 # Operators that make a compound command unsafe to wrap in the confirmation prompt.
 # Single | (pipe) is intentionally excluded — pipe chains are legitimate.
-_DANGEROUS_COMPOUND_RE = re.compile(r'(?:;|&&|\|\||`|\$\()')
+_DANGEROUS_COMPOUND_RE = re.compile(r'(?:;|&&|\|\||`|\$\(|[{}])')
 
 
 def _is_safe_for_confirmation_wrapper(command: str) -> bool:
