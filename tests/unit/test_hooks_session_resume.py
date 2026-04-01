@@ -1,6 +1,8 @@
 """Tests for hooks/session-resume.py"""
-import os, sys, json, subprocess, pytest
-from pathlib import Path
+import json
+import os
+import subprocess
+import sys
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "session-resume.py")
@@ -326,3 +328,23 @@ class TestSessionResumeDriftDetection:
                        roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
         assert len(r.stdout.strip().splitlines()) == 4
+
+
+class TestSessionResumeOuterGuard:
+    def test_empty_stdin_exits_zero(self):
+        env = {**os.environ, "ZIE_MEMORY_API_KEY": ""}
+        r = subprocess.run(
+            [sys.executable, HOOK], input="",
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr
+
+    def test_invalid_json_exits_zero(self):
+        env = {**os.environ, "ZIE_MEMORY_API_KEY": ""}
+        r = subprocess.run(
+            [sys.executable, HOOK], input="not json",
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0
+        assert "Traceback" not in r.stderr

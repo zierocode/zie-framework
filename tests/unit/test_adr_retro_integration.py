@@ -5,7 +5,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parents[2]
 sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
-from hooks.adr_summary import generate_summary_table, extract_adr_row
+from hooks.adr_summary import generate_summary_table
 
 
 def _make_adr(tmp_path: Path, number: int, title: str, decision: str) -> Path:

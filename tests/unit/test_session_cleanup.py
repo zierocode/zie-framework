@@ -1,8 +1,8 @@
 """Tests for hooks/session-cleanup.py"""
 import json
 import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))

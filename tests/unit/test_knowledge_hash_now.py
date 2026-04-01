@@ -1,4 +1,6 @@
-import subprocess, sys
+import subprocess
+import sys
+
 
 def test_now_flag_exits_zero():
     result = subprocess.run(

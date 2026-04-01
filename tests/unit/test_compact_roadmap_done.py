@@ -1,9 +1,7 @@
 """Unit tests for hooks/utils.py::compact_roadmap_done."""
 import sys
-from pathlib import Path
 from datetime import date, timedelta
-
-import pytest
+from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
 sys.path.insert(0, str(REPO_ROOT / "hooks"))

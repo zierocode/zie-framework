@@ -4,7 +4,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
 
@@ -107,7 +107,7 @@ class TestAgentFallbackRegression:
 
 class TestHookEntryPoint:
     def test_non_bash_tool_exits_0(self, tmp_path):
-        cwd = _make_cwd(tmp_path, "agent")
+        _make_cwd(tmp_path, "agent")
         hook = os.path.join(REPO_ROOT, "hooks", "safety_check_agent.py")
         env = {**os.environ, "CLAUDE_CWD": str(tmp_path)}
         r = subprocess.run(

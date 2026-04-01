@@ -10,6 +10,8 @@ import argparse
 import hashlib
 import json
 import sys
+import tempfile
+import time
 from pathlib import Path
 
 EXCLUDE = {
@@ -56,6 +58,40 @@ def compute_hash(root: Path) -> str:
     return hashlib.sha256(s.encode()).hexdigest()
 
 
+def _mtime_cache_path(root: Path) -> Path:
+    """Return path to the mtime gate cache file for this project root."""
+    import hashlib
+    path_hash = hashlib.sha256(str(root.resolve()).encode()).hexdigest()[:16]
+    return Path(tempfile.gettempdir()) / f"zie-kh-{path_hash}.mtime"
+
+
+def _read_mtime_cache(cache_path: Path) -> float:
+    """Return stored mtime float, or 0.0 on any error."""
+    try:
+        return float(cache_path.read_text().strip())
+    except Exception:
+        return 0.0
+
+
+def _write_mtime_cache(cache_path: Path, mtime: float) -> None:
+    try:
+        cache_path.write_text(str(mtime))
+    except Exception:
+        pass
+
+
+def _compute_max_mtime(root: Path) -> float:
+    """Return the maximum mtime of all .md files under root (excluding zie-framework/)."""
+    try:
+        mtimes = [
+            p.stat().st_mtime for p in root.rglob("*.md")
+            if "zie-framework" not in p.parts
+        ]
+        return max(mtimes) if mtimes else 0.0
+    except Exception:
+        return 0.0
+
+
 if args.check:
     try:
         config_path = root / 'zie-framework' / '.config'
@@ -68,7 +104,16 @@ if args.check:
         stored = config.get('knowledge_hash', '')
         if not stored:
             sys.exit(0)
+
+        # mtime gate: skip expensive rglob+hash when no .md file has changed
+        cache_path = _mtime_cache_path(root)
+        written_at = _read_mtime_cache(cache_path)
+        max_mtime = _compute_max_mtime(root)
+        if written_at > 0.0 and max_mtime <= written_at:
+            sys.exit(0)  # cache hit — no files changed since last check
+
         current = compute_hash(root)
+        _write_mtime_cache(cache_path, time.time())
         if current != stored:
             print(
                 '[zie-framework] Knowledge drift detected since last session'

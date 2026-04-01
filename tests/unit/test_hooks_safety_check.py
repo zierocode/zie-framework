@@ -1,6 +1,12 @@
 """Tests for hooks/safety-check.py"""
-import os, sys, json, subprocess, pytest, time
+import json
+import os
+import subprocess
+import sys
+import time
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -246,7 +252,7 @@ class TestSafetyCheckModeDispatch:
         cwd = self._make_config(tmp_path, "both")
         r = self._run(cwd, "rm -rf /")
         assert r.returncode == 2, (
-            f"safety-check.py must block (exit 2) in both mode for dangerous commands"
+            "safety-check.py must block (exit 2) in both mode for dangerous commands"
         )
 
     def test_both_mode_writes_ab_log(self, tmp_path):

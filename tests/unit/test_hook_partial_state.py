@@ -2,8 +2,8 @@
 Error-path tests: hooks must exit 0 when project state is present but partial/empty.
 Validates graceful degradation when standard subdirs/files are absent.
 """
+
 import pytest
-from pathlib import Path
 
 
 def _base_zf(tmp_path):

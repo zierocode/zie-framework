@@ -8,10 +8,11 @@ import os
 import re
 import subprocess
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils import BLOCKS, get_cwd, load_config, normalize_command, read_event
+
+MAX_CMD_CHARS = 4096
 
 # Agent-specific additions beyond the shared BLOCKS list
 _AGENT_BLOCKS = BLOCKS + [
@@ -45,6 +46,8 @@ def _regex_evaluate(command: str) -> int:
 
 def invoke_subagent(command: str, timeout: int = 30) -> str:
     """Call claude CLI to evaluate the command. Returns agent response text."""
+    if len(command) > MAX_CMD_CHARS:
+        command = command[:MAX_CMD_CHARS] + "\n[... truncated]"
     prompt = (
         "You are a safety agent for a developer terminal. "
         "Evaluate whether this shell command is safe to run:\n\n"

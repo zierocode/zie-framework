@@ -1,6 +1,6 @@
 """Verify ADR-026 exists for the roadmap-done-compaction decision."""
-from pathlib import Path
 import sys
+from pathlib import Path
 
 DECISIONS_DIR = Path(__file__).parents[2] / "zie-framework" / "decisions"
 

@@ -1,5 +1,6 @@
-import yaml
 from pathlib import Path
+
+import yaml
 
 WORKFLOW_PATH = Path(__file__).parents[2] / ".github" / "workflows" / "ci.yml"
 
@@ -57,9 +58,24 @@ class TestCiWorkflowJob:
         data = load_workflow()
         assert "test" in data["jobs"], "jobs.test missing"
 
-    def test_runs_on_ubuntu_latest(self):
+    def test_runs_on_matrix_os(self):
         data = load_workflow()
-        assert data["jobs"]["test"]["runs-on"] == "ubuntu-latest"
+        runs_on = data["jobs"]["test"]["runs-on"]
+        # Matrix strategy: runs-on is a matrix variable
+        assert "matrix.os" in runs_on or runs_on in ("ubuntu-latest", "macos-latest"), \
+            f"test job must use matrix os, got: {runs_on}"
+
+    def test_matrix_includes_macos(self):
+        data = load_workflow()
+        matrix = data["jobs"]["test"].get("strategy", {}).get("matrix", {})
+        assert "macos-latest" in matrix.get("os", []), \
+            "test matrix must include macos-latest"
+
+    def test_matrix_includes_python_311(self):
+        data = load_workflow()
+        matrix = data["jobs"]["test"].get("strategy", {}).get("matrix", {})
+        versions = [str(v) for v in matrix.get("python-version", [])]
+        assert "3.11" in versions, "test matrix must include Python 3.11"
 
     def test_steps_present(self):
         data = load_workflow()
@@ -92,12 +108,17 @@ class TestCiWorkflowSteps:
         assert any(u == "actions/setup-python@v5" for u in uses_values), \
             "setup-python must use actions/setup-python@v5"
 
-    def test_python_version_file_used(self):
+    def test_python_version_configured(self):
+        """setup-python must specify a python version (file or matrix var)."""
         for step in self._steps():
             if step.get("uses", "").startswith("actions/setup-python"):
-                version_file = step.get("with", {}).get("python-version-file")
-                assert version_file == ".python-version", \
-                    f"setup-python must use python-version-file: '.python-version', got '{version_file}'"
+                with_ = step.get("with", {})
+                has_version = (
+                    "python-version" in with_ or
+                    "python-version-file" in with_
+                )
+                assert has_version, \
+                    "setup-python must specify python-version or python-version-file"
                 return
         raise AssertionError("setup-python step not found")
 
@@ -108,13 +129,15 @@ class TestCiWorkflowSteps:
 
     def test_pip_installs_pytest(self):
         run_values = [s.get("run", "") for s in self._steps()]
-        assert any("pytest" in r for r in run_values), \
-            "pip install must include pytest"
+        # Accept either direct install or requirements-dev.txt (which contains pytest)
+        assert any("pytest" in r or "requirements-dev.txt" in r for r in run_values), \
+            "pip install must include pytest or use requirements-dev.txt"
 
     def test_pip_installs_bandit(self):
         run_values = [s.get("run", "") for s in self._steps()]
-        assert any("bandit" in r for r in run_values), \
-            "pip install must include bandit"
+        # Accept either direct install or requirements-dev.txt (which contains bandit)
+        assert any("bandit" in r or "requirements-dev.txt" in r for r in run_values), \
+            "pip install must include bandit or use requirements-dev.txt"
 
     def test_make_test_step_present(self):
         run_values = [s.get("run", "") for s in self._steps()]

@@ -152,18 +152,18 @@ def parse_roadmap_section_content(content: str, section_name: str) -> list:
     return lines
 
 
-def read_roadmap_cached(roadmap_path, session_id: str, ttl: int = 30) -> str:
+def read_roadmap_cached(roadmap_path, session_id: str, ttl: int = 30, tmp_dir=None) -> str:
     """Return ROADMAP.md content using session cache, falling back to disk read.
 
     On cache miss: reads from disk and writes to cache.
     On any read error: returns empty string.
     """
-    cached = get_cached_roadmap(session_id, ttl=ttl)
+    cached = get_cached_roadmap(session_id, ttl=ttl, tmp_dir=tmp_dir)
     if cached is not None:
         return cached
     try:
         content = Path(roadmap_path).read_text()
-        write_roadmap_cache(session_id, content)
+        write_roadmap_cache(session_id, content, tmp_dir=tmp_dir)
         return content
     except Exception:
         return ""
@@ -271,10 +271,11 @@ def safe_write_persistent(path: Path, content: str) -> bool:
         return False
 
 
-def get_cached_roadmap(session_id: str, ttl: int = 30) -> str | None:
+def get_cached_roadmap(session_id: str, ttl: int = 30, tmp_dir=None) -> str | None:
     """Return cached ROADMAP.md content if fresh (age < ttl seconds), else None."""
     try:
-        cache_path = Path(f"/tmp/zie-{session_id}/roadmap.cache")
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        cache_path = Path(tmp_dir or tempfile.gettempdir()) / f"zie-{safe_id}" / "roadmap.cache"
         if cache_path.exists():
             age = time.time() - cache_path.stat().st_mtime
             if age < ttl:
@@ -284,14 +285,15 @@ def get_cached_roadmap(session_id: str, ttl: int = 30) -> str | None:
         return None
 
 
-def write_roadmap_cache(session_id: str, content: str) -> None:
+def write_roadmap_cache(session_id: str, content: str, tmp_dir=None) -> None:
     """Write ROADMAP.md content to the session cache."""
     try:
-        cache_dir = Path(f"/tmp/zie-{session_id}")
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        cache_dir = Path(tmp_dir or tempfile.gettempdir()) / f"zie-{safe_id}"
         cache_dir.mkdir(parents=True, exist_ok=True)
         (cache_dir / "roadmap.cache").write_text(content)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[zie-framework] write_roadmap_cache: {e}", file=sys.stderr)
 
 
 def get_cached_git_status(session_id: str, key: str, ttl: int = 5) -> str | None:
@@ -317,7 +319,6 @@ def write_git_status_cache(session_id: str, key: str, content: str) -> None:
     """Write git output to the session cache.
 
     key identifies the git command (e.g. 'log', 'branch', 'diff').
-    Silently ignores all errors.
     """
     try:
         safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
@@ -325,8 +326,8 @@ def write_git_status_cache(session_id: str, key: str, content: str) -> None:
         cache_dir = Path(tempfile.gettempdir()) / f"zie-{safe_id}"
         cache_dir.mkdir(parents=True, exist_ok=True)
         (cache_dir / f"git-{safe_key}.cache").write_text(content)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[zie-framework] write_git_status_cache: {e}", file=sys.stderr)
 
 
 def get_cached_adrs(
@@ -364,18 +365,19 @@ def write_adr_cache(
     content: str,
     decisions_dir,
     tmp_dir=None,
-) -> bool:
+) -> "tuple[bool, Path | None]":
     """Write ADR content to session cache keyed by max mtime of decisions_dir.
 
     decisions_dir: Path or str pointing to zie-framework/decisions/.
     tmp_dir: override tempfile.gettempdir() (test injection point).
-    Returns True on success, False if decisions_dir is empty/missing or write fails.
+    Returns (True, cache_path) on success, (False, None) if decisions_dir is
+    empty/missing or write fails.
     """
     try:
         decisions_path = Path(decisions_dir)
         adr_files = list(decisions_path.glob("*.md"))
         if not adr_files:
-            return False
+            return (False, None)
         max_mtime = max(f.stat().st_mtime for f in adr_files)
         base = Path(tmp_dir) if tmp_dir else Path(tempfile.gettempdir())
         safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
@@ -383,9 +385,11 @@ def write_adr_cache(
         cache_dir.mkdir(parents=True, exist_ok=True)
         cache_path = cache_dir / "adr-cache.json"
         payload = json.dumps({"mtime": max_mtime, "content": content})
-        return safe_write_tmp(cache_path, payload)
+        if safe_write_tmp(cache_path, payload):
+            return (True, cache_path)
+        return (False, None)
     except Exception:
-        return False
+        return (False, None)
 
 
 def persistent_project_path(name: str, project: str) -> Path:
@@ -413,7 +417,7 @@ def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeou
         },
         method="POST",
     )
-    urllib.request.urlopen(req, timeout=timeout)  # nosec B310
+    urllib.request.urlopen(req, timeout=timeout)  # nosec B310 — URL built from hardcoded zie-memory API base, not user input
 
 
 def load_config(cwd: Path) -> dict:
@@ -469,6 +473,10 @@ WARNS = [
     (r"alembic\s+downgrade\b",
      "Alembic downgrade detected — verify this won't lose production data"),
 ]
+
+# Compiled once at import time — use these in hot-path hooks instead of re.search(string, ...)
+COMPILED_BLOCKS = [(re.compile(p, re.IGNORECASE), msg) for p, msg in BLOCKS]
+COMPILED_WARNS  = [(re.compile(p, re.IGNORECASE), msg) for p, msg in WARNS]
 
 
 def read_event() -> dict:
@@ -600,7 +608,7 @@ def compact_roadmap_done(
     # 3. Identify old entries
     today = _dt.date.today()
     cutoff = today - _dt.timedelta(days=cutoff_months * 30)
-    old_entries = [(l, d) for l, d in normal_entries if d is not None and d < cutoff]
+    old_entries = [(ln, d) for ln, d in normal_entries if d is not None and d < cutoff]
 
     if not old_entries:
         return (False, 0, "")
@@ -666,8 +674,8 @@ def compact_roadmap_done(
 
     new_done_lines = (
         [summary_line + "\n"]
-        + [l + "\n" for l in existing_archive_lines]
-        + [l + "\n" for l in kept_normal]
+        + [ln + "\n" for ln in existing_archive_lines]
+        + [ln + "\n" for ln in kept_normal]
     )
 
     new_lines = (
@@ -680,3 +688,50 @@ def compact_roadmap_done(
 
     atomic_write(path, "".join(new_lines))
     return (True, n_old, version_range)
+
+
+# ---------------------------------------------------------------------------
+# mtime gate helpers
+# ---------------------------------------------------------------------------
+
+def compute_max_mtime(base_dir: Path, pattern: str = "*.md") -> float:
+    """Return max mtime (float) of files matching pattern (glob) under base_dir.
+
+    Returns 0.0 if no files match.
+    """
+    mtimes = [p.stat().st_mtime for p in base_dir.rglob(pattern)]
+    return max(mtimes) if mtimes else 0.0
+
+
+def is_mtime_fresh(max_mtime: float, written_at: float) -> bool:
+    """Return True if max_mtime <= written_at (no file newer than last write)."""
+    return max_mtime <= written_at
+
+
+def log_hook_timing(
+    hook_name: str,
+    duration_ms: int,
+    exit_code: int,
+    session_id: str | None = None,
+) -> None:
+    """Append a JSON timing entry to the session timing log.
+
+    No-op when session_id is empty or None. Never raises.
+    """
+    if not session_id:
+        return
+    try:
+        from datetime import datetime, timezone
+        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        log_dir = Path(tempfile.gettempdir()) / f"zie-{safe_id}"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        entry = json.dumps({
+            "hook": hook_name,
+            "duration_ms": duration_ms,
+            "exit_code": exit_code,
+            "ts": datetime.now(timezone.utc).isoformat(),
+        })
+        with open(log_dir / "timing.log", "a") as f:
+            f.write(entry + "\n")
+    except Exception:
+        pass

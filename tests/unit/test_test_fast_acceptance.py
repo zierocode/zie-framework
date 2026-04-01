@@ -1,6 +1,7 @@
 """Acceptance tests for make test-fast and make test-ci."""
 import os
 import subprocess
+
 import pytest
 
 

@@ -6,8 +6,6 @@ import sys
 import time
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "task-completed-gate.py")
 IMPL_EXTS = (".py", ".ts", ".tsx", ".js", ".jsx", ".go", ".rs", ".rb", ".java",

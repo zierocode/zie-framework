@@ -1,5 +1,4 @@
 """Tests for agents/ directory files and zie-implement command async reviewer protocol."""
-import re
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent.parent

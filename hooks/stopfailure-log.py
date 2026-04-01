@@ -35,11 +35,16 @@ try:
         print(f"[zie-framework] stopfailure-log: {e}", file=sys.stderr)
         sys.exit(0)
 
-    if error_type in {"rate_limit", "billing_error"}:
-        print(
-            f"[zie-framework] Session stopped: {error_type}. Wait before resuming.",
-            file=sys.stderr,
-        )
+    _STOP_MESSAGES = {
+        "rate_limit": "Wait before resuming.",
+        "billing_error": "Wait before resuming.",
+        "context_limit": "Use /compact or start a new session.",
+        "api_error": "",
+    }
+    if error_type in _STOP_MESSAGES:
+        hint = _STOP_MESSAGES[error_type]
+        suffix = f" {hint}" if hint else ""
+        print(f"[zie-framework] Session stopped: {error_type}.{suffix}", file=sys.stderr)
 except Exception as e:
     print(f"[zie-framework] stopfailure-log: {e}", file=sys.stderr)
 

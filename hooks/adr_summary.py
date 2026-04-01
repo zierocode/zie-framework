@@ -5,7 +5,6 @@ Used by /zie-retro to compress old ADRs into ADR-000-summary.md.
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
 _ADR_NUMBER_RE = re.compile(r"^(ADR-\d+)", re.IGNORECASE)
 _H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)

@@ -1,6 +1,7 @@
 """Tests for agents/spec-reviewer.md, agents/plan-reviewer.md, agents/impl-reviewer.md"""
-import yaml
 from pathlib import Path
+
+import yaml
 
 AGENTS_DIR = Path(__file__).parents[2] / "agents"
 

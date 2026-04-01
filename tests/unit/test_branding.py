@@ -3,9 +3,8 @@ Branding compliance tests — zie-framework.
 Verify: no ASCII boxes, Thai phase names, handoff blocks present.
 """
 
-import os
 import glob
-
+import os
 
 COMMANDS_DIR = "commands"
 SKILLS_DIR = "skills"

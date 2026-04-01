@@ -1,7 +1,6 @@
 """Smoke test: bandit must exit 0 on hooks/ at medium severity + confidence."""
 import subprocess
 import sys
-import os
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent.parent

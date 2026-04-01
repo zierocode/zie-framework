@@ -4,10 +4,9 @@ import json
 import os
 import re
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event, get_cwd, parse_roadmap_section_content, read_roadmap_cached
+from utils import get_cwd, parse_roadmap_section_content, read_event, read_roadmap_cached
 
 # ── Outer guard ───────────────────────────────────────────────────────────────
 

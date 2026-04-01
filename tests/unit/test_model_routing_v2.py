@@ -10,7 +10,9 @@ def read(rel: str) -> str:
 
 class TestZieReleaseModel:
     def test_zie_release_uses_haiku(self):
-        import re, yaml
+        import re
+
+        import yaml
         text = read("commands/zie-release.md")
         match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
         assert match
@@ -31,7 +33,9 @@ class TestZieReleaseModel:
 
 class TestImplReviewerModel:
     def test_impl_reviewer_uses_haiku(self):
-        import re, yaml
+        import re
+
+        import yaml
         text = read("skills/impl-reviewer/SKILL.md")
         match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
         assert match

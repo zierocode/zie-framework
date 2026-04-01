@@ -4,10 +4,17 @@ import json
 import os
 import subprocess
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event, get_cwd, load_config, parse_roadmap_section_content, read_roadmap_cached, get_cached_git_status, write_git_status_cache
+from utils import (
+    get_cached_git_status,
+    get_cwd,
+    load_config,
+    parse_roadmap_section_content,
+    read_event,
+    read_roadmap_cached,
+    write_git_status_cache,
+)
 
 ALLOWED_TOOLS = {"Bash", "Write", "Edit"}
 

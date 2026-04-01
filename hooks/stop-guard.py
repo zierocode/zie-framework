@@ -16,7 +16,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import read_event, get_cwd, load_config
+from utils import get_cwd, load_config, read_event
 
 # Canonical implementation file patterns for zie-framework layout.
 # Paths are matched against the raw path token from `git status --short`

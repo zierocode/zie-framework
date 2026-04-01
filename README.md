@@ -22,6 +22,7 @@ claude plugin install zierocode/zie-framework
 | `/zie-implement` | 4 — Build | TDD feature loop with impl-reviewer |
 | `/zie-release` | 5 — Release | Test gates → readiness → `make release` |
 | `/zie-retro` | 6 — Learn | Retrospective + ADRs + brain storage |
+| `/zie-sprint` | Sprint | Batch all items: spec + plan + implement + release + retro |
 | `/zie-fix` | Debug | Bug path — skip to systematic fix |
 | `/zie-audit` | Health | 9-dimension audit + external research → backlog |
 
@@ -103,7 +104,7 @@ your-project/
 │   ├── project/
 │   │   ├── architecture.md  # system design, component relationships
 │   │   ├── components.md    # component registry
-│   │   └── project/context.md  # ADR log (append-only)
+│   │   └── context.md          # project context + ADR log
 │   ├── specs/               # design specs (output of /zie-spec)
 │   ├── plans/               # implementation plans (output of /zie-plan)
 │   ├── decisions/           # ADR files (output of /zie-retro)

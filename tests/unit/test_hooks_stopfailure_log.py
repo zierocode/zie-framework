@@ -5,8 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "stopfailure-log.py")
 
@@ -69,14 +67,14 @@ class TestLogWritten:
         assert log.exists(), "failure-log must be created for billing_error"
         assert "error_type=billing_error" in log.read_text()
 
-    def test_log_written_api_error_silent(self, tmp_path):
+    def test_log_written_api_error_notified(self, tmp_path):
         cwd = make_cwd(tmp_path)
         log = failure_log_path(cwd)
         log.unlink(missing_ok=True)
         r = run_hook(cwd, event={"error_type": "api_error"})
         assert log.exists(), "failure-log must be created for api_error"
         assert "error_type=api_error" in log.read_text()
-        assert r.stderr.strip() == "", "api_error must produce no stderr notification"
+        assert "api_error" in r.stderr, "api_error must emit a stderr notification"
 
     def test_log_written_overloaded_error_silent(self, tmp_path):
         cwd = make_cwd(tmp_path)

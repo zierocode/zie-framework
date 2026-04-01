@@ -1,6 +1,6 @@
 """Tests for TEST_INDICATORS config path in task-completed-gate.py."""
-import json
 import importlib.machinery
+import json
 import types
 from pathlib import Path
 

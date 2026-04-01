@@ -1,6 +1,12 @@
 """Tests for hooks/auto-test.py"""
-import os, sys, json, subprocess, pytest, re
+import json
+import os
+import subprocess
+import sys
 from pathlib import Path
+
+import pytest
+
 HOOKS_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")), "hooks")
 sys.path.insert(0, HOOKS_DIR)
 from utils import project_tmp_path
