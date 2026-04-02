@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.16.1 — 2026-04-02
+
+### Fixed
+- **Qwen3-coder-next compatibility** — Fixed `async: true` hooks (hooks.json) → `background: true` for session-learn.py, session-cleanup.py, subagent-stop.py
+- **safety_check_agent.py CLI fallback** — Moved `claude` CLI check to `evaluate()` entry point for graceful regex fallback when CLI unavailable
+- **test_test_ci skipping** — Skip test when sitecustomize.py unavailable (subprocess hook coverage not available)
+
+### Changed
+- **hooks.json protocol** — Replaced `async` with `background` for all Stop hooks
+- **Test suite** — Updated `test_architecture_cleanup.py` to check `background` instead of `async`
+
 ## v1.16.0 — 2026-04-01
 
 ### Fixed
