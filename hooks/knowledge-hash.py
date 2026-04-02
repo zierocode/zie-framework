@@ -18,7 +18,7 @@ EXCLUDE = {
     'node_modules', '.git', 'build', 'dist', '.next',
     '__pycache__', 'coverage', 'zie-framework'
 }
-EXCLUDE_PATHS = {'zie-framework/plans/archive'}
+EXCLUDE_PATHS = {'zie-framework/plans/archive', 'zie-framework/archive'}
 CONFIG_FILES = [
     'package.json', 'requirements.txt', 'pyproject.toml',
     'Cargo.toml', 'go.mod'

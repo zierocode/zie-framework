@@ -6,6 +6,7 @@ to load it cleanly from tests and other hooks.
 """
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -44,8 +45,21 @@ def _regex_evaluate(command: str) -> int:
     return 0
 
 
+def _check_claude_cli_exists() -> bool:
+    """Check if the claude CLI is available on PATH."""
+    return shutil.which("claude") is not None
+
+
 def invoke_subagent(command: str, timeout: int = 30) -> str:
     """Call claude CLI to evaluate the command. Returns agent response text."""
+    if not _check_claude_cli_exists():
+        print(
+            "[zie-framework] safety_check_agent: claude CLI not found, "
+            "falling back to regex mode",
+            file=sys.stderr,
+        )
+        raise RuntimeError("claude CLI not found")
+
     if len(command) > MAX_CMD_CHARS:
         command = command[:MAX_CMD_CHARS] + "\n[... truncated]"
     prompt = (

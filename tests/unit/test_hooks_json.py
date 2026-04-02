@@ -100,13 +100,13 @@ class TestHooksJsonSubagentStop:
             "hooks.json must contain a SubagentStop entry"
         )
 
-    def test_subagent_stop_has_async_true(self):
+    def test_subagent_stop_has_background_true(self):
         data = self._load()
         entries = data["hooks"]["SubagentStop"]
         assert len(entries) == 1
         hook = entries[0]["hooks"][0]
-        assert hook.get("async") is True, (
-            "SubagentStop hook must have async: true"
+        assert hook.get("background") is True, (
+            "SubagentStop hook must have background: true"
         )
 
     def test_subagent_stop_command_references_correct_script(self):
@@ -120,6 +120,53 @@ class TestHooksJsonSubagentStop:
         hooks = data["hooks"]
         for key in ("SessionStart", "UserPromptSubmit", "PostToolUse", "PreToolUse", "Stop"):
             assert key in hooks, f"existing hook key missing: {key}"
+
+
+class TestHooksJsonSessionLearnCleanup:
+    """Test async→background fix for Stop hooks."""
+    def _load(self):
+        with open(HOOKS_JSON) as f:
+            return json.load(f)
+
+    def test_session_learn_has_background_true(self):
+        data = self._load()
+        entries = data["hooks"]["Stop"]
+        learn_entries = [
+            h for e in entries
+            for h in e["hooks"]
+            if "session-learn.py" in h["command"]
+        ]
+        assert len(learn_entries) == 1, "session-learn.py not found in Stop hooks"
+        assert learn_entries[0].get("background") is True, (
+            "session-learn.py must have background: true"
+        )
+
+    def test_session_cleanup_has_background_true(self):
+        data = self._load()
+        entries = data["hooks"]["Stop"]
+        cleanup_entries = [
+            h for e in entries
+            for h in e["hooks"]
+            if "session-cleanup.py" in h["command"]
+        ]
+        assert len(cleanup_entries) == 1, "session-cleanup.py not found in Stop hooks"
+        assert cleanup_entries[0].get("background") is True, (
+            "session-cleanup.py must have background: true"
+        )
+
+    def test_no_async_true_in_stop_hooks(self):
+        """async: true should not exist in Stop hooks (was replaced by background: true)."""
+        data = self._load()
+        entries = data["hooks"]["Stop"]
+        async_keys = [
+            h.get("async")
+            for e in entries
+            for h in e["hooks"]
+        ]
+        # None of them should be True
+        assert not any(async_keys), (
+            "Found async: true in Stop hooks - should be background: true"
+        )
 
 
 class TestHooksJsonSafetyCheckAgent:
