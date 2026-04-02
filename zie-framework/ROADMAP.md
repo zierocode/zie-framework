@@ -9,7 +9,6 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-<!-- qwen3-coder-next-deep-review: implemented -->
 
 ---
 
@@ -58,7 +57,7 @@
   - hooks.json async key, claude CLI dependency, symlink handling (CRITICAL)
   - knowledge-hash EXCLUDE_PATHS, intent-sdlc case-insensitive, metachar guard (HIGH)
   - command length, glob filtering, decision fallback (MEDIUM)
-  — [plan](plans/2026-04-02-qwen3-coder-next-deep-review.md) [✅ implemented]
+  — [plan](plans/2026-04-02-qwen3-coder-next-deep-review.md) [✅ implemented] v1.16.1 2026-04-02
 
 <!-- MEDIUM -->
 
