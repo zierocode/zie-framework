@@ -15,7 +15,7 @@ effort: medium
 !`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now 2>/dev/null || echo "knowledge-hash: unavailable"`
 
 0. **Pre-flight: Agent mode check** — if not running with `--agent zie-framework:zie-implement-mode`:
-   display `⚠️ Running /zie-implement outside agent session. Recommend: claude --agent zie-framework:zie-implement-mode. Continue anyway? (yes / cancel)`
+   display `⚠️ Running /zie-implement outside agent session. Recommended: claude --agent zie-framework:zie-implement-mode. Continue anyway? (yes / cancel)`
    yes → continue, cancel → stop.
 
 1. Check `zie-framework/` exists → if not, run `/zie-init` first.

@@ -79,6 +79,15 @@ def invoke_subagent(command: str, timeout: int = 30) -> str:
 
 def evaluate(command: str, mode: str, timeout: int = 30) -> int:
     """Evaluate command via agent with regex fallback. Returns 0 (allow) or 2 (block)."""
+    # Check if claude CLI exists first - if not, skip agent mode entirely
+    if not _check_claude_cli_exists():
+        print(
+            "[zie-framework] safety_check_agent: claude CLI not found, "
+            "skipping agent mode — using regex only",
+            file=sys.stderr,
+        )
+        return _regex_evaluate(command)
+
     try:
         response = invoke_subagent(command, timeout=timeout)
         decision = parse_agent_response(response)
