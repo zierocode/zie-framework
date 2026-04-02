@@ -39,19 +39,30 @@
 
 <!-- HIGH -->
 
-- [ ] qwen3-coder-next-deep-review — 10 issues (3 CRITICAL, 3 HIGH, 3 MEDIUM, 1 LOW):
-  - hooks.json async key, claude CLI dependency, symlink handling (CRITICAL)
-  - knowledge-hash EXCLUDE_PATHS, intent-sdlc case-insensitive, metachar guard (HIGH)
-  - command length, glob filtering, decision fallback (MEDIUM)
-  — [backlog](backlog/qwen3-coder-next-deep-review.md) [spec ✓] [plan ✓]
-
 <!-- MEDIUM -->
 
 <!-- LOW -->
 
-## Later — Someday / Maybe
+---
 
-<!-- Good ideas, not yet prioritized. -->
+## Ready — Approved Plans
+
+<!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
+<!-- Order: Critical → High → Medium → Low -->
+
+<!-- CRITICAL -->
+
+<!-- HIGH -->
+
+- [ ] qwen3-coder-next-deep-review — 10 issues (3 CRITICAL, 3 HIGH, 3 MEDIUM, 1 LOW):
+  - hooks.json async key, claude CLI dependency, symlink handling (CRITICAL)
+  - knowledge-hash EXCLUDE_PATHS, intent-sdlc case-insensitive, metachar guard (HIGH)
+  - command length, glob filtering, decision fallback (MEDIUM)
+  — [plan](plans/2026-04-02-qwen3-coder-next-deep-review.md)
+
+<!-- MEDIUM -->
+
+<!-- LOW -->
 
 ---
 
