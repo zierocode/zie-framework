@@ -7,9 +7,9 @@ spec: specs/2026-04-02-qwen3-coder-next-deep-review-design.md
 
 # Plan: Qwen3-coder-next Deep Review — Hook & Compatibility Fixes
 
-**Status:** Draft  
+**Status:** APPROVED  
 **Date:** 2026-04-02  
-**approved:** false (pending plan-reviewer)
+**approved:** true
 
 ---
 
