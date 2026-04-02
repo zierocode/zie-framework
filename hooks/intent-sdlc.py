@@ -79,7 +79,7 @@ PATTERNS = {
 }
 
 COMPILED_PATTERNS = {
-    cat: [re.compile(p) for p in pats]
+    cat: [re.compile(p, re.IGNORECASE) for p in pats]
     for cat, pats in PATTERNS.items()
 }
 

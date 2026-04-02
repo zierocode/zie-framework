@@ -128,12 +128,12 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-learn.py\"",
-          "async": true
+          "background": true
         },
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-cleanup.py\"",
-          "async": true
+          "background": true
         }
       ]
     }
@@ -154,7 +154,7 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-stop.py\"",
-          "async": true
+          "background": true
         }
       ]
     }

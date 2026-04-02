@@ -67,22 +67,22 @@ class TestAsyncStopHooks:
             for hook in entry.get("hooks", [])
         ]
 
-    def test_session_learn_has_async_true(self):
+    def test_session_learn_has_background_true(self):
         data = self._load()
         hooks = self._stop_hooks(data)
         session_learn = [h for h in hooks if "session-learn.py" in h.get("command", "")]
         assert session_learn, "session-learn.py not found in Stop hooks"
-        assert session_learn[0].get("async") is True, (
-            "session-learn.py Stop hook must have async: true"
+        assert session_learn[0].get("background") is True, (
+            "session-learn.py Stop hook must have background: true"
         )
 
-    def test_session_cleanup_has_async_true(self):
+    def test_session_cleanup_has_background_true(self):
         data = self._load()
         hooks = self._stop_hooks(data)
         session_cleanup = [h for h in hooks if "session-cleanup.py" in h.get("command", "")]
         assert session_cleanup, "session-cleanup.py not found in Stop hooks"
-        assert session_cleanup[0].get("async") is True, (
-            "session-cleanup.py Stop hook must have async: true"
+        assert session_cleanup[0].get("background") is True, (
+            "session-cleanup.py Stop hook must have background: true"
         )
 
     def test_stop_guard_is_not_async(self):

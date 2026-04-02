@@ -25,7 +25,8 @@ SAFE_PATTERNS = [
 ]
 
 # Reject any command containing shell metacharacters — no quote-aware parsing needed
-_METACHARS = (";", "&&", "||", "|", "`", "$(")
+# Added: {} for command substitution, ! for history expansion (zsh)
+_METACHARS = (";", "&&", "||", "|", "`", "$(", "{", "}", "!")
 
 
 # ── Outer guard ───────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-04-01 (v1.15.0)
+**Last updated:** 2026-04-01 (v1.16.0)
 
 ## Commands
 
@@ -58,7 +58,7 @@
 | stopfailure-log.py | StopFailure | capture API errors and rate-limit notifications to per-project tmp log |
 | subagent-stop.py | SubagentStop | capture subagent completion with ID; enables resume-by-ID pattern in same session |
 | task-completed-gate.py | TaskCompleted | block on failing tests; warn on uncommitted files at task completion |
-| utils.py | (shared library) | read_event(), get_cwd(), load_config(), parse_roadmap_now/section/ready(), compact_roadmap_done(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp(), normalize_command(), safe_project_name(), get_cached_git_status/write_git_status_cache(), get_cached_adrs(adr_dir, session_id) + write_adr_cache(session_id, adrs_content, adr_dir) (session-scoped ADR cache for parallel agents), BLOCKS, WARNS, SDLC_STAGES |
+| utils.py | (shared library) | read_event(), get_cwd(), load_config(), parse_roadmap_now/section/ready(), compact_roadmap_done(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp(), normalize_command(), safe_project_name(), get_cached_git_status/write_git_status_cache(), get_cached_adrs(adr_dir, session_id) + write_adr_cache(session_id, adrs_content, adr_dir) (session-scoped ADR cache for parallel agents), log_hook_timing(hook_name, duration_ms, exit_code, session_id) (JSON timing log at /tmp/zie-{session}/timing.log), BLOCKS, WARNS, SDLC_STAGES |
 
 ## Agents
 

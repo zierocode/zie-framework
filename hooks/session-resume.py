@@ -112,9 +112,9 @@ try:
                     f" skipping write: {_p}",
                     file=sys.stderr,
                 )
-            else:
-                _p.write_text(_env_lines)
-                os.chmod(_p, 0o600)
+                sys.exit(0)
+            _p.write_text(_env_lines)
+            os.chmod(_p, 0o600)
         except Exception as e:
             print(
                 f"[zie-framework] session-resume: env-file write failed: {e}",

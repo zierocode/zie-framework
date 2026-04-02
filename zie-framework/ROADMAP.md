@@ -9,7 +9,6 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-<!-- -->
 
 ---
 
@@ -33,6 +32,7 @@
 <!-- Ready to start. Ordered by priority. -->
 <!-- Audit 2026-03-26: 53 findings, score 73/100 -->
 <!-- Audit 2026-04-01: 9 findings added (4 HIGH, 5 MEDIUM) -->
+<!-- Audit 2026-04-02: Qwen3-coder-next deep review — 10 issues -->
 
 <!-- CRITICAL -->
 
@@ -42,9 +42,26 @@
 
 <!-- LOW -->
 
-## Later — Someday / Maybe
+---
 
-<!-- Good ideas, not yet prioritized. -->
+## Ready — Approved Plans
+
+<!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
+<!-- Order: Critical → High → Medium → Low -->
+
+<!-- CRITICAL -->
+
+<!-- HIGH -->
+
+- [x] qwen3-coder-next-deep-review — 10 issues (3 CRITICAL, 3 HIGH, 3 MEDIUM, 1 LOW):
+  - hooks.json async key, claude CLI dependency, symlink handling (CRITICAL)
+  - knowledge-hash EXCLUDE_PATHS, intent-sdlc case-insensitive, metachar guard (HIGH)
+  - command length, glob filtering, decision fallback (MEDIUM)
+  — [plan](plans/2026-04-02-qwen3-coder-next-deep-review.md) [✅ implemented] v1.16.1 2026-04-02
+
+<!-- MEDIUM -->
+
+<!-- LOW -->
 
 ---
 
