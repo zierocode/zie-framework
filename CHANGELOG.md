@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.16.2 — 2026-04-03
+
+### Changed
+
+- **ROADMAP backlog refresh** — Added 12 next-priority items (6 HIGH, 4 MEDIUM,
+  2 LOW) for optimization: auto-test output truncation, intent-sdlc early exit,
+  release gate inlining, retro format inlining, zie-init delegation, hook
+  consolidation, utils modularization, sprint audit, skill dedup, MCP audit,
+  proactive compaction
+- **Pre-commit hook refactor** — Simplified pre-commit from 45 lines to 2-line
+  stub; version drift, bandit SAST, markdownlint checks moved to CI pipeline
+
 ## v1.16.1 — 2026-04-02
 
 ### Fixed
