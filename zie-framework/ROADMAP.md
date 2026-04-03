@@ -102,6 +102,8 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] v1.16.2-maintenance — ROADMAP backlog refresh (12 Next items), pre-commit hook simplified to stub — v1.16.2 2026-04-03
+
 - [x] audit-comprehensive-v1 — 26 fixes:
   hook timing instrumentation, env permissions (0o600), input guarding (braces),
   test improvements (6 ADR boundary cases, structural assertions), security

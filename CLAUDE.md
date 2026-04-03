@@ -117,6 +117,7 @@ Never raise an unhandled exception from a hook. Never use a non-zero exit code.
 
 | Command | Purpose |
 | --- | --- |
+| `/zie-init` | Bootstrap: initialize framework in a new project |
 | `/zie-backlog` | Capture a new idea as a backlog item |
 | `/zie-spec` | Write design spec for a backlog item |
 | `/zie-plan` | Draft implementation plan from spec |
@@ -127,6 +128,7 @@ Never raise an unhandled exception from a hook. Never use a non-zero exit code.
 | `/zie-fix` | Debug and fix failing tests or broken features |
 | `/zie-status` | Show current SDLC state |
 | `/zie-audit` | Project audit across 9 dimensions |
+| `/zie-resync` | Rescan codebase + update knowledge docs |
 
 ## SDLC State
 
