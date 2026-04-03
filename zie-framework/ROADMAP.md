@@ -38,9 +38,42 @@
 
 <!-- HIGH -->
 
+- [ ] truncate-auto-test-output — auto-test.py (PostToolUse) injects test output
+  into context every Edit/Write; truncate to pass/fail + first failure only,
+  skip for *.md/config files
+- [ ] intent-sdlc-early-exit — intent-sdlc.py (332 lines) fires every
+  UserPromptSubmit; add early-exit when message is clearly non-SDLC
+- [ ] release-inline-gates — /zie-release spawns 4 agents to run Bash
+  one-liners (make test-int, test-e2e, lint, visual); replace with
+  inline Bash parallel execution — saves ~40k+ tokens per release
+- [ ] retro-inline-format — /zie-retro spawns 2 agents for text
+  processing (retro-format + docs-sync-check); do inline instead,
+  keep ADR + ROADMAP agents that write to separate files
+- [ ] zie-init-delegate-scan — zie-init.md Step 2 is 143 lines of
+  pseudocode for scan+migration; delegate to Agent(Explore) and
+  reduce command to a pointer — saves ~100 lines from command file
+
 <!-- MEDIUM -->
 
+- [ ] merge-safety-hooks — consolidate safety-check.py +
+  input-sanitizer.py into single hook; reduces subprocess spawn
+  from 3→2 on every Bash call
+- [ ] split-utils-py — utils.py (737 lines) imported by all 22 hooks;
+  split into focused modules so each hook imports only what it needs
+- [ ] sprint-agent-audit — review /zie-sprint's 2 background agents;
+  if they just orchestrate sequential commands, replace with inline
+- [ ] implement-skill-dedup — zie-implement.md lines 51–74 duplicate
+  tdd-loop skill (RED-GREEN-REFACTOR); trim to 3-line pointer to skill
+- [ ] roadmap-done-rotation — /zie-retro should auto-archive Done items
+  older than 90 days to archive/ROADMAP-archive-YYYY-MM.md;
+  keep 10 most recent inline
+
 <!-- LOW -->
+
+- [ ] audit-mcp-check — add MCP server audit to /zie-audit; warn about
+  unused MCP servers that bloat context with tool definitions
+- [ ] proactive-compact-hint — in Stop/TaskCompleted hooks, check
+  context usage and suggest /compact if above threshold
 
 ---
 
