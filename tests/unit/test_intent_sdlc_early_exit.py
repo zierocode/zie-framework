@@ -105,3 +105,39 @@ class TestKeywordGate:
         r = run_hook("we should plan this backlog item", tmp_cwd=cwd, session_id="test-kg-plan")
         assert r.returncode == 0
         assert r.stdout.strip() != ""
+
+
+class TestSlashCommandGate:
+    """Gate 3: messages whose first token starts with '/' must exit silently (mid-command)."""
+
+    def test_simple_slash_exits(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path)
+        r = run_hook("/sprint", tmp_cwd=cwd, session_id="test-sc-sprint")
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_slash_with_args_exits(self, tmp_path):
+        # Long command — old guard (< 20 chars) would NOT have caught this
+        cwd = make_cwd_with_zf(tmp_path)
+        r = run_hook("/sprint slug1 slug2 --dry-run", tmp_cwd=cwd, session_id="test-sc-sprint-args")
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_slash_implement_exits(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path)
+        r = run_hook("/implement lean-my-feature", tmp_cwd=cwd, session_id="test-sc-impl")
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_slash_retro_exits(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path)
+        r = run_hook("/retro", tmp_cwd=cwd, session_id="test-sc-retro")
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_non_slash_implement_passes(self, tmp_path):
+        # A message mentioning implement that is NOT a slash command must still pass
+        cwd = make_cwd_with_zf(tmp_path)
+        r = run_hook("let us implement this feature now", tmp_cwd=cwd, session_id="test-sc-nosl")
+        assert r.returncode == 0
+        assert r.stdout.strip() != ""

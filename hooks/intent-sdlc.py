@@ -231,7 +231,7 @@ try:
         sys.exit(0)
     if message.startswith("---") or len(message) > 500:
         sys.exit(0)
-    if message.startswith("/") and len(message.split()[0]) < 20:
+    if message.split()[0].startswith("/"):
         sys.exit(0)
 
     cwd = get_cwd()
