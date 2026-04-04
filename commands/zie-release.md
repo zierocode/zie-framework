@@ -26,14 +26,29 @@ effort: medium
 
 ### Pre-Gate-1: Docs Sync (background)
 
-Spawn docs-sync-check before unit tests — runs concurrently:
+Run docs-sync check before unit tests — concurrently (run_in_background=True):
 
-```python
-TaskCreate(subject="Check docs sync", description="Check CLAUDE.md/README.md against changed files", activeForm="Checking docs sync")
-Agent(subagent_type="general-purpose", run_in_background=True, prompt="Check CLAUDE.md and README.md for staleness. (1) Scan zie-framework/commands/*.md — extract all /zie-* command names. (2) Scan zie-framework/skills/*/*.md — extract all skill names. (3) Scan zie-framework/hooks/*.py — extract hook event types. (4) Check CLAUDE.md Development Commands section lists all commands. (5) Check README.md skills table lists all skills. Report: [docs-sync] PASSED or [docs-sync] FAILED: <what's stale>. Return JSON: { 'in_sync': bool, 'missing_from_docs': [...], 'extra_in_docs': [...], 'details': str }")
+```bash
+# run_in_background=True
+python3 -c "
+import re, pathlib, sys
+cmds_dir = pathlib.Path('commands')
+skills_dir = pathlib.Path('skills')
+claude_md = pathlib.Path('CLAUDE.md').read_text()
+readme = pathlib.Path('README.md').read_text()
+commands = [f.stem for f in cmds_dir.glob('zie-*.md')]
+skills = [f.parent.name for f in skills_dir.glob('*/SKILL.md')]
+missing = [c for c in commands if c not in claude_md]
+missing += [s for s in skills if s not in readme]
+if missing:
+    print('[docs-sync] FAILED:', missing)
+    sys.exit(1)
+print('[docs-sync] PASSED')
+"
 ```
 
-<!-- fallback: if Agent unavailable → print `[zie-framework] docs-sync-check unavailable — skipping` and continue. Manual check: make docs-sync -->
+Collect result with other gate results (see "Collect Parallel Gate Results" below).
+On `[docs-sync] FAILED` → update stale docs inline (Read/Edit/Write) before version bump.
 
 ### ตรวจสอบ: Unit Tests
 
@@ -48,32 +63,57 @@ make test-fast
 
 ### ตรวจสอบ: Parallel Gates 2–4
 
-Upon Gate 1 success, immediately spawn three Agents simultaneously:
+Upon Gate 1 success, immediately issue three Bash calls simultaneously (run_in_background=True):
 
-```python
-Agent(subagent_type="general-purpose", run_in_background=True, prompt="Run integration tests: execute `make test-int`. Report result: [Gate 2/5] PASSED or [Gate 2/5] FAILED: <reason>. If no integration tests exist, report [Gate 2/5] SKIPPED.")
+**Gate 2/5 — Integration tests:**
 
-Agent(subagent_type="general-purpose", run_in_background=True, prompt="Run e2e tests if enabled: check playwright_enabled in zie-framework/.config. If true, execute `make test-e2e`. If false, skip. Report: [Gate 3] PASSED or [Gate 3] SKIPPED or [Gate 3] FAILED: <reason>.")
-
-Agent(subagent_type="general-purpose", run_in_background=True, prompt="Visual check if applicable: check has_frontend and playwright_enabled in zie-framework/.config. If has_frontend=true and playwright_enabled=false, start dev server and verify key pages load without console errors. Report: [Gate 4] PASSED or [Gate 4] SKIPPED or [Gate 4] FAILED: <reason>.")
+```bash
+# [Gate 2/5] Integration tests — run_in_background=True
+make test-int
 ```
 
-<!-- fallback: if Agent unavailable → run sequentially: make test-int → make test-e2e → visual check -->
+Report: `[Gate 2/5] PASSED`, `[Gate 2/5] SKIPPED` (if no integration tests), or `[Gate 2/5] FAILED: <stderr>`.
+
+**Gate 3/5 — E2E tests (conditional):**
+
+Read `playwright_enabled` from `zie-framework/.config` inline.
+- If `playwright_enabled=false` → print `[Gate 3/5] SKIPPED` (no Bash call issued).
+- If `playwright_enabled=true`:
+
+  ```bash
+  # [Gate 3/5] E2E tests — run_in_background=True
+  make test-e2e
+  ```
+
+  Report: `[Gate 3/5] PASSED` or `[Gate 3/5] FAILED: <stderr>`.
+
+**Gate 4/5 — Visual check (conditional):**
+
+Read `has_frontend` and `playwright_enabled` from `zie-framework/.config` inline.
+- If `has_frontend=false` OR `playwright_enabled=false` → print `[Gate 4/5] SKIPPED` (no Bash call issued).
+- If both true:
+
+  ```bash
+  # [Gate 4/5] Visual check — run_in_background=True
+  make visual-check
+  ```
+
+  Report: `[Gate 4/5] PASSED` or `[Gate 4/5] FAILED: <stderr>`.
 
 ### Collect Parallel Gate Results
 
-Wait for all three gate Agents to complete. Collect results from each (do NOT stop at first failure):
+Wait for all three Bash gate calls to complete. Collect results (do NOT stop at first failure):
 
 - If all three pass (or skip) → print "Gates 2, 3, 4 PASSED" → continue
 - If any fail → print all failures together, then STOP before version bump:
   ```
-  [Gate 2] FAILED: integration tests failed
-  [Gate 3] FAILED: e2e tests timed out
+  [Gate 2/5] FAILED: integration tests failed
+  [Gate 3/5] FAILED: e2e tests timed out
   ```
-- Also collect docs-sync-check result (Pre-Gate-1 Agent):
+- Also collect docs-sync-check result (Pre-Gate-1 Bash):
   - `[docs-sync] PASSED` → print "Docs in sync"
   - `[docs-sync] FAILED` → update stale docs now before version bump
-  - Not yet complete → wait for it (non-critical: does not block release if unavailable)
+  - Bash call not available → print `[zie-framework] docs-sync-check unavailable — skipping` and continue. Manual check: `make docs-sync`
 
 Also run TODOs and secrets scan (Bash, parallel with gate agents):
 

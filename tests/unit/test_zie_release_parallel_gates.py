@@ -32,12 +32,13 @@ class TestParallelReleaseGates:
                "STOP before version bump" in text, \
             "Must collect all failures before stopping"
 
-    def test_gate_agents_use_general_purpose(self):
-        """Gate agents use subagent_type='general-purpose'."""
+    def test_gate_bash_calls_present(self):
+        """Gates 2, 3, 4 use inline Bash calls (no Agent() spawning)."""
         text = cmd_text()
-        # Count general-purpose in gate section
-        assert text.count("general-purpose") >= 3, \
-            "At least 3 general-purpose agent invocations for gates 2, 3, 4"
+        assert "Agent(" not in text or text.count("Agent(") == 0, \
+            "Gates must use inline Bash, not Agent() spawning"
+        assert "make test-int" in text, "Gate 2 must use make test-int"
+        assert "run_in_background=True" in text, "Bash gates must use run_in_background=True"
 
     def test_gate_agents_run_in_background(self):
         """Gate agents use run_in_background=True."""
@@ -45,8 +46,9 @@ class TestParallelReleaseGates:
         assert "run_in_background=True" in text or "run_in_background: true" in text.lower(), \
             "Gate agents must use run_in_background=True"
 
-    def test_fallback_to_sequential_documented(self):
-        """Fallback to sequential execution if Agent unavailable."""
+    def test_conditional_gates_documented(self):
+        """Gate 3 and Gate 4 have conditional skip logic documented."""
         text = cmd_text()
-        assert "fallback" in text.lower() and ("sequential" in text.lower() or "make test-int" in text), \
-            "Must document fallback to sequential execution"
+        assert "playwright_enabled" in text, "Gate 3 must check playwright_enabled"
+        assert "has_frontend" in text, "Gate 4 must check has_frontend"
+        assert "SKIPPED" in text, "Conditional gates must document SKIPPED outcome"

@@ -21,18 +21,15 @@ class TestAsyncSkillPatterns:
         assert "TaskCreate" in text, \
             "zie-retro.md must use TaskCreate for progress tracking"
 
-    def test_zie_release_uses_agent_background(self):
-        """zie-release.md must use Agent + run_in_background for docs-sync-check.
-        Uses general-purpose agent (not plugin-specific) per agentic-pipeline-v2."""
+    def test_zie_release_uses_background_execution(self):
+        """zie-release.md must use inline Bash with run_in_background for parallel gates."""
         text = (CMD_DIR / "zie-release.md").read_text()
-        # Must use general-purpose agent (plugin-specific agents require plugin reload)
-        assert 'subagent_type="general-purpose"' in text or \
-               "general-purpose" in text, \
-            "zie-release.md must use general-purpose agent (agentic-pipeline-v2)"
         assert 'run_in_background' in text, \
-            "zie-release.md must use run_in_background=true"
-        assert "TaskCreate" in text, \
-            "zie-release.md must use TaskCreate for progress tracking"
+            "zie-release.md must use run_in_background=True for parallel gates"
+        assert 'make test-int' in text, \
+            "zie-release.md must invoke make test-int for Gate 2"
+        assert "Agent(" not in text, \
+            "zie-release.md must use inline Bash, not Agent() spawning"
 
     def test_zie_implement_uses_taskcreate_for_verify(self):
         """zie-implement.md must use TaskCreate for verify step."""
@@ -52,5 +49,5 @@ class TestAsyncSkillPatterns:
             "zie-retro.md must have fallback comment for retro-format"
 
         release = (CMD_DIR / "zie-release.md").read_text()
-        assert "<!-- fallback:" in release and "docs-sync-check" in release, \
-            "zie-release.md must have fallback comment referencing docs-sync-check"
+        assert "docs-sync-check unavailable" in release, \
+            "zie-release.md must document docs-sync-check unavailable skip message"
