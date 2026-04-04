@@ -13,6 +13,10 @@ from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
 from utils_config import load_config
 from utils_roadmap import parse_roadmap_now
 
+# Minimum safe Playwright version — derived from CVE-2025-59288.
+# CVE-2025-59288: arbitrary code execution via malicious CDP response.
+# Reference: https://www.cve.org/CVERecord?id=CVE-2025-59288
+# (1, 55, 1) is the first Playwright release that ships the fix.
 PLAYWRIGHT_MIN_VERSION = (1, 55, 1)
 
 
