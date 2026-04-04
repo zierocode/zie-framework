@@ -13,12 +13,7 @@ reviewer loop. Output lives in `zie-framework/specs/`.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. Read `zie-framework/.config` → project_type, zie_memory_enabled.
-3. Read `zie-framework/ROADMAP.md` → check Now lane.
-   - If a `[ ]` item exists → warn: "WIP active: `<feature>`. Specs can be
-     written in parallel but focus is split. Continue? (yes/no)"
-   - If no → stop.
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight) (checks Now lane — warns if WIP active).
 
 ## Arguments
 

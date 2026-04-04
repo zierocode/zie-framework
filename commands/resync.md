@@ -14,8 +14,7 @@ All updates require user confirmation before writing.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. Check `zie-framework/.config` exists → if not, recommend `/init`.
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
 
 ## Steps
 

@@ -14,13 +14,9 @@ for bugs and regressions. **Use for non-urgent bugs. Does not trigger an immedia
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. อ่าน `zie-framework/.config` เพื่อ context.
-3. Read `zie-framework/ROADMAP.md` → check Now lane.
-   - If a `[ ]` item exists → warn: "WIP active: `<feature>`. Bug fix will be
-     a separate commit outside the current feature. Proceed? (yes/no)"
-   - If no → stop.
-4. If `zie_memory_enabled=true`:
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
+
+2. If `zie_memory_enabled=true`:
    - Call `mcp__plugin_zie-memory_zie-memory__recall`
      with `project=<project> domain=<domain> tags=[bug, build-learning] limit=10`
    - → detect recurring patterns, surface known fragile areas

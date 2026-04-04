@@ -13,9 +13,9 @@ problem and motivation. Output lives in `zie-framework/backlog/`.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. Read `zie-framework/.config` → zie_memory_enabled.
-3. If `zie_memory_enabled=true`:
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
+
+2. If `zie_memory_enabled=true`:
    - Call `mcp__plugin_zie-memory_zie-memory__recall`
      with `project=<project> domain=<domain> tags=[backlog, <project>] limit=10`
    - Check for duplicates — warn if similar item already exists.

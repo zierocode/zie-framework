@@ -17,14 +17,10 @@ effort: medium
    print `ℹ️ Tip: run inside \`claude --agent zie-framework:zie-implement-mode\` for best results.`
    (advisory only — do not block, continue immediately)
 
-1. Check `zie-framework/` exists → if not, run `/init` first.
-2. **Pre-flight: ROADMAP guard** — check `zie-framework/ROADMAP.md` exists:
-   - Missing → STOP: "ROADMAP.md not found — run /init to initialize this project."
-   - Read Now lane:
-     - `[ ]` in Now → STOP: "WIP task in progress — complete it or run /fix before starting a new one."
-     - `[x]` in Now → batch pending release, continue
-     - Now empty → continue
-3. **Pre-flight: Ready lane guard** — read Ready lane:
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
+(ROADMAP.md not found → STOP and run /init to initialize this project.)
+
+1. **Pre-flight: Ready lane guard** — read Ready lane:
    - Empty → auto-run `/plan` → get approval → continue. If still empty → STOP: "Ready lane is empty."
    - Read plan header only: everything up to (not including) the first `### Task` heading — check frontmatter for `approved: true`.
    - Not approved → STOP: "Plan in Ready lane is not approved — run /plan to get approval."

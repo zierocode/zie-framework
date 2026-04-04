@@ -10,7 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-<!-- All items completed v1.19.1 -->
+- [x] preflight-consolidation — [plan](plans/2026-04-04-preflight-consolidation.md)
 
 ---
 
@@ -19,21 +19,16 @@
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
 
-<!-- Clear — all items released v1.19.0 -->
-
-<!-- Clear — all items released v1.19.0 -->
+- [ ] reviewer-context-dedup — [plan](plans/2026-04-04-reviewer-context-dedup.md)
+- [ ] phase-prose-cleanup — [plan](plans/2026-04-04-phase-prose-cleanup.md)
+- [ ] init-scan-prompt-extract — [plan](plans/2026-04-04-init-scan-prompt-extract.md)
+- [ ] argument-parsing-inline — [plan](plans/2026-04-04-argument-parsing-inline.md)
 
 ---
 
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
-
-- [ ] preflight-consolidation — [backlog](backlog/preflight-consolidation.md)
-- [ ] reviewer-context-dedup — [backlog](backlog/reviewer-context-dedup.md)
-- [ ] phase-prose-cleanup — [backlog](backlog/phase-prose-cleanup.md)
-- [ ] init-scan-prompt-extract — [backlog](backlog/init-scan-prompt-extract.md)
-- [ ] argument-parsing-inline — [backlog](backlog/argument-parsing-inline.md)
 
 ---
 
