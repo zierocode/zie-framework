@@ -286,6 +286,36 @@ class TestSourceInvariants:
         source = Path(HOOK).read_text()
         assert "stop_hook_active" in source
 
+    def test_uses_lightweight_git_log_format(self):
+        """stop-guard.py must NOT use git log --all -p (patch body)."""
+        source = Path(HOOK).read_text()
+        assert "git log --all -p" not in source, (
+            "Use git log --all --format='%H %ai' instead of git log --all -p"
+        )
+
+    def test_uses_shlex_quote_for_slug(self):
+        """stop-guard.py must use shlex.quote(slug) in the grep argument."""
+        source = Path(HOOK).read_text()
+        assert "shlex.quote" in source, (
+            "slug must be shlex-quoted before shell injection"
+        )
+
+    def test_nudge_gate_uses_cache_helpers(self):
+        """stop-guard.py must use get_cached_git_status for the nudge TTL gate."""
+        source = Path(HOOK).read_text()
+        assert "get_cached_git_status" in source
+        assert "write_git_status_cache" in source
+
+    def test_nudge_gate_ttl_is_1800(self):
+        """Nudge TTL must be 1800 seconds (30 min)."""
+        source = Path(HOOK).read_text()
+        assert "ttl=1800" in source, "Nudge gate TTL must be hardcoded to 1800s"
+
+    def test_nudge_gate_key_is_nudge_check(self):
+        """Nudge gate cache key must be 'nudge-check'."""
+        source = Path(HOOK).read_text()
+        assert '"nudge-check"' in source, "Cache key must be 'nudge-check'"
+
 
 # ---------------------------------------------------------------------------
 # hooks.json registration

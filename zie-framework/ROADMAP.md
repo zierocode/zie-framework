@@ -11,6 +11,7 @@
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
 - [x] lean-claudemd-trim-to-trigger-table — cut CLAUDE.md to <80 lines; move hook conventions to project docs
+- [x] lean-stop-guard-nudge-per-stop — session-gate git log subprocess in stop-guard; shlex.quote(slug)
 
 ---
 
@@ -23,7 +24,6 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-- [ ] lean-stop-guard-nudge-per-stop — session-gate git log subprocess in stop-guard; shlex.quote(slug)
 - [ ] lean-load-context-triple-invoke — pass context_bundle down sprint→implement chain; eliminate triple load-context call
 - [ ] lean-retro-git-log-quad-read — deduplicate 4 git log reads in retro.md → 1
 - [ ] lean-project-md-commands-stale — sync PROJECT.md + CLAUDE.md commands/skills tables (4 missing commands, 1 ghost + 2 missing skills)

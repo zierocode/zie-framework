@@ -12,6 +12,7 @@ without running git, preventing Claude from being blocked indefinitely.
 import fnmatch
 import json
 import os
+import shlex
 import subprocess
 import sys
 
@@ -61,18 +62,16 @@ def _run_nudges(cwd, config, subprocess_timeout):
             try:
                 import re as _re
                 result = subprocess.run(
-                    f"git log --all -p -- zie-framework/ROADMAP.md "
-                    f"| grep -B5 '+- \\[ \\] {slug}'",
+                    f"git log --all --format='%H %ai' -- zie-framework/ROADMAP.md "
+                    f"| grep {shlex.quote(slug)}",
                     cwd=str(cwd),
                     capture_output=True,
                     text=True,
                     timeout=subprocess_timeout,
-                    shell=True,  # nosec B602 — piped git log | grep, slug from ROADMAP (internal)
+                    shell=True,  # nosec B602 — piped git log | grep, slug shlex-quoted
                 )
                 if result.returncode == 0 and result.stdout.strip():
-                    date_match = _re.search(r'^Date:\s+(\d{4}-\d{2}-\d{2})', result.stdout, _re.MULTILINE)
-                    if not date_match:
-                        date_match = _re.search(r'(\d{4}-\d{2}-\d{2})', result.stdout)
+                    date_match = _re.search(r'(\d{4}-\d{2}-\d{2})', result.stdout)
                     if date_match:
                         commit_date = _dt.date.fromisoformat(date_match.group(1))
                         days = (_dt.date.today() - commit_date).days
@@ -153,9 +152,15 @@ try:
             timeout=subprocess_timeout,
         )
         # Non-zero return code means not a git repo, detached HEAD, or bare repo.
-        # Still run nudges even without git status.
+        # Still run nudges even without git status (subject to TTL gate below).
         if result.returncode != 0:
-            _run_nudges(cwd, config, subprocess_timeout)
+            if not session_id:
+                _run_nudges(cwd, config, subprocess_timeout)
+            else:
+                _nudge_cached_early = get_cached_git_status(session_id, "nudge-check", ttl=1800)
+                if _nudge_cached_early is None:
+                    write_git_status_cache(session_id, "nudge-check", "1")
+                    _run_nudges(cwd, config, subprocess_timeout)
             sys.exit(0)
         status_output = result.stdout
         write_git_status_cache(session_id, "status", status_output)
@@ -183,8 +188,15 @@ try:
         print(json.dumps({"decision": "block", "reason": reason}))
         sys.exit(0)
 
-    # --- Proactive nudges ---
-    _run_nudges(cwd, config, subprocess_timeout)
+    # --- Proactive nudges (session-scoped TTL gate — 30 min) ---
+    # block path (uncommitted files) exits above; nudge gate only reached when clean
+    if not session_id:
+        _run_nudges(cwd, config, subprocess_timeout)
+    else:
+        _nudge_cached = get_cached_git_status(session_id, "nudge-check", ttl=1800)
+        if _nudge_cached is None:
+            write_git_status_cache(session_id, "nudge-check", "1")
+            _run_nudges(cwd, config, subprocess_timeout)
     sys.exit(0)
 
 except Exception as e:
