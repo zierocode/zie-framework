@@ -1,8 +1,8 @@
-"""Tests for commands/zie-init.md content spec compliance."""
+"""Tests for commands/init.md content spec compliance."""
 import os
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-ZIE_INIT_MD = os.path.join(REPO_ROOT, "commands", "zie-init.md")
+ZIE_INIT_MD = os.path.join(REPO_ROOT, "commands", "init.md")
 
 
 def read_init():
@@ -20,8 +20,8 @@ class TestZieInitPipelineSummary:
         """Pipeline block must list all 6 SDLC stages in order."""
         content = read_init()
         stages = [
-            "/zie-backlog", "/zie-spec", "/zie-plan",
-            "/zie-implement", "/zie-release", "/zie-retro",
+            "/backlog", "/spec", "/plan",
+            "/implement", "/release", "/retro",
         ]
         for stage in stages:
             assert stage in content, f"Missing stage: {stage}"
@@ -32,7 +32,7 @@ class TestZieInitPipelineSummary:
 
     def test_pipeline_first_feature_hint(self):
         content = read_init()
-        assert 'First feature: /zie-backlog' in content
+        assert 'First feature: /backlog' in content
 
     def test_pipeline_summary_after_print_summary_step(self):
         """Pipeline block must appear within or after the Print summary step."""

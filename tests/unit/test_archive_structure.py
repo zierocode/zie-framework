@@ -4,7 +4,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parents[2]
 ZF = REPO_ROOT / "zie-framework"
 MAKEFILE = REPO_ROOT / "Makefile"
-RELEASE_CMD = REPO_ROOT / "commands" / "zie-release.md"
+RELEASE_CMD = REPO_ROOT / "commands" / "release.md"
 
 
 def test_archive_dirs_exist():

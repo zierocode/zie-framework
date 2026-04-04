@@ -98,7 +98,7 @@ class TestOutputFormat:
         lines = result.stdout.strip().splitlines()
         assert lines[1].startswith("  Active:")
         assert "No active feature" in lines[1]
-        assert "/zie-backlog" in lines[1]
+        assert "/backlog" in lines[1]
 
     def test_line3_brain_enabled(self, tmp_path):
         _make_zf(tmp_path, zie_memory=True)
@@ -116,7 +116,7 @@ class TestOutputFormat:
         _make_zf(tmp_path)
         result = _run_hook(tmp_path)
         lines = result.stdout.strip().splitlines()
-        assert lines[3] == "  → Run /zie-status for full state"
+        assert lines[3] == "  → Run /status for full state"
 
 
 HOOK_DIR = REPO_ROOT / "hooks"

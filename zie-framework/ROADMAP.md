@@ -1,44 +1,14 @@
 # ROADMAP — zie-framework
 
 > Single source of truth for what's being built and why.
-> Updated by /zie-backlog (Next), /zie-plan (Ready), /zie-implement (Now),
-> /zie-release (Done), /zie-retro (reprioritization).
+> Updated by /backlog (Next), /plan (Ready), /implement (Now),
+> /release (Done), /retro (reprioritization).
 
 ---
 
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-
-- [x] safety-check-agent-haiku-model — Haiku for binary ALLOW/BLOCK
-- [x] auto-test-context-debounce — additionalContext after debounce
-- [x] safety-check-prompt-injection — XML-wrap shell command in subagent prompt
-- [x] write-plan-duplicate-reviewer — remove double reviewer loop
-- [x] strip-static-additionalcontext — static boilerplate → CLAUDE.md
-- [x] knowledge-hash-background — drift check off SessionStart critical path
-- [x] auto-test-double-rglob — cache find_matching_test, avoid double rglob
-- [x] stop-guard-cached-git — session cache in stop-guard
-- [x] config-schema-missing-keys — add compact_hint_threshold + playwright_enabled
-- [x] context-load-extract — shared load-context skill, 3 inline duplicates removed
-- [x] intent-sdlc-roadmap-gate — skip ROADMAP read for non-Now intents
-- [x] roadmap-cache-mtime-gate — mtime-gate instead of 30s TTL
-- [x] docs-sync-consolidate — single Skill() call in retro + release
-- [x] retro-inline-agents — inline ADR+ROADMAP writes, 2 subagent spawns eliminated
-- [x] sprint-phase1-skill-direct — skills directly in sprint Phase 1
-- [x] reviewer-skills-boilerplate — shared reviewer-context skill, Phase 1 deduplicated
-- [x] sanitize-log-field-dead-copy — dead function copy removed
-- [x] task-gate-suppress-advisory — suppress stdout noise on skip
-- [x] wip-checkpoint-modulo-guard — counter write before modulo check
-- [x] failure-context-zf-guard — zie-framework existence guard
-- [x] retro-format-skill-remove — deprecated retro-format skill deleted
-- [x] intent-sdlc-dead-guards — dead MAX_MESSAGE_LEN + redundant .strip() removed
-- [x] safety-check-compiled-blocks — COMPILED_BLOCKS in fallback path
-- [x] zie-status-git-velocity-cache — single git log command for velocity
-- [x] zie-implement-agent-mode-warn — warn-only agent-mode check
-- [x] pin-pytest-cve-2025-71176 — pytest >= 9.0.3
-- [x] zie-plan-notes-trim — Notes section removed
-- [x] stop-hooks-matcher-investigate — Stop hook matcher documented in hooks.json
-- [x] subagent-context-explore-guard — skip plan file read for Explore agents
 
 ---
 
@@ -78,6 +48,10 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint9-command-refactor-v1.18 — 4 items: UX output formatting and progress visibility, workflow enforcement and escape hatches, smarter framework intelligence, remove zie- prefix from command names — 2162 unit + 59 integration tests — v1.18.0 2026-04-04
+
+- [x] sprint8-efficiency-v1.17 — 29 items: Haiku model for safety-check agent (~80% cost cut), XML injection guard in safety-check prompt, mtime-gate ROADMAP cache (ADR-045), fire-and-forget session-resume drift check, strip static additionalContext from 3 hooks, shared load-context skill (ADR-048), shared reviewer-context skill, retro inline ADR+ROADMAP writes (ADR-047), docs-sync via Skill() in retro+release, sprint Phase 1 skill chain, subagent-context Explore guard (ADR-046), wip-checkpoint counter fix, task-gate silent exit, retro-format skill deleted, pin pytest CVE-2025-71176, zie-plan Notes removed, stop-hooks matcher documented — 2083 unit + 59 integration tests — v1.17.0 2026-04-04
 
 - [x] sprint7-optimization-v1.17 — 12 features: merge-safety-hooks (consolidate PreToolUse), split-utils-py (5 sub-modules, 0 regressions), sprint-agent-audit (Skill not Agent in Phase 3), implement-skill-dedup (Skill pointer not prose), roadmap-done-rotation (auto-archive >90d), audit-mcp-check (MCP server audit), proactive-compact-hint (context usage warning), plus 5 earlier items (truncate-auto-test, intent-sdlc-early-exit, release-inline-gates, retro-inline-format, zie-init-delegate-scan) — 2085 unit + 59 integration tests — v1.16.3 2026-04-04
 
@@ -123,7 +97,7 @@
   — 1518 unit + 62 integration tests — v1.10.1 2026-03-27
 - [x] Lean & Efficient Optimization — hook consolidation (intent-sdlc.py),
   ROADMAP session cache, zie-audit 5 Opus→3 Sonnet + synthesis, effort
-  right-sizing, zie-implement/zie-plan parallel cap removed, archive-plans
+  right-sizing, zie-implement/plan parallel cap removed, archive-plans
   Makefile target — 1491 unit + 62 integration tests — v1.10.0 2026-03-27
 - [x] Security + code quality sprint — 10 features: coverage measurement fix,
   shell injection + /tmp hardening + path traversal security fixes, subprocess
@@ -157,16 +131,16 @@
   ROADMAP edge cases, debounce boundary — v1.4.1 2026-03-23
 - [x] Docs + standards sprint — plugin.json sync, ADR canonicalization,
   SECURITY.md, .cz.toml, CHANGELOG translation — v1.4.1 2026-03-23
-- [x] /zie-audit — 9-dimension project audit, external research via
+- [x] /audit — 9-dimension project audit, external research via
   WebSearch/WebFetch, scored report, backlog integration — v1.4.0 2026-03-23
 - [x] Pipeline fixes — implement commit step, release verify consolidation,
   Makefile --amend for plugin.json — v1.4.0 2026-03-23
 - [x] Reviewer depth — context bundle (decisions/ + ROADMAP + context.md) for
   spec/plan/impl reviewers — v1.3.0 2026-03-23
-- [x] Quick spec — `/zie-spec "idea"` skips backlog, inline idea → spec-design
+- [x] Quick spec — `/spec "idea"` skips backlog, inline idea → spec-design
   directly — v1.3.0 2026-03-23
 - [x] Hybrid release — `make release NEW=<v>` skeleton in Makefile templates;
-  `/zie-release` readiness gate + delegation; `/zie-init` negotiates skeleton —
+  `/release` readiness gate + delegation; `/init` negotiates skeleton —
   v1.3.0 2026-03-23
 - [x] Post-release pipeline audit — 33 issues (6 critical, 16 important,
   11 minor) across all 10 commands + 10 skills + hooks; ADR-003 + ADR-004;
@@ -174,7 +148,7 @@
 - [x] SDLC pipeline redesign — 6-stage pipeline (backlog→spec→plan→implement→
   release→retro) with spec/plan/impl reviewer quality gates — 2026-03-23
 - [x] zie-init deep scan + knowledge drift detection — Agent(Explore) scan,
-  knowledge_hash, /zie-resync command — 2026-03-23
+  knowledge_hash, /resync command — 2026-03-23
 - [x] Remove all superpowers dependencies — commands, hooks, config, docs fully
   self-contained — 2026-03-23
 - [x] Knowledge Architecture — PROJECT.md hub + project/* spokes, templates,
@@ -185,15 +159,15 @@
   release support — v1.1.0 2026-03-22
 - [x] test-pyramid skill in /zie-build — RED phase now invokes
   Skill(zie-framework:test-pyramid) — 2026-03-22
-- [x] /zie-status test health detection — .pytest_cache/lastfailed logic, mtime
+- [x] /status test health detection — .pytest_cache/lastfailed logic, mtime
   stale check — 2026-03-22
-- [x] /zie-fix memory enhancement — batch recall domain+tags, root cause pattern
+- [x] /fix memory enhancement — batch recall domain+tags, root cause pattern
   format — 2026-03-22
 - [x] Add unit tests for all hooks (pytest) — 53 tests across 6 hooks, fixed rm
   -rf / bug — 2026-03-22
 - [x] Fork superpowers skills into zie-framework/skills/ — spec-design,
   write-plan, debug, verify — 2026-03-22
-- [x] SDLC Gate Enforcement + Parallel Agents — /zie-plan, backlog-first,
+- [x] SDLC Gate Enforcement + Parallel Agents — /plan, backlog-first,
   pre-flight gates, zie-memory deep integration — 2026-03-22
 - [x] Initial plugin scaffolding — hooks, commands, skills, templates —
   2026-03-22

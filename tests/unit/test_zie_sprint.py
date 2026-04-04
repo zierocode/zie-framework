@@ -1,8 +1,8 @@
-"""Tests for /zie-sprint command contract."""
+"""Tests for /sprint command contract."""
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
-CMD = REPO_ROOT / "commands" / "zie-sprint.md"
+CMD = REPO_ROOT / "commands" / "sprint.md"
 
 
 def _text():
@@ -11,7 +11,7 @@ def _text():
 
 class TestCommandExists:
     def test_file_exists(self):
-        assert CMD.exists(), "commands/zie-sprint.md must exist"
+        assert CMD.exists(), "commands/sprint.md must exist"
 
     def test_frontmatter_has_description(self):
         assert "description:" in _text(), "must have frontmatter description"

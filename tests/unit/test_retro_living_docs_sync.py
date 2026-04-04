@@ -5,7 +5,7 @@ COMMANDS_DIR = Path(__file__).parents[2] / "commands"
 
 class TestRetroLivingDocsSync:
     def _retro_text(self) -> str:
-        return (COMMANDS_DIR / "zie-retro.md").read_text()
+        return (COMMANDS_DIR / "retro.md").read_text()
 
     def test_docs_sync_check_skill_invoked(self):
         assert "docs-sync-check" in self._retro_text(), \

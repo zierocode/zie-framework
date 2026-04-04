@@ -144,13 +144,13 @@ class TestRetroIntegration:
     """zie-retro.md must call make archive-prune."""
 
     def test_retro_calls_archive_prune(self):
-        text = (REPO_ROOT / "commands" / "zie-retro.md").read_text()
+        text = (REPO_ROOT / "commands" / "retro.md").read_text()
         assert "make archive-prune" in text, \
             "zie-retro.md must call 'make archive-prune'"
 
     def test_retro_archive_prune_is_non_blocking(self):
         """The prune call must be noted as non-blocking or best-effort."""
-        text = (REPO_ROOT / "commands" / "zie-retro.md").read_text()
+        text = (REPO_ROOT / "commands" / "retro.md").read_text()
         context_window = text[text.find("archive-prune") - 200:text.find("archive-prune") + 200] \
             if "archive-prune" in text else ""
         non_blocking_markers = ["|| true", "non-blocking", "best-effort", "skip", "failure"]

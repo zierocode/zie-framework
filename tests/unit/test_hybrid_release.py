@@ -51,36 +51,36 @@ def test_typescript_example_has_bump_extra():
 
 
 def test_zie_release_no_zie_not_ready():
-    content = (COMMANDS / "zie-release.md").read_text()
+    content = (COMMANDS / "release.md").read_text()
     assert "ZIE-NOT-READY" not in content, \
         "zie-release.md must not contain ZIE-NOT-READY (obsolete gate)"
 
 
 def test_zie_release_delegates_to_make_release():
-    content = (COMMANDS / "zie-release.md").read_text()
+    content = (COMMANDS / "release.md").read_text()
     assert "make release NEW=" in content
 
 
 def test_zie_release_no_direct_git_ops():
-    content = (COMMANDS / "zie-release.md").read_text()
+    content = (COMMANDS / "release.md").read_text()
     assert "git merge dev" not in content
     assert "git push origin main" not in content
 
 
 def test_zie_init_has_makefile_local_creation():
-    content = (COMMANDS / "zie-init.md").read_text()
+    content = (COMMANDS / "init.md").read_text()
     assert "Makefile.local" in content, \
         "zie-init.md must reference Makefile.local creation"
 
 
 def test_zie_init_has_bump_extra_negotiation():
-    content = (COMMANDS / "zie-init.md").read_text()
+    content = (COMMANDS / "init.md").read_text()
     assert "_bump-extra" in content, \
         "zie-init.md must negotiate _bump-extra in step 7"
 
 
 def test_zie_init_no_zie_not_ready():
-    content = (COMMANDS / "zie-init.md").read_text()
+    content = (COMMANDS / "init.md").read_text()
     assert "ZIE-NOT-READY" not in content, \
         "zie-init.md must not reference ZIE-NOT-READY (obsolete pattern)"
 
@@ -88,7 +88,7 @@ def test_zie_init_no_zie_not_ready():
 class TestReleaseLeanFallbackExtension:
     def test_zie_release_no_blocking_docs_sync_fallback(self):
         """Release must not block on docs-sync-check when Agent unavailable."""
-        content = (COMMANDS / "zie-release.md").read_text()
+        content = (COMMANDS / "release.md").read_text()
         assert "call Skill(zie-framework:docs-sync-check) inline" not in content, (
             "Blocking inline Skill fallback must be replaced with graceful skip message"
         )

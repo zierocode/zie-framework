@@ -4,7 +4,7 @@ AI-native SDLC framework plugin for Claude Code. ติดตั้ง structure
 workflow เข้าไปในทุก project: spec-first TDD, intent detection, memory
 integration, safety guardrails.
 
-**Version**: 1.17.0  **Status**: active
+**Version**: 1.18.0  **Status**: active
 
 ---
 
@@ -12,16 +12,16 @@ integration, safety guardrails.
 
 | Command | Description |
 | --- | --- |
-| /zie-backlog | Capture new backlog item (problem + motivation) |
-| /zie-spec | Backlog item → design spec with reviewer loop |
-| /zie-plan | Approved spec → draft plan → approval → Ready lane |
-| /zie-implement | Ready → TDD implementation + impl-reviewer gate |
-| /zie-fix | Bug → regression test → fix → verify |
-| /zie-release | Release gate → readiness check → `make release` → retro |
-| /zie-status | Snapshot สถานะปัจจุบัน |
-| /zie-resync | Rescan codebase + update knowledge docs + hash |
-| /zie-retro | Retrospective → ADRs → brain storage |
-| /zie-audit | 9-dimension audit + external research → scored report → backlog |
+| /backlog | Capture new backlog item (problem + motivation) |
+| /spec | Backlog item → design spec with reviewer loop |
+| /plan | Approved spec → draft plan → approval → Ready lane |
+| /implement | Ready → TDD implementation + impl-reviewer gate |
+| /fix | Bug → regression test → fix → verify |
+| /release | Release gate → readiness check → `make release` → retro |
+| /status | Snapshot สถานะปัจจุบัน |
+| /resync | Rescan codebase + update knowledge docs + hash |
+| /retro | Retrospective → ADRs → brain storage |
+| /audit | 9-dimension audit + external research → scored report → backlog |
 
 ## Skills
 
@@ -39,7 +39,7 @@ integration, safety guardrails.
 | test-pyramid | Test strategy advisor |
 | retro-format | Format retrospective findings as ADRs |
 | debug | Systematic bug diagnosis and fix path |
-| zie-audit | 9-dimension audit analysis (invoked by /zie-audit command) |
+| zie-audit | 9-dimension audit analysis (invoked by /audit command) |
 | docs-sync-check | Verify CLAUDE.md and README.md are in sync with repo state |
 
 ## Agents

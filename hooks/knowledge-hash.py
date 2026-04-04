@@ -117,7 +117,7 @@ if args.check:
         if current != stored:
             print(
                 '[zie-framework] Knowledge drift detected since last session'
-                ' \u2014 run /zie-resync to update project context'
+                ' \u2014 run /resync to update project context'
             )
     except Exception:
         sys.exit(0)

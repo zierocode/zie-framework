@@ -6,44 +6,44 @@ SKILLS_DIR   = Path(__file__).parents[2] / "skills"
 
 class TestZiePlanContextLoad:
     def test_context_load_marker_present(self):
-        text = (COMMANDS_DIR / "zie-plan.md").read_text()
+        text = (COMMANDS_DIR / "plan.md").read_text()
         assert "<!-- context-load: adrs + project context -->" in text, \
             "zie-plan.md must have context-load comment marker"
 
     def test_adrs_load_step_present(self):
-        text = (COMMANDS_DIR / "zie-plan.md").read_text()
+        text = (COMMANDS_DIR / "plan.md").read_text()
         assert "decisions/" in text, \
             "zie-plan.md must load zie-framework/decisions/*.md"
 
     def test_context_md_load_step_present(self):
-        text = (COMMANDS_DIR / "zie-plan.md").read_text()
+        text = (COMMANDS_DIR / "plan.md").read_text()
         assert "project/context.md" in text, \
             "zie-plan.md must load zie-framework/project/context.md"
 
     def test_reviewer_invocation_passes_bundle(self):
-        text = (COMMANDS_DIR / "zie-plan.md").read_text()
+        text = (COMMANDS_DIR / "plan.md").read_text()
         assert "context_bundle" in text, \
             "zie-plan.md must pass context_bundle to reviewer invocation"
 
 
 class TestZieImplementContextLoad:
     def test_context_load_marker_present(self):
-        text = (COMMANDS_DIR / "zie-implement.md").read_text()
+        text = (COMMANDS_DIR / "implement.md").read_text()
         assert "<!-- context-load: adrs + project context -->" in text, \
             "zie-implement.md must have context-load comment marker"
 
     def test_adrs_load_step_present(self):
-        text = (COMMANDS_DIR / "zie-implement.md").read_text()
+        text = (COMMANDS_DIR / "implement.md").read_text()
         assert "decisions/" in text, \
             "zie-implement.md must load zie-framework/decisions/*.md"
 
     def test_context_md_load_step_present(self):
-        text = (COMMANDS_DIR / "zie-implement.md").read_text()
+        text = (COMMANDS_DIR / "implement.md").read_text()
         assert "project/context.md" in text, \
             "zie-implement.md must load zie-framework/project/context.md"
 
     def test_reviewer_invocation_passes_bundle(self):
-        text = (COMMANDS_DIR / "zie-implement.md").read_text()
+        text = (COMMANDS_DIR / "implement.md").read_text()
         assert "context_bundle" in text, \
             "zie-implement.md must pass context_bundle to reviewer invocation"
 

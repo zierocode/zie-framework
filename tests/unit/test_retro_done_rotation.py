@@ -1,7 +1,7 @@
-"""Tests for /zie-retro Done-rotation step (roadmap-done-rotation feature)."""
+"""Tests for /retro Done-rotation step (roadmap-done-rotation feature)."""
 from pathlib import Path
 
-CMD = Path(__file__).parents[2] / "commands" / "zie-retro.md"
+CMD = Path(__file__).parents[2] / "commands" / "retro.md"
 
 
 def _text():

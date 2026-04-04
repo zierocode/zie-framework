@@ -58,36 +58,36 @@ class TestReviewerOutputInstructions:
 
 class TestCommandIterationLogic:
     def test_zie_plan_no_old_max(self):
-        assert "Max 3 iterations" not in command_text("zie-plan"), \
+        assert "Max 3 iterations" not in command_text("plan"), \
             "zie-plan must not contain old Max 3 iterations"
 
     def test_zie_plan_new_max(self):
-        assert "Max 2 total iterations" in command_text("zie-plan"), \
+        assert "Max 2 total iterations" in command_text("plan"), \
             "zie-plan must declare Max 2 total iterations"
 
     def test_zie_plan_confirm_pass(self):
-        assert "confirm" in command_text("zie-plan").lower(), \
+        assert "confirm" in command_text("plan").lower(), \
             "zie-plan reviewer gate must mention a confirm pass"
 
     def test_zie_plan_zero_issues_fast_path(self):
-        text = command_text("zie-plan")
+        text = command_text("plan")
         assert "0 issues" in text or "APPROVED immediately" in text, \
             "zie-plan must describe 0-issues fast path"
 
     def test_zie_implement_no_old_max(self):
-        assert "Max 3 total iterations" not in command_text("zie-implement"), \
+        assert "Max 3 total iterations" not in command_text("implement"), \
             "zie-implement must not contain old Max 3 total iterations"
 
     def test_zie_implement_new_max(self):
-        assert "Max 2 total iterations" in command_text("zie-implement"), \
+        assert "Max 2 total iterations" in command_text("implement"), \
             "zie-implement must declare Max 2 total iterations"
 
     def test_zie_implement_confirm_pass(self):
-        assert "confirm" in command_text("zie-implement").lower(), \
+        assert "confirm" in command_text("implement").lower(), \
             "zie-implement impl-reviewer step must mention a confirm pass"
 
     def test_zie_implement_zero_issues_fast_path(self):
-        text = command_text("zie-implement")
+        text = command_text("implement")
         assert "0 issues" in text or "APPROVED immediately" in text, \
             "zie-implement must describe 0-issues fast path"
 

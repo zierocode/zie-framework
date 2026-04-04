@@ -1,9 +1,9 @@
-"""Structural tests: /zie-retro must reference the subagent-log."""
+"""Structural tests: /retro must reference the subagent-log."""
 import os
 from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-RETRO_CMD = Path(REPO_ROOT) / "commands" / "zie-retro.md"
+RETRO_CMD = Path(REPO_ROOT) / "commands" / "retro.md"
 
 
 class TestRetroSubagentSection:

@@ -98,7 +98,7 @@ If impl-reviewer has been invoked 2 times and issues persist, output:
 Next steps:
 - Fix issues above and re-run: make test-unit
 - Or discuss the issue with Zie before re-submitting
-- Or run /zie-fix to debug the root cause
+- Or run /fix to debug the root cause
 ```
 
 ## Notes

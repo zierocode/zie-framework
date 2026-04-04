@@ -1,7 +1,7 @@
 """Tests for zie-retro.md inline ADR+ROADMAP writes."""
 from pathlib import Path
 
-CMD_PATH = Path(__file__).parents[2] / "commands" / "zie-retro.md"
+CMD_PATH = Path(__file__).parents[2] / "commands" / "retro.md"
 
 
 def cmd_text() -> str:

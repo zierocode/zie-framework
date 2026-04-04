@@ -41,9 +41,9 @@ class TestKnowledgeHashSkipsArchive:
 
 
 class TestZieResyncExcludesArchive:
-    """zie-resync.md must exclude plans/archive/ from resync scope."""
+    """resync.md must exclude plans/archive/ from resync scope."""
 
     def test_resync_excludes_plans_archive(self):
-        content = (REPO_ROOT / "commands" / "zie-resync.md").read_text()
+        content = (REPO_ROOT / "commands" / "resync.md").read_text()
         assert "plans/archive" in content, \
-            "zie-resync.md must exclude plans/archive/ from resync scope"
+            "resync.md must exclude plans/archive/ from resync scope"

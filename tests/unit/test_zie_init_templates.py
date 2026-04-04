@@ -1,6 +1,6 @@
 """
-Tests for /zie-init: CLAUDE.md template + zie-memory seeding
-Acceptance criteria from: zie-framework/specs/zie-init-claude-md-memory.md
+Tests for /init: CLAUDE.md template + zie-memory seeding
+Acceptance criteria from: zie-framework/specs/init-claude-md-memory.md
 """
 import os
 import re
@@ -40,7 +40,7 @@ class TestClaudeMdTemplate:
 # ── AC2: zie-init.md contains a CLAUDE.md step that skips if file exists ─────
 
 class TestZieInitClaudeMdStep:
-    COMMAND_PATH = "commands/zie-init.md"
+    COMMAND_PATH = "commands/init.md"
 
     def test_command_has_claude_md_step(self):
         content = read(self.COMMAND_PATH)
@@ -57,7 +57,7 @@ class TestZieInitClaudeMdStep:
 # ── AC3: zie-memory step stores structured context ────────────────────────────
 
 class TestZieInitMemoryStep:
-    COMMAND_PATH = "commands/zie-init.md"
+    COMMAND_PATH = "commands/init.md"
 
     def test_memory_step_stores_project_type(self):
         content = read(self.COMMAND_PATH)
@@ -81,7 +81,7 @@ class TestZieInitMemoryStep:
 # ── AC4: zie-init.md must NOT reference local ~/.claude path manipulation ─────
 
 class TestNoLocalMemoryPath:
-    COMMAND_PATH = "commands/zie-init.md"
+    COMMAND_PATH = "commands/init.md"
 
     def test_no_local_claude_projects_path(self):
         content = read(self.COMMAND_PATH)

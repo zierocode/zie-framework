@@ -1,7 +1,7 @@
 """Tests for agentic-pipeline-v2 Tasks 4+5: zie-retro uses general-purpose agent + auto-commit."""
 from pathlib import Path
 
-CMD_PATH = Path(__file__).parents[2] / "commands" / "zie-retro.md"
+CMD_PATH = Path(__file__).parents[2] / "commands" / "retro.md"
 
 
 def cmd_text() -> str:

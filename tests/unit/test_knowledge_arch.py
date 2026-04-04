@@ -49,7 +49,7 @@ class TestSpokes:
 class TestInitTemplates:
     def test_project_md_template_exists(self):
         assert os.path.isfile(os.path.join(REPO_ROOT, "templates", "PROJECT.md.template")), \
-            "templates/PROJECT.md.template must exist for /zie-init"
+            "templates/PROJECT.md.template must exist for /init"
 
     def test_project_template_has_placeholder(self):
         content = read("templates/PROJECT.md.template")
@@ -59,21 +59,21 @@ class TestInitTemplates:
     def test_project_spoke_templates_exist(self):
         for spoke in ["architecture.md.template", "components.md.template", "context.md.template"]:
             path = os.path.join(REPO_ROOT, "templates", "project", spoke)
-            assert os.path.isfile(path), f"templates/project/{spoke} must exist for /zie-init"
+            assert os.path.isfile(path), f"templates/project/{spoke} must exist for /init"
 
     def test_init_references_project_md(self):
-        content = read("commands/zie-init.md")
+        content = read("commands/init.md")
         assert "PROJECT.md" in content, \
-            "/zie-init must reference PROJECT.md creation"
+            "/init must reference PROJECT.md creation"
 
 
 class TestRetroKnowledgeSync:
     def test_retro_has_knowledge_sync_section(self):
-        content = read("commands/zie-retro.md")
+        content = read("commands/retro.md")
         assert "project/components.md" in content, \
-            "/zie-retro must reference project/components.md for knowledge sync"
+            "/retro must reference project/components.md for knowledge sync"
 
     def test_retro_has_supersedes_pattern(self):
-        content = read("commands/zie-retro.md")
+        content = read("commands/retro.md")
         assert "supersedes" in content, \
-            "/zie-retro knowledge sync must use supersedes= to prevent duplicate project snapshots"
+            "/retro knowledge sync must use supersedes= to prevent duplicate project snapshots"

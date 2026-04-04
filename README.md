@@ -13,18 +13,18 @@ claude plugin install zierocode/zie-framework
 
 | Command | Stage | Description |
 | --- | --- | --- |
-| `/zie-init` | Bootstrap | Initialize framework in a project |
-| `/zie-status` | Anytime | Show current SDLC state |
-| `/zie-resync` | Anytime | Rescan codebase + update knowledge docs |
-| `/zie-backlog` | 1 — Capture | Capture a new backlog item |
-| `/zie-spec` | 2 — Design | Write a design spec with reviewer loop |
-| `/zie-plan` | 3 — Plan | Draft implementation plan + approval |
-| `/zie-implement` | 4 — Build | TDD feature loop with impl-reviewer |
-| `/zie-release` | 5 — Release | Test gates → readiness → `make release` |
-| `/zie-retro` | 6 — Learn | Retrospective + ADRs + brain storage |
-| `/zie-sprint` | Sprint | Batch all items: spec + plan + implement + release + retro |
-| `/zie-fix` | Debug | Bug path — skip to systematic fix |
-| `/zie-audit` | Health | 9-dimension audit + external research → backlog |
+| `/init` | Bootstrap | Initialize framework in a project |
+| `/status` | Anytime | Show current SDLC state |
+| `/resync` | Anytime | Rescan codebase + update knowledge docs |
+| `/backlog` | 1 — Capture | Capture a new backlog item |
+| `/spec` | 2 — Design | Write a design spec with reviewer loop |
+| `/plan` | 3 — Plan | Draft implementation plan + approval |
+| `/implement` | 4 — Build | TDD feature loop with impl-reviewer |
+| `/release` | 5 — Release | Test gates → readiness → `make release` |
+| `/retro` | 6 — Learn | Retrospective + ADRs + brain storage |
+| `/sprint` | Sprint | Batch all items: spec + plan + implement + release + retro |
+| `/fix` | Debug | Bug path — skip to systematic fix |
+| `/audit` | Health | 9-dimension audit + external research → backlog |
 
 ## Skills
 
@@ -42,14 +42,14 @@ Skills are invoked automatically by commands as subagents — not called directl
 | `test-pyramid` | Test strategy advisor |
 | `retro-format` | Format retrospective findings as ADRs |
 | `debug` | Systematic bug diagnosis and fix path |
-| `zie-audit` | 9-dimension audit analysis (invoked by /zie-audit) |
+| `zie-audit` | 9-dimension audit analysis (invoked by /audit) |
 | `docs-sync-check` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
 
 ## Pipeline
 
 ```text
-/zie-backlog → /zie-spec ──[spec-reviewer]──► /zie-plan ──[plan-reviewer]──►
-/zie-implement ──[impl-reviewer per task]──► /zie-release ──[test gates]──► /zie-retro
+/backlog → /spec ──[spec-reviewer]──► /plan ──[plan-reviewer]──►
+/implement ──[impl-reviewer per task]──► /release ──[test gates]──► /retro
 ```
 
 Each stage has a single responsibility. Quality gates run automatically as
@@ -57,18 +57,18 @@ subagents at every handoff — max 3 iterations before surfacing to human.
 
 | Stage | Command | Gate |
 | --- | --- | --- |
-| 1 — Capture | `/zie-backlog` | — |
-| 2 — Design | `/zie-spec` | spec-reviewer loop |
-| 3 — Plan | `/zie-plan` | plan-reviewer loop |
-| 4 — Build | `/zie-implement` | impl-reviewer after each task |
-| 5 — Release | `/zie-release` | unit → integration → e2e → verify |
-| 6 — Learn | `/zie-retro` | — |
+| 1 — Capture | `/backlog` | — |
+| 2 — Design | `/spec` | spec-reviewer loop |
+| 3 — Plan | `/plan` | plan-reviewer loop |
+| 4 — Build | `/implement` | impl-reviewer after each task |
+| 5 — Release | `/release` | unit → integration → e2e → verify |
+| 6 — Learn | `/retro` | — |
 
 **WIP=1** — one `[ ]` item in the Now lane at a time. Finish or fix before
 starting the next feature.
 
 **Batch release** — completed `[x]` items accumulate in Now until
-`/zie-release` moves them all to Done with a version tag.
+`/release` moves them all to Done with a version tag.
 
 ## How It Works
 
@@ -88,12 +88,12 @@ starting the next feature.
 | Claude Code | Yes | — |
 | Python 3.x | Yes | Hooks need Python |
 | zie-memory plugin | No | Auto-bundled via .mcp.json; local-only if absent |
-| playwright | No | `/zie-release` skips e2e gate |
+| playwright | No | `/release` skips e2e gate |
 | pytest / vitest | No | auto-test hook disabled |
 
 ## Directory Structure (in your project)
 
-After `/zie-init`, a `zie-framework/` folder is created in your project root:
+After `/init`, a `zie-framework/` folder is created in your project root:
 
 ```text
 your-project/
@@ -105,9 +105,9 @@ your-project/
 │   │   ├── architecture.md  # system design, component relationships
 │   │   ├── components.md    # component registry
 │   │   └── context.md          # project context + ADR log
-│   ├── specs/               # design specs (output of /zie-spec)
-│   ├── plans/               # implementation plans (output of /zie-plan)
-│   ├── decisions/           # ADR files (output of /zie-retro)
+│   ├── specs/               # design specs (output of /spec)
+│   ├── plans/               # implementation plans (output of /plan)
+│   ├── decisions/           # ADR files (output of /retro)
 │   └── evidence/            # milestone screenshots (gitignored by default)
 ├── tests/                   # test code (part of project, not framework)
 ├── Makefile                 # standard targets: test, push

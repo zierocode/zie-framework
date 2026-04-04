@@ -15,7 +15,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_io import project_tmp_path
-from utils_roadmap import parse_roadmap_section_content, read_roadmap_cached
+from utils_roadmap import is_track_active, parse_roadmap_section_content, read_roadmap_cached
 
 # ── Intent detection constants ────────────────────────────────────────────────
 
@@ -78,16 +78,16 @@ COMPILED_PATTERNS = {
 }
 
 SUGGESTIONS = {
-    "init":      "/zie-init",
-    "backlog":   "/zie-backlog",
-    "spec":      "/zie-spec",
-    "plan":      "/zie-plan",
-    "implement": "/zie-implement",
-    "fix":       "/zie-fix",
-    "release":   "/zie-release",
-    "retro":     "/zie-retro",
-    "sprint":    "/zie-sprint",
-    "status":    "/zie-status",
+    "init":      "/init",
+    "backlog":   "/backlog",
+    "spec":      "/spec",
+    "plan":      "/plan",
+    "implement": "/implement",
+    "fix":       "/fix",
+    "release":   "/release",
+    "retro":     "/retro",
+    "sprint":    "/sprint",
+    "status":    "/status",
 }
 
 # ── SDLC context constants ────────────────────────────────────────────────────
@@ -102,14 +102,14 @@ STAGE_KEYWORDS = [
 ]
 
 STAGE_COMMANDS = {
-    "spec":        "/zie-spec",
-    "plan":        "/zie-plan",
-    "implement":   "/zie-implement",
-    "fix":         "/zie-fix",
-    "release":     "/zie-release",
-    "retro":       "/zie-retro",
-    "in-progress": "/zie-status",
-    "idle":        "/zie-status",
+    "spec":        "/spec",
+    "plan":        "/plan",
+    "implement":   "/implement",
+    "fix":         "/fix",
+    "release":     "/release",
+    "retro":       "/retro",
+    "in-progress": "/status",
+    "idle":        "/status",
 }
 
 STALE_THRESHOLD_SECS = 300
@@ -165,24 +165,8 @@ def _check_pipeline_preconditions(
         slug_list = ", ".join(f"'{s}'" for s in blocking)
         return (
             f"⛔ STOP. No approved spec for {slug_list}. "
-            f"You must run /zie-spec {blocking[0]} first. "
+            f"You must run /spec {blocking[0]} first. "
             f"Do not proceed with planning."
-        )
-
-    if intent == "implement":
-        in_now = False
-        for line in roadmap_content.splitlines():
-            if line.startswith("##") and "now" in line.lower():
-                in_now = True
-                continue
-            if line.startswith("##") and in_now:
-                break
-            if in_now and re.search(r'-\s*\[\s*\]', line):
-                return None  # has open item — gate passes
-        return (
-            "⛔ STOP. No active feature in Now lane. "
-            "Complete /zie-backlog → /zie-spec → /zie-plan first, "
-            "then start /zie-implement. Do not write code."
         )
 
     return None
@@ -208,10 +192,10 @@ def _positional_guidance(roadmap_content: str, cwd: Path, message: str) -> "str 
             slug_in_ready = True
             break
     if not has_approved_spec:
-        return f"Feature '{slug}' is in backlog. Start with /zie-spec {slug}"
+        return f"Feature '{slug}' is in backlog. Start with /spec {slug}"
     if has_approved_spec and not slug_in_ready:
-        return f"Spec approved for '{slug}'. Run /zie-plan {slug}"
-    return f"Plan ready for '{slug}'. Run /zie-implement to start"
+        return f"Spec approved for '{slug}'. Run /plan {slug}"
+    return f"Plan ready for '{slug}'. Run /implement to start"
 
 
 def derive_stage(task_text: str) -> str:
@@ -247,7 +231,7 @@ try:
         sys.exit(0)
     if message.startswith("---") or len(message) > 500:
         sys.exit(0)
-    if message.startswith("/zie-"):
+    if message.startswith("/") and len(message.split()[0]) < 20:
         sys.exit(0)
 
     cwd = get_cwd()
@@ -302,23 +286,37 @@ try:
         active_task = "none"
         stage = "idle"
 
-    suggested_cmd = STAGE_COMMANDS.get(stage, "/zie-status")
+    suggested_cmd = STAGE_COMMANDS.get(stage, "/status")
     test_status = get_test_status(cwd)
 
     # ── Pipeline gate check ───────────────────────────────────────────────────
     gate_msg = None
-    if best and best in ("plan", "implement"):
+    if best and best == "plan":
         gate_msg = _check_pipeline_preconditions(best, roadmap_content, cwd, message)
+
+    # ── No-active-track check ─────────────────────────────────────────────────
+    no_track_msg = None
+    if gate_msg is None and best in ("implement", "fix"):
+        if not is_track_active(cwd):
+            no_track_msg = (
+                "no active track — pick one: "
+                "standard: /backlog → /spec → /plan → /implement | "
+                "hotfix: /hotfix | "
+                "spike: /spike | "
+                "chore: /chore"
+            )
 
     # ── Positional guidance (only when no gate and no dominant intent) ────────
     guidance_msg = None
-    if gate_msg is None and (not intent_cmd or best == "status"):
+    if gate_msg is None and no_track_msg is None and (not intent_cmd or best == "status"):
         guidance_msg = _positional_guidance(roadmap_content, cwd, message)
 
     # ── Build combined context ────────────────────────────────────────────────
     parts = []
     if gate_msg:
         parts.append(gate_msg)
+    elif no_track_msg:
+        parts.append(no_track_msg)
     elif intent_cmd:
         parts.append(f"intent:{best} → {intent_cmd}")
     if guidance_msg:

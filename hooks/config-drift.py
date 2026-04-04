@@ -59,7 +59,7 @@ try:
     elif changed.name == ".config" and str(changed).startswith(str(cwd / "zie-framework")):
         msg = (
             "[zie-framework] zie-framework/.config has changed. "
-            "Run /zie-resync to reload project configuration before continuing."
+            "Run /resync to reload project configuration before continuing."
         )
 
     # No match — unrelated config change, stay quiet

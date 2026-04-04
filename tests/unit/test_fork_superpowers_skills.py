@@ -83,27 +83,27 @@ class TestSkillZieMemoryIntegration:
 
 class TestCommandsNoSuperpowersDependency:
     def test_zie_spec_no_superpowers_skill(self):
-        content = read("commands/zie-spec.md")
+        content = read("commands/spec.md")
         assert "Skill(superpowers:" not in content, \
             "zie-spec must not call Skill(superpowers:*) after fork"
 
     def test_zie_implement_no_superpowers_skill(self):
-        content = read("commands/zie-implement.md")
+        content = read("commands/implement.md")
         assert "Skill(superpowers:" not in content, \
             "zie-implement must not call Skill(superpowers:*) after fork"
 
     def test_zie_fix_no_superpowers_skill(self):
-        content = read("commands/zie-fix.md")
+        content = read("commands/fix.md")
         assert "Skill(superpowers:" not in content, \
             "zie-fix must not call Skill(superpowers:*) after fork"
 
     def test_zie_release_no_superpowers_skill(self):
-        content = read("commands/zie-release.md")
+        content = read("commands/release.md")
         assert "Skill(superpowers:" not in content, \
             "zie-release must not call Skill(superpowers:*) after fork"
 
     def test_zie_spec_calls_zie_framework_spec_design(self):
-        content = read("commands/zie-spec.md")
+        content = read("commands/spec.md")
         assert "Skill(zie-framework:spec-design)" in content, \
             "zie-spec must invoke Skill(zie-framework:spec-design)"
 
@@ -113,43 +113,43 @@ class TestCommandsNoSuperpowersDependency:
         content = read("skills/spec-design/SKILL.md")
         assert "Skill(zie-framework:write-plan)" not in content, \
             "spec-design must not auto-invoke write-plan (pipeline divergence fix)"
-        assert "/zie-plan" in content, \
-            "spec-design must print handoff to /zie-plan instead of invoking write-plan"
+        assert "/plan" in content, \
+            "spec-design must print handoff to /plan instead of invoking write-plan"
 
     def test_zie_implement_calls_zie_framework_tdd_loop(self):
-        content = read("commands/zie-implement.md")
+        content = read("commands/implement.md")
         assert "Skill(zie-framework:tdd-loop)" in content, \
             "zie-implement must invoke Skill(zie-framework:tdd-loop)"
 
     def test_zie_implement_calls_zie_framework_debug(self):
-        content = read("commands/zie-implement.md")
+        content = read("commands/implement.md")
         assert "Skill(zie-framework:debug)" in content, \
             "zie-implement must invoke Skill(zie-framework:debug)"
 
     def test_zie_fix_calls_zie_framework_debug(self):
-        content = read("commands/zie-fix.md")
+        content = read("commands/fix.md")
         assert "Skill(zie-framework:debug)" in content, \
             "zie-fix must invoke Skill(zie-framework:debug)"
 
     def test_zie_fix_calls_zie_framework_verify(self):
-        content = read("commands/zie-fix.md")
+        content = read("commands/fix.md")
         assert "Skill(zie-framework:verify)" in content, \
             "zie-fix must invoke Skill(zie-framework:verify)"
 
     def test_zie_release_has_todo_and_secrets_check(self):
-        content = read("commands/zie-release.md")
+        content = read("commands/release.md")
         assert "TODO" in content, \
             "zie-release must include inline TODO scan (verify skill removed — tests covered by Gates 1-3)"
         assert "secrets" in content.lower() or "credentials" in content.lower(), \
             "zie-release must include secrets check"
 
     def test_zie_plan_no_superpowers_enabled(self):
-        content = read("commands/zie-plan.md")
+        content = read("commands/plan.md")
         assert "superpowers_enabled" not in content, \
             "zie-plan must not read superpowers_enabled from .config"
 
     def test_zie_init_no_superpowers_enabled_in_config_template(self):
-        content = read("commands/zie-init.md")
+        content = read("commands/init.md")
         assert "superpowers_enabled" not in content, \
             "zie-init .config template must not include superpowers_enabled field"
 

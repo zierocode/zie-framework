@@ -1,7 +1,7 @@
 """Tests for agentic-pipeline-v2 Task 6: zie-implement pre-flight --agent mode warning."""
 from pathlib import Path
 
-CMD_PATH = Path(__file__).parents[2] / "commands" / "zie-implement.md"
+CMD_PATH = Path(__file__).parents[2] / "commands" / "implement.md"
 
 
 def cmd_text() -> str:

@@ -39,7 +39,7 @@ def parse_agent_file(name: str) -> tuple[dict, str]:
 class TestImplementModeAgent:
     def test_file_exists(self):
         assert (AGENTS_DIR / "zie-implement-mode.md").exists(), \
-            "agents/zie-implement-mode.md not found"
+            "agents/implement-mode.md not found"
 
     def test_frontmatter_model(self):
         fm, _ = parse_agent_file("zie-implement-mode.md")
@@ -66,8 +66,8 @@ class TestImplementModeAgent:
 
     def test_body_mentions_sdlc_pipeline_stages(self):
         _, body = parse_agent_file("zie-implement-mode.md")
-        for stage in ["/zie-backlog", "/zie-spec", "/zie-plan", "/zie-implement",
-                      "/zie-release", "/zie-retro"]:
+        for stage in ["/backlog", "/spec", "/plan", "/implement",
+                      "/release", "/retro"]:
             assert stage in body, f"System prompt must mention SDLC stage: {stage}"
 
     def test_body_mentions_wip_rule(self):
@@ -77,7 +77,7 @@ class TestImplementModeAgent:
 
     def test_body_has_graceful_degradation_note(self):
         _, body = parse_agent_file("zie-implement-mode.md")
-        assert "zie-init" in body or "/zie-init" in body, \
+        assert "zie-init" in body or "/init" in body, \
             "System prompt must instruct graceful degradation when project not initialized"
 
     def test_no_secrets_in_file(self):
@@ -97,7 +97,7 @@ class TestImplementModeAgent:
 class TestAuditModeAgent:
     def test_file_exists(self):
         assert (AGENTS_DIR / "zie-audit-mode.md").exists(), \
-            "agents/zie-audit-mode.md not found"
+            "agents/audit-mode.md not found"
 
     def test_frontmatter_model(self):
         fm, _ = parse_agent_file("zie-audit-mode.md")

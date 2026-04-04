@@ -12,7 +12,7 @@ class TestParallelExecutionPatterns:
 
     def test_zie_implement_parallel_agents(self):
         """zie-implement.md must use background agents for parallel execution."""
-        text = (CMD_DIR / "zie-implement.md").read_text()
+        text = (CMD_DIR / "implement.md").read_text()
         assert "background" in text.lower() or "parallel" in text.lower(), \
             "zie-implement.md must describe background/parallel agent execution"
 
@@ -24,13 +24,13 @@ class TestParallelExecutionPatterns:
 
     def test_zie_plan_parallel_agents(self):
         """zie-plan.md must describe parallel Agent dispatch."""
-        text = (CMD_DIR / "zie-plan.md").read_text()
+        text = (CMD_DIR / "plan.md").read_text()
         assert "parallel" in text.lower() or "Agent" in text, \
             "zie-plan.md must describe parallel Agent dispatch"
 
     def test_zie_release_fork_terminology_fixed(self):
         """zie-release.md must not use misleading 'Fork Skill' terminology."""
-        text = (CMD_DIR / "zie-release.md").read_text()
+        text = (CMD_DIR / "release.md").read_text()
         # Either removed or converted to true async
         assert "Fork `Skill" not in text, \
             "zie-release.md must not use 'Fork `Skill' terminology"

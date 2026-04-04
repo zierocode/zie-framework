@@ -11,14 +11,14 @@ README = REPO_ROOT / "README.md"
 
 # Files that must reference mcp__ tool names in their zie_memory branches
 COMMANDS_WITH_MEMORY = [
-    "zie-backlog.md",
-    "zie-spec.md",
-    "zie-plan.md",
-    "zie-implement.md",
-    "zie-fix.md",
-    "zie-release.md",
-    "zie-retro.md",
-    "zie-init.md",
+    "backlog.md",
+    "spec.md",
+    "plan.md",
+    "implement.md",
+    "fix.md",
+    "release.md",
+    "retro.md",
+    "init.md",
 ]
 
 SKILLS_WITH_MEMORY = [
@@ -112,49 +112,49 @@ class TestMcpToolNamesInCommandsAndSkills:
         return (REPO_ROOT / rel_path).read_text()
 
     def test_zie_backlog_recall(self):
-        assert MCP_RECALL in self._read("commands/zie-backlog.md")
+        assert MCP_RECALL in self._read("commands/backlog.md")
 
     def test_zie_backlog_remember(self):
-        assert MCP_REMEMBER in self._read("commands/zie-backlog.md")
+        assert MCP_REMEMBER in self._read("commands/backlog.md")
 
     def test_zie_spec_recall(self):
-        assert MCP_RECALL in self._read("commands/zie-spec.md")
+        assert MCP_RECALL in self._read("commands/spec.md")
 
     def test_zie_plan_recall(self):
-        assert MCP_RECALL in self._read("commands/zie-plan.md")
+        assert MCP_RECALL in self._read("commands/plan.md")
 
     def test_zie_plan_remember(self):
-        assert MCP_REMEMBER in self._read("commands/zie-plan.md")
+        assert MCP_REMEMBER in self._read("commands/plan.md")
 
     def test_zie_implement_recall(self):
-        assert MCP_RECALL in self._read("commands/zie-implement.md")
+        assert MCP_RECALL in self._read("commands/implement.md")
 
     def test_zie_implement_remember(self):
-        assert MCP_REMEMBER in self._read("commands/zie-implement.md")
+        assert MCP_REMEMBER in self._read("commands/implement.md")
 
     def test_zie_fix_recall(self):
-        assert MCP_RECALL in self._read("commands/zie-fix.md")
+        assert MCP_RECALL in self._read("commands/fix.md")
 
     def test_zie_fix_remember(self):
-        assert MCP_REMEMBER in self._read("commands/zie-fix.md")
+        assert MCP_REMEMBER in self._read("commands/fix.md")
 
     def test_zie_release_recall(self):
-        assert MCP_RECALL in self._read("commands/zie-release.md")
+        assert MCP_RECALL in self._read("commands/release.md")
 
     def test_zie_release_remember(self):
-        assert MCP_REMEMBER in self._read("commands/zie-release.md")
+        assert MCP_REMEMBER in self._read("commands/release.md")
 
     def test_zie_retro_recall(self):
-        assert MCP_RECALL in self._read("commands/zie-retro.md")
+        assert MCP_RECALL in self._read("commands/retro.md")
 
     def test_zie_retro_remember(self):
-        assert MCP_REMEMBER in self._read("commands/zie-retro.md")
+        assert MCP_REMEMBER in self._read("commands/retro.md")
 
     def test_zie_retro_downvote(self):
-        assert MCP_DOWNVOTE in self._read("commands/zie-retro.md")
+        assert MCP_DOWNVOTE in self._read("commands/retro.md")
 
     def test_zie_init_remember(self):
-        assert MCP_REMEMBER in self._read("commands/zie-init.md")
+        assert MCP_REMEMBER in self._read("commands/init.md")
 
     def test_skill_spec_design_recall(self):
         assert MCP_RECALL in self._read("skills/spec-design/SKILL.md")

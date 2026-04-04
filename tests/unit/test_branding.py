@@ -15,7 +15,7 @@ ASCII_BOX_CHARS = ["┌"]
 
 
 def read_command(name):
-    path = os.path.join(COMMANDS_DIR, f"zie-{name}.md")
+    path = os.path.join(COMMANDS_DIR, f"{name}.md")
     with open(path) as f:
         return f.read()
 
@@ -29,7 +29,7 @@ def read_skill(name):
 class TestNoAsciiBoxes:
     def test_no_ascii_boxes_in_commands(self):
         """ทุก command file ต้องไม่มี ASCII box characters."""
-        command_files = glob.glob(os.path.join(COMMANDS_DIR, "zie-*.md"))
+        command_files = glob.glob(os.path.join(COMMANDS_DIR, "*.md"))
         assert command_files, "No command files found"
         violations = []
         for path in command_files:

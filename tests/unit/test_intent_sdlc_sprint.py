@@ -45,8 +45,8 @@ class TestSprintPatternsInSource:
 
     def test_sprint_suggestion(self):
         suggestions = _extract_dict_literal(_source(), "SUGGESTIONS")
-        assert suggestions.get("sprint") == "/zie-sprint", \
-            "SUGGESTIONS['sprint'] must be '/zie-sprint'"
+        assert suggestions.get("sprint") == "/sprint", \
+            "SUGGESTIONS['sprint'] must be '/sprint'"
 
     def test_sprint_patterns_not_empty(self):
         patterns = _extract_dict_literal(_source(), "PATTERNS")

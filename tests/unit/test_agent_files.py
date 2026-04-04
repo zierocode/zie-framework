@@ -77,7 +77,7 @@ class TestImplReviewerAgent:
 
 class TestZieImplementCommand:
     def _read_command(self):
-        return (COMMANDS_DIR / "zie-implement.md").read_text()
+        return (COMMANDS_DIR / "implement.md").read_text()
 
     def test_spawns_background_agent(self):
         text = self._read_command()

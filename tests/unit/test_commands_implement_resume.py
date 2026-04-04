@@ -1,9 +1,9 @@
-"""Structural tests: /zie-implement must document the resume-subagent pattern."""
+"""Structural tests: /implement must document the resume-subagent pattern."""
 import os
 from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-IMPLEMENT_CMD = Path(REPO_ROOT) / "commands" / "zie-implement.md"
+IMPLEMENT_CMD = Path(REPO_ROOT) / "commands" / "implement.md"
 
 
 class TestImplementResumePattern:

@@ -19,14 +19,14 @@ Turn an idea into a written spec through collaborative dialogue. Output lives in
 | --- | --- | --- | --- |
 | 0 | `$ARGUMENTS[0]` | Backlog slug (e.g. `my-feature`) | absent → prompt user for slug |
 | 1 | `$ARGUMENTS[1]` | Mode: `full` (full dialogue) or `quick` (skip clarification, draft directly) | absent/empty → `full` |
-| 2 | `$ARGUMENTS[2]` | Pass-through flags (e.g. `--draft-plan`); handled by `/zie-spec` control plane, not evaluated by skill | absent/empty → no flags |
+| 2 | `$ARGUMENTS[2]` | Pass-through flags (e.g. `--draft-plan`); handled by `/spec` control plane, not evaluated by skill | absent/empty → no flags |
 
-**Flag Handling:** `--draft-plan` is parsed and handled by `/zie-spec` command (control plane, per ADR-003).
+**Flag Handling:** `--draft-plan` is parsed and handled by `/spec` command (control plane, per ADR-003).
 The skill receives the flag string but does not act on it. Spec-design always writes the spec and runs
-the spec-reviewer loop; `/zie-spec` decides whether to auto-proceed to planning.
+the spec-reviewer loop; `/spec` decides whether to auto-proceed to planning.
 
 When `$ARGUMENTS[0]` is absent, fall back to listing the backlog menu and
-prompting the user to choose — matching the behaviour of `/zie-spec` with no
+prompting the user to choose — matching the behaviour of `/spec` with no
 argument.
 
 When `$ARGUMENTS[1]` is absent or empty, default to `full` mode. Never raise
@@ -140,7 +140,7 @@ are always asked regardless of completeness.
    ```text
    Spec approved ✓ (reviewed by spec-reviewer) → zie-framework/specs/YYYY-MM-DD-<slug>-design.md
 
-   Next: Run /zie-plan <slug> to draft the implementation plan.
+   Next: Run /plan <slug> to draft the implementation plan.
    ```
 
 ## Notes

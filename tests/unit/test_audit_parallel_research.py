@@ -5,7 +5,7 @@ COMMANDS_DIR = Path(__file__).parents[2] / "commands"
 
 def _phase2_text() -> str:
     """Extract the Phase 2 section from zie-audit.md."""
-    text = (COMMANDS_DIR / "zie-audit.md").read_text()
+    text = (COMMANDS_DIR / "audit.md").read_text()
     start = text.index("## Phase 2")
     end = text.index("## Phase 3", start)
     return text[start:end]
@@ -13,7 +13,7 @@ def _phase2_text() -> str:
 
 def _phase3_text() -> str:
     """Extract the Phase 3 section from zie-audit.md."""
-    text = (COMMANDS_DIR / "zie-audit.md").read_text()
+    text = (COMMANDS_DIR / "audit.md").read_text()
     start = text.index("## Phase 3")
     end = text.index("## Phase 4", start)
     return text[start:end]

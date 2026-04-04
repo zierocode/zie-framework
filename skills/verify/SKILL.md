@@ -124,7 +124,7 @@ TODOs   : none found | <N> found (see above)
 Docs    : up to date | updated
 Secrets : none detected
 
-Ready to ship: /zie-release
+Ready to ship: /release
 ```
 
 If anything fails → fix before proceeding. Never claim "done" with a failing

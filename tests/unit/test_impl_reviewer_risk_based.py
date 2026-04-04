@@ -1,6 +1,6 @@
 from pathlib import Path
 
-CMD = Path(__file__).parents[2] / "commands" / "zie-implement.md"
+CMD = Path(__file__).parents[2] / "commands" / "implement.md"
 
 
 def text():

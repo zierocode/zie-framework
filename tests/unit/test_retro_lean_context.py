@@ -1,7 +1,7 @@
 """Structural tests: zie-retro.md must pre-extract Done section for agents."""
 from pathlib import Path
 
-RETRO_MD = Path(__file__).parents[2] / "commands" / "zie-retro.md"
+RETRO_MD = Path(__file__).parents[2] / "commands" / "retro.md"
 
 
 class TestRetroLeanContext:

@@ -1,5 +1,30 @@
 # Changelog
 
+## v1.18.0 — 2026-04-04
+
+### Features
+
+- **UX output formatting** — Colorized progress output with Thai phase names, handoff blocks for sequential workflows, structured `[zie-framework] key: value` format for INFO-level hook output
+- **Workflow enforcement** — Drift log (`zie-framework/.drift-log`) tracks SDLC bypass events; `is_track_active()` guard prevents implement/fix without active backlog→spec→plan track; escape hatches: `/hotfix`, `/spike`, `/chore` for non-standard workflows
+- **Escape hatch commands** — New `/hotfix` (minimal drift fix, no spec), `/spike` (sandbox exploration, no ROADMAP write), `/chore` (direct Done entry, no spec/plan)
+- **Smarter backlog intelligence** — Auto-tag backlog items via keyword map (infer_tag), duplicate detection on slug ≥2-token overlap (find_duplicate_slugs)
+- **Proactive performance nudges** — Stop hook now detects: RED cycles >3 days → auto-adjust `auto_test_max_wait_s`, no recent BLOCKs → suggest `safety_check_mode: "regex"`, backlog items >90d old → prompt review
+- **Retro self-tuning** — Parse RED cycle durations from drift log; build_tuning_proposals() surfaces up to 3 config adjustments with rationale
+- **ROADMAP itemized dates** — `parse_roadmap_items_with_dates()` extracts dates and clean titles from Done section; powers stale-item nudges
+
+### Changed
+
+- **command namespace flattened** — All `commands/zie-*.md` → `commands/*.md` (e.g., `zie-backlog.md` → `backlog.md`); invocation surface: `zie-framework:backlog` instead of `zie-framework:zie-backlog` — reduces naming friction for CLI flows
+- **hook naming updates** — All hook output, ROADMAP links, agent suggestions updated to `/backlog`, `/spec`, `/plan`, `/implement` (no zie- prefix) — 500+ line updates across 60 files
+- **skill names aligned** — Skill invocations in commands/agents use flattened names (e.g., `Skill(zie-framework:tdd-loop)` unchanged; but skill delivery tests updated for new file paths)
+- **status command expanded** — Added drift count row to status table: `Drift | N bypass events (zie-framework/.drift-log)`
+
+### Fixed
+
+- **intent-sdlc pipeline gate logic** — Removed old implement gate blocking empty Now; replaced with no-track check for implement/fix (shows escape-hatch options instead of hard block)
+- **test suite namespace migration** — 46 test files updated: command filename refs (`zie-backlog.md`→`backlog.md`), content assertions (`/zie-spec`→`/spec`), quoted string patterns (`"zie-*.md"`→`"*.md"`)
+- **stop-guard nudge delivery** — Non-git-repo detection no longer silently exits; nudges now fire for all valid projects with .config present
+
 ## v1.17.0 — 2026-04-04
 
 ### Features

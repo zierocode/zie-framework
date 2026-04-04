@@ -1,7 +1,7 @@
 """Tests for context-lean-sprint Task 6: zie-audit Phase 1 builds shared_context."""
 from pathlib import Path
 
-CMD_PATH = Path(__file__).parents[2] / "commands" / "zie-audit.md"
+CMD_PATH = Path(__file__).parents[2] / "commands" / "audit.md"
 
 
 def cmd_text() -> str:

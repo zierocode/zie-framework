@@ -1,6 +1,6 @@
 """ADR summary extraction helpers.
 
-Used by /zie-retro to compress old ADRs into ADR-000-summary.md.
+Used by /retro to compress old ADRs into ADR-000-summary.md.
 """
 from __future__ import annotations
 
