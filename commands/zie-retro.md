@@ -98,6 +98,17 @@ Launch both as parallel Agent calls — two Agent tool uses in one message. No w
 
 Await both. Then proceed to brain store.
 
+### Done-rotation (inline)
+
+Inline after ROADMAP-update agent — no Agent call:
+
+1. Read `## Done` from `zie-framework/ROADMAP.md`. ≤ 10 items → skip entirely.
+2. Extract date from each item: all `YYYY-MM-DD` matches, take last. No date → keep inline always.
+3. Sort by date desc (no-date last). Keep top 10 inline regardless of age.
+4. Candidates: rank 11+ items where `today − date > 90 days`.
+5. Archive to `zie-framework/archive/ROADMAP-archive-YYYY-MM.md` (YYYY-MM from item's date). Create with header if absent; append `## Archived YYYY-MM-DD` section. Never truncate archive.
+6. Rewrite `## Done` to kept items only. Print: `Done-rotation: kept <N>, archived <M> to <K> file(s)` or `≤10 items, skipped`.
+
 **Failure mode:** If either Agent fails → skip brain store. Do not retry.
 
 <!-- fallback: if Agent tool unavailable, run ADR write and ROADMAP update inline (blocking, sequential). ADR format: see zie-framework/decisions/ for examples. Only create for decisions with lasting consequences. ROADMAP: move shipped items to Done with date; if standalone ask Zie to re-prioritize Next. -->
@@ -107,7 +118,7 @@ Await both. Then proceed to brain store.
 After ADR + ROADMAP agents complete, auto-commit:
 
 ```bash
-git add zie-framework/decisions/*.md zie-framework/project/components.md
+git add zie-framework/decisions/*.md zie-framework/project/components.md zie-framework/ROADMAP.md zie-framework/archive/ROADMAP-archive-*.md
 git commit -m "chore: retro v${VERSION}"
 git push origin dev
 ```

@@ -74,7 +74,7 @@
   if they just orchestrate sequential commands, replace with inline
 - [ ] implement-skill-dedup — zie-implement.md lines 51–74 duplicate
   tdd-loop skill (RED-GREEN-REFACTOR); trim to 3-line pointer to skill
-- [ ] roadmap-done-rotation — /zie-retro should auto-archive Done items
+- [x] roadmap-done-rotation — /zie-retro should auto-archive Done items
   older than 90 days to archive/ROADMAP-archive-YYYY-MM.md;
   keep 10 most recent inline
 
