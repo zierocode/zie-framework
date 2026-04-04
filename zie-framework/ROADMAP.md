@@ -25,7 +25,7 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-- [ ] lean-retro-git-log-quad-read — deduplicate 4 git log reads in retro.md → 1
+- [x] lean-retro-git-log-quad-read — deduplicate 4 git log reads in retro.md → 1
 - [ ] lean-project-md-commands-stale — sync PROJECT.md + CLAUDE.md commands/skills tables (4 missing commands, 1 ghost + 2 missing skills)
 - [ ] lean-docs-sync-blind-to-project-md — extend docs-sync-check scope to verify PROJECT.md
 - [ ] lean-spec-design-agent-syntax — fix @agent-spec-reviewer → Skill() in spec-design (reliability gap)
