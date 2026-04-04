@@ -176,12 +176,11 @@ class TestZieAuditSkill:
         assert "query" in content.lower() or "queries" in content.lower(), \
             "reference.md must contain a query template library section"
 
-    def test_zie_audit_command_has_phases(self):
-        """commands/audit.md must have multi-phase structure."""
-        cmd_path = ROOT / "commands" / "audit.md"
-        content = cmd_path.read_text()
+    def test_zie_audit_skill_has_phases(self):
+        """zie-audit skill must have multi-phase structure (canonical since lean-dual-audit-pipeline)."""
+        content = read_skill("zie-audit")
         assert "Phase 1" in content and "Phase 4" in content, \
-            "commands/audit.md must have at least 4 phases"
+            "skills/zie-audit/SKILL.md must have at least 4 phases"
 
 
 class TestSkillFileSizeGuard:
