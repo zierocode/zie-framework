@@ -74,24 +74,20 @@
   ],
   "PreToolUse": [
     {
-      "matcher": "Bash",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety-check.py\""
-        },
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety_check_agent.py\""
-        }
-      ]
-    },
-    {
       "matcher": "Write|Edit|Bash",
       "hooks": [
         {
           "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/input-sanitizer.py\""
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety-check.py\""
+        }
+      ]
+    },
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety_check_agent.py\""
         }
       ]
     }
