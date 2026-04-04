@@ -133,7 +133,7 @@ Wait for all Phase 1 agents → collect results.
 - Each spec result: approved → mark in audit
 - Any failed → print error, halt sprint
 
-After Phase 1: reload ROADMAP (items moved from Next → Ready by skill chain).
+After Phase 1: reload ROADMAP (items moved from Next → Ready by skill chain) → bind as `roadmap_post_phase1`.
 TaskUpdate → Phase 1/5 complete
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 1/5 — 4 phases remaining`
@@ -158,7 +158,7 @@ Print: `"Phase 2: Planning <N> items in parallel..."`
 
 Wait for all plans to be approved (plan-reviewer gates).
 
-Reload ROADMAP (items now in Ready).
+Reload ROADMAP (items now in Ready) → bind as `roadmap_post_phase2`.
 TaskUpdate → Phase 2/5 complete
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 2/5 — 3 phases remaining`
@@ -167,7 +167,7 @@ Print ETA: `Phase 2/5 — 3 phases remaining`
 
 TaskCreate subject="Phase 3/5 — Implement"
 
-Read Ready items from ROADMAP (ordered by priority: CRITICAL → HIGH → MEDIUM → LOW).
+Read Ready items from `roadmap_post_phase2` (ordered by priority: CRITICAL → HIGH → MEDIUM → LOW). Re-read ROADMAP only if a mutation occurred after Phase 2.
 
 For each item in priority order:
 
