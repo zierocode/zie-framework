@@ -31,7 +31,8 @@
 | test-pyramid | Choose test level (unit/int/e2e) | /zie-implement (RED phase) |
 | debug | Reproduce → isolate → fix | /zie-implement, /zie-fix |
 | verify | Pre-release verification checklist; `context: fork` with optional captured `test_output` | /zie-fix, /zie-release, /zie-implement |
-| retro-format | ADR + retro structure; `context: fork` with compact JSON `$ARGUMENTS` | /zie-retro |
+| load-context | Load shared context bundle (ADRs + project/context.md) once per session | /zie-plan, /zie-implement, /zie-sprint |
+| reviewer-context | Shared Phase 1 protocol for all reviewer skills (cache-first ADR loading) | spec-reviewer, plan-reviewer, impl-reviewer |
 | docs-sync-check | Verify CLAUDE.md/README.md match commands/skills/hooks on disk; `context: fork` | /zie-retro, /zie-release |
 
 ## Hooks

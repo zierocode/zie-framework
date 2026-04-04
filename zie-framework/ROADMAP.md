@@ -10,36 +10,6 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [x] safety-check-agent-haiku-model — Haiku for binary ALLOW/BLOCK
-- [x] auto-test-context-debounce — additionalContext after debounce
-- [x] safety-check-prompt-injection — XML-wrap shell command in subagent prompt
-- [x] write-plan-duplicate-reviewer — remove double reviewer loop
-- [x] strip-static-additionalcontext — static boilerplate → CLAUDE.md
-- [x] knowledge-hash-background — drift check off SessionStart critical path
-- [x] auto-test-double-rglob — cache find_matching_test, avoid double rglob
-- [x] stop-guard-cached-git — session cache in stop-guard
-- [x] config-schema-missing-keys — add compact_hint_threshold + playwright_enabled
-- [x] context-load-extract — shared load-context skill, 3 inline duplicates removed
-- [x] intent-sdlc-roadmap-gate — skip ROADMAP read for non-Now intents
-- [x] roadmap-cache-mtime-gate — mtime-gate instead of 30s TTL
-- [x] docs-sync-consolidate — single Skill() call in retro + release
-- [x] retro-inline-agents — inline ADR+ROADMAP writes, 2 subagent spawns eliminated
-- [x] sprint-phase1-skill-direct — skills directly in sprint Phase 1
-- [x] reviewer-skills-boilerplate — shared reviewer-context skill, Phase 1 deduplicated
-- [x] sanitize-log-field-dead-copy — dead function copy removed
-- [x] task-gate-suppress-advisory — suppress stdout noise on skip
-- [x] wip-checkpoint-modulo-guard — counter write before modulo check
-- [x] failure-context-zf-guard — zie-framework existence guard
-- [x] retro-format-skill-remove — deprecated retro-format skill deleted
-- [x] intent-sdlc-dead-guards — dead MAX_MESSAGE_LEN + redundant .strip() removed
-- [x] safety-check-compiled-blocks — COMPILED_BLOCKS in fallback path
-- [x] zie-status-git-velocity-cache — single git log command for velocity
-- [x] zie-implement-agent-mode-warn — warn-only agent-mode check
-- [x] pin-pytest-cve-2025-71176 — pytest >= 9.0.3
-- [x] zie-plan-notes-trim — Notes section removed
-- [x] stop-hooks-matcher-investigate — Stop hook matcher documented in hooks.json
-- [x] subagent-context-explore-guard — skip plan file read for Explore agents
-
 ---
 
 ## Ready — Approved Plans
@@ -78,6 +48,8 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint8-efficiency-v1.17 — 29 items: Haiku model for safety-check agent (~80% cost cut), XML injection guard in safety-check prompt, mtime-gate ROADMAP cache (ADR-045), fire-and-forget session-resume drift check, strip static additionalContext from 3 hooks, shared load-context skill (ADR-048), shared reviewer-context skill, retro inline ADR+ROADMAP writes (ADR-047), docs-sync via Skill() in retro+release, sprint Phase 1 skill chain, subagent-context Explore guard (ADR-046), wip-checkpoint counter fix, task-gate silent exit, retro-format skill deleted, pin pytest CVE-2025-71176, zie-plan Notes removed, stop-hooks matcher documented — 2083 unit + 59 integration tests — v1.17.0 2026-04-04
 
 - [x] sprint7-optimization-v1.17 — 12 features: merge-safety-hooks (consolidate PreToolUse), split-utils-py (5 sub-modules, 0 regressions), sprint-agent-audit (Skill not Agent in Phase 3), implement-skill-dedup (Skill pointer not prose), roadmap-done-rotation (auto-archive >90d), audit-mcp-check (MCP server audit), proactive-compact-hint (context usage warning), plus 5 earlier items (truncate-auto-test, intent-sdlc-early-exit, release-inline-gates, retro-inline-format, zie-init-delegate-scan) — 2085 unit + 59 integration tests — v1.16.3 2026-04-04
 
