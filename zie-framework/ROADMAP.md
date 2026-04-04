@@ -42,6 +42,7 @@
 <!-- MEDIUM -->
 
 <!-- LOW -->
+- [ ] Remove zie- prefix from command names — [backlog](backlog/remove-zie-prefix-from-command-names.md)
 
 ---
 
