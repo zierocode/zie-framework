@@ -71,7 +71,7 @@ Test level selection (print once before task loop, not per task):
    - At each loop start: poll `reviewer_status` → `approved` clear; `issues_found` halt, fix, re-run `make test-unit`, re-invoke. Max 2 total iterations; confirm pass required. If 0 issues → APPROVED immediately.
 5. **→ LOW risk:** `make test-unit` + `[risk: LOW] Skipping impl-reviewer`.
 6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ T{N} done — {remaining} remaining`.
-   - Checkpoint every 3 tasks. Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
+   - Checkpoint every 3 tasks. If `zie_memory_enabled=true`: Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
 
 ## When All Tasks Complete
 
