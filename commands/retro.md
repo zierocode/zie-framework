@@ -2,7 +2,7 @@
 description: Post-release or end-of-session retrospective — document learnings, write ADRs, update ROADMAP, store in brain.
 allowed-tools: Read, Write, Bash, Glob, Grep, Skill
 model: sonnet
-effort: medium
+effort: low
 ---
 
 # /retro — Retrospective + ADRs + Brain Storage

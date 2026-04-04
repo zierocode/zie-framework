@@ -36,16 +36,16 @@
 - [ ] lean-reviewer-context-chain-depth — reduce reviewer skill chain depth 3–4 hops → 1–2 [Strategic]
 
 <!-- MEDIUM -->
-- [ ] lean-hotfix-model-overkill — /hotfix opus+high → sonnet+low (5-step mechanical track)
-- [ ] model-release-effort-medium-to-low — /release haiku+medium → haiku+low
-- [ ] model-retro-effort-medium-to-low — /retro sonnet+medium → sonnet+low
-- [ ] model-impl-reviewer-effort-medium-to-low — impl-reviewer haiku+medium → haiku+low
-- [ ] model-resync-sonnet-to-haiku — /resync sonnet+medium → haiku+medium
-- [ ] model-init-sonnet-to-haiku — /init sonnet+medium → haiku+medium
-- [ ] model-fix-effort-medium-to-low — /fix sonnet+medium → sonnet+low
-- [ ] model-plan-effort-medium-to-low — /plan sonnet+medium → sonnet+low
-- [ ] model-write-plan-effort-medium-to-low — write-plan skill sonnet+medium → sonnet+low
-- [ ] model-debug-effort-medium-to-low — debug skill sonnet+medium → sonnet+low
+- [x] lean-hotfix-model-overkill — /hotfix opus+high → sonnet+low (5-step mechanical track)
+- [x] model-release-effort-medium-to-low — /release haiku+medium → haiku+low
+- [x] model-retro-effort-medium-to-low — /retro sonnet+medium → sonnet+low
+- [x] model-impl-reviewer-effort-medium-to-low — impl-reviewer haiku+medium → haiku+low
+- [x] model-resync-sonnet-to-haiku — /resync sonnet+medium → haiku+medium
+- [x] model-init-sonnet-to-haiku — /init sonnet+medium → haiku+medium
+- [x] model-fix-effort-medium-to-low — /fix sonnet+medium → sonnet+low
+- [x] model-plan-effort-medium-to-low — /plan sonnet+medium → sonnet+low
+- [x] model-write-plan-effort-medium-to-low — write-plan skill sonnet+medium → sonnet+low
+- [x] model-debug-effort-medium-to-low — debug skill sonnet+medium → sonnet+low
 - [ ] lean-sprint-phase2-redundant — remove sprint Phase 2 (error-recovery-only masquerading as normal phase)
 - [ ] lean-retro-self-tuning-blocks-release — move self-tuning proposals to non-blocking advisory at retro end
 - [ ] lean-prompt-pass-through — suppress intent-sdlc injection for slash commands (extend early-exit to any /command)

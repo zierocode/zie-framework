@@ -2,8 +2,8 @@
 description: Emergency fix track — describe → fix → ship without full pipeline
 argument-hint: "<slug>"
 allowed-tools: Read, Edit, Write, Bash, Glob, Grep
-model: claude-opus-4-6
-effort: high
+model: sonnet
+effort: low
 ---
 
 # /hotfix — Emergency Hotfix Track

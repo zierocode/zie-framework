@@ -2,7 +2,7 @@
 description: Rescan codebase and update knowledge docs + knowledge hash. Run when drift detected or after major structural changes.
 argument-hint: (no arguments needed)
 allowed-tools: Read, Write, Bash, Agent
-model: sonnet
+model: haiku
 effort: medium
 ---
 

@@ -3,7 +3,7 @@ description: Debug path — skip ideation, go straight to systematic bug investi
 argument-hint: Optional bug description or error message
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 model: sonnet
-effort: medium
+effort: low
 ---
 
 # /fix — Bug Fix Path

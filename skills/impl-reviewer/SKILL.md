@@ -7,7 +7,7 @@ agent: general-purpose
 allowed-tools: Read, Grep, Glob, Bash
 argument-hint: ""
 model: haiku
-effort: medium
+effort: low
 ---
 
 # impl-reviewer — Task Implementation Review

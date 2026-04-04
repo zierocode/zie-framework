@@ -5,7 +5,7 @@ argument-hint: "<slug> [--no-memory]"
 metadata:
   zie_memory_enabled: true
 model: sonnet
-effort: medium
+effort: low
 ---
 
 # write-plan — Spec → Implementation Plan

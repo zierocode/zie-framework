@@ -74,10 +74,10 @@ class TestPlanningSkillsFrontmatter:
         assert fm.get("effort") == "high", \
             "spec-design must have effort: high"
 
-    def test_write_plan_effort_medium(self):
+    def test_write_plan_effort_low(self):
         fm = read_frontmatter("write-plan")
-        assert fm.get("effort") == "medium", \
-            "write-plan must have effort: medium (downgraded from high in ADR-022)"
+        assert fm.get("effort") == "low", \
+            "write-plan must have effort: low (further reduced from medium per model-write-plan-effort-medium-to-low)"
 
 
 ALL_SKILLS = [

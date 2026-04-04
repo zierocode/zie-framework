@@ -2,7 +2,7 @@
 description: Full release gate — run all test gates, bump version, merge dev→main, tag, and trigger retrospective.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 model: haiku
-effort: medium
+effort: low
 ---
 
 # /release — Release Gate → Merge dev→main → Tag
