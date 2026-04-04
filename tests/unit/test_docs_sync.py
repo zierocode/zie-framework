@@ -28,6 +28,33 @@ class TestProjectMd:
             f"PROJECT.md version is not {version} — run: make sync-version"
         )
 
+    def test_commands_table_has_sprint(self):
+        assert "/sprint" in self._content(), "PROJECT.md Commands table missing /sprint"
+
+    def test_commands_table_has_chore(self):
+        assert "/chore" in self._content(), "PROJECT.md Commands table missing /chore"
+
+    def test_commands_table_has_hotfix(self):
+        assert "/hotfix" in self._content(), "PROJECT.md Commands table missing /hotfix"
+
+    def test_commands_table_has_spike(self):
+        assert "/spike" in self._content(), "PROJECT.md Commands table missing /spike"
+
+    def test_skills_table_no_retro_format_ghost(self):
+        assert "retro-format" not in self._content(), (
+            "PROJECT.md Skills table has ghost entry 'retro-format' — skill was deleted"
+        )
+
+    def test_skills_table_has_load_context(self):
+        assert "load-context" in self._content(), (
+            "PROJECT.md Skills table missing load-context"
+        )
+
+    def test_skills_table_has_reviewer_context(self):
+        assert "reviewer-context" in self._content(), (
+            "PROJECT.md Skills table missing reviewer-context"
+        )
+
     def test_commands_table_header_is_english(self):
         """Commands table header must use 'Description', not Thai."""
         content = self._content()
@@ -95,6 +122,15 @@ class TestComponentsMd:
 class TestClaudeMd:
     def _content(self):
         return (REPO_ROOT / "CLAUDE.md").read_text()
+
+    def test_sdlc_commands_has_chore(self):
+        assert "/chore" in self._content(), "CLAUDE.md SDLC Commands table missing /chore"
+
+    def test_sdlc_commands_has_hotfix(self):
+        assert "/hotfix" in self._content(), "CLAUDE.md SDLC Commands table missing /hotfix"
+
+    def test_sdlc_commands_has_spike(self):
+        assert "/spike" in self._content(), "CLAUDE.md SDLC Commands table missing /spike"
 
     def test_optional_deps_documents_playwright(self):
         assert "playwright" in self._content(), (

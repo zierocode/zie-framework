@@ -4,7 +4,7 @@ AI-native SDLC framework plugin for Claude Code. ติดตั้ง structure
 workflow เข้าไปในทุก project: spec-first TDD, intent detection, memory
 integration, safety guardrails.
 
-**Version**: 1.18.0  **Status**: active
+**Version**: 1.18.1  **Status**: active
 
 ---
 
@@ -22,6 +22,10 @@ integration, safety guardrails.
 | /resync | Rescan codebase + update knowledge docs + hash |
 | /retro | Retrospective → ADRs → brain storage |
 | /audit | 9-dimension audit + external research → scored report → backlog |
+| /sprint | Sprint clear — batch all items through full pipeline (spec→plan→implement→release→retro) |
+| /chore | Maintenance task track — no spec required |
+| /hotfix | Emergency fix track — describe → fix → ship without full pipeline |
+| /spike | Time-boxed exploration in an isolated sandbox directory |
 
 ## Skills
 
@@ -37,10 +41,11 @@ integration, safety guardrails.
 | impl-reviewer | Review implementation against spec and plan |
 | verify | Post-implementation verification gate |
 | test-pyramid | Test strategy advisor |
-| retro-format | Format retrospective findings as ADRs |
 | debug | Systematic bug diagnosis and fix path |
 | zie-audit | 9-dimension audit analysis (invoked by /audit command) |
 | docs-sync-check | Verify CLAUDE.md and README.md are in sync with repo state |
+| load-context | Load shared context bundle (ADRs + project context) for reviewer skills |
+| reviewer-context | Load reviewer context (ADRs + ROADMAP) for spec/plan/impl reviewer skills |
 
 ## Agents
 

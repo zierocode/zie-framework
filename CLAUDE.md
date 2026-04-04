@@ -54,13 +54,8 @@ make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 fi
 - **Test runner**: pytest
 
 ## Hook Reference Docs
-
-| Topic | File |
-| --- | --- |
-| Hook Output Convention | `zie-framework/project/hook-conventions.md` |
-| Hook Error Handling Convention | `zie-framework/project/hook-conventions.md` |
-| Hook Context Hints | `zie-framework/project/hook-conventions.md` |
-| Hook Configuration Keys | `zie-framework/project/config-reference.md` |
+- Hook Output Convention · Hook Error Handling Convention · Hook Context Hints → `zie-framework/project/hook-conventions.md`
+- Hook Configuration Keys → `zie-framework/project/config-reference.md`
 
 ## SDLC Commands
 
@@ -74,6 +69,9 @@ make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 fi
 | `/release` | Release gate — merge dev→main, version bump |
 | `/retro` | Post-release retrospective + ADRs |
 | `/sprint` | Sprint clear — batch all items: spec + plan + implement + release + retro |
+| `/chore` | Maintenance task track — no spec required |
+| `/hotfix` | Emergency fix track — describe → fix → ship without full pipeline |
+| `/spike` | Time-boxed exploration in an isolated sandbox |
 | `/fix` | Debug and fix failing tests or broken features |
 | `/status` | Show current SDLC state |
 | `/audit` | Project audit across 9 dimensions |
