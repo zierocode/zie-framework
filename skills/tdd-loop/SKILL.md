@@ -33,8 +33,7 @@ skill — follow exactly.
    - No extra features
    - No optimization yet
    - Hardcoding is OK here if needed to get green
-2. Run: `make test-fast` — must PASS
-3. Run: `make test-fast` — must not regress anything.
+2. Run: `make test-fast` — must PASS (confirms both new test green + no regressions).
 
 ### REFACTOR — ปรับปรุง code
 

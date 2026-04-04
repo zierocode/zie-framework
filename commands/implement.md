@@ -15,7 +15,9 @@ effort: medium
 !`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now 2>/dev/null || echo "knowledge-hash: unavailable"`
 
 0. **Pre-flight: Agent mode check** — if not running with `--agent zie-framework:zie-implement-mode`:
-   print `⚠️ Running /implement outside agent session. For best results use: claude --agent zie-framework:zie-implement-mode` and continue immediately.
+   print `⚠️ Running /implement outside agent session. permissionMode and tool preloading will be missing.`
+   print `Recommended: exit and relaunch with: claude --agent zie-framework:zie-implement-mode`
+   Ask: `Continue anyway? (yes / no)` — if no → STOP. If yes → continue.
 
 1. Check `zie-framework/` exists → if not, run `/init` first.
 2. **Pre-flight: ROADMAP guard** — check `zie-framework/ROADMAP.md` exists:

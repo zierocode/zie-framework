@@ -62,10 +62,11 @@ no I/O)? If not, escalate to integration or e2e as appropriate.
 
 ## Available Commands
 
-All /zie-* commands are available in this session:
+All commands are available in this session:
 
 - /backlog, /spec, /plan, /implement, /fix
 - /release, /retro, /status, /resync, /audit
+- /hotfix, /spike, /chore
 
 Use them proactively. If the user's intent matches an SDLC stage, suggest the
 appropriate command.
