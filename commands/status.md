@@ -27,6 +27,11 @@ Knowledge hash (bind as `current_hash_injected`):
    `knowledge_synced_at`), `VERSION`, specs/plans dirs เพื่อ context.
    Read drift count from `zie-framework/.drift-log` — count non-empty lines
    (each line is one drift event). If file missing → count is 0.
+   Read the stopfailure-log at
+   `project_tmp_path("failure-log", safe_project_name(cwd.name))` →
+   `/tmp/zie-<sanitized-project-name>-failure-log`.
+   Tail last 5 non-empty lines. If file missing → use empty list.
+   Clip each line at 120 chars.
    For ROADMAP.md — use targeted reads only:
    - **Now section**: Grep `## Now` → Read from that line to next `---` separator.
    - **Next count**: Grep `- [` lines between `## Next` and next `---` → count only.
@@ -101,6 +106,19 @@ Knowledge hash (bind as `current_hash_injected`):
    | e2e | \<✓ pass \| ✗ fail \| ? stale \| n/a> |
 
    **ขั้นตอนถัดไป**: \<context-appropriate suggestion>
+
+   **Framework Health**
+
+   | | |
+   | --- | --- |
+   | safety_check_mode | \<value from .config, default: regex> |
+   | zie-memory | \<enabled \| disabled> |
+   | playwright | \<enabled \| disabled> |
+   | Drift bypasses | \<N> events |
+
+   **Stop failures (last 5):**
+   \<tail last 5 non-empty lines from failure-log, each clipped at 120 chars>
+   — or — `No stop failures recorded` if file missing or empty
 
 7.5 **Pipeline Stage Indicator** — detect active feature's pipeline stage:
 
