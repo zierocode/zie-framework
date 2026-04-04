@@ -29,6 +29,8 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+- [ ] token-efficiency-v1 — [backlog](backlog/token-efficiency-v1.md)
+
 ---
 
 ## Done
