@@ -66,3 +66,5 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-053 | Self-Enforcement in Framework Not Memory | Fix bad patterns by updating framework spec/skills directly, not by writing zie-memory entries. | Accepted |
 | ADR-054 | Inline Reviewer Context Hop Elimination | Reviewer skills load context inline (Phase 1 inlined) instead of invoking reviewer-context as separate hop. | Accepted |
 | ADR-055 | Sprint Phase 2 Collapse | Sprint Phase 2 (plan) folded into Phase 1 parallel; spec+plan run as single concurrent wave. | Accepted |
+| ADR-056 | Pre-flight Guard Centralization | Canonical 3-step pre-flight extracted to command-conventions.md; 6 commands reference it by link instead of duplicating inline. | Accepted |
+| ADR-057 | Template Extraction Pattern | Large inline prompt blocks (>100 words) extracted to templates/ files; command retains one-line reference. | Accepted |
