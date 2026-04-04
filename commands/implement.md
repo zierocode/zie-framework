@@ -15,7 +15,9 @@ effort: medium
 !`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now 2>/dev/null || echo "knowledge-hash: unavailable"`
 
 0. **Pre-flight: Agent mode check** — if not running with `--agent zie-framework:zie-implement-mode`:
-   print `⚠️ Running /implement outside agent session. For best results use: claude --agent zie-framework:zie-implement-mode` and continue immediately.
+   print `⚠️ Running /implement outside agent session. permissionMode and tool preloading will be missing.`
+   print `Recommended: exit and relaunch with: claude --agent zie-framework:zie-implement-mode`
+   Ask: `Continue anyway? (yes / no)` — if no → STOP. If yes → continue.
 
 1. Check `zie-framework/` exists → if not, run `/init` first.
 2. **Pre-flight: ROADMAP guard** — check `zie-framework/ROADMAP.md` exists:
@@ -76,7 +78,7 @@ Test level selection (print once before task loop, not per task):
 ## When All Tasks Complete
 
 0. Wait for any still-pending reviewers (max 120s). Apply `issues_found` loop if needed.
-1. Run `make test-unit` → capture output as `last_test_output`. Fail → `Skill(zie-framework:debug)`. Also run `make test-int` (if available).
+1. Run `make test-unit 2>&1 | tail -30` → capture output as `last_test_output`. **Run once — never re-run just to grep differently.** Fail → `Skill(zie-framework:debug)`. Also run `make test-int` (if available).
 2. `TaskCreate` verify task → `Skill(zie-framework:verify)` with `$ARGUMENTS={"test_output": "<last_test_output>", "scope": "tests-only"}` — passes captured output so verify skips re-running tests. → `TaskUpdate` completed.
 3. Update ROADMAP.md Now lane: `[ ]` → `[x]`.
 4. `git add -A` → collect verify result:

@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-04-04 (v1.16.3)
+**Last updated:** 2026-04-04 (v1.18.0)
 
 ## Commands
 
@@ -11,6 +11,9 @@
 | /plan | slug(s) | approved plan in Ready; auto-approves on reviewer ✅ APPROVED | write-plan skill |
 | /implement | (reads ROADMAP Now) | feature tasks | tdd-loop, test-pyr |
 | /fix | bug description | regression test + fix | debug, verify |
+| /hotfix | issue description | minimal fix, drift log open+close, release via /release | none |
+| /spike | exploration slug | sandbox in `spike-<slug>/`, FINDINGS.md, no ROADMAP write | none |
+| /chore | task description | Done entry, no spec/plan, direct commit | none |
 | /release | (ROADMAP Now) | release tag + ADRs; parallel gates 2-4; haiku model | verify, make release |
 | /status | (reads files) | status snapshot | none |
 | /resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
@@ -64,7 +67,10 @@
 | utils_safety.py | (sub-module) | BLOCKS (rm -rf bare dot guard, negative lookahead), WARNS, COMPILED_BLOCKS, COMPILED_WARNS, normalize_command() |
 | utils_event.py | (sub-module) | read_event(), get_cwd(), sanitize_log_field(), log_hook_timing(), call_zie_memory_api() |
 | utils_io.py | (sub-module) | safe_project_name(), project_tmp_path(), get_plugin_data_dir(), persistent_project_path(), is_zie_initialized(), get_project_name(), atomic_write(), safe_write_tmp(), safe_write_persistent() |
-| utils_roadmap.py | (sub-module) | SDLC_STAGES, parse_roadmap_now/section/ready/content/done(), compact_roadmap_done(), compute_max_mtime(), is_mtime_fresh(), get/write ADR cache, get/write git status cache |
+| utils_roadmap.py | (sub-module) | SDLC_STAGES, parse_roadmap_now/section/ready/content/done(), compact_roadmap_done(), compute_max_mtime(), is_mtime_fresh(), get/write ADR cache, get/write git status cache, is_track_active(), parse_roadmap_items_with_dates() |
+| utils_drift.py | (sub-module) | append_drift_event(), read_drift_count(), close_drift_track() — manages zie-framework/.drift-log NDJSON bypass tracking |
+| utils_backlog.py | (sub-module) | infer_tag() (keyword map → auto-tag), find_duplicate_slugs() (≥2-token overlap detection) |
+| utils_self_tuning.py | (sub-module) | parse_red_cycle_durations_from_log(), build_tuning_proposals() — generates up to 3 retro config proposals from RED duration + BLOCK history |
 
 ## Agents
 

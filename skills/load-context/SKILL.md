@@ -17,24 +17,33 @@ downstream reviewer call in the session.
 
 ## Steps
 
-1. **ADRs** — read all `zie-framework/decisions/*.md` → concatenate →
-   `adrs_content` (empty string if directory missing or empty).
+**Step 0: Cache check**
+- Call `get_cached_adrs(session_id, "zie-framework/decisions/")`.
+  - Cache hit → `adrs_content` ← returned value; skip Step 1.
+  - Cache miss → proceed to Step 1.
 
-2. **Cache** — call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`:
-   - Returns `(True, adr_cache_path)` → save path
-   - Returns `(False, None)` → set `adr_cache_path = None`
+**Step 1: ADRs (disk fallback — cache miss only)**
+- Read all `zie-framework/decisions/*.md` → concatenate →
+  `adrs_content` (empty string if directory missing or empty).
 
-3. **Design context** — read `zie-framework/project/context.md` →
-   `context_content` (empty string if file missing).
+**Step 2: Cache write**
+- Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`:
+  - Returns `(True, adr_cache_path)` → save path
+  - Returns `(False, None)` → set `adr_cache_path = None`
 
-4. **Assemble** bundle:
-   ```
-   context_bundle = {
-     adr_cache_path: <path or None>,
-     adrs: adrs_content,
-     context: context_content
-   }
-   ```
+**Step 3: Design context**
+- Read `zie-framework/project/context.md` →
+  `context_content` (empty string if file missing).
+
+**Step 4: Assemble bundle**
+- Build and return:
+  ```
+  context_bundle = {
+    adr_cache_path: <path or None>,
+    adrs: adrs_content,
+    context: context_content
+  }
+  ```
 
 ## Output
 

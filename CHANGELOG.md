@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.18.1 — 2026-04-04
+
+### Changed
+
+- **Consolidate reviewer disk fallback** — Compact Phase 1 blocks in spec-reviewer, plan-reviewer, impl-reviewer from verbose prose to delegation stubs with cache protocol alignment (ADR-048)
+- **Fix release config triple read** — Bind .config once at pre-flight Step 2, remove redundant inline reads in Gates 3–4
+- **Fix retro ROADMAP redundant reads** — Thread roadmap_raw binding through Done-write and Done-rotation sections (eliminate 2 re-reads)
+- **Align load-context ADR cache protocol** — Prepend get_cached_adrs cache-check Step 0 before disk reads (align with reviewer-context protocol)
+- **Fix sprint ROADMAP phase rebind** — Bind roadmap_post_phase1 and roadmap_post_phase2, eliminate Phase 3 ROADMAP re-read
+
+### Fixed
+
+- **Framework efficiency** — Eliminate ~7 redundant file reads across release, retro, sprint orchestration and skill chaining
+- **Multiple unnecessary test runs** — Added "Run tests once per phase" rule to tdd-loop and implement commands (never re-run for different grep filters)
+
+### Tests
+
+- 2175 unit tests + 59 integration tests (5 optimization items verified, all gates pass)
+
 ## v1.18.0 — 2026-04-04
 
 ### Features

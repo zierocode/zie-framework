@@ -33,8 +33,7 @@ skill — follow exactly.
    - No extra features
    - No optimization yet
    - Hardcoding is OK here if needed to get green
-2. Run: `make test-fast` — must PASS
-3. Run: `make test-fast` — must not regress anything.
+2. Run: `make test-fast` — must PASS (confirms both new test green + no regressions).
 
 ### REFACTOR — ปรับปรุง code
 
@@ -53,6 +52,8 @@ skill — follow exactly.
 - Hardcoding in GREEN is fine; duplication in GREEN is fine. Clean up in
   REFACTOR.
 - One failing test at a time. Don't write 5 failing tests before going GREEN.
+- **Run tests once per phase.** If output is truncated, use `tail -30` — never
+  re-run just to grep the summary differently. No code change = no re-run.
 
 ## Test Quality Checklist
 
