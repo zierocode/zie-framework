@@ -86,11 +86,10 @@ slugs = [arg for arg in ARGUMENTS.split() if not arg.startswith("--")]
 
    ```
    Sprint ready. Process:
-   - Phase 1: Spec <N> items (parallel)
-   - Phase 2: Plan <N> items (parallel)
-   - Phase 3: Impl <N> items (sequential, WIP=1)
-   - Phase 4: Release v<suggested-version>
-   - Phase 5: Retro
+   - Phase 1: Spec <N> items (parallel, with inline retry on partial failure)
+   - Phase 2: Impl <N> items (sequential, WIP=1)
+   - Phase 3: Release v<suggested-version>
+   - Phase 4: Retro
 
    Start sprint? (yes / edit / cancel)
    ```
@@ -107,7 +106,7 @@ This bundle is passed to every downstream agent/skill call.
 
 ## PHASE 1: SPEC ALL (Parallel)
 
-TaskCreate subject="Phase 1/5 — Spec All"
+TaskCreate subject="Phase 1/4 — Spec All"
 
 Skip items that already have approved specs.
 
@@ -131,43 +130,20 @@ Print: `"Phase 1: Speccing <N> items in parallel..."`
 
 Wait for all Phase 1 agents → collect results.
 - Each spec result: approved → mark in audit
-- Any failed → print error, halt sprint
+- Any partial failure (spec+plan chain incomplete) → inline retry: re-spawn a single
+  sequential agent for each failed slug (no separate phase — retry happens before
+  progress bar prints). If retry also fails → print error, halt sprint.
 
-After Phase 1: reload ROADMAP (items moved from Next → Ready by skill chain) → bind as `roadmap_post_phase1`.
-TaskUpdate → Phase 1/5 complete
+After Phase 1 (+ any retries): reload ROADMAP → bind as `roadmap_post_phase1`.
+TaskUpdate → Phase 1/4 complete
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
-Print ETA: `Phase 1/5 — 4 phases remaining`
+Print ETA: `Phase 1/4 — 3 phases remaining`
 
-## PHASE 2: PLAN ALL (Parallel)
+## PHASE 2: IMPLEMENT (Sequential, WIP=1)
 
-TaskCreate subject="Phase 2/5 — Plan All"
+TaskCreate subject="Phase 2/4 — Implement"
 
-Items still needing plans (those not covered by Phase 1's skill chain).
-
-**Items to plan**: filter Ready items that have spec but no approved plan.
-
-Invoke `/plan slug1 slug2 ... ` with multiple slugs:
-
-```bash
-zie-plan slug1 slug2 slug3
-```
-
-(Existing /plan already supports parallel.)
-
-Print: `"Phase 2: Planning <N> items in parallel..."`
-
-Wait for all plans to be approved (plan-reviewer gates).
-
-Reload ROADMAP (items now in Ready) → bind as `roadmap_post_phase2`.
-TaskUpdate → Phase 2/5 complete
-Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
-Print ETA: `Phase 2/5 — 3 phases remaining`
-
-## PHASE 3: IMPLEMENT (Sequential, WIP=1)
-
-TaskCreate subject="Phase 3/5 — Implement"
-
-Read Ready items from `roadmap_post_phase2` (ordered by priority: CRITICAL → HIGH → MEDIUM → LOW). Re-read ROADMAP only if a mutation occurred after Phase 2.
+Read Ready items from `roadmap_post_phase1` (ordered by priority: CRITICAL → HIGH → MEDIUM → LOW). Re-read ROADMAP only if a mutation occurred after Phase 1.
 
 For each item in priority order:
 
@@ -178,13 +154,13 @@ For each item in priority order:
 5. Failure: `[impl N/total] <slug> ❌ <issue>` → halt sprint
 
 After all impl complete: all items marked `[x]` in Now.
-TaskUpdate → Phase 3/5 complete
+TaskUpdate → Phase 2/4 complete
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
-Print ETA: `Phase 3/5 — 2 phases remaining`
+Print ETA: `Phase 2/4 — 2 phases remaining`
 
-## PHASE 4: BATCH RELEASE
+## PHASE 3: BATCH RELEASE
 
-TaskCreate subject="Phase 4/5 — Release"
+TaskCreate subject="Phase 3/4 — Release"
 
 Invoke `/release` (which already handles moving all `[x]` items from Now → Done):
 
@@ -201,13 +177,13 @@ zie-release --bump-to=<version_override>
 Print: `"Phase 4: Batch release..."`
 
 On success: single git merge dev→main, tag, version bump.
-TaskUpdate → Phase 4/5 complete
+TaskUpdate → Phase 3/4 complete
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
-Print ETA: `Phase 4/5 — 1 phase remaining`
+Print ETA: `Phase 3/4 — 1 phase remaining`
 
-## PHASE 5: SPRINT RETRO
+## PHASE 4: SPRINT RETRO
 
-TaskCreate subject="Phase 5/5 — Retro"
+TaskCreate subject="Phase 4/4 — Retro"
 
 After release completes, invoke `/retro`:
 
@@ -220,8 +196,8 @@ This runs single retro covering all shipped items in batch.
 Print: `"Phase 5: Sprint retro..."`
 
 On complete: print sprint summary.
-TaskUpdate → Phase 5/5 complete
-Print progress bar: `████████████████████ 5/5 (100%)`
+TaskUpdate → Phase 4/4 complete
+Print progress bar: `████████████████████ 4/4 (100%)`
 Print ETA: `Sprint complete`
 
 ## Summary
@@ -238,11 +214,10 @@ Tests: ✓ unit | ✓ integration | ✓|n/a e2e
 ADRs: <count> (phase 5)
 
 Phases:
-  1. Spec    — <N> items, <elapsed>
-  2. Plan    — <N> items, <elapsed>
-  3. Impl    — <N> items, <elapsed> | WIP=1
-  4. Release — v<version>, <elapsed>
-  5. Retro   — <N> ADRs, <elapsed>
+  1. Spec    — <N> items, <elapsed> (parallel + inline retry)
+  2. Impl    — <N> items, <elapsed> | WIP=1
+  3. Release — v<version>, <elapsed>
+  4. Retro   — <N> ADRs, <elapsed>
 
 Next: /backlog to queue new items.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -250,11 +225,10 @@ Next: /backlog to queue new items.
 
 ## Error Handling
 
-- **Phase 1 fails**: halt sprint, surface issue. User can fix and restart from that item.
-- **Phase 2 fails**: halt sprint, re-run plan-reviewer, re-draft if needed.
-- **Phase 3 fails**: halt sprint, invoke `/fix`, re-implement.
-- **Phase 4 fails**: halt before merge, print error. User can debug and retry release manually.
-- **Phase 5 fails**: non-blocking, print warning. Retro can be run manually later.
+- **Phase 1 fails** (retry exhausted): halt sprint, surface issue. User can fix and restart from that item.
+- **Phase 2 fails**: halt sprint, invoke `/fix`, re-implement.
+- **Phase 3 fails**: halt before merge, print error. User can debug and retry release manually.
+- **Phase 4 fails**: non-blocking, print warning. Retro can be run manually later.
 
 ## ขั้นตอนถัดไป
 
