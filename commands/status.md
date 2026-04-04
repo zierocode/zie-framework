@@ -17,7 +17,7 @@ needed — just read files and print.
 ROADMAP snapshot (first 30 lines):
 !`cat zie-framework/ROADMAP.md | head -30`
 
-Knowledge hash:
+Knowledge hash (bind as `current_hash_injected`):
 !`python3 hooks/knowledge-hash.py 2>/dev/null || echo "knowledge-hash: unavailable"`
 
 1. **Check initialization**: if `zie-framework/` does not exist → print "Not
@@ -36,12 +36,8 @@ Knowledge hash:
 3. **Find active plan**: most recent file in `zie-framework/plans/` where
    ROADMAP.md "Now" section is not empty.
 
-4. **Check knowledge drift** via Bash — must use the **same algorithm**
-   as `/resync` and `/init`:
-
-   ```bash
-   python3 hooks/knowledge-hash.py
-   ```
+4. **Check knowledge drift** — use `current_hash_injected` (already computed above,
+   no second Bash call needed):
 
    - Read `knowledge_hash` from `zie-framework/.config`
    - If missing → Knowledge status: `? no baseline — run /resync`

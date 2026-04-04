@@ -47,6 +47,20 @@ class TestZieStatusInjections:
             or "2>/dev/null || echo 'knowledge-hash: unavailable'`" in self.content
         )
 
+    def test_knowledge_hash_computed_once(self):
+        """status.md must compute knowledge-hash exactly once (bang injection reused in step 4)."""
+        count = self.content.count("knowledge-hash.py")
+        assert count == 1, (
+            f"knowledge-hash.py must appear exactly once in status.md (found {count}) "
+            "— step 4 must reuse the bang-injected result, not re-run"
+        )
+
+    def test_step4_references_injected_hash(self):
+        """Step 4 must reference the pre-injected hash variable, not run a Bash call."""
+        assert "current_hash_injected" in self.content or "injected" in self.content.lower(), (
+            "status.md step 4 must reference the bang-injected hash (current_hash_injected), not re-run Bash"
+        )
+
     def test_injections_precede_first_step(self):
         inject_pos = self.content.find("!`cat zie-framework/ROADMAP.md")
         steps_pos = self.content.find("## Steps")
