@@ -3,6 +3,7 @@ from pathlib import Path
 
 RELEASE_PATH = Path(__file__).parents[2] / "commands" / "release.md"
 RETRO_PATH = Path(__file__).parents[2] / "commands" / "retro.md"
+SKILL_PATH = Path(__file__).parents[2] / "skills" / "docs-sync-check" / "SKILL.md"
 
 
 class TestDocsSyncCheckGeneralAgent:
@@ -43,3 +44,43 @@ class TestDocsSyncCheckGeneralAgent:
         text = RETRO_PATH.read_text()
         assert "docs-sync-check" in text, \
             "zie-retro must reference docs-sync-check"
+
+
+class TestDocsSyncCheckProjectMd:
+    def _skill(self):
+        return SKILL_PATH.read_text()
+
+    def test_skill_reads_project_md(self):
+        """Skill must instruct reading PROJECT.md."""
+        assert "PROJECT.md" in self._skill(), \
+            "docs-sync-check SKILL.md must mention PROJECT.md"
+
+    def test_skill_has_step_3b(self):
+        """Skill must contain a Step 3b block."""
+        assert "3b" in self._skill(), \
+            "docs-sync-check SKILL.md must have a Step 3b"
+
+    def test_skill_strips_slash_prefix(self):
+        """Skill must document stripping / prefix from command names."""
+        skill = self._skill()
+        assert "strip" in skill.lower() or "strip `/`" in skill or "strip the `/`" in skill, \
+            "Skill must document stripping / prefix from PROJECT.md command rows"
+
+    def test_skill_excludes_header_rows(self):
+        """Skill must document skipping header rows."""
+        skill = self._skill()
+        assert "header" in skill.lower() or "| Command |" in skill or "| --- |" in skill, \
+            "Skill must document skipping table header rows"
+
+    def test_verdict_has_project_md_stale(self):
+        """Returned JSON verdict must include project_md_stale field."""
+        assert "project_md_stale" in self._skill(), \
+            "docs-sync-check verdict JSON must include project_md_stale"
+
+    def test_verdict_has_missing_and_extra_fields(self):
+        """Returned JSON verdict must include missing_from_project_md and extra_in_project_md."""
+        skill = self._skill()
+        assert "missing_from_project_md" in skill, \
+            "Verdict must include missing_from_project_md"
+        assert "extra_in_project_md" in skill, \
+            "Verdict must include extra_in_project_md"
