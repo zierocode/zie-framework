@@ -13,10 +13,9 @@ effort: medium
 !`git log -5 --oneline`
 !`git status --short`
 
-0. **Pre-flight: Agent mode check** — if not running with `--agent zie-framework:zie-implement-mode`:
-   print `⚠️ Running /implement outside agent session. permissionMode and tool preloading will be missing.`
-   print `Recommended: exit and relaunch with: claude --agent zie-framework:zie-implement-mode`
-   Ask: `Continue anyway? (yes / no)` — if no → STOP. If yes → continue.
+0. **Pre-flight: Agent mode advisory** — if not running with `--agent zie-framework:zie-implement-mode`:
+   print `ℹ️ Tip: run inside \`claude --agent zie-framework:zie-implement-mode\` for best results.`
+   (advisory only — do not block, continue immediately)
 
 1. Check `zie-framework/` exists → if not, run `/init` first.
 2. **Pre-flight: ROADMAP guard** — check `zie-framework/ROADMAP.md` exists:

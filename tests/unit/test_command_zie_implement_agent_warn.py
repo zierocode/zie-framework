@@ -1,4 +1,4 @@
-"""Structural tests: /implement step 0 must warn and ask for confirmation."""
+"""Structural tests: /implement step 0 must show advisory (non-blocking) for non-agent mode."""
 import os
 from pathlib import Path
 
@@ -10,18 +10,18 @@ class TestAgentModeConfirm:
     def _src(self):
         return IMPLEMENT_CMD.read_text()
 
-    def test_interactive_confirmation_present(self):
-        """Step 0 must ask for confirmation before continuing outside agent session."""
+    def test_no_blocking_interactive_confirmation(self):
+        """Step 0 must NOT block with 'Continue anyway?' — advisory only."""
         src = self._src()
-        assert "Continue anyway?" in src, (
-            "zie-implement.md step 0 must ask for confirmation when outside agent session"
+        assert "Continue anyway?" not in src, (
+            "zie-implement.md step 0 must be advisory (non-blocking), not ask 'Continue anyway?'"
         )
 
-    def test_stop_on_no(self):
-        """Step 0 must STOP if user declines."""
+    def test_step0_is_advisory(self):
+        """Step 0 must say it is advisory and non-blocking."""
         src = self._src()
-        assert "no" in src.lower() and "STOP" in src, (
-            "zie-implement.md step 0 must STOP when user answers no"
+        assert "advisory" in src.lower() or "Tip" in src, (
+            "zie-implement.md step 0 must be labeled as advisory"
         )
 
     def test_agent_mode_command_referenced(self):
