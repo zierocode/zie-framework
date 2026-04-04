@@ -24,7 +24,12 @@ cleanup, tooling fixes. No spec required. A Done entry is added when complete.
 3. **Done entry** — add to `zie-framework/ROADMAP.md` Done section:
    `- [x] chore: <slug> — <one-line description>`
 
-4. **Commit** — `git add -A && git commit -m "chore: <slug>"`
+4. **Commit** — stage only the files changed in this chore (no `git add -A`):
+   ```bash
+   git add <specific-files-changed>
+   git commit -m "chore: <slug>"
+   ```
+   Verify only intended files are staged before committing.
 
 5. **Done** — print:
    ```
