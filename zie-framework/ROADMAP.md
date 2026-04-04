@@ -10,7 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-<!-- Clear — all items released v1.19.0 -->
+<!-- -->
 
 ---
 
@@ -18,10 +18,6 @@
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
-
-<!-- CRITICAL -->
-
-<!-- Clear — all items released v1.19.0 -->
 
 ---
 
@@ -34,6 +30,10 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] lean-efficiency-sprint-v1.20.0 — 5 items: preflight-consolidation (canonical pre-flight guard + 6-command consolidation), reviewer-context-dedup (delete dead skill + 213w cleanup), phase-prose-cleanup (200w reduction sprint/retro/release), init-scan-prompt-extract (400w prompt → template + compress step 0+7), argument-parsing-inline (Python parse blocks → argument tables in spec+sprint) — 2323 unit + 59 integration tests — v1.20.0 2026-04-04
+
+- [x] token-efficiency-v1 — 7 tasks: ADR summary gate (ADR-000-summary.md), load-context fast-path (ADR caching), reviewer fast-paths (inline context load), retro auto-summary (ADR-000-summary.md update), CLAUDE.md cache structure (stable/dynamic sections), skill compression (12 files, 2.1% reduction), command compression (14 files, 4.7% reduction) — 2305 unit + 1 skipped tests — v1.19.1 2026-04-04
 
 - [x] sprint10-lean-quality-refactor-v1.19.0 — 45 items: model downsizing (10 items: /hotfix, /release, /retro, impl-reviewer, resync, init, fix, plan, write-plan, debug), lean refactoring (15 items: lean-sprint-phase2, lean-retro-self-tuning, lean-prompt-pass-through, lean-auto-test-context, lean-intent-sdlc-idle-state, lean-chore-git-add, lean-knowledge-hash, lean-status-knowledge-hash, lean-subagent-context-idle, lean-implement-agent-mode, lean-verify-check2, lean-intent-sdlc-missing-tracks, lean-subagent-stop-no-matcher, lean-sec-prompt-injection-subagent, lean-mcp-zie-memory), intent detection patterns (hotfix, chore, spike), docs-sync (README sync), quality features (5 items: lean-fix-hotfix-triage, lean-spike-gitignore, lean-observability-health-command, lean-write-plan-duplicate-conflict-check, lean-plan-reviewer-n-squared, lean-notification-log-double-guard, lean-dep-pinning-inconsistency, lean-playwright-version-magic-constant), leadership tasks (3 items: lean-claudemd-trim, lean-stop-guard-nudge, lean-load-context-triple-invoke, lean-retro-git-log-quad) — 2294 unit + 1 skipped tests — v1.19.0 2026-04-04
 

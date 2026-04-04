@@ -50,11 +50,6 @@ class TestProjectMd:
             "PROJECT.md Skills table missing load-context"
         )
 
-    def test_skills_table_has_reviewer_context(self):
-        assert "reviewer-context" in self._content(), (
-            "PROJECT.md Skills table missing reviewer-context"
-        )
-
     def test_commands_table_header_is_english(self):
         """Commands table header must use 'Description', not Thai."""
         content = self._content()

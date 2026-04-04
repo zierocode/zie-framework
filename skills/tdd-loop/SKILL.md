@@ -9,9 +9,6 @@ effort: low
 
 # TDD Loop — RED → GREEN → REFACTOR
 
-Use this skill during /implement for every task. This is a rigid process
-skill — follow exactly.
-
 ## The Loop
 
 ### RED — เขียน test ที่ล้มเหลว

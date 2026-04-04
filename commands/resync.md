@@ -14,8 +14,7 @@ All updates require user confirmation before writing.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. Check `zie-framework/.config` exists → if not, recommend `/init`.
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
 
 ## Steps
 
@@ -113,12 +112,3 @@ All updates require user confirmation before writing.
    Run /status to verify sync status.
    ```
 
-## ขั้นตอนถัดไป
-
-→ `/status` — ยืนยันว่า Knowledge แสดง ✓ synced
-
-## Notes
-
-- Idempotent — safe to run multiple times
-- All doc updates require user 'yes' — never auto-overwrites
-- Does not change ROADMAP, Makefile, VERSION, or CLAUDE.md

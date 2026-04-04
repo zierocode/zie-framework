@@ -72,7 +72,6 @@ make test-unit
 ```
 
 - All tests pass? ✓
-- Any skipped tests? Investigate — skips hide real failures.
 - Any new tests added for this feature? If not, explain why.
 
 If integration tests exist:

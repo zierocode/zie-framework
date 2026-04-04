@@ -35,7 +35,6 @@
 | debug | Reproduce → isolate → fix | /implement, /fix |
 | verify | Pre-release verification checklist; `context: fork` with optional captured `test_output` | /fix, /release, /implement |
 | load-context | Load shared context bundle (ADRs + project/context.md) once per session; Step 0 cache-check via get_cached_adrs before disk read (v1.18.1) | /plan, /implement, /sprint |
-| reviewer-context | Shared context-load protocol; no longer auto-invoked in reviewer chain (ADR-054, v1.19.0) — each reviewer now loads context inline. Available for explicit call if needed. | (optional, caller-explicit) |
 | docs-sync-check | Verify CLAUDE.md/README.md match commands/skills/hooks on disk; `context: fork` | /retro, /release |
 
 ## Hooks

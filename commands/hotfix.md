@@ -46,8 +46,3 @@ Opens a drift log entry, applies the fix, closes the drift log, then ships.
    Next: /status
    ```
 
-## Notes
-
-- No ROADMAP write required — this track is outside the standard pipeline.
-- Drift log records bypass for retrospective review.
-- Use only for genuine emergencies. Routine bugs → `/fix` inside the pipeline.

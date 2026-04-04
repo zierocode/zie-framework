@@ -13,12 +13,7 @@ before building. Supports multiple items in parallel.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. Read `zie-framework/.config` → zie_memory_enabled.
-3. Read `zie-framework/ROADMAP.md` → check Now lane.
-   - If a `[ ]` item exists in Now → warn: "WIP active: `<feature>`. Planning
-     new items while one is in progress splits focus. Continue? (yes/no)"
-   - If no → stop.
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight) (checks Now lane — warns if WIP active).
 
 ## ไม่มี argument — แสดงรายการ backlog
 
@@ -158,6 +153,6 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
 
 ## ขั้นตอนถัดไป
 
-→ `/implement` — เริ่ม implement feature ที่อนุมัติแล้ว
-→ `/status` — ดูภาพรวม
+→ `/implement`
+
 

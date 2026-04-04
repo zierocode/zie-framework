@@ -145,7 +145,3 @@ Knowledge hash (bind as `current_hash_injected`):
    - Always available: "/status | /backlog | /implement | /fix |
      /release | /retro | /sprint"
 
-## Notes
-
-- Fast — no LLM, no network calls
-- Safe to run anytime, even mid-session

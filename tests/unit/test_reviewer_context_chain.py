@@ -12,6 +12,23 @@ def _read(rel: str) -> str:
     return (REPO_ROOT / rel).read_text()
 
 
+import pytest
+
+
+@pytest.mark.parametrize("skill", ["spec-reviewer", "plan-reviewer", "impl-reviewer"])
+def test_reviewer_disk_fallback_summary_before_wildcard(skill):
+    """Reviewer Phase 1 disk fallback must load ADR-000-summary.md before any wildcard load."""
+    text = _read(f"skills/{skill}/SKILL.md")
+    assert "ADR-000-summary.md" in text, (
+        f"skills/{skill}/SKILL.md must reference ADR-000-summary.md"
+    )
+    adr_summary_pos = text.index("ADR-000-summary.md")
+    wildcard_pos = text.index("decisions/*.md") if "decisions/*.md" in text else len(text)
+    assert adr_summary_pos < wildcard_pos, (
+        f"skills/{skill}/SKILL.md: ADR-000-summary.md must appear before decisions/*.md wildcard"
+    )
+
+
 def test_spec_reviewer_no_skill_reviewer_context_call():
     """spec-reviewer must NOT invoke Skill(reviewer-context) — use inline context load."""
     text = _read("skills/spec-reviewer/SKILL.md")
@@ -73,4 +90,60 @@ def test_write_plan_passes_context_bundle_to_reviewer():
     text = _read("commands/plan.md")
     assert "context_bundle" in text, (
         "commands/plan.md must pass context_bundle to Skill(zie-framework:plan-reviewer)"
+    )
+
+
+def _extract_phase1(skill_path: str) -> str:
+    text = (REPO_ROOT / skill_path).read_text()
+    start = text.find("## Phase 1")
+    end = text.find("## Phase 2", start)
+    return text[start:end]
+
+
+def test_spec_reviewer_phase1_structure():
+    """Phase 1 must have Fast-path, Disk fallback, Returns in order."""
+    phase1 = _extract_phase1("skills/spec-reviewer/SKILL.md")
+    assert "**Fast-path:**" in phase1, "spec-reviewer Phase 1 missing Fast-path bullet"
+    assert "**Disk fallback:**" in phase1, "spec-reviewer Phase 1 missing Disk fallback bullet"
+    assert "Returns:" in phase1, "spec-reviewer Phase 1 missing Returns line"
+    assert phase1.find("Fast-path") < phase1.find("Disk fallback") < phase1.find("Returns"), \
+        "spec-reviewer Phase 1 bullets out of order"
+
+
+def test_plan_reviewer_phase1_structure():
+    """Phase 1 must have Fast-path, Disk fallback, Returns in order."""
+    phase1 = _extract_phase1("skills/plan-reviewer/SKILL.md")
+    assert "**Fast-path:**" in phase1, "plan-reviewer Phase 1 missing Fast-path bullet"
+    assert "**Disk fallback:**" in phase1, "plan-reviewer Phase 1 missing Disk fallback bullet"
+    assert "Returns:" in phase1, "plan-reviewer Phase 1 missing Returns line"
+    assert phase1.find("Fast-path") < phase1.find("Disk fallback") < phase1.find("Returns"), \
+        "plan-reviewer Phase 1 bullets out of order"
+
+
+def test_impl_reviewer_phase1_structure():
+    """Phase 1 must have Fast-path, Disk fallback, Returns in order."""
+    phase1 = _extract_phase1("skills/impl-reviewer/SKILL.md")
+    assert "**Fast-path:**" in phase1, "impl-reviewer Phase 1 missing Fast-path bullet"
+    assert "**Disk fallback:**" in phase1, "impl-reviewer Phase 1 missing Disk fallback bullet"
+    assert "Returns:" in phase1, "impl-reviewer Phase 1 missing Returns line"
+    assert phase1.find("Fast-path") < phase1.find("Disk fallback") < phase1.find("Returns"), \
+        "impl-reviewer Phase 1 bullets out of order"
+
+
+def test_project_md_no_reviewer_context_row():
+    """PROJECT.md Skills table must not list reviewer-context after deletion."""
+    text = (REPO_ROOT / "zie-framework" / "PROJECT.md").read_text()
+    start = text.find("## Skills") if "## Skills" in text else 0
+    end = text.find("\n## ", start + 1) if "\n## " in text[start + 1:] else len(text)
+    skills_section = text[start:end]
+    assert "reviewer-context" not in skills_section, (
+        "PROJECT.md Skills table still lists reviewer-context — should be removed"
+    )
+
+
+def test_reviewer_context_skill_deleted():
+    """reviewer-context skill must be deleted — it is dead code (ADR-054)."""
+    skill_path = REPO_ROOT / "skills" / "reviewer-context" / "SKILL.md"
+    assert not skill_path.exists(), (
+        "skills/reviewer-context/SKILL.md still exists — delete it (ADR-054)"
     )

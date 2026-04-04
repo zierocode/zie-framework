@@ -135,8 +135,3 @@ HIGH findings (N): ...      Add to backlog: (all / select numbers / skip)
 For each selected finding: create `zie-framework/backlog/<slug>.md` and add to
 `zie-framework/ROADMAP.md` Next lane.
 
-## Notes
-
-- Always deep — no quick mode; external research always runs
-- Typical runtime: 3–8 minutes (parallel agents + web research)
-- Evidence saved to `zie-framework/evidence/` — never committed

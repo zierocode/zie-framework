@@ -13,25 +13,13 @@ reviewer loop. Output lives in `zie-framework/specs/`.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. Read `zie-framework/.config` → project_type, zie_memory_enabled.
-3. Read `zie-framework/ROADMAP.md` → check Now lane.
-   - If a `[ ]` item exists → warn: "WIP active: `<feature>`. Specs can be
-     written in parallel but focus is split. Continue? (yes/no)"
-   - If no → stop.
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight) (checks Now lane — warns if WIP active).
 
 ## Arguments
 
-| Flag | Description |
-| --- | --- |
-| `--draft-plan` | After spec is approved, auto-invoke `write-plan` and move plan to Ready if approved. Skips manual `/plan` step. |
-
-**Parse before step 1:**
-```python
-draft_plan = "--draft-plan" in ARGUMENTS
-clean_args = " ".join(arg for arg in ARGUMENTS.split() if arg != "--draft-plan")
-# Use clean_args for all slug/idea extraction below
-```
+| Flag | Description | Default |
+| --- | --- | --- |
+| `--draft-plan` | After spec is approved, auto-invoke `write-plan` and move plan to Ready if approved. Skips manual `/plan` step. | off |
 
 ## Steps
 
@@ -84,7 +72,7 @@ clean_args = " ".join(arg for arg in ARGUMENTS.split() if arg != "--draft-plan")
    git commit -m "spec: <slug>"
    ```
 
-4. **--draft-plan branch** (if `draft_plan=true`):
+4. **--draft-plan branch** (if `--draft-plan` present — remove flag from slug before processing):
 
    After spec commit, auto-invoke `Skill(zie-framework:write-plan)` with slug:
    - On plan APPROVED: write `approved: true` frontmatter, move ROADMAP Next → Ready, commit
@@ -106,17 +94,3 @@ clean_args = " ".join(arg for arg in ARGUMENTS.split() if arg != "--draft-plan")
    Next: /plan <slug> to create the implementation plan.
    ```
 
-## ขั้นตอนถัดไป
-
-→ `/plan <slug>` — เมื่อ spec approved แล้ว
-→ `/retro` — ถ้า spec session ยาวและมี learnings ที่ควรบันทึก
-→ `/status` — ดูภาพรวม
-
-## Notes
-
-- Always spec-first — never skips to plan without an approved spec
-- Quick mode: `/spec "idea"` skips backlog file, goes straight to spec-design
-- Quick mode adds item to ROADMAP Next with spec link (no backlog file created)
-- spec-design writes `approved: true` frontmatter after reviewer passes
-- /plan checks this frontmatter — draft specs do not proceed to plan
-- spec-design does NOT auto-invoke write-plan (commands are control plane)

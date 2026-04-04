@@ -96,9 +96,6 @@ class TestReviewerSkillsExist:
         assert os.path.exists(skill("impl-reviewer")), \
             "skills/impl-reviewer/SKILL.md must exist"
 
-    def test_reviewer_context_exists(self):
-        assert os.path.exists(skill("reviewer-context")), \
-            "skills/reviewer-context/SKILL.md must exist"
 
 
 class TestSkillsInvokeReviewers:

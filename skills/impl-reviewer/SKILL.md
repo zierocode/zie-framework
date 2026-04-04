@@ -25,7 +25,7 @@ Caller must provide:
 ## Phase 1 — Load Context Bundle (inline)
 
 - **Fast-path:** if context_bundle provided by caller → `adrs_content = context_bundle.adrs` · `context_content = context_bundle.context` · skip disk reads.
-- **Disk fallback:** read from disk — `get_cached_adrs(session_id, "zie-framework/decisions/")` → `adrs_content`; cache miss → read `decisions/*.md` (including `ADR-000-summary.md`) → `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")` → `adr_cache_path`. Read `project/context.md` → `context_content`.
+- **Disk fallback:** read from disk — `get_cached_adrs(session_id, "zie-framework/decisions/")` → `adrs_content`; cache miss → read `decisions/ADR-000-summary.md` → `adrs_content`; if missing → fall back: read all `decisions/*.md`; `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")` → `adr_cache_path`. Read `project/context.md` → `context_content`.
 
 Also read each file listed in the caller's "files changed" input (note "FILE NOT FOUND"
 if any are missing).

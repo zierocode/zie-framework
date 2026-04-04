@@ -18,21 +18,16 @@ Run a complete sprint cycle: spec+plan all items concurrently (no cap), implemen
 4. Check current branch is `dev`.
 5. Verify no uncommitted changes (warn if found).
 
-## Parse Arguments
+## Arguments
 
-```python
-dry_run = "--dry-run" in ARGUMENTS
-skip_ready = "--skip-ready" in ARGUMENTS
-version_override = None
+| Flag / Positional | Description | Default |
+| --- | --- | --- |
+| `slugs` (positional) | Space-separated backlog slugs to process; omit to process all Next+Ready items | all items |
+| `--dry-run` | Print sprint audit table and stop — do not execute | off |
+| `--skip-ready` | Skip items already in Ready lane (spec+plan approved) | off |
+| `--version=X.Y.Z` | Override version bump for Phase 3 release | auto |
 
-# Extract --version=X.Y.Z
-for arg in ARGUMENTS.split():
-    if arg.startswith("--version="):
-        version_override = arg.split("=")[1]
-
-# Extract slugs (remaining args)
-slugs = [arg for arg in ARGUMENTS.split() if not arg.startswith("--")]
-```
+Flag handling is inline at each consuming step below.
 
 ## Step 0: AUDIT — Build Sprint Plan
 
@@ -80,7 +75,7 @@ slugs = [arg for arg in ARGUMENTS.split() if not arg.startswith("--")]
    ...
    ```
 
-6. **--dry-run branch**: if `dry_run=true` → print audit table and stop. Say "Run without --dry-run to execute."
+6. **--dry-run branch**: if `--dry-run` present → print audit table and stop. Say "Run without --dry-run to execute."
 
 7. **User confirmation**:
 
@@ -102,15 +97,10 @@ slugs = [arg for arg in ARGUMENTS.split() if not arg.startswith("--")]
 
 Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
 (reads `decisions/*.md` ADRs + `project/context.md`).
-This bundle is passed to every downstream agent/skill call.
 
 ## PHASE 1: SPEC ALL (Parallel)
 
 TaskCreate subject="Phase 1/4 — Spec All"
-
-Skip items that already have approved specs.
-
-**Items to spec**: `needs_spec` (from Step 0).
 
 ```
 For each item in needs_spec (all launched concurrently — no cap):
@@ -166,7 +156,7 @@ Print ETA: `Phase 2/4 — 2 phases remaining`
 
 TaskCreate subject="Phase 3/4 — Release"
 
-Invoke `/release` (which already handles moving all `[x]` items from Now → Done):
+Invoke `/release`:
 
 ```bash
 zie-release
@@ -179,8 +169,6 @@ zie-release --bump-to=<version_override>
 ```
 
 Print: `"Phase 4: Batch release..."`
-
-On success: single git merge dev→main, tag, version bump.
 TaskUpdate → Phase 3/4 complete
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 3/4 — 1 phase remaining`
@@ -189,17 +177,11 @@ Print ETA: `Phase 3/4 — 1 phase remaining`
 
 TaskCreate subject="Phase 4/4 — Retro"
 
-After release completes, invoke `/retro`:
-
 ```bash
 zie-retro
 ```
 
-This runs single retro covering all shipped items in batch.
-
 Print: `"Phase 5: Sprint retro..."`
-
-On complete: print sprint summary.
 TaskUpdate → Phase 4/4 complete
 Print progress bar: `████████████████████ 4/4 (100%)`
 Print ETA: `Sprint complete`
@@ -234,16 +216,3 @@ Next: /backlog to queue new items.
 - **Phase 3 fails**: halt before merge, print error. User can debug and retry release manually.
 - **Phase 4 fails**: non-blocking, print warning. Retro can be run manually later.
 
-## ขั้นตอนถัดไป
-
-→ Next sprint: `/backlog` to capture new ideas.
-
-## Notes
-
-- Sprint operates on **all Next + Ready items** by default (no args needed).
-- Specify subset with: `/sprint slug1 slug2 slug3`
-- `--dry-run` shows plan without executing.
-- `--skip-ready` skips items already in Ready lane (goes straight to impl phase).
-- `--version=X.Y.Z` overrides auto-suggested version bump.
-- Context bundle loaded once, reused everywhere — O(1) context loads.
-- Dependencies respected: items with `<!-- depends_on: slug-N -->` serialize automatically.

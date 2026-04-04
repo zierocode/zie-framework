@@ -41,3 +41,28 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-028 | Plugin Marketplace as Decoupled Authority | Claude Code `settings.json` (extraKnownMarketplaces) is the single authority for plugin discovery; each plugin publishes independently with no cross-repo pinning. | Accepted |
 | ADR-029 | Use General-Purpose Agent for Subagents in zie-retro and zie-release | Spawn general-purpose agents (no plugin type) with all context passed inline; eliminates stale-plugin-cache failures in subagent sessions. | Accepted |
 | ADR-030 | Model Routing — Haiku Default with Sonnet Escalation for Judgment Steps | Haiku is the default for zie-release and impl-reviewer; judgment steps annotated with `<!-- model: sonnet -->` for per-step escalation. | Accepted |
+| ADR-031 | ADR Session Cache | write_adr_cache/get_cached_adrs: cache ADR list per session to avoid redundant dir reads. | Accepted |
+| ADR-032 | Shared Context Bundle in zie-audit | Build context bundle once in Phase 1; pass to all parallel Phase 2 agents. | Accepted |
+| ADR-033 | Parallel Release Gates Fan-Out | Gates 2/3/4 in zie-release run in parallel; only Gate 1 must run first. | Accepted |
+| ADR-034 | Phase-Parallel Sprint Orchestration | Sprint: spec all items in parallel, implement sequentially, single batch release+retro. | Accepted |
+| ADR-035 | Pure Markdown Sprint Orchestration | /sprint implemented as Markdown command using Agent+Skill tools, not a Python hook. | Accepted |
+| ADR-036 | AST Parsing for Hooks with Module-Level Side Effects | Use AST parsing to test hooks that call sys.exit() at module level. | Accepted |
+| ADR-037 | Coverage Gate Raised to 48% | --fail-under raised from 43 to 48 after measurement fix. | Accepted |
+| ADR-038 | Hook Timing Instrumentation | Hooks emit elapsed_ms to session log for latency diagnostics. | Accepted |
+| ADR-039 | Structural Test Assertions | Replace keyword-presence tests with structural assertions (section order, field presence). | Accepted |
+| ADR-040 | Input Validation Brace Guard | Add bare brace {} to dangerous compound regex in input-sanitizer. | Accepted |
+| ADR-041 | Pre-commit Hook Simplified to Stub | Pre-commit hook is a no-op stub; enforcement moved to CI. | Accepted |
+| ADR-042 | utils.py Split into 5 Sub-modules | utils.py split into utils_event, utils_io, utils_safety, utils_roadmap, utils_backlog. | Accepted |
+| ADR-043 | Consolidate PreToolUse Hooks | input-sanitizer.py merged into safety-check.py; single PreToolUse hook. | Accepted |
+| ADR-044 | Skill Over Agent for Sequential Steps | Use Skill() invocation instead of Agent() for sequential workflow steps to avoid context overhead. | Accepted |
+| ADR-045 | ROADMAP Cache mtime-Gate | ROADMAP cache invalidated by file mtime change, not TTL expiry. | Accepted |
+| ADR-046 | Subagent Context Scoped by Agent Type | subagent-context.py emits context only for Explore and Plan agents. | Accepted |
+| ADR-047 | Retro Inline File Writes | /retro writes ADR + ROADMAP files inline; no background agents for file writes. | Accepted |
+| ADR-048 | Shared load-context Skill | load-context skill loads ADRs + context.md once per session; all reviewers reuse bundle. | Accepted |
+| ADR-049 | Drift Log NDJSON | SDLC bypass events logged as NDJSON to zie-framework/drift.log. | Accepted |
+| ADR-050 | Escape Hatch Over Hard Block | intent-sdlc.py warns and offers escape hatches instead of hard-blocking on no-track state. | Accepted |
+| ADR-051 | Command Namespace Flattening | Remove zie- prefix from all commands; invoked as /backlog, /spec, /plan, etc. | Accepted |
+| ADR-052 | Bind-Once Session-Scoped Variables | Commands read .config and ROADMAP once per execution; no repeated reads. | Accepted |
+| ADR-053 | Self-Enforcement in Framework Not Memory | Fix bad patterns by updating framework spec/skills directly, not by writing zie-memory entries. | Accepted |
+| ADR-054 | Inline Reviewer Context Hop Elimination | Reviewer skills load context inline (Phase 1 inlined) instead of invoking reviewer-context as separate hop. | Accepted |
+| ADR-055 | Sprint Phase 2 Collapse | Sprint Phase 2 (plan) folded into Phase 1 parallel; spec+plan run as single concurrent wave. | Accepted |

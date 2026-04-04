@@ -126,9 +126,3 @@ slots become available.
 
 Save plan to: `zie-framework/plans/YYYY-MM-DD-<feature-slug>.md`
 
-## Notes
-
-- Exact file paths always
-- Complete code in plan (not "add validation")
-- Exact commands with expected output
-- DRY, YAGNI, TDD, frequent commits
