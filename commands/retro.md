@@ -19,7 +19,7 @@ Recent activity window:
 
 1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
 2. Read `zie-framework/.config` → project, zie_memory_enabled.
-3. Targeted ROADMAP reads: Grep `## Now` → read to next `---`. Grep `## Done` → read ~20 lines only. Grep `## Next` → read to next `---` (cache as `next_lane` — reused by Suggest next, no second read).
+3. Bind `roadmap_raw` — load `zie-framework/ROADMAP.md` once (reused by all downstream sections, no second read). Extract: Grep `## Now` → read to next `---`. Grep `## Done` → read ~20 lines only (bind as `done_section_raw`). Grep `## Next` → read to next `---` (cache as `next_lane`).
 4. Print: "Analyzing git log..." — git context already injected above, no Bash needed.
 
 ## Steps
@@ -87,7 +87,7 @@ Build compact JSON bundle:
 - On error: print `[zie-framework] retro: ADR write failed — <error>` and continue.
 
 **Update ROADMAP Done inline.**
-- Read `zie-framework/ROADMAP.md`.
+- Use `roadmap_raw` (bound at pre-flight — no re-read needed).
 - Move shipped items from `shipped_items` to the `## Done` section with date and version tag.
 - Call `Edit` (or `Write`) to persist the updated file.
 - On error: print `[zie-framework] retro: ROADMAP update failed — <error>` and continue.
@@ -96,7 +96,7 @@ Build compact JSON bundle:
 
 Inline after ROADMAP update — no Agent call:
 
-1. Read `## Done` from `zie-framework/ROADMAP.md`. ≤ 10 items → skip entirely.
+1. Parse `## Done` from `roadmap_raw` (already bound at pre-flight — no re-read). ≤ 10 items → skip entirely.
 2. Extract date from each item: all `YYYY-MM-DD` matches, take last. No date → keep inline always.
 3. Sort by date desc (no-date last). Keep top 10 inline regardless of age.
 4. Candidates: rank 11+ items where `today − date > 90 days`.
