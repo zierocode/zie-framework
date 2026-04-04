@@ -14,6 +14,7 @@
 - [x] intent-sdlc-early-exit
 - [x] release-inline-gates
 - [x] retro-inline-format
+- [x] zie-init-delegate-scan
 
 ---
 

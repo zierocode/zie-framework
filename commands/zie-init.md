@@ -61,50 +61,81 @@ then re-run /zie-init."`
    **If existing** → print "Existing project detected. Scanning
    codebase..." then:
 
-   a. Invoke `Agent(subagent_type=Explore)`:
-      - **Before scanning code**: read existing project docs as
-        primary sources — prefer documented intent over inferred
-        code structure:
-        `README.md`, `CHANGELOG.md`, `ARCHITECTURE.md`, `AGENTS.md`,
-        `docs/**`, any `**/specs/*.md`, `**/plans/*.md`,
-        `**/decisions/*.md` outside `zie-framework/`
-      - Task: scan every file, return a structured analysis report:
-        - Architecture pattern and overall structure
-        - Every significant component/module (name + one-line purpose)
-        - Full tech stack with versions (from config files)
-        - Data flow from entry point to response
-        - Key constraints or decisions in code/comments/docs
-        - Test strategy (runner, coverage areas)
-        - Active areas (from `git log --name-only -20`)
-      - Exclude: `node_modules/`, `.git/`, `build/`, `dist/`,
-        `.next/`, `__pycache__/`, `*.pyc`, `coverage/`,
-        `zie-framework/`
-      - Return: structured markdown report (not the final docs)
-      - Additionally, detect migratable documentation: list all files
-        matching `**/specs/*.md`, `**/spec/*.md`, `**/plans/*.md`,
-        `**/plan/*.md`, `**/decisions/*.md`, `**/adr/*.md`,
-        `ADR-*.md` (at project root), `**/backlog/*.md` —
-        exclude any files already inside `zie-framework/`.
-        Return these as a `migratable_docs` object in the report with
-        keys `specs`, `plans`, `decisions`, `backlog` (each an array
-        of relative file paths). Example:
-        ```json
-        {
-          "migratable_docs": {
-            "specs": ["docs/specs/foo.md"],
-            "plans": [],
-            "decisions": ["docs/adr-001.md"],
-            "backlog": []
-          }
-        }
-        ```
+   a. Invoke `Agent(subagent_type=Explore)` with the following
+      self-contained prompt. Receive `scan_report` JSON.
 
-   b. Read Agent report and draft all four knowledge files:
-      - `zie-framework/PROJECT.md`
-      - `zie-framework/project/architecture.md`
-      - `zie-framework/project/components.md`
-      - `zie-framework/project/context.md`
-        (only real decisions found; unknowns marked TBD)
+      > **Explore agent prompt (self-contained — pass verbatim):**
+      >
+      > ```
+      > You are scanning an existing software project to help initialize zie-framework.
+      >
+      > Scan the project at the current working directory. Read existing documentation
+      > first as primary sources (they encode deliberate intent, not just structure):
+      >   README.md, CHANGELOG.md, ARCHITECTURE.md, AGENTS.md,
+      >   docs/**, **/specs/*.md, **/plans/*.md, **/decisions/*.md
+      >   (exclude anything inside zie-framework/)
+      >
+      > Then scan the codebase structure to fill in any gaps.
+      >
+      > Exclude from all scans:
+      >   node_modules/, .git/, build/, dist/, .next/, __pycache__/, *.pyc,
+      >   coverage/, zie-framework/
+      >
+      > Return ONLY a JSON object with this exact structure (no markdown, no prose).
+      > The parent parser will extract JSON from the first '{' to the last '}'.
+      >
+      > {
+      >   "architecture_pattern": "<string>",
+      >   "components": [{ "name": "<string>", "purpose": "<one-line string>" }],
+      >   "tech_stack": [{ "name": "<string>", "version": "<string | null>" }],
+      >   "data_flow": "<string>",
+      >   "key_constraints": ["<string>"],
+      >   "test_strategy": { "runner": "<string | null>", "coverage_areas": ["<string>"] },
+      >   "active_areas": ["<string>"],
+      >   "existing_hooks": "<path to hooks/hooks.json if present, else null>",
+      >   "existing_config": "<path to zie-framework/.config if present, else null>",
+      >   "migration_candidates": {
+      >     "specs":      ["<relative path>"],
+      >     "plans":      ["<relative path>"],
+      >     "decisions":  ["<relative path>"],
+      >     "backlog":    ["<relative path>"]
+      >   }
+      > }
+      >
+      > For migration_candidates: include files matching these patterns (excluding
+      > anything already inside zie-framework/):
+      >   specs:     **/specs/*.md, **/spec/*.md
+      >   plans:     **/plans/*.md, **/plan/*.md
+      >   decisions: **/decisions/*.md, **/adr/*.md, ADR-*.md (at project root)
+      >   backlog:   **/backlog/*.md
+      >
+      > For existing_hooks: check if hooks/hooks.json exists at project root.
+      > For existing_config: check if zie-framework/.config exists.
+      > If a field cannot be determined, use null for scalars or [] for arrays.
+      > ```
+
+      **Parse `scan_report`:**
+
+      ```python
+      # Attempt 1: bare JSON
+      scan_report = json.loads(agent_output.strip())
+
+      # Attempt 2 (if attempt 1 fails): extract first { to last }
+      start = agent_output.index("{")
+      end   = agent_output.rindex("}") + 1
+      scan_report = json.loads(agent_output[start:end])
+      ```
+
+      If both fail → warn "Scan failed — retrying or falling back to templates?"
+      and offer: retry or fall back to greenfield template path.
+      If agent times out → warn "Agent scan incomplete — retrying or falling back
+      to templates?" and offer the same two choices.
+
+   b. Draft the four knowledge files from `scan_report` fields:
+      - `zie-framework/PROJECT.md` ← `architecture_pattern`, `components`, `tech_stack`
+      - `zie-framework/project/architecture.md` ← `architecture_pattern`, `data_flow`, `active_areas`
+      - `zie-framework/project/components.md` ← `components`
+      - `zie-framework/project/context.md` ← `key_constraints` (unknowns marked TBD)
 
    c. Present all four drafts inline as markdown code blocks.
 
@@ -112,102 +143,59 @@ then re-run /zie-init."`
       ```
       Which section to revise? (project / architecture / components / context / all good)
       ```
-      - User replies `"project"` → re-run only PROJECT.md agent, re-present that section
-      - User replies `"architecture"` → re-run only architecture.md agent, re-present
-      - User replies `"components"` → re-run only components.md agent, re-present
-      - User replies `"context"` → re-run only context.md agent, re-present
-      - User replies `"all good"` or `"y"` or `"yes"` → exit loop, proceed to step 2e
+      - User replies `"project"` → re-draft only PROJECT.md, re-present
+      - User replies `"architecture"` → re-draft only architecture.md, re-present
+      - User replies `"components"` → re-draft only components.md, re-present
+      - User replies `"context"` → re-draft only context.md, re-present
+      - User replies `"all good"` or `"y"` or `"yes"` → exit loop, proceed to 2e
       - Unrecognized input → re-prompt (no crash, no iteration limit)
-      - User can loop multiple times revising different sections; other sections retain prior state
 
    e. Write all four files to disk.
 
-   f. Compute `knowledge_hash` (SHA-256):
-      1. Enumerate all directory paths recursively, excluding
-         `node_modules/`, `.git/`, `build/`, `dist/`, `.next/`,
-         `__pycache__/`, `coverage/`, `zie-framework/`
-      2. Sort paths lexicographically and join with `\n`
-      3. Append literal `\n---\n`
-      4. For each directory, compute `<path>:<file_count>`, sort, join
-         with `\n`
-      5. Append literal `\n---\n`
-      6. Append content of any found config files, sorted by filename:
-         `package.json`, `requirements.txt`, `pyproject.toml`,
-         `Cargo.toml`, `go.mod`
-      7. Feed full UTF-8 string into
-         `hashlib.sha256(s.encode()).hexdigest()`
-
-      Run as inline Python:
-
+   f. Compute `knowledge_hash` via:
       ```bash
       python3 hooks/knowledge-hash.py
       ```
 
-   g. Read current `zie-framework/.config`, merge in two new fields
-      (never remove existing fields), write back:
-
+   g. Read `zie-framework/.config` (if `existing_config` is non-null: read
+      and preserve all user-set keys; if null: create fresh). Merge in:
       ```json
-      {
-        "knowledge_hash": "<computed hex string>",
-        "knowledge_synced_at": "<YYYY-MM-DD>"
-      }
+      { "knowledge_hash": "<computed hex string>", "knowledge_synced_at": "<YYYY-MM-DD>" }
       ```
+      Write back. Never remove existing fields.
 
-   h. **Present migratable documentation** — parse `migratable_docs`
-      from the Explore agent report produced in step 2a:
+   h. **Present migration candidates** from `scan_report.migration_candidates`:
 
-      - If `migratable_docs` key is missing or all arrays are empty →
-        skip silently.
-      - If agent returned malformed JSON or omitted `migratable_docs` →
-        warn: "Could not detect migratable docs from agent report" then
-        skip (no error, continue to step 3).
-      - If agent timed out before completing → warn: "Agent scan
-        incomplete, skipping migration detection" then skip.
-      - Otherwise: map each path to its destination using the same
-        destination table as before:
+      - If `migration_candidates` key is missing or all arrays empty → skip silently.
+      - If agent returned malformed JSON → warn "Could not detect migratable
+        docs from agent report" then skip (continue to step 3).
+      - `existing_hooks`: if non-null → treat hooks installation as a merge
+        (preserve existing event handlers, add new ones); if null → fresh write.
 
-        | Source key | Destination |
-        | --- | --- |
-        | `specs` | `zie-framework/specs/` |
-        | `plans` | `zie-framework/plans/` |
-        | `decisions` | `zie-framework/decisions/` |
-        | `backlog` | `zie-framework/backlog/` |
+      Filter candidates: skip `README.md`, `CHANGELOG.md`, `LICENSE*`,
+      `CLAUDE.md`, `AGENTS.md`, files already inside `zie-framework/`.
+      Validate each path exists on disk before presenting.
 
-        Skip always: `README.md`, `CHANGELOG.md`, `LICENSE*`,
-        `CLAUDE.md`, `AGENTS.md`, files already inside
-        `zie-framework/`, and any `docs/` tree that contains
-        `index.md` or `_sidebar.md` at its root (public doc site).
+      | Source key | Destination |
+      | --- | --- |
+      | `specs` | `zie-framework/specs/` |
+      | `plans` | `zie-framework/plans/` |
+      | `decisions` | `zie-framework/decisions/` |
+      | `backlog` | `zie-framework/backlog/` |
 
-        Validate each reported path exists on disk before presenting
-        (graceful degradation for symlinks or stale agent results).
+      If candidates remain, print:
+      ```text
+      Found documentation that can be migrated into zie-framework/:
+        docs/specs/foo.md  →  zie-framework/specs/foo.md
+      Migrate these files? (yes / no / select)
+      ```
+      - `yes` → migrate all using `git mv`
+      - `no` → skip silently
+      - `select` → confirm each file individually (y/n per file)
 
-        If candidates remain after filtering, print:
+      If `git mv` fails → present error with retry option.
 
-        ```text
-        Found documentation that can be migrated into zie-framework/:
-
-          docs/specs/foo.md  →  zie-framework/specs/foo.md
-          docs/plans/bar.md  →  zie-framework/plans/bar.md
-
-        Migrate these files? (yes / no / select)
-        ```
-
-        - `yes` → migrate all using `git mv`
-        - `no` → skip silently
-        - `select` → confirm each file individually (y/n per file)
-
-        If `git mv` fails for a candidate (e.g. destination already
-        exists) → present error to user with retry option.
-
-        After migration, print the list of moved files.
-
-   i. Continue to step 3 (create zie-framework/ directory structure —
-      skip the four knowledge docs since they were already written).
-
-   **Failure handling:** If Agent scan fails or returns empty → warn
-   "Scan failed — retrying or falling back to templates?" and offer:
-   - Retry the scan
-   - Fall back to template path (same as greenfield)
+   i. Continue to step 3 (skip writing the four knowledge docs — already written).
 
 3. **Create `zie-framework/` structure** in project root:
 
