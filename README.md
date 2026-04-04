@@ -24,6 +24,9 @@ claude plugin install zierocode/zie-framework
 | `/retro` | 6 — Learn | Retrospective + ADRs + brain storage |
 | `/sprint` | Sprint | Batch all items: spec + plan + implement + release + retro |
 | `/fix` | Debug | Bug path — skip to systematic fix |
+| `/chore` | Maintenance | Maintenance task track — no spec required |
+| `/hotfix` | Emergency | Emergency fix track — ship without full pipeline |
+| `/spike` | Research | Time-boxed exploration in isolated sandbox |
 | `/audit` | Health | 9-dimension audit + external research → backlog |
 
 ## Skills
@@ -40,8 +43,9 @@ Skills are invoked automatically by commands as subagents — not called directl
 | `impl-reviewer` | Review implementation against spec and plan |
 | `verify` | Post-implementation verification gate |
 | `test-pyramid` | Test strategy advisor |
-| `retro-format` | Format retrospective findings as ADRs |
 | `debug` | Systematic bug diagnosis and fix path |
+| `load-context` | Load shared ADR and project context bundle |
+| `reviewer-context` | Load reviewer context for spec/plan/impl reviewer skills |
 | `zie-audit` | 9-dimension audit analysis (invoked by /audit) |
 | `docs-sync-check` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
 
