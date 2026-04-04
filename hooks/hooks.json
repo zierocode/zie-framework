@@ -47,7 +47,16 @@
   ],
   "SubagentStart": [
     {
-      "matcher": "Explore|Plan",
+      "matcher": "Explore",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-context.py\""
+        }
+      ]
+    },
+    {
+      "matcher": "Plan",
       "hooks": [
         {
           "type": "command",
