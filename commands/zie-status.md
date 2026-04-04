@@ -60,19 +60,20 @@ Knowledge hash:
    - Check `node_modules/.vitest/` or `.jest-cache/` last-run timestamp
    - If no cache dir → `? stale`
 
-6. **Compute release velocity** via Bash:
+6. **Compute release velocity** via a single Bash call:
 
    ```bash
-   git tag --sort=-version:refname | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' | head -6
+   git log --tags --simplify-by-decoration --pretty="%D|%ai" | \
+     grep -E 'tag: v?[0-9]+\.[0-9]+\.[0-9]+' | head -6
    ```
 
-   - Collect the last 6 semver tags (to compute 5 intervals)
-   - For each consecutive pair, compute `days = (date(tag[n]) - date(tag[n+1])).days`
-     using `git log -1 --format=%ai <tag>`
-   - If fewer than 2 semver tags found → set velocity string to
-     `"Velocity: not enough releases yet"`
-   - Otherwise → format as `"Velocity (last N): Xd, Yd, Zd, ..."` where N is the
-     number of intervals computed (up to 5)
+   Each output line contains ref decorations and ISO author-date separated by `|`.
+   Parse the first semver tag (`v?X.Y.Z`) and the date (`YYYY-MM-DD`) from each line.
+
+   - Collect up to 6 entries (to compute up to 5 intervals).
+   - For each consecutive pair, compute `days = (date[n] - date[n+1]).days`.
+   - Fewer than 2 entries → velocity string = `"Velocity: not enough releases yet"`.
+   - Otherwise → `"Velocity (last N): Xd, Yd, Zd, …"` where N = number of intervals (≤ 5).
 
 7. **พิมพ์สถานะ** โดยใช้ markdown format:
 

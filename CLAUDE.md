@@ -102,6 +102,14 @@ Optional keys in `zie-framework/.config` (JSON):
 | `auto_test_timeout_ms` | `30000` | `int` | Fallback subprocess timeout (ms) for `auto-test.py` when `auto_test_max_wait_s` is `0`. |
 | `compact_hint_threshold` | `0.8` | `float` | Usage fraction (0.0–1.0) at which the Stop hook prints the `/compact` hint. Set to `1.0` to disable. |
 
+## Hook Context Hints
+
+Static guidance strings removed from per-event `additionalContext` payloads (kept here for reference):
+
+- **failure-context.py** — Quick fix: run `make test-unit` to reproduce; check output above for root cause.
+- **sdlc-compact.py** — [zie-framework] SDLC state restored after context compaction.
+- **subagent-context.py** — (see zie-framework/project/context.md)
+
 ## Hook Error Handling Convention
 
 All hooks follow a two-tier pattern:

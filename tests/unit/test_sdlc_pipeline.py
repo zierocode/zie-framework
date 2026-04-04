@@ -96,6 +96,10 @@ class TestReviewerSkillsExist:
         assert os.path.exists(skill("impl-reviewer")), \
             "skills/impl-reviewer/SKILL.md must exist"
 
+    def test_reviewer_context_exists(self):
+        assert os.path.exists(skill("reviewer-context")), \
+            "skills/reviewer-context/SKILL.md must exist"
+
 
 class TestSkillsInvokeReviewers:
     def test_spec_design_invokes_spec_reviewer(self):
@@ -104,9 +108,13 @@ class TestSkillsInvokeReviewers:
             "spec-design skill must invoke spec-reviewer loop"
 
     def test_write_plan_invokes_plan_reviewer(self):
-        content = read("skills/write-plan/SKILL.md")
-        assert "plan-reviewer" in content, \
-            "write-plan skill must invoke plan-reviewer loop"
+        # Reviewer gate lives in zie-plan.md, NOT inside the skill
+        skill_content = read("skills/write-plan/SKILL.md")
+        assert "plan-reviewer" not in skill_content, \
+            "write-plan skill must NOT invoke plan-reviewer (reviewer gate belongs in zie-plan.md)"
+        command_content = read("commands/zie-plan.md")
+        assert "plan-reviewer" in command_content, \
+            "zie-plan.md must contain the plan-reviewer gate"
 
     def test_zie_implement_invokes_impl_reviewer(self):
         content = read("commands/zie-implement.md")

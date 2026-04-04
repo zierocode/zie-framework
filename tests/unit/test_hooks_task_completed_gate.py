@@ -65,7 +65,7 @@ class TestAdvisoryMode:
         make_lastfailed(tmp_path, {"tests/test_foo.py::test_bar": True})
         r = run_hook("Write design spec for feature X", cwd=tmp_path)
         assert r.returncode == 0
-        assert "advisory" in r.stdout.lower()
+        assert r.stdout.strip() == ""
 
     def test_plan_task_is_skipped(self, tmp_path):
         make_lastfailed(tmp_path, {"tests/test_foo.py::test_bar": True})

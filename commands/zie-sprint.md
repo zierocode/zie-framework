@@ -101,15 +101,8 @@ slugs = [arg for arg in ARGUMENTS.split() if not arg.startswith("--")]
 
 ## Load Context Bundle (Once Per Sprint)
 
-Before Phase 1 starts, load shared context that will be passed to every downstream step:
-
-1. Read all `zie-framework/decisions/*.md` → concatenate → `adrs_content`
-2. Read `zie-framework/project/context.md` → `context_content`
-3. Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")` (from utils)
-   - Returns `(True, adr_cache_path)` → save path
-   - Returns `(False, None)` → set `adr_cache_path = None`
-4. Bundle as `context_bundle = { adr_cache_path: <path or None>, adrs: adrs_content, context: context_content }`
-
+Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
+(reads `decisions/*.md` ADRs + `project/context.md`).
 This bundle is passed to every downstream agent/skill call.
 
 ## PHASE 1: SPEC ALL (Parallel)
@@ -122,10 +115,12 @@ Skip items that already have approved specs.
 For each item in needs_spec (parallel, max 4 agents):
   - TaskCreate subject="Spec <slug>"
   - Spawn Agent(subagent_type="general-purpose", run_in_background=True):
-    prompt: "Run spec + plan workflow. Slug: <slug>.
-    (1) Invoke /zie-spec <slug> --draft-plan
-    (2) Capture approved spec + plan from outputs
-    (3) Confirm both are approved before returning.
+    prompt: "Run spec + plan workflow for slug: <slug>.
+    (1) Skill(spec-design, '<slug> quick') — write the spec
+    (2) Skill(spec-reviewer, '<slug>') — review and approve spec
+    (3) Skill(write-plan, '<slug>') — write the implementation plan
+    (4) Skill(plan-reviewer, '<slug>') — review and approve plan
+    Confirm both spec and plan are approved before returning.
     Report: [spec-<slug>] ✓ or ❌ <issue>"
     context_bundle: <from Step 0>
 ```
@@ -136,11 +131,11 @@ Wait for all Phase 1 agents → collect results.
 - Each spec result: approved → mark in audit
 - Any failed → print error, halt sprint
 
-After Phase 1: reload ROADMAP (items moved from Next → Ready by --draft-plan).
+After Phase 1: reload ROADMAP (items moved from Next → Ready by skill chain).
 
 ## PHASE 2: PLAN ALL (Parallel)
 
-Items still needing plans (those not covered by Phase 1's --draft-plan).
+Items still needing plans (those not covered by Phase 1's skill chain).
 
 **Items to plan**: filter Ready items that have spec but no approved plan.
 

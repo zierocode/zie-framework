@@ -65,10 +65,10 @@ class TestArgumentIndexedDocs:
         assert "Completeness" in content or "fast path" in content.lower(), \
             "spec-design/SKILL.md must document the fast-path completeness check"
 
-    def test_write_plan_documents_plan_reviewer(self):
+    def test_write_plan_does_not_invoke_plan_reviewer(self):
         content = read_skill("write-plan")
-        assert "plan-reviewer" in content, \
-            "write-plan/SKILL.md must reference the plan-reviewer loop"
+        assert "plan-reviewer" not in content, \
+            "write-plan/SKILL.md must NOT reference the plan-reviewer loop (reviewer gate belongs in zie-plan.md)"
 
 
 class TestArgumentHintFrontmatter:
@@ -78,7 +78,6 @@ class TestArgumentHintFrontmatter:
         "impl-reviewer",
         "debug",
         "tdd-loop",
-        "retro-format",
         "test-pyramid",
     ]
 

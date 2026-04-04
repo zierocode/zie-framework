@@ -108,8 +108,9 @@ class TestIntentSdlcRoadmapCache:
             roadmap_content="## Now\n\n## Next\n",  # empty Now in disk file
         )
         sid = "test-cache-hit-unique-77z"
-        # Prime cache with an active task
-        write_roadmap_cache(sid, "## Now\n- [ ] cached-feature — implement\n\n## Next\n")
+        roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
+        # Prime cache with an active task (same mtime as disk)
+        write_roadmap_cache(sid, "## Now\n- [ ] cached-feature — implement\n\n## Next\n", roadmap_path)
         r = run_hook({"prompt": "implement the task"}, tmp_cwd=cwd, session_id=sid)
         assert r.returncode == 0
         assert r.stdout.strip() != ""

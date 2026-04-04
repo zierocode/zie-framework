@@ -19,8 +19,6 @@ from utils_roadmap import parse_roadmap_section_content, read_roadmap_cached
 
 # ── Intent detection constants ────────────────────────────────────────────────
 
-MAX_MESSAGE_LEN = 1000
-
 PATTERNS = {
     "init": [
         r"\binit\b", r"เริ่มต้น.*project", r"ตั้งค่า.*project",
@@ -247,8 +245,6 @@ try:
 
     if not message or len(message) < 3:
         sys.exit(0)
-    if len(message) > MAX_MESSAGE_LEN:
-        sys.exit(0)
     if message.startswith("---") or len(message) > 500:
         sys.exit(0)
     if message.startswith("/zie-"):
@@ -266,7 +262,7 @@ try:
     session_id = event.get("session_id", "default")
 
     # ── Early-exit guards ─────────────────────────────────────────────────────
-    if len(message.strip()) < 15:
+    if len(message) < 15:
         sys.exit(0)
 
     has_sdlc_keyword = any(
@@ -294,11 +290,10 @@ try:
             else:
                 intent_cmd = SUGGESTIONS[best]
 
-    # ── SDLC context (reads ROADMAP once via cache) ───────────────────────────
+    # ── SDLC context (session-cached — single disk read per 30s TTL) ──────────
     roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
     roadmap_content = read_roadmap_cached(roadmap_path, session_id)
     now_items = parse_roadmap_section_content(roadmap_content, "now")
-
     if now_items:
         raw_task = now_items[0]
         active_task = raw_task[:80]

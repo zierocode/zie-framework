@@ -546,10 +546,10 @@ class TestAdditionalContextInjection:
             f"Message format mismatch: {ctx!r}"
         )
 
-    # --- debounce does not suppress context ---
+    # --- debounce suppresses context (context only fires when tests actually run) ---
 
-    def test_context_emitted_even_when_debounced(self, tmp_path):
-        """Context injection fires before debounce check — hint always reaches Claude."""
+    def test_context_suppressed_when_debounced(self, tmp_path):
+        """Context injection is gated behind debounce — no duplicate hints on rapid edits."""
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest",
                                          "auto_test_debounce_ms": 999999})
         tests_dir = cwd / "tests" / "unit"
@@ -561,18 +561,13 @@ class TestAdditionalContextInjection:
         debounce.write_text("payments.py")
         changed = str(cwd / "src" / "payments.py")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
-        # Test run must be suppressed
+        # Both test run and context injection must be suppressed when debounced
         assert "[zie-framework] Tests" not in r.stdout
-        # But context must still be present
         ctx = parse_additional_context(r.stdout)
-        assert ctx is not None, (
-            f"Context missing when debounced — must be emitted before debounce check. "
-            f"stdout: {r.stdout!r}"
-        )
-        assert "test_payments.py" in ctx
+        assert ctx is None, f"Context should be absent when debounced, got: {r.stdout!r}"
 
-    def test_no_match_context_emitted_even_when_debounced(self, tmp_path):
-        """'write one' context also fires when debounced."""
+    def test_no_match_context_suppressed_when_debounced(self, tmp_path):
+        """'write one' context is also suppressed when debounced."""
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest",
                                          "auto_test_debounce_ms": 999999})
         (cwd / "tests").mkdir()
@@ -581,8 +576,7 @@ class TestAdditionalContextInjection:
         changed = str(cwd / "src" / "billing.py")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
         ctx = parse_additional_context(r.stdout)
-        assert ctx is not None
-        assert "write one" in ctx
+        assert ctx is None, f"Context should be absent when debounced, got: {r.stdout!r}"
 
     # --- no context on early exits ---
 

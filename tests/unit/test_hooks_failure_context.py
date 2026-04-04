@@ -70,12 +70,12 @@ class TestNormalFailure:
         data = json.loads(result.stdout)
         assert "Last commit:" in data["additionalContext"]
 
-    def test_additionalcontext_contains_quick_fix_hint(self, tmp_path):
+    def test_no_quick_fix_string(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         event = {"tool_name": "Edit"}
         result = run_hook(event, tmp_cwd=cwd)
         data = json.loads(result.stdout)
-        assert "make test-unit" in data["additionalContext"]
+        assert "Quick fix:" not in data["additionalContext"]
 
 
 class TestInterrupt:
@@ -189,7 +189,7 @@ class TestFailureContextRoadmapCache:
         # Disk: empty Now
         (zf / "ROADMAP.md").write_text("## Now\n\n## Next\n")
         sid = "test-failure-cache-unique-88z"
-        write_roadmap_cache(sid, "## Now\n- [ ] cached-failure-task\n\n## Next\n")
+        write_roadmap_cache(sid, "## Now\n- [ ] cached-failure-task\n\n## Next\n", zf / "ROADMAP.md")
         event = {"tool_name": "Bash", "session_id": sid}
         env = {**os.environ, "CLAUDE_CWD": str(tmp_path)}
         r = subprocess.run(

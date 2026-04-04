@@ -10,8 +10,8 @@ def read_status_command() -> str:
 class TestVelocityTracking:
     def test_git_tag_command_present(self):
         text = read_status_command()
-        assert "git tag --sort=-version:refname" in text, \
-            "zie-status.md must contain git tag command for velocity"
+        assert "git log --tags" in text or "git log --tags --simplify-by-decoration" in text, \
+            "zie-status.md must contain git log --tags command for velocity"
 
     def test_velocity_output_line_present(self):
         text = read_status_command()

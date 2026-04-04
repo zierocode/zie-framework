@@ -20,28 +20,26 @@ class TestDocsSyncCheckGeneralAgent:
                "subagent_type='zie-framework:docs-sync-check'" not in text, \
             "zie-retro must not reference zie-framework:docs-sync-check agent"
 
-    def test_release_uses_inline_bash_for_docs_sync(self):
-        """zie-release uses inline Bash (not Agent) for docs sync check."""
+    def test_release_uses_skill_for_docs_sync(self):
+        """zie-release uses Skill(zie-framework:docs-sync-check) for docs sync."""
         text = RELEASE_PATH.read_text()
-        assert "python3 -c" in text or "make docs-sync" in text, \
-            "zie-release must use inline Bash or make docs-sync for docs sync"
-        assert "Agent(" not in text, \
-            "zie-release must not use Agent() spawning for docs sync"
+        assert "docs-sync-check" in text, \
+            "zie-release must reference docs-sync-check"
 
-    def test_retro_uses_general_purpose_for_docs_sync(self):
-        """zie-retro uses general-purpose agent for docs sync."""
+    def test_retro_uses_skill_for_docs_sync(self):
+        """zie-retro uses Skill(zie-framework:docs-sync-check) for docs sync."""
         text = RETRO_PATH.read_text()
-        assert "general-purpose" in text, \
-            "zie-retro must use general-purpose agent"
+        assert "Skill(zie-framework:docs-sync-check)" in text, \
+            "zie-retro must use Skill(zie-framework:docs-sync-check)"
 
     def test_docs_sync_inline_instructions_in_release(self):
-        """zie-release agent has inline sync check instructions."""
+        """zie-release docs-sync references docs-sync-check skill."""
         text = RELEASE_PATH.read_text()
-        assert "CLAUDE.md" in text and "README.md" in text, \
-            "zie-release docs-sync agent must reference CLAUDE.md and README.md"
+        assert "docs-sync-check" in text, \
+            "zie-release must reference docs-sync-check"
 
     def test_docs_sync_inline_instructions_in_retro(self):
-        """zie-retro agent has inline sync check instructions."""
+        """zie-retro docs-sync references docs-sync-check skill."""
         text = RETRO_PATH.read_text()
-        assert "CLAUDE.md" in text and "README.md" in text, \
-            "zie-retro docs-sync agent must reference CLAUDE.md and README.md"
+        assert "docs-sync-check" in text, \
+            "zie-retro must reference docs-sync-check"

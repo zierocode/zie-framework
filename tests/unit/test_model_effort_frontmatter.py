@@ -36,7 +36,6 @@ EXPECTED = {
     "skills/verify/SKILL.md":        ("haiku",  "low"),
     "skills/tdd-loop/SKILL.md":      ("haiku",  "low"),
     "skills/test-pyramid/SKILL.md":  ("haiku",  "low"),
-    "skills/retro-format/SKILL.md":  ("haiku",  "low"),
     "skills/zie-audit/SKILL.md":         ("sonnet", "medium"),
     "skills/docs-sync-check/SKILL.md":  ("haiku",  "low"),
 }
@@ -156,7 +155,6 @@ class TestHaikuFiles:
         "skills/verify/SKILL.md",
         "skills/tdd-loop/SKILL.md",
         "skills/test-pyramid/SKILL.md",
-        "skills/retro-format/SKILL.md",
     ]
 
     def test_haiku_files_have_correct_model(self):

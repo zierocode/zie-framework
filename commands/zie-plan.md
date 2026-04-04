@@ -74,17 +74,8 @@ For each resolved slug (whether from args or from no-args selection):
 
 <!-- context-load: adrs + project context -->
 
-Before invoking any reviewer, load shared context once:
-
-1. Read all `zie-framework/decisions/*.md` → concatenate → `adrs_content`
-   (empty string if directory missing)
-2. Read `zie-framework/project/context.md` → `context_content`
-   (empty string if file missing)
-3. Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`:
-   - Returns `(True, adr_cache_path)` → save path
-   - Returns `(False, None)` → set `adr_cache_path = None`
-4. Bundle as `context_bundle = { adr_cache_path: <path or None>, adrs: adrs_content, context: context_content }`
-
+Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
+(calls `write_adr_cache`, bundles `adr_cache_path` + `decisions/` + `project/context.md`).
 Pass `context_bundle` to every reviewer invocation below.
 
 ## plan-reviewer gate (ทุก plan ต้องผ่าน)
@@ -170,11 +161,3 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
 → `/zie-implement` — เริ่ม implement feature ที่อนุมัติแล้ว
 → `/zie-status` — ดูภาพรวม
 
-## Notes
-
-- Plan files: `zie-framework/plans/YYYY-MM-DD-<slug>.md`
-- Spec match: exact glob `zie-framework/specs/*-<slug>-design.md`
-- Pending plan = no `approved` key in frontmatter
-- Approved plan = `approved: true` + `approved_at` in frontmatter
-- plan-reviewer runs automatically before every Zie approval prompt
-- Rejection path: re-draft (stays pending, re-runs reviewer) or drop (Next)

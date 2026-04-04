@@ -103,8 +103,9 @@ class TestSubagentContextHappyPath:
         ctx = parse_context(r)
         assert "[zie-framework]" in ctx
         assert "Active:" in ctx
-        assert "Task:" in ctx
         assert "ADRs:" in ctx
+        # Explore agents do NOT read plan files — Task: field omitted
+        assert "Task:" not in ctx
 
     def test_plan_agent_receives_context(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
@@ -123,8 +124,9 @@ class TestSubagentContextHappyPath:
     def test_first_incomplete_task_extracted(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
-        r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
+        r = run_hook({"agentType": "Plan"}, tmp_cwd=cwd)
         ctx = parse_context(r)
+        assert "Task:" in ctx
         assert "Step 1: Write failing tests (RED)" in ctx
 
     def test_adr_count_correct(self, tmp_path):
@@ -137,7 +139,7 @@ class TestSubagentContextHappyPath:
     def test_all_tasks_complete_message(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN_ALL_DONE,
                        context_md=SAMPLE_CONTEXT_MD)
-        r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
+        r = run_hook({"agentType": "Plan"}, tmp_cwd=cwd)
         ctx = parse_context(r)
         assert "all tasks complete" in ctx
 
@@ -154,6 +156,32 @@ class TestSubagentContextHappyPath:
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
         assert r.returncode == 0
+
+    def test_explore_agent_omits_task_field(self, tmp_path):
+        """Explore agents must not include Task: in their context payload."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
+                       context_md=SAMPLE_CONTEXT_MD)
+        r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
+        ctx = parse_context(r)
+        assert "Task:" not in ctx, "Explore agents must not emit Task: field"
+
+    def test_explore_agent_has_active_and_adrs(self, tmp_path):
+        """Explore agents must have Active: and ADRs: even without Task:."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
+                       context_md=SAMPLE_CONTEXT_MD)
+        r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
+        ctx = parse_context(r)
+        assert "Active:" in ctx
+        assert "ADRs:" in ctx
+
+    def test_plan_agent_includes_task_field(self, tmp_path):
+        """Plan agents read plan files and include Task: in context."""
+        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
+                       context_md=SAMPLE_CONTEXT_MD)
+        r = run_hook({"agentType": "Plan"}, tmp_cwd=cwd)
+        ctx = parse_context(r)
+        assert "Task:" in ctx
+        assert "Step 1: Write failing tests (RED)" in ctx
 
 
 # ── Agent-type filter ─────────────────────────────────────────────────────────
@@ -209,7 +237,7 @@ class TestSubagentContextMissingFiles:
 
     def test_no_plan_files_emits_task_unknown(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, context_md=SAMPLE_CONTEXT_MD)
-        r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
+        r = run_hook({"agentType": "Plan"}, tmp_cwd=cwd)
         ctx = parse_context(r)
         assert "Task: unknown" in ctx
 
@@ -323,10 +351,11 @@ class TestSubagentContextRoadmapCache:
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         # Disk: empty Now
-        (zf / "ROADMAP.md").write_text("## Now\n\n## Next\n")
+        roadmap_path = zf / "ROADMAP.md"
+        roadmap_path.write_text("## Now\n\n## Next\n")
         sid = "test-subagent-cache-unique-88z"
-        # Cache: active feature
-        write_roadmap_cache(sid, "## Now\n- [ ] cached-subagent-feature\n\n## Next\n")
+        # Cache: active feature (primed with same mtime as disk)
+        write_roadmap_cache(sid, "## Now\n- [ ] cached-subagent-feature\n\n## Next\n", roadmap_path)
         event = {"agentType": "Explore", "session_id": sid}
         env = {**os.environ, "CLAUDE_CWD": str(tmp_path), "ZIE_MEMORY_API_KEY": ""}
         hook = os.path.join(REPO_ROOT, "hooks", "subagent-context.py")

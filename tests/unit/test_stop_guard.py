@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 import sys
+import uuid
 from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -10,7 +11,8 @@ HOOK = os.path.join(REPO_ROOT, "hooks", "stop-guard.py")
 
 
 def run_hook(event: dict, cwd: str = "/tmp", env_overrides: dict = None):
-    env = {**os.environ, "CLAUDE_CWD": cwd}
+    # Unique session ID per invocation prevents session cache from bleeding across tests
+    env = {**os.environ, "CLAUDE_CWD": cwd, "CLAUDE_SESSION_ID": str(uuid.uuid4())}
     if env_overrides:
         env.update(env_overrides)
     return subprocess.run(

@@ -57,11 +57,6 @@ class TestInternalProcessSkillsFrontmatter:
         assert fm.get("user-invocable") is False, \
             "tdd-loop must have user-invocable: false"
 
-    def test_retro_format_user_invocable_false(self):
-        fm = read_frontmatter("retro-format")
-        assert fm.get("user-invocable") is False, \
-            "retro-format must have user-invocable: false"
-
     def test_test_pyramid_user_invocable_false(self):
         fm = read_frontmatter("test-pyramid")
         assert fm.get("user-invocable") is False, \
@@ -87,7 +82,7 @@ class TestPlanningSkillsFrontmatter:
 
 ALL_SKILLS = [
     "spec-reviewer", "plan-reviewer", "impl-reviewer",
-    "tdd-loop", "retro-format", "test-pyramid", "debug",
+    "tdd-loop", "test-pyramid", "debug",
     "spec-design", "write-plan", "verify",
 ]
 

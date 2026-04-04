@@ -8,16 +8,15 @@ CMD_DIR = REPO_ROOT / "commands"
 class TestAsyncSkillPatterns:
     """Test that long-running Skills are converted to Agent + background."""
 
-    def test_zie_retro_uses_agent_for_file_writing(self):
-        """zie-retro.md must use Agent + run_in_background for file-writing (ADRs, ROADMAP).
-        Text-processing steps are inlined; only file-writing uses background agents."""
+    def test_zie_retro_writes_adrs_inline(self):
+        """zie-retro.md must write ADRs inline (no agents, no run_in_background)."""
         text = (CMD_DIR / "zie-retro.md").read_text()
-        assert 'subagent_type="general-purpose"' in text or "general-purpose" in text, \
-            "zie-retro.md must use general-purpose agent for ADR/ROADMAP writing"
-        assert 'run_in_background' in text, \
-            "zie-retro.md must use run_in_background=True for file-writing agents"
-        assert "Write ADRs" in text or "Write ADR" in text, \
-            "zie-retro.md must have ADR-writing agent"
+        assert "Write" in text and "ADR" in text, \
+            "zie-retro.md must have inline Write for ADR files"
+        assert 'run_in_background' not in text, \
+            "zie-retro.md must NOT use run_in_background for ADR/ROADMAP writes"
+        assert "Agent(" not in text, \
+            "zie-retro.md ADR/ROADMAP section must not spawn agents"
 
     def test_zie_release_uses_background_execution(self):
         """zie-release.md must use inline Bash with run_in_background for parallel gates."""
@@ -43,10 +42,8 @@ class TestAsyncSkillPatterns:
     def test_fallback_handling_present(self):
         """Graceful degradation must be documented."""
         retro = (CMD_DIR / "zie-retro.md").read_text()
-        # Retro uses inline reasoning — no Agent() fallback needed for text-processing
-        # File-writing agents still have fallback documented
-        assert "Failure mode" in retro or "fallback" in retro.lower() or "skip" in retro, \
-            "zie-retro.md must document failure/skip behavior"
+        assert "fail" in retro.lower() or "error" in retro.lower() or "continue" in retro.lower(), \
+            "zie-retro.md must document error/failure/continue handling"
 
         release = (CMD_DIR / "zie-release.md").read_text()
         assert "docs-sync-check unavailable" in release, \

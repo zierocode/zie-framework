@@ -46,7 +46,7 @@ try:
     count += 1
     safe_write_persistent(counter_file, str(count))
 
-    # Only checkpoint every 5 edits
+    # Only call memory API every 5 edits
     CHECKPOINT_EVERY = 5
     if count % CHECKPOINT_EVERY != 0:
         sys.exit(0)
