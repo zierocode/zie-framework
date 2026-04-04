@@ -45,7 +45,6 @@ Skills are invoked automatically by commands as subagents — not called directl
 | `test-pyramid` | Test strategy advisor |
 | `debug` | Systematic bug diagnosis and fix path |
 | `load-context` | Load shared ADR and project context bundle |
-| `reviewer-context` | Load reviewer context for spec/plan/impl reviewer skills |
 | `zie-audit` | 9-dimension audit analysis (invoked by /audit) |
 | `docs-sync-check` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
 

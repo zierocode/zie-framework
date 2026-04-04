@@ -32,16 +32,6 @@ def test_load_context_fallback_documented():
     )
 
 
-def test_reviewer_context_reads_summary_first():
-    """reviewer-context must load ADR-000-summary.md before wildcard fallback."""
-    text = _read("skills/reviewer-context/SKILL.md")
-    assert "ADR-000-summary.md" in text, (
-        "skills/reviewer-context/SKILL.md must reference ADR-000-summary.md"
-    )
-    assert text.index("ADR-000-summary.md") < text.index("ADR-*.md"), (
-        "ADR-000-summary.md load must appear before ADR-*.md wildcard fallback in reviewer-context"
-    )
-
 
 def test_load_context_fast_path_documented():
     """load-context SKILL.md must have a fast-path guard for context_bundle."""
@@ -51,13 +41,6 @@ def test_load_context_fast_path_documented():
         "if context_bundle provided → return immediately"
     )
 
-
-def test_reviewer_context_fast_path_unconditional():
-    """reviewer-context SKILL.md must have unconditional fast-path when context_bundle present."""
-    text = _read("skills/reviewer-context/SKILL.md")
-    assert "context_bundle" in text and "unconditional" in text.lower(), (
-        "skills/reviewer-context/SKILL.md must have unconditional fast-path guard"
-    )
 
 
 def test_sprint_passes_context_bundle_to_implement():
