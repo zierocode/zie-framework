@@ -42,6 +42,7 @@
 <!-- MEDIUM -->
 
 <!-- LOW -->
+- [ ] UX Output Formatting and Progress Visibility — [backlog](backlog/ux-output-formatting-and-progress.md)
 - [ ] Workflow Enforcement and Escape Hatches — [backlog](backlog/workflow-enforcement-escape-hatches.md)
 - [ ] Smarter Framework Intelligence — [backlog](backlog/smarter-framework-intelligence.md)
 - [ ] Remove zie- prefix from command names — [backlog](backlog/remove-zie-prefix-from-command-names.md)
