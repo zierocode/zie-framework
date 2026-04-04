@@ -122,6 +122,25 @@ class TestHooksJsonSubagentStop:
         for key in ("SessionStart", "UserPromptSubmit", "PostToolUse", "PreToolUse", "Stop"):
             assert key in hooks, f"existing hook key missing: {key}"
 
+    def test_subagent_stop_has_matcher_note(self):
+        """SubagentStop entry must document why no matcher is used."""
+        data = self._load()
+        entry = data["hooks"]["SubagentStop"][0]
+        assert "_matcher_note" in entry, (
+            "SubagentStop entry must have _matcher_note documenting that matchers are unsupported"
+        )
+        assert "matcher" in entry["_matcher_note"].lower(), (
+            "_matcher_note must explain the matcher limitation"
+        )
+
+    def test_subagent_stop_project_guard_in_hook(self):
+        """subagent-stop.py must have a project guard (not rely on matcher)."""
+        hook_path = Path(HOOKS_JSON).parent / "subagent-stop.py"
+        text = hook_path.read_text()
+        assert "zie-framework" in text and ("is_dir" in text or "exists" in text), (
+            "subagent-stop.py must guard against non-zie-framework projects internally"
+        )
+
 
 class TestHooksJsonSessionLearnCleanup:
     """Test async→background fix for Stop hooks."""

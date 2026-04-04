@@ -151,6 +151,7 @@
   ],
   "SubagentStop": [
     {
+      "_matcher_note": "SubagentStop does not support matchers in Claude Code plugin spec — hook fires on every subagent completion in any project. Project guard (is_dir check) lives inside subagent-stop.py instead. Investigated 2026-04-04.",
       "hooks": [
         {
           "type": "command",
