@@ -8,7 +8,7 @@ effort: high
 
 # /sprint — Sprint Clear (Backlog → Ship → Retro)
 
-Run a complete sprint cycle: spec all items in parallel, plan all items in parallel, implement sequentially (WIP=1), batch release once, and run single sprint retro. Optimized for throughput and context efficiency.
+Run a complete sprint cycle: spec+plan all items concurrently (no cap), implement sequentially (WIP=1), batch release once, single retro. Delta-only progress during Phase 1; full table at phase end.
 
 ## ตรวจสอบก่อนเริ่ม
 
@@ -113,8 +113,7 @@ Skip items that already have approved specs.
 **Items to spec**: `needs_spec` (from Step 0).
 
 ```
-For each item in needs_spec (parallel, max 4 agents):
-  - TaskCreate subject="Spec <slug>"
+For each item in needs_spec (all launched concurrently — no cap):
   - Spawn Agent(subagent_type="general-purpose", run_in_background=True):
     prompt: "Run spec + plan workflow for slug: <slug>.
     (1) Skill(spec-design, '<slug> quick') — write the spec
@@ -126,7 +125,12 @@ For each item in needs_spec (parallel, max 4 agents):
     context_bundle: <from Step 0>
 ```
 
-Print: `"Phase 1: Speccing <N> items in parallel..."`
+Print: `"Phase 1: Speccing <N> items in parallel (all concurrent)..."`
+
+**Progress reporting (delta-only):** As each agent completes, print a single
+line: `[spec N/total] <slug> ✓` or `[spec N/total] <slug> ❌ <issue>`.
+Do NOT print a full tracker table on each completion — only print the full
+status table once, after all agents have finished (or after retry exhausted).
 
 Wait for all Phase 1 agents → collect results.
 - Each spec result: approved → mark in audit
