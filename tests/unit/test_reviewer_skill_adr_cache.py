@@ -34,3 +34,21 @@ def test_impl_reviewer_references_write_adr_cache():
 
 def test_impl_reviewer_references_adr_cache_path():
     assert "adr_cache_path" in _skill_text("impl-reviewer")
+
+
+def test_load_context_references_get_cached_adrs():
+    assert "get_cached_adrs" in _skill_text("load-context")
+
+
+def test_load_context_references_write_adr_cache():
+    assert "write_adr_cache" in _skill_text("load-context")
+
+
+def test_load_context_has_cache_miss_fallback():
+    text = _skill_text("load-context")
+    assert "Cache miss" in text or "cache miss" in text
+
+
+def test_load_context_has_cache_hit_skip():
+    text = _skill_text("load-context")
+    assert "Cache hit" in text or "cache hit" in text
