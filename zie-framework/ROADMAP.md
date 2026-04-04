@@ -10,9 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [x] lean-claudemd-trim-to-trigger-table — cut CLAUDE.md to <80 lines; move hook conventions to project docs
-- [x] lean-stop-guard-nudge-per-stop — session-gate git log subprocess in stop-guard; shlex.quote(slug)
-- [x] lean-load-context-triple-invoke — pass context_bundle down sprint→implement chain; eliminate triple load-context call
+<!-- Clear — all items released v1.19.0 -->
 
 ---
 
@@ -20,11 +18,10 @@
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
-<!-- Sprint10 Phase 1 complete: 45 items spec+plan approved 2026-04-04 -->
 
 <!-- CRITICAL -->
 
-<!-- HIGH -->
+<!-- HIGH (in-flight) -->
 - [x] lean-retro-git-log-quad-read — deduplicate 4 git log reads in retro.md → 1
 - [ ] lean-project-md-commands-stale — sync PROJECT.md + CLAUDE.md commands/skills tables (4 missing commands, 1 ghost + 2 missing skills)
 - [ ] lean-docs-sync-blind-to-project-md — extend docs-sync-check scope to verify PROJECT.md
@@ -34,43 +31,6 @@
 - [ ] sec-shell-injection-stop-guard-slug — shlex.quote(slug) in stop-guard.py:64 subprocess call
 - [ ] lean-dual-audit-pipeline — collapse /audit command + zie-audit skill into one canonical pipeline [Strategic]
 - [ ] lean-reviewer-context-chain-depth — reduce reviewer skill chain depth 3–4 hops → 1–2 [Strategic]
-
-<!-- MEDIUM -->
-- [x] lean-hotfix-model-overkill — /hotfix opus+high → sonnet+low (5-step mechanical track)
-- [x] model-release-effort-medium-to-low — /release haiku+medium → haiku+low
-- [x] model-retro-effort-medium-to-low — /retro sonnet+medium → sonnet+low
-- [x] model-impl-reviewer-effort-medium-to-low — impl-reviewer haiku+medium → haiku+low
-- [x] model-resync-sonnet-to-haiku — /resync sonnet+medium → haiku+medium
-- [x] model-init-sonnet-to-haiku — /init sonnet+medium → haiku+medium
-- [x] model-fix-effort-medium-to-low — /fix sonnet+medium → sonnet+low
-- [x] model-plan-effort-medium-to-low — /plan sonnet+medium → sonnet+low
-- [x] model-write-plan-effort-medium-to-low — write-plan skill sonnet+medium → sonnet+low
-- [x] model-debug-effort-medium-to-low — debug skill sonnet+medium → sonnet+low
-- [ ] lean-sprint-phase2-redundant — remove sprint Phase 2 (error-recovery-only masquerading as normal phase)
-- [ ] lean-retro-self-tuning-blocks-release — move self-tuning proposals to non-blocking advisory at retro end
-- [ ] lean-prompt-pass-through — suppress intent-sdlc injection for slash commands (extend early-exit to any /command)
-- [ ] lean-auto-test-context-before-debounce — move additionalContext emit to after debounce + test-file check
-- [ ] lean-intent-sdlc-idle-state-suffix — suppress task:none|stage:idle suffix when idle + unambiguous intent
-- [ ] lean-chore-git-add-A — replace git add -A with targeted git add in /chore (CLAUDE.md hard rule violation)
-- [ ] lean-knowledge-hash-in-implement — remove knowledge-hash bang injection from /implement banner
-- [ ] lean-status-knowledge-hash-twice — deduplicate knowledge-hash computation in /status (runs twice)
-- [ ] lean-subagent-context-idle-overhead — early-exit when no active task; split Explore/Plan matchers
-- [ ] lean-implement-agent-mode-check — simplify /implement agent-mode gate to non-blocking advisory
-- [ ] lean-verify-check2-reruns-tests — add test_output guard to verify check 2 (matches check 1 pattern)
-- [ ] lean-intent-sdlc-missing-tracks — add /hotfix, /chore, /spike intent patterns to intent-sdlc.py
-- [ ] lean-subagent-stop-no-matcher — investigate SubagentStop matcher support; add if possible
-- [ ] lean-sec-prompt-injection-subagent — strengthen XML tag escaping in safety_check_agent.py
-- [ ] lean-mcp-zie-memory-unconfigured — add zie-memory availability check before brain calls in commands
-
-<!-- LOW -->
-- [ ] lean-fix-hotfix-triage-rule — add single-sentence triage rule to /fix and /hotfix descriptions
-- [ ] lean-spike-gitignore — add .gitignore guidance for spike-*/ directories in /spike
-- [ ] lean-observability-health-command — add Framework Health section to /status output
-- [ ] lean-write-plan-duplicate-conflict-check — remove duplicate file conflict check prose in write-plan
-- [ ] lean-plan-reviewer-n-squared — replace N² pair check with O(N) file-map heuristic in plan-reviewer
-- [ ] lean-notification-log-double-guard — remove redundant type guard in notification-log.py
-- [ ] lean-dep-pinning-inconsistency — standardize version pinning strategy in requirements-dev.txt
-- [ ] lean-playwright-version-magic-constant — document PLAYWRIGHT_MIN_VERSION derivation (CVE reference)
 
 ---
 
@@ -83,6 +43,8 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint10-lean-quality-refactor-v1.19.0 — 45 items: model downsizing (10 items: /hotfix, /release, /retro, impl-reviewer, resync, init, fix, plan, write-plan, debug), lean refactoring (15 items: lean-sprint-phase2, lean-retro-self-tuning, lean-prompt-pass-through, lean-auto-test-context, lean-intent-sdlc-idle-state, lean-chore-git-add, lean-knowledge-hash, lean-status-knowledge-hash, lean-subagent-context-idle, lean-implement-agent-mode, lean-verify-check2, lean-intent-sdlc-missing-tracks, lean-subagent-stop-no-matcher, lean-sec-prompt-injection-subagent, lean-mcp-zie-memory), intent detection patterns (hotfix, chore, spike), docs-sync (README sync), quality features (5 items: lean-fix-hotfix-triage, lean-spike-gitignore, lean-observability-health-command, lean-write-plan-duplicate-conflict-check, lean-plan-reviewer-n-squared, lean-notification-log-double-guard, lean-dep-pinning-inconsistency, lean-playwright-version-magic-constant), leadership tasks (3 items: lean-claudemd-trim, lean-stop-guard-nudge, lean-load-context-triple-invoke, lean-retro-git-log-quad) — 2294 unit + 1 skipped tests — v1.19.0 2026-04-04
 
 - [x] sprint9.1-efficiency-hotspot-v1.18.1 — 5 items: consolidate reviewer disk fallback, fix release config triple read, fix retro ROADMAP redundant reads, align load-context ADR cache protocol, fix sprint ROADMAP phase rebind — 2175 unit + 59 integration tests — v1.18.1 2026-04-04
 

@@ -1,5 +1,31 @@
 # Changelog
 
+## v1.19.0 — 2026-04-04
+
+### Features
+
+- **Intent pattern matching expansion** — Detect `/hotfix`, `/chore`, `/spike` commands automatically via keyword patterns in user input (emergency, production issue, maintenance, throwaway exploration)
+- **Framework Health section in /status** — New diagnostics block showing `safety_check_mode`, zie-memory status, playwright version, drift bypass count, and last 5 stop-failure log entries
+- **Model right-sizing wave** — 10 model/effort optimizations: `/hotfix`, `/release`, `/retro`, `impl-reviewer`, `/resync`, `/init`, `/fix`, `/plan`, `write-plan`, `debug` skills downgraded from Opus/high to Sonnet/low or Haiku (40-50% cost savings)
+
+### Changed
+
+- **Lean refactoring cycle** — 15 codebase improvements: collapse sprint Phase 2 into Phase 1 inline retry, inline context bundle loading in all reviewer skills, move retro self-tuning to non-blocking advisory, suppress intent-sdlc injection for all slash commands, suppress idle-state status suffix when unambiguous intent detected, skip additionalContext when no test file found, remove knowledge-hash banner from /implement, deduplicate knowledge-hash in /status, early-exit subagent-context on idle, simplify /implement agent-mode gate to advisory, add test_output guard to verify check 2, extend intent patterns to all active commands, document SubagentStop matcher limitation, enhance XML/bidi injection escaping in safety-check-agent, add zie-memory guard to brain calls
+- **Security hardening** — Escape opening XML tags and strip Unicode bidirectional overrides in safety-check-agent prompt injection shield; add > < | newline guards to confirm-wrap; quote subprocess slug argument in stop-guard
+- **Dependency pinning strategy** — Standardize requirements-dev.txt to compatible-release (`~=X.Y.Z`) for all 6 packages, replacing inconsistent mix of `>=` and `==` pinning; enables Dependabot auto-merge for minor/patch bumps
+- **Documentation sync** — README.md synced with current commands table (add `/chore`, `/hotfix`, `/spike`); skills table updated to reflect `load-context` and `reviewer-context`, remove stale `retro-format`
+
+### Fixed
+
+- **Plan reviewer performance** — Replace O(N²) pair-wise file conflict check with O(N) file→tasks map heuristic; now detects all conflicts in single linear scan
+- **Code quality removals** — Remove redundant duplicate paragraph in write-plan skill (file conflict guidance stated twice); simplify notification-log by removing redundant inner type guard (outer guard + hooks.json matcher sufficient)
+- **Command documentation** — Add triage rule to `/fix` and `/hotfix` descriptions (clarify when to use each); add `.gitignore` guidance to `/spike` for `spike-*/` directories; document CVE-2025-59288 derivation for Playwright version constant
+
+### Tests
+
+- 2294 unit tests pass; 1 test skipped (expected behavior); 45 items spec'd + plan'd + implement'd; full release gate verification (unit, integration, e2e, visual checks) — all gates pass
+- 8 new structural test files added: docs pinning, skill dedup, status framework health, command triage rules
+
 ## v1.18.1 — 2026-04-04
 
 ### Changed
