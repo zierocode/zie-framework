@@ -8,18 +8,16 @@ CMD_DIR = REPO_ROOT / "commands"
 class TestAsyncSkillPatterns:
     """Test that long-running Skills are converted to Agent + background."""
 
-    def test_zie_retro_uses_agent_background(self):
-        """zie-retro.md must use Agent + run_in_background for retro and docs-sync.
-        Uses general-purpose agent (not plugin-specific) per agentic-pipeline-v2."""
+    def test_zie_retro_uses_agent_for_file_writing(self):
+        """zie-retro.md must use Agent + run_in_background for file-writing (ADRs, ROADMAP).
+        Text-processing steps are inlined; only file-writing uses background agents."""
         text = (CMD_DIR / "zie-retro.md").read_text()
-        # Must use general-purpose agent (plugin-specific agents require plugin reload)
-        assert 'subagent_type="general-purpose"' in text or \
-               "general-purpose" in text, \
-            "zie-retro.md must use general-purpose agent (agentic-pipeline-v2)"
+        assert 'subagent_type="general-purpose"' in text or "general-purpose" in text, \
+            "zie-retro.md must use general-purpose agent for ADR/ROADMAP writing"
         assert 'run_in_background' in text, \
-            "zie-retro.md must use run_in_background=true"
-        assert "TaskCreate" in text, \
-            "zie-retro.md must use TaskCreate for progress tracking"
+            "zie-retro.md must use run_in_background=True for file-writing agents"
+        assert "Write ADRs" in text or "Write ADR" in text, \
+            "zie-retro.md must have ADR-writing agent"
 
     def test_zie_release_uses_background_execution(self):
         """zie-release.md must use inline Bash with run_in_background for parallel gates."""
@@ -42,11 +40,13 @@ class TestAsyncSkillPatterns:
         assert 'Skill(zie-framework:verify)' in text, \
             "zie-implement.md must still call Skill(zie-framework:verify) inline"
 
-    def test_fallback_comments_present(self):
-        """Fallback comments must be present for graceful degradation."""
+    def test_fallback_handling_present(self):
+        """Graceful degradation must be documented."""
         retro = (CMD_DIR / "zie-retro.md").read_text()
-        assert "<!-- fallback:" in retro and "Skill(zie-framework:retro-format)" in retro, \
-            "zie-retro.md must have fallback comment for retro-format"
+        # Retro uses inline reasoning — no Agent() fallback needed for text-processing
+        # File-writing agents still have fallback documented
+        assert "Failure mode" in retro or "fallback" in retro.lower() or "skip" in retro, \
+            "zie-retro.md must document failure/skip behavior"
 
         release = (CMD_DIR / "zie-release.md").read_text()
         assert "docs-sync-check unavailable" in release, \

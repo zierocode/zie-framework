@@ -13,6 +13,7 @@
 - [x] truncate-auto-test-output
 - [x] intent-sdlc-early-exit
 - [x] release-inline-gates
+- [x] retro-inline-format
 
 ---
 

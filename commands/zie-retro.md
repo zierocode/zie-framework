@@ -52,35 +52,38 @@ Build compact JSON bundle for retro-format fork:
 }
 ```
 
-### Invoke Background Agents (concurrent)
+### รูปแบบ retrospective (inline)
 
-Invoke both simultaneously — `run_in_background=true`:
+1. **Format retrospective inline.** Using `compact_json` from the context above, structure output as five sections:
+   - **สิ่งที่ Ship ออกไป** — list shipped features/fixes with versions
+   - **สิ่งที่ทำงานได้ดี** — patterns, approaches, tools that saved time (only worth repeating)
+   - **สิ่งที่เจ็บปวด** — friction points, unexpected complexity, slowdowns (specific, not vague)
+   - **การตัดสินใจสำคัญ** — decisions with lasting consequences; each: what → why → consequence (candidates for ADRs)
+   - **Pattern ที่ควรจำ** — reusable techniques worth storing in brain as P1/P2 memories
 
-```python
-TaskCreate(subject="Format retrospective summary", activeForm="Formatting retro summary")
-TaskCreate(subject="Check docs sync", activeForm="Checking docs sync")
-```
+   Print the five sections immediately after formatting. Candidates for ADRs (decisions with lasting consequences) are passed to the ADR writer agent below.
 
-**Docs-sync skip:** if `git log -1 --format="%s"` starts with `release:` → skip docs-sync agent (just ran during release), print `"Docs-sync: skipped (ran during release)"`. Otherwise spawn normally.
+2. **Check docs sync inline.**
+   Skip guard: if `git log -1 --format="%s"` starts with `release:` → print `"Docs-sync: skipped (ran during release)"` and skip the rest of this block.
 
-**Invoke Agents:**
-1. `Agent(subagent_type="general-purpose", run_in_background=True, prompt="Format retrospective summary. You are a retro format assistant. Given compact_json: {compact_json}. Structure output as five sections: (1) สิ่งที่ Ship ออกไป — list shipped features/fixes; (2) สิ่งที่ทำงานได้ดี — what worked well; (3) สิ่งที่เจ็บปวด — pain points; (4) การตัดสินใจสำคัญ — key decisions with lasting consequences; (5) Pattern ที่ควรจำ — reusable techniques. ADR format: Status, Context, Decision, Consequences. Return full five-section retro text.")`
-2. `Agent(subagent_type="general-purpose", run_in_background=True, prompt="Check docs sync for changed files: {changed_files}. Scan zie-framework/commands/*.md (extract /zie-* command names), zie-framework/skills/*/*.md (extract skill names), zie-framework/hooks/*.py (extract hook events). Check CLAUDE.md Development Commands section lists all commands. Check README.md skills table lists all skills. Return JSON: { 'in_sync': bool, 'missing_from_docs': [...], 'extra_in_docs': [...], 'details': str }")`
+   Otherwise, run inline:
+   1. Glob `zie-framework/commands/*.md` → extract base names (strip `.md`) → command names
+   2. Glob `zie-framework/skills/*/SKILL.md` → extract parent directory names → skill names
+   3. Glob `zie-framework/hooks/*.py` → extract base names (exclude utils.py) → hook names
+   4. Read `CLAUDE.md` — check Development Commands section lists all commands/skills
+   5. Read `README.md` — check commands/skills tables list all commands/skills
+   6. Compare:
+      - `missing_from_docs` = on disk but not in docs
+      - `extra_in_docs` = in docs but not on disk
+   7. Print verdict:
+      - If in sync: `"CLAUDE.md in sync | README.md in sync"`
+      - If stale: update `CLAUDE.md` and/or `README.md` inline (Read/Edit/Write each), print `"Updated CLAUDE.md: added <X>, removed <Y>"` / `"Updated README.md: added <X>, removed <Y>"`
 
-Print: "Running retro-format and docs-sync-check in background. Use /tasks to see progress."
-Wait for both → **TaskUpdate** completed.
+### รวมผลลัพธ์
 
-<!-- fallback: if Agent unavailable, call Skill(zie-framework:retro-format) and Skill(zie-framework:docs-sync-check) inline -->
-
-### รวมผลลัพธ์ forks
-
-- **retro-format result** → print the five structured retro sections.
-- **docs-sync-check result** → if `claude_md_stale=true`: update `CLAUDE.md` now
-  and print `"Updated CLAUDE.md: added <X>, removed <Y>"`. If `readme_stale=true`:
-  update `README.md` and print `"Updated README.md: added <X>, removed <Y>"`.
-  If both in sync → print "CLAUDE.md in sync | README.md in sync".
-- If either fork returned an error → print the error and continue.
-  Retro is not blocked by fork failures.
+- Five retro sections already printed above.
+- Docs-sync verdict already printed above.
+- If any step returned an error → print the error and continue. Retro is not blocked by inline step failures.
 
 - ถ้า `zie_memory_enabled=true`: Call `mcp__plugin_zie-memory_zie-memory__remember`
   with `"Project snapshot: <version>. Components changed: <list>. Decisions: <new ADR slugs>."`
