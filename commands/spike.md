@@ -42,9 +42,3 @@ and does not write to ROADMAP or produce a shippable artifact.
    Next: /backlog "<slug>" to promote, or discard spike-<slug>/ if abandoned.
    ```
 
-## Notes
-
-- Spike does not write to ROADMAP, spec, or plan files.
-- `spike-<slug>/` directory is the only output.
-- No drift log entry needed — spikes are exploratory, not pipeline bypasses.
-- Promote findings via `/backlog` if the spike validates an approach.

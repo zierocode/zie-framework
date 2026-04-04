@@ -27,8 +27,9 @@ Return immediately. Skip all disk reads below.
    - Call `get_cached_adrs(session_id, "zie-framework/decisions/")`.
      - Cache hit → use as `adrs_content`.
      - Cache miss → load from disk:
-       - If `ADR-000-summary.md` exists → read first.
-       - Read remaining `decisions/ADR-*.md` files; concatenate → `adrs_content`.
+       - Read `decisions/ADR-000-summary.md` → `adrs_content`.
+       - If `ADR-000-summary.md` missing → fall back: read all `decisions/ADR-*.md`;
+         emit `[zie-framework] ADR summary missing — using full load` to stderr.
        - Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`.
    - Empty or missing `decisions/` → `adrs_content = "No ADRs found"`.
 

@@ -12,6 +12,23 @@ def _read(rel: str) -> str:
     return (REPO_ROOT / rel).read_text()
 
 
+import pytest
+
+
+@pytest.mark.parametrize("skill", ["spec-reviewer", "plan-reviewer", "impl-reviewer"])
+def test_reviewer_disk_fallback_summary_before_wildcard(skill):
+    """Reviewer Phase 1 disk fallback must load ADR-000-summary.md before any wildcard load."""
+    text = _read(f"skills/{skill}/SKILL.md")
+    assert "ADR-000-summary.md" in text, (
+        f"skills/{skill}/SKILL.md must reference ADR-000-summary.md"
+    )
+    adr_summary_pos = text.index("ADR-000-summary.md")
+    wildcard_pos = text.index("decisions/*.md") if "decisions/*.md" in text else len(text)
+    assert adr_summary_pos < wildcard_pos, (
+        f"skills/{skill}/SKILL.md: ADR-000-summary.md must appear before decisions/*.md wildcard"
+    )
+
+
 def test_spec_reviewer_no_skill_reviewer_context_call():
     """spec-reviewer must NOT invoke Skill(reviewer-context) — use inline context load."""
     text = _read("skills/spec-reviewer/SKILL.md")

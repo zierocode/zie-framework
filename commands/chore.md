@@ -38,9 +38,3 @@ cleanup, tooling fixes. No spec required. A Done entry is added when complete.
    Next: /status
    ```
 
-## Notes
-
-- No spec, no plan, no drift log required.
-- Chores go directly to Done — they bypass the Now/Ready lanes.
-- If the chore reveals a real feature need → `/backlog` to capture it.
-- Keep chores small. If it needs a spec → use the standard pipeline instead.

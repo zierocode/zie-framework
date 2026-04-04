@@ -383,8 +383,3 @@ then re-run /init."`
    Migration complete: <N> files moved to zie-framework/specs|plans|decisions/
    ```
 
-## Notes
-
-- Safe to re-run (idempotent) — never overwrites existing files, only
-  creates missing ones
-- If `zie-framework/` already exists, skip creation and print "already initialized"

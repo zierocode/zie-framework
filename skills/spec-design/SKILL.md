@@ -143,8 +143,3 @@ are always asked regardless of completeness.
    Next: Run /plan <slug> to draft the implementation plan.
    ```
 
-## Notes
-
-- One question at a time — don't overwhelm
-- YAGNI: remove unnecessary features from all designs
-- Never skip to implementation without an approved spec

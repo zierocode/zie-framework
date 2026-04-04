@@ -90,10 +90,5 @@ problem and motivation. Output lives in `zie-framework/backlog/`.
 
 ## ขั้นตอนถัดไป
 
-→ `/spec <slug>` — เมื่อพร้อมเขียน spec
-→ `/status` — ดูภาพรวม backlog
+→ `/spec <slug>`
 
-## Notes
-
-- Can be run with argument: `/backlog "add CSV export"` to skip prompt
-- Safe to re-run — will warn if slug already exists

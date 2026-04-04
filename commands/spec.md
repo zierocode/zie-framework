@@ -106,17 +106,3 @@ clean_args = " ".join(arg for arg in ARGUMENTS.split() if arg != "--draft-plan")
    Next: /plan <slug> to create the implementation plan.
    ```
 
-## ขั้นตอนถัดไป
-
-→ `/plan <slug>` — เมื่อ spec approved แล้ว
-→ `/retro` — ถ้า spec session ยาวและมี learnings ที่ควรบันทึก
-→ `/status` — ดูภาพรวม
-
-## Notes
-
-- Always spec-first — never skips to plan without an approved spec
-- Quick mode: `/spec "idea"` skips backlog file, goes straight to spec-design
-- Quick mode adds item to ROADMAP Next with spec link (no backlog file created)
-- spec-design writes `approved: true` frontmatter after reviewer passes
-- /plan checks this frontmatter — draft specs do not proceed to plan
-- spec-design does NOT auto-invoke write-plan (commands are control plane)

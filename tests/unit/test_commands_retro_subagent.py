@@ -26,3 +26,9 @@ class TestRetroSubagentSection:
         assert "No subagent activity" in src, (
             "zie-retro.md must document the 'No subagent activity' fallback message"
         )
+
+    def test_retro_updates_adr_summary(self):
+        src = self._src()
+        assert "ADR-000-summary.md" in src, (
+            "zie-retro.md must include a step to update ADR-000-summary.md after new ADRs are written"
+        )

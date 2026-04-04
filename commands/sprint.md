@@ -234,16 +234,3 @@ Next: /backlog to queue new items.
 - **Phase 3 fails**: halt before merge, print error. User can debug and retry release manually.
 - **Phase 4 fails**: non-blocking, print warning. Retro can be run manually later.
 
-## ขั้นตอนถัดไป
-
-→ Next sprint: `/backlog` to capture new ideas.
-
-## Notes
-
-- Sprint operates on **all Next + Ready items** by default (no args needed).
-- Specify subset with: `/sprint slug1 slug2 slug3`
-- `--dry-run` shows plan without executing.
-- `--skip-ready` skips items already in Ready lane (goes straight to impl phase).
-- `--version=X.Y.Z` overrides auto-suggested version bump.
-- Context bundle loaded once, reused everywhere — O(1) context loads.
-- Dependencies respected: items with `<!-- depends_on: slug-N -->` serialize automatically.

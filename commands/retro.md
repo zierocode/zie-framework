@@ -87,6 +87,13 @@ Build compact JSON bundle:
 - Print `[ADR N/total]` after each file.
 - On error: print `[zie-framework] retro: ADR write failed — <error>` and continue.
 
+**Update ADR-000-summary.md** — if any new ADR files were written this session:
+- For each new `ADR-<NNN>-<slug>.md` just written: append 1-line entry to
+  `zie-framework/decisions/ADR-000-summary.md`:
+  `| ADR-NNN | Title | One-sentence decision | Accepted |`
+- If `ADR-000-summary.md` missing → create it with table header then append entries.
+- Skip if no new ADRs were written.
+
 **Update ROADMAP Done inline.**
 - Use `roadmap_raw` (bound at pre-flight — no re-read needed).
 - Move shipped items from `shipped_items` to the `## Done` section with date and version tag.

@@ -158,6 +158,6 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
 
 ## ขั้นตอนถัดไป
 
-→ `/implement` — เริ่ม implement feature ที่อนุมัติแล้ว
-→ `/status` — ดูภาพรวม
+→ `/implement`
+
 

@@ -82,12 +82,5 @@ for bugs and regressions. **Use for non-urgent bugs. Does not trigger an immedia
 
 ## ขั้นตอนถัดไป
 
-→ `/release` — เมื่อ fix เสร็จและ test ผ่านหมด
-→ `/backlog` — ถ้า bug reveal design problem ที่ต้องแก้อย่างถูกต้อง
+→ `/release`
 
-## Notes
-
-- Always write the regression test BEFORE fixing — non-negotiable
-- If the bug reveals a design problem → after fixing, run /backlog to
-  capture and /spec to plan a proper solution
-- Never use /fix for features — use /implement

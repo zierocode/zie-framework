@@ -2,16 +2,7 @@
 
 Solo developer SDLC framework plugin for Claude Code.
 
-## Tech Stack
-
-- **Runtime**: Python 3.x (all hooks)
-- **Plugin format**: Claude Code plugin (`.claude-plugin/plugin.json` +
-  `hooks/hooks.json`)
-- **Commands**: Markdown files in `commands/` (slash commands)
-- **Skills**: Markdown files in `skills/` (invoked via Skill tool)
-- **Templates**: Reusable file templates in `templates/`
-- **Optional**: `playwright` (if `playwright_enabled: true`),
-  `zie-memory` API (if `zie_memory_enabled: true`)
+<!-- STABLE: do not move below dynamic section -->
 
 ## Project Structure
 
@@ -22,24 +13,6 @@ hooks/*.py / commands/*.md / skills/*/SKILL.md / templates/
 zie-framework/              # SDLC state (this repo uses itself)
   ├── PROJECT.md + project/  # knowledge hub + spokes
   └── ROADMAP.md + specs/ + plans/ + decisions/
-```
-
-## Development Commands
-
-```bash
-make test-fast        # fast TDD feedback — changed files + last-failed (use during RED/GREEN)
-make lint             # run ruff lint check (fast, no I/O)
-make lint-fix         # auto-fix safe ruff violations
-make test-ci          # full suite with coverage gate — use before commit and in CI
-make test-unit        # run unit tests with subprocess coverage measurement
-make test-int         # run integration tests (require live Claude session — not in CI)
-make test             # full test suite (unit + integration + md lint)
-make bump NEW=x.y.z   # bump VERSION + plugin.json + PROJECT.md
-make sync-version     # re-sync all version files to current VERSION
-make push m="msg"     # commit + push to dev
-make start            # open Claude with local plugin (ENV=dev)
-make setup            # install git hooks + python deps (run once)
-make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 files)
 ```
 
 ## Key Rules
@@ -76,3 +49,34 @@ make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 fi
 | `/status` | Show current SDLC state |
 | `/audit` | Project audit across 9 dimensions |
 | `/resync` | Rescan codebase + update knowledge docs |
+
+## Development Commands
+
+```bash
+make test-fast        # fast TDD feedback — changed files + last-failed (use during RED/GREEN)
+make lint             # run ruff lint check (fast, no I/O)
+make lint-fix         # auto-fix safe ruff violations
+make test-ci          # full suite with coverage gate — use before commit and in CI
+make test-unit        # run unit tests with subprocess coverage measurement
+make test-int         # run integration tests (require live Claude session — not in CI)
+make test             # full test suite (unit + integration + md lint)
+make bump NEW=x.y.z   # bump VERSION + plugin.json + PROJECT.md
+make sync-version     # re-sync all version files to current VERSION
+make push m="msg"     # commit + push to dev
+make start            # open Claude with local plugin (ENV=dev)
+make setup            # install git hooks + python deps (run once)
+make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 files)
+```
+
+<!-- DYNAMIC: version-specific, ok to change -->
+
+## Tech Stack
+
+- **Runtime**: Python 3.x (all hooks)
+- **Plugin format**: Claude Code plugin (`.claude-plugin/plugin.json` +
+  `hooks/hooks.json`)
+- **Commands**: Markdown files in `commands/` (slash commands)
+- **Skills**: Markdown files in `skills/` (invoked via Skill tool)
+- **Templates**: Reusable file templates in `templates/`
+- **Optional**: `playwright` (if `playwright_enabled: true`),
+  `zie-memory` API (if `zie_memory_enabled: true`)

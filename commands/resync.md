@@ -113,12 +113,3 @@ All updates require user confirmation before writing.
    Run /status to verify sync status.
    ```
 
-## ขั้นตอนถัดไป
-
-→ `/status` — ยืนยันว่า Knowledge แสดง ✓ synced
-
-## Notes
-
-- Idempotent — safe to run multiple times
-- All doc updates require user 'yes' — never auto-overwrites
-- Does not change ROADMAP, Makefile, VERSION, or CLAUDE.md

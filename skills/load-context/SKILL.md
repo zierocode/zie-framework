@@ -26,8 +26,9 @@ invocation → return `context_bundle` immediately. Skip all steps below.
   - Cache miss → proceed to Step 1.
 
 **Step 1: ADRs (disk fallback — cache miss only)**
-- Read all `zie-framework/decisions/*.md` → concatenate →
-  `adrs_content` (empty string if directory missing or empty).
+- Read `zie-framework/decisions/ADR-000-summary.md` → `adrs_content`.
+- If `ADR-000-summary.md` missing → fall back: read all `decisions/ADR-*.md`;
+  emit `[zie-framework] ADR summary missing — using full load` to stderr.
 
 **Step 2: Cache write**
 - Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`:
@@ -48,7 +49,3 @@ invocation → return `context_bundle` immediately. Skip all steps below.
   }
   ```
 
-## Output
-
-`context_bundle` is available in the calling context. Pass it to every
-reviewer invocation to skip per-reviewer disk reads.
