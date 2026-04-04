@@ -321,9 +321,13 @@ try:
         parts.append(f"intent:{best} → {intent_cmd}")
     if guidance_msg:
         parts.append(guidance_msg)
-    parts.append(
-        f"task:{active_task} | stage:{stage} | next:{suggested_cmd} | tests:{test_status}"
-    )
+    # State suffix: omit when idle + no active task + unambiguous intent (score >= 2)
+    _best_score = scores.get(best, 0) if best else 0
+    _idle_unambiguous = (stage == "idle" and active_task == "none" and _best_score >= 2)
+    if not _idle_unambiguous:
+        parts.append(
+            f"task:{active_task} | stage:{stage} | next:{suggested_cmd} | tests:{test_status}"
+        )
     context = "[zie-framework] " + " | ".join(parts)
 
     print(json.dumps({"additionalContext": context}))
