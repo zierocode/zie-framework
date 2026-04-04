@@ -38,10 +38,15 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
+- [ ] Consolidate Reviewer Disk Fallback — [backlog](backlog/consolidate-reviewer-disk-fallback.md)
 
 <!-- MEDIUM -->
+- [ ] Fix Release Config Triple Read — [backlog](backlog/fix-release-config-triple-read.md)
+- [ ] Fix Retro ROADMAP Redundant Reads — [backlog](backlog/fix-retro-roadmap-redundant-reads.md)
+- [ ] Align load-context ADR Cache Protocol — [backlog](backlog/align-load-context-adr-cache-protocol.md)
 
 <!-- LOW -->
+- [ ] Fix Sprint ROADMAP Phase Rebind — [backlog](backlog/fix-sprint-roadmap-phase-rebind.md)
 
 ---
 
