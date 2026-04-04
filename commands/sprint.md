@@ -18,21 +18,16 @@ Run a complete sprint cycle: spec+plan all items concurrently (no cap), implemen
 4. Check current branch is `dev`.
 5. Verify no uncommitted changes (warn if found).
 
-## Parse Arguments
+## Arguments
 
-```python
-dry_run = "--dry-run" in ARGUMENTS
-skip_ready = "--skip-ready" in ARGUMENTS
-version_override = None
+| Flag / Positional | Description | Default |
+| --- | --- | --- |
+| `slugs` (positional) | Space-separated backlog slugs to process; omit to process all Next+Ready items | all items |
+| `--dry-run` | Print sprint audit table and stop — do not execute | off |
+| `--skip-ready` | Skip items already in Ready lane (spec+plan approved) | off |
+| `--version=X.Y.Z` | Override version bump for Phase 3 release | auto |
 
-# Extract --version=X.Y.Z
-for arg in ARGUMENTS.split():
-    if arg.startswith("--version="):
-        version_override = arg.split("=")[1]
-
-# Extract slugs (remaining args)
-slugs = [arg for arg in ARGUMENTS.split() if not arg.startswith("--")]
-```
+Flag handling is inline at each consuming step below.
 
 ## Step 0: AUDIT — Build Sprint Plan
 
@@ -80,7 +75,7 @@ slugs = [arg for arg in ARGUMENTS.split() if not arg.startswith("--")]
    ...
    ```
 
-6. **--dry-run branch**: if `dry_run=true` → print audit table and stop. Say "Run without --dry-run to execute."
+6. **--dry-run branch**: if `--dry-run` present → print audit table and stop. Say "Run without --dry-run to execute."
 
 7. **User confirmation**:
 

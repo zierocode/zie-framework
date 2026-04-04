@@ -14,7 +14,7 @@
 - [x] reviewer-context-dedup — [plan](plans/2026-04-04-reviewer-context-dedup.md)
 - [x] phase-prose-cleanup — [plan](plans/2026-04-04-phase-prose-cleanup.md)
 - [x] init-scan-prompt-extract — [plan](plans/2026-04-04-init-scan-prompt-extract.md)
-- [ ] argument-parsing-inline — [plan](plans/2026-04-04-argument-parsing-inline.md)
+- [x] argument-parsing-inline — [plan](plans/2026-04-04-argument-parsing-inline.md)
 
 ---
 

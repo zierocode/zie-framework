@@ -17,16 +17,9 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 
 ## Arguments
 
-| Flag | Description |
-| --- | --- |
-| `--draft-plan` | After spec is approved, auto-invoke `write-plan` and move plan to Ready if approved. Skips manual `/plan` step. |
-
-**Parse before step 1:**
-```python
-draft_plan = "--draft-plan" in ARGUMENTS
-clean_args = " ".join(arg for arg in ARGUMENTS.split() if arg != "--draft-plan")
-# Use clean_args for all slug/idea extraction below
-```
+| Flag | Description | Default |
+| --- | --- | --- |
+| `--draft-plan` | After spec is approved, auto-invoke `write-plan` and move plan to Ready if approved. Skips manual `/plan` step. | off |
 
 ## Steps
 
@@ -79,7 +72,7 @@ clean_args = " ".join(arg for arg in ARGUMENTS.split() if arg != "--draft-plan")
    git commit -m "spec: <slug>"
    ```
 
-4. **--draft-plan branch** (if `draft_plan=true`):
+4. **--draft-plan branch** (if `--draft-plan` present — remove flag from slug before processing):
 
    After spec commit, auto-invoke `Skill(zie-framework:write-plan)` with slug:
    - On plan APPROVED: write `approved: true` frontmatter, move ROADMAP Next → Ready, commit
