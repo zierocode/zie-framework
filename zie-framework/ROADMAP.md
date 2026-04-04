@@ -10,6 +10,8 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [x] truncate-auto-test-output
+
 ---
 
 ## Ready — Approved Plans
