@@ -96,12 +96,12 @@ class TestZieRetroInjections:
     def test_self_tuning_uses_git_log_raw_not_bash(self):
         """Self-tuning step must reference git_log_raw, not spawn a Bash git log call."""
         import re
-        start = self.content.find("Self-tuning proposals")
-        end = self.content.find("### Auto-commit", start)
+        # Non-blocking self-tuning section is at the end (after Suggest next)
+        start = self.content.find("Non-blocking — runs last")
         if start == -1:
             import pytest
-            pytest.skip("Self-tuning section not found")
-        section = self.content[start:end] if end != -1 else self.content[start:]
+            pytest.skip("Self-tuning non-blocking section not found")
+        section = self.content[start:]
         assert "git_log_raw" in section, (
             "Self-tuning step must reference git_log_raw (not spawn Bash git log)"
         )
