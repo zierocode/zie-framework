@@ -82,7 +82,7 @@
 
 - [x] audit-mcp-check — add MCP server audit to /zie-audit; warn about
   unused MCP servers that bloat context with tool definitions
-- [ ] proactive-compact-hint — in Stop/TaskCompleted hooks, check
+- [x] proactive-compact-hint — in Stop/TaskCompleted hooks, check
   context usage and suggest /compact if above threshold
 
 ---

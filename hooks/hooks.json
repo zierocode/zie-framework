@@ -123,6 +123,10 @@
         },
         {
           "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/compact-hint.py\""
+        },
+        {
+          "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-learn.py\"",
           "background": true
         },
