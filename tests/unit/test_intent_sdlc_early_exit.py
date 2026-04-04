@@ -197,3 +197,45 @@ class TestIdleStateSuffix:
         ctx = self._parse_context(r.stdout)
         assert ctx is not None
         assert "stage:" in ctx, f"State suffix must be present when ambiguous: {ctx!r}"
+
+
+class TestMissingTrackIntents:
+    """hotfix, chore, spike must be detectable from natural language."""
+
+    def _parse_context(self, stdout: str) -> str | None:
+        import json as _json
+        for line in stdout.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = _json.loads(line)
+                if "additionalContext" in obj:
+                    return obj["additionalContext"]
+            except Exception:
+                pass
+        return None
+
+    def test_emergency_detects_hotfix(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path)
+        r = run_hook("emergency fix needed for the production issue right now", tmp_cwd=cwd,
+                     session_id="test-hf-emergency")
+        ctx = self._parse_context(r.stdout)
+        assert ctx is not None, "Expected context for emergency message"
+        assert "/hotfix" in ctx, f"Expected /hotfix suggestion, got: {ctx!r}"
+
+    def test_explore_detects_spike(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path)
+        r = run_hook("let us explore and investigate this approach first as a prototype", tmp_cwd=cwd,
+                     session_id="test-spike-explore")
+        ctx = self._parse_context(r.stdout)
+        assert ctx is not None, "Expected context for explore message"
+        assert "/spike" in ctx, f"Expected /spike suggestion, got: {ctx!r}"
+
+    def test_maintenance_detects_chore(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path)
+        r = run_hook("housekeeping and maintenance tasks for the codebase cleanup", tmp_cwd=cwd,
+                     session_id="test-chore-maint")
+        ctx = self._parse_context(r.stdout)
+        assert ctx is not None, "Expected context for maintenance message"
+        assert "/chore" in ctx, f"Expected /chore suggestion, got: {ctx!r}"

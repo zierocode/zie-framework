@@ -70,6 +70,18 @@ PATTERNS = {
         r"\bstatus\b", r"ทำอะไรอยู่", r"where.*am.*i", r"progress",
         r"what.*next", r"ต่อไปทำ", r"ถัดไป", r"สถานะ",
     ],
+    "hotfix": [
+        r"\bhotfix\b", r"emergency", r"prod.*down", r"urgent.*fix",
+        r"critical.*fix", r"cannot wait", r"on.*fire", r"production.*issue",
+    ],
+    "chore": [
+        r"\bchore\b", r"bump.*version", r"update.*docs", r"housekeeping",
+        r"maintenance", r"cleanup", r"tidy.*up",
+    ],
+    "spike": [
+        r"\bspike\b", r"\bexplore\b", r"\binvestigate\b", r"\bresearch\b",
+        r"\bprototype\b", r"proof.*of.*concept", r"\bpoc\b", r"time.?box",
+    ],
 }
 
 COMPILED_PATTERNS = {
@@ -88,6 +100,9 @@ SUGGESTIONS = {
     "retro":     "/retro",
     "sprint":    "/sprint",
     "status":    "/status",
+    "hotfix":    "/hotfix",
+    "chore":     "/chore",
+    "spike":     "/spike",
 }
 
 # ── SDLC context constants ────────────────────────────────────────────────────
