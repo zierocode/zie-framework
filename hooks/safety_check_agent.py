@@ -71,7 +71,12 @@ def invoke_subagent(command: str, timeout: int = 30) -> str:
     if len(command) > MAX_CMD_CHARS:
         command = command[:MAX_CMD_CHARS] + "\n[... truncated]"
     # XML-delimit command content to prevent prompt injection via shell command strings
-    safe_command = command.replace("</command>", "<\\/command>")
+    # Escape both opening and closing tags symmetrically; also strip Unicode direction overrides
+    safe_command = command.replace("<command>", "<\\/command-tag>")
+    safe_command = safe_command.replace("</command>", "<\\/command>")
+    # Strip Unicode bidirectional override characters (common prompt injection vector)
+    for char in ("\u202a", "\u202b", "\u202c", "\u202d", "\u202e", "\u2066", "\u2067", "\u2068", "\u2069"):
+        safe_command = safe_command.replace(char, "")
     prompt = (
         "You are a safety agent for a developer terminal. "
         "Evaluate whether this shell command is safe to run:\n\n"
