@@ -269,6 +269,18 @@ except Exception:
 try:
     session_id = event.get("session_id", "default")
 
+    # ── Early-exit guards ─────────────────────────────────────────────────────
+    if len(message.strip()) < 15:
+        sys.exit(0)
+
+    has_sdlc_keyword = any(
+        p.search(message)
+        for compiled_pats in COMPILED_PATTERNS.values()
+        for p in compiled_pats
+    )
+    if not has_sdlc_keyword:
+        sys.exit(0)
+
     # ── Intent detection (no ROADMAP needed) ─────────────────────────────────
     intent_cmd = None
     best = None
@@ -309,7 +321,7 @@ try:
 
     # ── Positional guidance (only when no gate and no dominant intent) ────────
     guidance_msg = None
-    if gate_msg is None and not intent_cmd:
+    if gate_msg is None and (not intent_cmd or best == "status"):
         guidance_msg = _positional_guidance(roadmap_content, cwd, message)
 
     # ── Build combined context ────────────────────────────────────────────────
