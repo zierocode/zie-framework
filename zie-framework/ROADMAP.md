@@ -12,6 +12,7 @@
 
 - [x] preflight-consolidation — [plan](plans/2026-04-04-preflight-consolidation.md)
 - [x] reviewer-context-dedup — [plan](plans/2026-04-04-reviewer-context-dedup.md)
+- [ ] phase-prose-cleanup — [plan](plans/2026-04-04-phase-prose-cleanup.md)
 
 ---
 
@@ -20,7 +21,6 @@
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
 
-- [ ] phase-prose-cleanup — [plan](plans/2026-04-04-phase-prose-cleanup.md)
 - [ ] init-scan-prompt-extract — [plan](plans/2026-04-04-init-scan-prompt-extract.md)
 - [ ] argument-parsing-inline — [plan](plans/2026-04-04-argument-parsing-inline.md)
 

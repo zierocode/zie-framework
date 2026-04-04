@@ -41,8 +41,6 @@ Recent activity (last 50 commits — bound as `git_log_raw` at pre-flight):
 
 ### สร้าง compact summary
 
-Build compact JSON bundle:
-
 ```json
 {
   "shipped": ["<commit message 1>", "<commit message 2>"],
@@ -62,16 +60,12 @@ Build compact JSON bundle:
    - **การตัดสินใจสำคัญ** — decisions with lasting consequences; each: what → why → consequence (candidates for ADRs)
    - **Pattern ที่ควรจำ** — reusable techniques worth storing in brain as P1/P2 memories
 
-   Print the five sections immediately after formatting. Candidates for ADRs (decisions with lasting consequences) are passed to the ADR writer agent below.
-
 2. **Check docs sync.**
    Skip guard: if the first line of `git_log_raw` starts with `release:` → print `"Docs-sync: skipped (ran during release)"` and skip.
    Invoke `Skill(zie-framework:docs-sync-check)`. Print the returned `details` string as the verdict.
 
 ### รวมผลลัพธ์
 
-- Five retro sections already printed above.
-- Docs-sync verdict already printed above.
 - If any step returned an error → print the error and continue. Retro is not blocked by inline step failures.
 
 - ถ้า `zie_memory_enabled=true`: Call `mcp__plugin_zie-memory_zie-memory__remember`
@@ -102,8 +96,6 @@ Build compact JSON bundle:
 
 ### Done-rotation (inline)
 
-Inline after ROADMAP update — no Agent call:
-
 1. Parse `## Done` from `roadmap_raw` (already bound at pre-flight — no re-read). ≤ 10 items → skip entirely.
 2. Extract date from each item: all `YYYY-MM-DD` matches, take last. No date → keep inline always.
 3. Sort by date desc (no-date last). Keep top 10 inline regardless of age.
@@ -111,14 +103,7 @@ Inline after ROADMAP update — no Agent call:
 5. Archive to `zie-framework/archive/ROADMAP-archive-YYYY-MM.md` (YYYY-MM from item's date). Create with header if absent; append `## Archived YYYY-MM-DD` section. Never truncate archive.
 6. Rewrite `## Done` to kept items only. Print: `Done-rotation: kept <N>, archived <M> to <K> file(s)` or `≤10 items, skipped`.
 
-### Self-tuning proposals (deferred — runs after all blocking work)
-
-Self-tuning is advisory and runs after commit, ROADMAP update, and all blocking steps.
-See "Self-tuning proposals" section at the end of this command.
-
 ### Auto-commit retro outputs
-
-After ADR + ROADMAP agents complete, auto-commit:
 
 ```bash
 git add zie-framework/decisions/*.md zie-framework/project/components.md zie-framework/ROADMAP.md zie-framework/archive/ROADMAP-archive-*.md
@@ -148,14 +133,9 @@ Print: `Retrospective complete | Shipped: <N> | ADRs: <list> | Learnings: <N> | 
 
 ### Archive prune (post-release cleanup)
 
-Run archive TTL rotation — non-blocking (skip on failure):
-
 ```bash
 make archive-prune || true
 ```
-
-This removes `zie-framework/archive/` files older than 90 days.
-Guard: skips automatically when archive has fewer than 20 files.
 
 ### Suggest next
 
@@ -165,8 +145,6 @@ Rank by: Critical → High → Medium → unlabelled; break ties by retro-theme 
 
 Print top 1–3: `<slug> — <title> [<priority>] | Run: /plan <slug>`
 If Next lane empty: `"Backlog is empty — add items with /backlog"`
-
-Advisory only — nothing auto-started.
 
 ### Self-tuning proposals
 

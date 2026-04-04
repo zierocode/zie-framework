@@ -108,9 +108,6 @@ Any secrets detected → STOP immediately.
 
 Print: `[Quality Forks] Collecting results`
 
-All parallel results collected in "Collect Parallel Gate Results" above.
-This section confirms before proceeding to version bump:
-
 - Gates 2, 3, 4: all PASSED or SKIPPED → continue
 - Docs sync: stale docs updated if needed → continue
 - TODOs/secrets: no secrets detected → continue

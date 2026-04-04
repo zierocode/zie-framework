@@ -102,15 +102,10 @@ slugs = [arg for arg in ARGUMENTS.split() if not arg.startswith("--")]
 
 Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
 (reads `decisions/*.md` ADRs + `project/context.md`).
-This bundle is passed to every downstream agent/skill call.
 
 ## PHASE 1: SPEC ALL (Parallel)
 
 TaskCreate subject="Phase 1/4 — Spec All"
-
-Skip items that already have approved specs.
-
-**Items to spec**: `needs_spec` (from Step 0).
 
 ```
 For each item in needs_spec (all launched concurrently — no cap):
@@ -166,7 +161,7 @@ Print ETA: `Phase 2/4 — 2 phases remaining`
 
 TaskCreate subject="Phase 3/4 — Release"
 
-Invoke `/release` (which already handles moving all `[x]` items from Now → Done):
+Invoke `/release`:
 
 ```bash
 zie-release
@@ -179,8 +174,6 @@ zie-release --bump-to=<version_override>
 ```
 
 Print: `"Phase 4: Batch release..."`
-
-On success: single git merge dev→main, tag, version bump.
 TaskUpdate → Phase 3/4 complete
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 3/4 — 1 phase remaining`
@@ -189,17 +182,11 @@ Print ETA: `Phase 3/4 — 1 phase remaining`
 
 TaskCreate subject="Phase 4/4 — Retro"
 
-After release completes, invoke `/retro`:
-
 ```bash
 zie-retro
 ```
 
-This runs single retro covering all shipped items in batch.
-
 Print: `"Phase 5: Sprint retro..."`
-
-On complete: print sprint summary.
 TaskUpdate → Phase 4/4 complete
 Print progress bar: `████████████████████ 4/4 (100%)`
 Print ETA: `Sprint complete`
