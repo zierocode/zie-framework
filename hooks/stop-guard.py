@@ -12,7 +12,6 @@ without running git, preventing Claude from being blocked indefinitely.
 import fnmatch
 import json
 import os
-import shlex
 import subprocess
 import sys
 
@@ -58,28 +57,40 @@ def _run_nudges(cwd, config, subprocess_timeout):
                     slug_match = _re.search(r'\[([^\]]+)\]\(backlog/([^\)]+)\.md\)', line)
                     slug = slug_match.group(2) if slug_match else line.strip()
                     now_items_raw.append(slug)
+        import re as _re
         for slug in now_items_raw:
             try:
-                import re as _re
                 result = subprocess.run(
-                    f"git log --all --format='%H %ai' -- zie-framework/ROADMAP.md "
-                    f"| grep {shlex.quote(slug)}",
+                    ["git", "log", "--all", "-p", "--", "zie-framework/ROADMAP.md"],
                     cwd=str(cwd),
                     capture_output=True,
                     text=True,
                     timeout=subprocess_timeout,
-                    shell=True,  # nosec B602 — piped git log | grep, slug shlex-quoted
+                    shell=False,
                 )
-                if result.returncode == 0 and result.stdout.strip():
-                    date_match = _re.search(r'(\d{4}-\d{2}-\d{2})', result.stdout)
-                    if date_match:
-                        commit_date = _dt.date.fromisoformat(date_match.group(1))
-                        days = (_dt.date.today() - commit_date).days
-                        if days > 2:
-                            print(
-                                f"[zie-framework] nudge: RED phase '{slug}' has been active for "
-                                f"{days} days — consider splitting or committing partial progress"
-                            )
+                if result.returncode != 0:
+                    continue
+                # Scan lines in Python — no shell, no injection surface
+                slug_pattern = _re.compile(r'^\+- \[ \] ' + _re.escape(slug))
+                lines = result.stdout.splitlines()
+                date_match = None
+                for i, line in enumerate(lines):
+                    if slug_pattern.match(line):
+                        for j in range(max(0, i - 5), i):
+                            dm = _re.search(r'^Date:\s+(\d{4}-\d{2}-\d{2})', lines[j])
+                            if dm:
+                                date_match = dm
+                                break
+                        if date_match:
+                            break
+                if date_match:
+                    commit_date = _dt.date.fromisoformat(date_match.group(1))
+                    days = (_dt.date.today() - commit_date).days
+                    if days > 2:
+                        print(
+                            f"[zie-framework] nudge: RED phase '{slug}' has been active for "
+                            f"{days} days — consider splitting or committing partial progress"
+                        )
             except Exception:
                 pass
     except Exception:

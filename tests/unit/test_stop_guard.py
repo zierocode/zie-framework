@@ -286,18 +286,26 @@ class TestSourceInvariants:
         source = Path(HOOK).read_text()
         assert "stop_hook_active" in source
 
-    def test_uses_lightweight_git_log_format(self):
-        """stop-guard.py must NOT use git log --all -p (patch body)."""
+    def test_no_shell_true_in_nudge1(self):
+        """Nudge 1 block must not use shell=True (shell injection risk)."""
         source = Path(HOOK).read_text()
-        assert "git log --all -p" not in source, (
-            "Use git log --all --format='%H %ai' instead of git log --all -p"
-        )
+        assert "shell=True" not in source, "shell=True must be removed from stop-guard.py"
 
-    def test_uses_shlex_quote_for_slug(self):
-        """stop-guard.py must use shlex.quote(slug) in the grep argument."""
+    def test_no_nosec_b602_annotation(self):
+        """nosec B602 annotation must be removed after shell=True is eliminated."""
         source = Path(HOOK).read_text()
-        assert "shlex.quote" in source, (
-            "slug must be shlex-quoted before shell injection"
+        assert "nosec B602" not in source, "# nosec B602 annotation must be removed"
+
+    def test_re_escape_used_in_nudge1(self):
+        """re.escape must be used when building the slug pattern (prevents regex injection)."""
+        source = Path(HOOK).read_text()
+        assert "re.escape" in source, "re.escape(slug) must be used to build the search pattern"
+
+    def test_git_log_uses_list_form(self):
+        """git log must be called with a list arg (shell=False) to prevent injection."""
+        source = Path(HOOK).read_text()
+        assert '"git", "log"' in source or "'git', 'log'" in source, (
+            "git log must be called with shell=False list form"
         )
 
     def test_nudge_gate_uses_cache_helpers(self):
