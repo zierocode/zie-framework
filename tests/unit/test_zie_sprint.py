@@ -103,13 +103,11 @@ class TestContextBundle:
         assert "context_bundle" in phase1_section, \
             "context_bundle must be referenced in PHASE 1 agent spawning"
 
-    def test_context_bundle_referenced_in_phase3(self):
+    def test_context_bundle_loaded_once(self):
         text = _text()
-        phase3_idx = text.index("PHASE 3")
-        phase4_idx = text.index("PHASE 4")
-        phase3_section = text[phase3_idx:phase4_idx]
-        assert "context_bundle" in phase3_section, \
-            "context_bundle must be referenced in PHASE 3 agent spawning"
+        # context_bundle is loaded once before phases, not re-referenced in each phase
+        assert "context_bundle" in text, \
+            "context_bundle must be loaded (once) in the Load Context Bundle section"
 
     def test_adrs_loaded(self):
         assert "decisions" in _text(), \
