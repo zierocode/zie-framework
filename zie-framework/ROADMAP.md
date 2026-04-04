@@ -10,11 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [x] preflight-consolidation — [plan](plans/2026-04-04-preflight-consolidation.md)
-- [x] reviewer-context-dedup — [plan](plans/2026-04-04-reviewer-context-dedup.md)
-- [x] phase-prose-cleanup — [plan](plans/2026-04-04-phase-prose-cleanup.md)
-- [x] init-scan-prompt-extract — [plan](plans/2026-04-04-init-scan-prompt-extract.md)
-- [x] argument-parsing-inline — [plan](plans/2026-04-04-argument-parsing-inline.md)
+<!-- -->
 
 ---
 
@@ -34,6 +30,8 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] lean-efficiency-sprint-v1.20.0 — 5 items: preflight-consolidation (canonical pre-flight guard + 6-command consolidation), reviewer-context-dedup (delete dead skill + 213w cleanup), phase-prose-cleanup (200w reduction sprint/retro/release), init-scan-prompt-extract (400w prompt → template + compress step 0+7), argument-parsing-inline (Python parse blocks → argument tables in spec+sprint) — 2323 unit + 59 integration tests — v1.20.0 2026-04-04
 
 - [x] token-efficiency-v1 — 7 tasks: ADR summary gate (ADR-000-summary.md), load-context fast-path (ADR caching), reviewer fast-paths (inline context load), retro auto-summary (ADR-000-summary.md update), CLAUDE.md cache structure (stable/dynamic sections), skill compression (12 files, 2.1% reduction), command compression (14 files, 4.7% reduction) — 2305 unit + 1 skipped tests — v1.19.1 2026-04-04
 

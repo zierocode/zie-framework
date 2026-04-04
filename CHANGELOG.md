@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.20.0 — 2026-04-04
+
+### Features
+
+- **Pre-flight guard consolidation** — Canonical 3-step pre-flight protocol extracted to `zie-framework/project/command-conventions.md`; all 6 commands (spec, plan, fix, backlog, resync, implement) now reference one source of truth instead of duplicating inline
+- **Init scan prompt extraction** — 400-word Explore agent prompt extracted from `commands/init.md` to `templates/init-scan-prompt.md`; init.md is 77 lines shorter; step 0 re-run guard and step 7 Makefile negotiation compressed to checklists
+
+### Changed
+
+- **Dead code removal** — `skills/reviewer-context/SKILL.md` deleted (never invoked after ADR-054 inlined context loading); PROJECT.md, README.md, and components.md updated
+- **Prose cleanup** — 200-word reduction across `commands/sprint.md`, `commands/retro.md`, `commands/release.md`: explanatory restatements between phase headers and first imperative steps removed
+- **Argument table replacement** — Python parse preambles removed from `commands/spec.md` and `commands/sprint.md`; replaced with `## Arguments` tables documenting flags and defaults
+
 ## v1.19.0 — 2026-04-04
 
 ### Features
