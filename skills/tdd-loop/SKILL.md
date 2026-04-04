@@ -52,6 +52,8 @@ skill — follow exactly.
 - Hardcoding in GREEN is fine; duplication in GREEN is fine. Clean up in
   REFACTOR.
 - One failing test at a time. Don't write 5 failing tests before going GREEN.
+- **Run tests once per phase.** If output is truncated, use `tail -30` — never
+  re-run just to grep the summary differently. No code change = no re-run.
 
 ## Test Quality Checklist
 

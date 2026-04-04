@@ -78,7 +78,7 @@ Test level selection (print once before task loop, not per task):
 ## When All Tasks Complete
 
 0. Wait for any still-pending reviewers (max 120s). Apply `issues_found` loop if needed.
-1. Run `make test-unit` → capture output as `last_test_output`. Fail → `Skill(zie-framework:debug)`. Also run `make test-int` (if available).
+1. Run `make test-unit 2>&1 | tail -30` → capture output as `last_test_output`. **Run once — never re-run just to grep differently.** Fail → `Skill(zie-framework:debug)`. Also run `make test-int` (if available).
 2. `TaskCreate` verify task → `Skill(zie-framework:verify)` with `$ARGUMENTS={"test_output": "<last_test_output>", "scope": "tests-only"}` — passes captured output so verify skips re-running tests. → `TaskUpdate` completed.
 3. Update ROADMAP.md Now lane: `[ ]` → `[x]`.
 4. `git add -A` → collect verify result:

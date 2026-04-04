@@ -24,12 +24,10 @@ Caller must provide:
 
 ## Phase 1 — Load Context Bundle
 
-Invoke the `reviewer-context` skill to load shared context. It handles:
-- **if context_bundle provided by caller** — uses `context_bundle.adrs` and
-  `context_bundle.context` directly (fast path, skips disk reads)
-- **If `context_bundle` absent** — read from disk: `decisions/*.md` (via
-  `get_cached_adrs` cache; summary-aware: reads `ADR-000-summary.md` first,
-  then calls `write_adr_cache`), `project/context.md`, `ROADMAP` lanes
+Invoke the `reviewer-context` skill to load shared context.
+<!-- context-load: if context_bundle provided → fast path; absent → read from disk:
+     get_cached_adrs → ADR-000-summary.md → decisions/ADR-*.md → write_adr_cache,
+     project/context.md, ROADMAP lanes -->
 
 Returns: `adrs_content`, `context_content`.
 

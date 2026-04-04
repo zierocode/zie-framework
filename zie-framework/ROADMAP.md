@@ -9,6 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
+- [ ] Consolidate Reviewer Disk Fallback — [plan](plans/2026-04-04-consolidate-reviewer-disk-fallback.md)
 
 ---
 
@@ -22,8 +23,12 @@
 <!-- HIGH -->
 
 <!-- MEDIUM -->
+- [ ] Fix Release Config Triple Read — [plan](plans/2026-04-04-fix-release-config-triple-read.md)
+- [ ] Fix Retro ROADMAP Redundant Reads — [plan](plans/2026-04-04-fix-retro-roadmap-redundant-reads.md)
+- [ ] Align load-context ADR Cache Protocol — [plan](plans/2026-04-04-align-load-context-adr-cache-protocol.md)
 
 <!-- LOW -->
+- [ ] Fix Sprint ROADMAP Phase Rebind — [backlog](backlog/fix-sprint-roadmap-phase-rebind.md)
 
 ---
 
@@ -38,15 +43,10 @@
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-- [ ] Consolidate Reviewer Disk Fallback — [backlog](backlog/consolidate-reviewer-disk-fallback.md)
 
 <!-- MEDIUM -->
-- [ ] Fix Release Config Triple Read — [backlog](backlog/fix-release-config-triple-read.md)
-- [ ] Fix Retro ROADMAP Redundant Reads — [backlog](backlog/fix-retro-roadmap-redundant-reads.md)
-- [ ] Align load-context ADR Cache Protocol — [backlog](backlog/align-load-context-adr-cache-protocol.md)
 
 <!-- LOW -->
-- [ ] Fix Sprint ROADMAP Phase Rebind — [backlog](backlog/fix-sprint-roadmap-phase-rebind.md)
 
 ---
 

@@ -1,6 +1,6 @@
 ---
-approved: false
-approved_at:
+approved: true
+approved_at: 2026-04-04
 backlog: backlog/fix-retro-roadmap-redundant-reads.md
 ---
 
