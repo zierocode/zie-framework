@@ -10,16 +10,6 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [x] truncate-auto-test-output
-- [x] intent-sdlc-early-exit
-- [x] release-inline-gates
-- [x] retro-inline-format
-- [x] zie-init-delegate-scan
-- [x] merge-safety-hooks
-- [x] split-utils-py
-- [x] sprint-agent-audit
-- [x] implement-skill-dedup
-
 ---
 
 ## Ready — Approved Plans
@@ -111,6 +101,8 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint7-optimization-v1.17 — 12 features: merge-safety-hooks (consolidate PreToolUse), split-utils-py (5 sub-modules, 0 regressions), sprint-agent-audit (Skill not Agent in Phase 3), implement-skill-dedup (Skill pointer not prose), roadmap-done-rotation (auto-archive >90d), audit-mcp-check (MCP server audit), proactive-compact-hint (context usage warning), plus 5 earlier items (truncate-auto-test, intent-sdlc-early-exit, release-inline-gates, retro-inline-format, zie-init-delegate-scan) — 2085 unit + 59 integration tests — v1.16.3 2026-04-04
 
 - [x] v1.16.2-maintenance — ROADMAP backlog refresh (12 Next items), pre-commit hook simplified to stub — v1.16.2 2026-04-03
 
