@@ -96,20 +96,15 @@ class TestClaudeMd:
     def _content(self):
         return (REPO_ROOT / "CLAUDE.md").read_text()
 
-    def test_optional_dependencies_section_exists(self):
-        assert "Optional Dependencies" in self._content(), (
-            "CLAUDE.md missing 'Optional Dependencies' section"
-        )
-
-    def test_optional_deps_table_has_playwright(self):
+    def test_optional_deps_documents_playwright(self):
         assert "playwright" in self._content(), (
-            "Optional Dependencies table missing playwright row"
+            "CLAUDE.md must document playwright optional dependency"
         )
 
-    def test_optional_deps_table_has_zie_memory(self):
+    def test_optional_deps_documents_zie_memory(self):
         content = self._content()
         assert "zie-memory" in content or "zie_memory" in content, (
-            "Optional Dependencies table missing zie-memory row"
+            "CLAUDE.md must document zie-memory optional dependency"
         )
 
     def test_sync_version_in_dev_commands(self):

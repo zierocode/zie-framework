@@ -2,16 +2,6 @@
 
 Solo developer SDLC framework plugin for Claude Code.
 
-## What This Is
-
-A Claude Code plugin that installs a structured development workflow into any
-project:
-
-- **Ambient intent detection** via hooks
-- **Spec-first TDD** via `/zie-framework:*` commands
-- **Brain integration** with zie-memory
-- **Safety guardrails** via PreToolUse hooks
-
 ## Tech Stack
 
 - **Runtime**: Python 3.x (all hooks)
@@ -20,32 +10,18 @@ project:
 - **Commands**: Markdown files in `commands/` (slash commands)
 - **Skills**: Markdown files in `skills/` (invoked via Skill tool)
 - **Templates**: Reusable file templates in `templates/`
-
-### Optional Dependencies
-
-| Dependency | Purpose | Required? |
-| --- | --- | --- |
-| `pytest` + `pytest-cov` | Unit + integration test runner | For `make test` |
-| `coverage` | Subprocess coverage measurement | For `make test-unit` |
-| `playwright` | Browser automation for frontend hooks | Only if `playwright_enabled: true` |
-| zie-memory API | Cross-session memory persistence | Only if `zie_memory_enabled: true` |
+- **Optional**: `playwright` (if `playwright_enabled: true`),
+  `zie-memory` API (if `zie_memory_enabled: true`)
 
 ## Project Structure
 
 ```text
 .claude-plugin/plugin.json  # plugin metadata
 hooks/hooks.json            # hook event → script mapping
-hooks/*.py                  # hook implementations (Python)
-commands/*.md               # slash command definitions
-skills/*/SKILL.md           # skill definitions
-templates/                  # templates for /init
-zie-framework/              # self-managed SDLC state (this repo uses itself)
-  ├── PROJECT.md            # hub: project overview + knowledge links
-  ├── project/              # spokes: architecture, components, decisions
-  ├── ROADMAP.md            # backlog + active work
-  ├── specs/                # feature design docs
-  ├── plans/                # implementation plans
-  └── decisions/            # ADR log
+hooks/*.py / commands/*.md / skills/*/SKILL.md / templates/
+zie-framework/              # SDLC state (this repo uses itself)
+  ├── PROJECT.md + project/  # knowledge hub + spokes
+  └── ROADMAP.md + specs/ + plans/ + decisions/
 ```
 
 ## Development Commands
@@ -66,21 +42,9 @@ make setup            # install git hooks + python deps (run once)
 make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 files)
 ```
 
-## Agent Mode Sessions
-
-Plugin loads from marketplace cache (`github:zierocode/zie-framework`).
-After `make release`, restart Claude to pick up the new version.
-
-```bash
-# TDD-focused session — permissionMode: acceptEdits, all tools
-claude --agent zie-framework:zie-implement-mode
-
-# Read-only audit session — permissionMode: plan, restricted tools
-claude --agent zie-framework:zie-audit-mode
-```
-
 ## Key Rules
 
+- **Agent mode**: `claude --agent zie-framework:zie-implement-mode` (TDD) · `zie-audit-mode` (read-only)
 - **Never commit secrets** — hooks, templates, commands are all public
 - **Idempotent commands** — all commands must be safe to re-run
 - **Graceful degradation** — every feature must work without optional
@@ -89,53 +53,14 @@ claude --agent zie-framework:zie-audit-mode
   are missing
 - **Test runner**: pytest
 
-## Hook Configuration
+## Hook Reference Docs
 
-Optional keys in `zie-framework/.config` (JSON):
-
-| Key | Default | Values | Description |
-| --- | --- | --- | --- |
-| `safety_check_mode` | `"regex"` | `"regex"`, `"agent"`, `"both"` | Controls `safety_check_agent.py`. `"regex"` — fast pattern matching only, no subprocess spawned. `"agent"` — spawns a Claude subagent on every Bash call to evaluate safety. `"both"` — runs regex first, then agent. Use `"regex"` unless you need AI-level judgment on commands. |
-| `subprocess_timeout_s` | `5` | `int` | Timeout (s) for `git` subprocess calls in `failure-context.py` and `stop-guard.py`. |
-| `safety_agent_timeout_s` | `30` | `int` | Timeout (s) for the Claude subagent subprocess in `safety_check_agent.py`. |
-| `auto_test_max_wait_s` | `15` | `int` | Wall-clock kill limit (s) for `auto-test.py`. Set to `0` to disable (falls back to `auto_test_timeout_ms`). |
-| `auto_test_timeout_ms` | `30000` | `int` | Fallback subprocess timeout (ms) for `auto-test.py` when `auto_test_max_wait_s` is `0`. |
-| `compact_hint_threshold` | `0.8` | `float` | Usage fraction (0.0–1.0) at which the Stop hook prints the `/compact` hint. Set to `1.0` to disable. |
-
-## Hook Context Hints
-
-Static guidance strings removed from per-event `additionalContext` payloads (kept here for reference):
-
-- **failure-context.py** — Quick fix: run `make test-unit` to reproduce; check output above for root cause.
-- **sdlc-compact.py** — [zie-framework] SDLC state restored after context compaction.
-- **subagent-context.py** — (see zie-framework/project/context.md)
-
-## Hook Output Convention
-
-All hooks emit INFO-level progress output using structured `[zie-framework] key: value`
-pairs. This applies to **INFO-level output only** — error output uses free-form messages
-(see Hook Error Handling Convention below).
-
-**Format:** `[zie-framework] <noun>: <value>`
-**Example:** `[zie-framework] wip: 1 task in progress`
-
-Existing compliant hooks (no code changes needed):
-- `wip-checkpoint` — already emits structured key: value for INFO output
-- `task-completed-gate` — already emits structured key: value for INFO output
-
-Future hooks must follow this convention for INFO-level output.
-
-## Hook Error Handling Convention
-
-All hooks follow a two-tier pattern:
-
-1. **Outer guard** — event parse + early-exit checks. Use bare `except Exception`
-   → `sys.exit(0)`. This tier must _never_ block Claude regardless of input.
-2. **Inner operations** — file I/O, API calls, subprocess. Use
-   `except Exception as e: print(f"[zie-framework] <hook-name>: {e}", file=sys.stderr)`.
-   Hook still exits 0 after logging; Claude is never blocked.
-
-Never raise an unhandled exception from a hook. Never use a non-zero exit code.
+| Topic | File |
+| --- | --- |
+| Hook Output Convention | `zie-framework/project/hook-conventions.md` |
+| Hook Error Handling Convention | `zie-framework/project/hook-conventions.md` |
+| Hook Context Hints | `zie-framework/project/hook-conventions.md` |
+| Hook Configuration Keys | `zie-framework/project/config-reference.md` |
 
 ## SDLC Commands
 
@@ -153,8 +78,3 @@ Never raise an unhandled exception from a hook. Never use a non-zero exit code.
 | `/status` | Show current SDLC state |
 | `/audit` | Project audit across 9 dimensions |
 | `/resync` | Rescan codebase + update knowledge docs |
-
-## SDLC State
-
-Managed by zie-framework itself — see `zie-framework/ROADMAP.md` for current
-backlog.

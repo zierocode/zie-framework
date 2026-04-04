@@ -10,38 +10,73 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [x] lean-claudemd-trim-to-trigger-table — cut CLAUDE.md to <80 lines; move hook conventions to project docs
+
 ---
 
 ## Ready — Approved Plans
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
+<!-- Sprint10 Phase 1 complete: 45 items spec+plan approved 2026-04-04 -->
 
 <!-- CRITICAL -->
 
 <!-- HIGH -->
+- [ ] lean-stop-guard-nudge-per-stop — session-gate git log subprocess in stop-guard; shlex.quote(slug)
+- [ ] lean-load-context-triple-invoke — pass context_bundle down sprint→implement chain; eliminate triple load-context call
+- [ ] lean-retro-git-log-quad-read — deduplicate 4 git log reads in retro.md → 1
+- [ ] lean-project-md-commands-stale — sync PROJECT.md + CLAUDE.md commands/skills tables (4 missing commands, 1 ghost + 2 missing skills)
+- [ ] lean-docs-sync-blind-to-project-md — extend docs-sync-check scope to verify PROJECT.md
+- [ ] lean-spec-design-agent-syntax — fix @agent-spec-reviewer → Skill() in spec-design (reliability gap)
+- [ ] lean-double-pretooluse-on-bash — merge safety_check_agent.py into safety-check.py (eliminate per-Bash config read)
+- [ ] sec-shell-injection-confirm-wrap — add > < | \n to confirm-wrapper guard in safety-check.py:141
+- [ ] sec-shell-injection-stop-guard-slug — shlex.quote(slug) in stop-guard.py:64 subprocess call
+- [ ] lean-dual-audit-pipeline — collapse /audit command + zie-audit skill into one canonical pipeline [Strategic]
+- [ ] lean-reviewer-context-chain-depth — reduce reviewer skill chain depth 3–4 hops → 1–2 [Strategic]
 
 <!-- MEDIUM -->
+- [ ] lean-hotfix-model-overkill — /hotfix opus+high → sonnet+low (5-step mechanical track)
+- [ ] model-release-effort-medium-to-low — /release haiku+medium → haiku+low
+- [ ] model-retro-effort-medium-to-low — /retro sonnet+medium → sonnet+low
+- [ ] model-impl-reviewer-effort-medium-to-low — impl-reviewer haiku+medium → haiku+low
+- [ ] model-resync-sonnet-to-haiku — /resync sonnet+medium → haiku+medium
+- [ ] model-init-sonnet-to-haiku — /init sonnet+medium → haiku+medium
+- [ ] model-fix-effort-medium-to-low — /fix sonnet+medium → sonnet+low
+- [ ] model-plan-effort-medium-to-low — /plan sonnet+medium → sonnet+low
+- [ ] model-write-plan-effort-medium-to-low — write-plan skill sonnet+medium → sonnet+low
+- [ ] model-debug-effort-medium-to-low — debug skill sonnet+medium → sonnet+low
+- [ ] lean-sprint-phase2-redundant — remove sprint Phase 2 (error-recovery-only masquerading as normal phase)
+- [ ] lean-retro-self-tuning-blocks-release — move self-tuning proposals to non-blocking advisory at retro end
+- [ ] lean-prompt-pass-through — suppress intent-sdlc injection for slash commands (extend early-exit to any /command)
+- [ ] lean-auto-test-context-before-debounce — move additionalContext emit to after debounce + test-file check
+- [ ] lean-intent-sdlc-idle-state-suffix — suppress task:none|stage:idle suffix when idle + unambiguous intent
+- [ ] lean-chore-git-add-A — replace git add -A with targeted git add in /chore (CLAUDE.md hard rule violation)
+- [ ] lean-knowledge-hash-in-implement — remove knowledge-hash bang injection from /implement banner
+- [ ] lean-status-knowledge-hash-twice — deduplicate knowledge-hash computation in /status (runs twice)
+- [ ] lean-subagent-context-idle-overhead — early-exit when no active task; split Explore/Plan matchers
+- [ ] lean-implement-agent-mode-check — simplify /implement agent-mode gate to non-blocking advisory
+- [ ] lean-verify-check2-reruns-tests — add test_output guard to verify check 2 (matches check 1 pattern)
+- [ ] lean-intent-sdlc-missing-tracks — add /hotfix, /chore, /spike intent patterns to intent-sdlc.py
+- [ ] lean-subagent-stop-no-matcher — investigate SubagentStop matcher support; add if possible
+- [ ] lean-sec-prompt-injection-subagent — strengthen XML tag escaping in safety_check_agent.py
+- [ ] lean-mcp-zie-memory-unconfigured — add zie-memory availability check before brain calls in commands
 
 <!-- LOW -->
+- [ ] lean-fix-hotfix-triage-rule — add single-sentence triage rule to /fix and /hotfix descriptions
+- [ ] lean-spike-gitignore — add .gitignore guidance for spike-*/ directories in /spike
+- [ ] lean-observability-health-command — add Framework Health section to /status output
+- [ ] lean-write-plan-duplicate-conflict-check — remove duplicate file conflict check prose in write-plan
+- [ ] lean-plan-reviewer-n-squared — replace N² pair check with O(N) file-map heuristic in plan-reviewer
+- [ ] lean-notification-log-double-guard — remove redundant type guard in notification-log.py
+- [ ] lean-dep-pinning-inconsistency — standardize version pinning strategy in requirements-dev.txt
+- [ ] lean-playwright-version-magic-constant — document PLAYWRIGHT_MIN_VERSION derivation (CVE reference)
 
 ---
 
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
-<!-- Audit 2026-03-26: 53 findings, score 73/100 -->
-<!-- Audit 2026-04-01: 9 findings added (4 HIGH, 5 MEDIUM) -->
-<!-- Audit 2026-04-02: Qwen3-coder-next deep review — 10 issues -->
-<!-- Audit 2026-04-04: Efficiency deep audit — 29 findings (14 HIGH, 2 MEDIUM, 13 LOW) — token/overhead focus -->
-
-<!-- CRITICAL -->
-
-<!-- HIGH -->
-
-<!-- MEDIUM -->
-
-<!-- LOW -->
 
 ---
 
