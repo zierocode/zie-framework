@@ -1,8 +1,8 @@
 # ROADMAP — zie-framework
 
 > Single source of truth for what's being built and why.
-> Updated by /zie-backlog (Next), /zie-plan (Ready), /zie-implement (Now),
-> /zie-release (Done), /zie-retro (reprioritization).
+> Updated by /backlog (Next), /plan (Ready), /implement (Now),
+> /release (Done), /retro (reprioritization).
 
 ---
 
@@ -12,6 +12,7 @@
 - [x] UX Output Formatting and Progress Visibility — [plan](plans/2026-04-04-ux-output-formatting-and-progress.md)
 - [x] Workflow Enforcement and Escape Hatches — [plan](plans/2026-04-04-workflow-enforcement-escape-hatches.md)
 - [x] Smarter Framework Intelligence — [plan](plans/2026-04-04-smarter-framework-intelligence.md)
+- [x] Remove zie- prefix from command names — [plan](plans/2026-04-04-remove-zie-prefix-from-command-names.md)
 
 ---
 
@@ -27,7 +28,6 @@
 <!-- MEDIUM -->
 
 <!-- LOW -->
-- [ ] Remove zie- prefix from command names — [plan](plans/2026-04-04-remove-zie-prefix-from-command-names.md)
 
 ---
 
@@ -99,7 +99,7 @@
   — 1518 unit + 62 integration tests — v1.10.1 2026-03-27
 - [x] Lean & Efficient Optimization — hook consolidation (intent-sdlc.py),
   ROADMAP session cache, zie-audit 5 Opus→3 Sonnet + synthesis, effort
-  right-sizing, zie-implement/zie-plan parallel cap removed, archive-plans
+  right-sizing, zie-implement/plan parallel cap removed, archive-plans
   Makefile target — 1491 unit + 62 integration tests — v1.10.0 2026-03-27
 - [x] Security + code quality sprint — 10 features: coverage measurement fix,
   shell injection + /tmp hardening + path traversal security fixes, subprocess
@@ -133,16 +133,16 @@
   ROADMAP edge cases, debounce boundary — v1.4.1 2026-03-23
 - [x] Docs + standards sprint — plugin.json sync, ADR canonicalization,
   SECURITY.md, .cz.toml, CHANGELOG translation — v1.4.1 2026-03-23
-- [x] /zie-audit — 9-dimension project audit, external research via
+- [x] /audit — 9-dimension project audit, external research via
   WebSearch/WebFetch, scored report, backlog integration — v1.4.0 2026-03-23
 - [x] Pipeline fixes — implement commit step, release verify consolidation,
   Makefile --amend for plugin.json — v1.4.0 2026-03-23
 - [x] Reviewer depth — context bundle (decisions/ + ROADMAP + context.md) for
   spec/plan/impl reviewers — v1.3.0 2026-03-23
-- [x] Quick spec — `/zie-spec "idea"` skips backlog, inline idea → spec-design
+- [x] Quick spec — `/spec "idea"` skips backlog, inline idea → spec-design
   directly — v1.3.0 2026-03-23
 - [x] Hybrid release — `make release NEW=<v>` skeleton in Makefile templates;
-  `/zie-release` readiness gate + delegation; `/zie-init` negotiates skeleton —
+  `/release` readiness gate + delegation; `/init` negotiates skeleton —
   v1.3.0 2026-03-23
 - [x] Post-release pipeline audit — 33 issues (6 critical, 16 important,
   11 minor) across all 10 commands + 10 skills + hooks; ADR-003 + ADR-004;
@@ -150,7 +150,7 @@
 - [x] SDLC pipeline redesign — 6-stage pipeline (backlog→spec→plan→implement→
   release→retro) with spec/plan/impl reviewer quality gates — 2026-03-23
 - [x] zie-init deep scan + knowledge drift detection — Agent(Explore) scan,
-  knowledge_hash, /zie-resync command — 2026-03-23
+  knowledge_hash, /resync command — 2026-03-23
 - [x] Remove all superpowers dependencies — commands, hooks, config, docs fully
   self-contained — 2026-03-23
 - [x] Knowledge Architecture — PROJECT.md hub + project/* spokes, templates,
@@ -161,15 +161,15 @@
   release support — v1.1.0 2026-03-22
 - [x] test-pyramid skill in /zie-build — RED phase now invokes
   Skill(zie-framework:test-pyramid) — 2026-03-22
-- [x] /zie-status test health detection — .pytest_cache/lastfailed logic, mtime
+- [x] /status test health detection — .pytest_cache/lastfailed logic, mtime
   stale check — 2026-03-22
-- [x] /zie-fix memory enhancement — batch recall domain+tags, root cause pattern
+- [x] /fix memory enhancement — batch recall domain+tags, root cause pattern
   format — 2026-03-22
 - [x] Add unit tests for all hooks (pytest) — 53 tests across 6 hooks, fixed rm
   -rf / bug — 2026-03-22
 - [x] Fork superpowers skills into zie-framework/skills/ — spec-design,
   write-plan, debug, verify — 2026-03-22
-- [x] SDLC Gate Enforcement + Parallel Agents — /zie-plan, backlog-first,
+- [x] SDLC Gate Enforcement + Parallel Agents — /plan, backlog-first,
   pre-flight gates, zie-memory deep integration — 2026-03-22
 - [x] Initial plugin scaffolding — hooks, commands, skills, templates —
   2026-03-22

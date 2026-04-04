@@ -1,7 +1,7 @@
-"""Tests for /zie-audit MCP server usage check (audit-mcp-check feature)."""
+"""Tests for /audit MCP server usage check (audit-mcp-check feature)."""
 from pathlib import Path
 
-CMD = Path(__file__).parents[2] / "commands" / "zie-audit.md"
+CMD = Path(__file__).parents[2] / "commands" / "audit.md"
 
 
 def _text():

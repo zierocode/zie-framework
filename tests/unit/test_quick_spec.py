@@ -5,7 +5,7 @@ COMMANDS = ROOT / "commands"
 
 
 def read_cmd(name):
-    return (COMMANDS / f"zie-{name}.md").read_text()
+    return (COMMANDS / f"{name}.md").read_text()
 
 
 def test_quick_spec_mode_detection_spaces():

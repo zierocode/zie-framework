@@ -127,13 +127,13 @@ try:
     if now_items:
         active_label = now_items[0]
     else:
-        active_label = "No active feature — run /zie-backlog to start one"
+        active_label = "No active feature — run /backlog to start one"
 
     lines = [
         f"[zie-framework] {project_name} ({project_type}) v{version}",
         f"  Active: {active_label}",
         f"  Brain: {'enabled' if zie_memory else 'disabled'}",
-        "  → Run /zie-status for full state",
+        "  → Run /status for full state",
     ]
 
     print("\n".join(lines))

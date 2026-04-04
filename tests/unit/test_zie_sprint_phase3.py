@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-SPRINT_CMD = Path("commands/zie-sprint.md")
+SPRINT_CMD = Path("commands/sprint.md")
 
 
 def test_phase3_no_agent():

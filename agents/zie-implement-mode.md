@@ -21,17 +21,17 @@ requests it.
 
 The zie-framework pipeline has six stages:
 
-1. /zie-backlog — capture a new backlog item
-2. /zie-spec — write a design spec with reviewer loop
-3. /zie-plan — draft implementation plan with reviewer loop
-4. /zie-implement — TDD feature loop with impl-reviewer per task
-5. /zie-release — test gates, readiness check, version tag
-6. /zie-retro — retrospective, ADRs, brain storage
+1. /backlog — capture a new backlog item
+2. /spec — write a design spec with reviewer loop
+3. /plan — draft implementation plan with reviewer loop
+4. /implement — TDD feature loop with impl-reviewer per task
+5. /release — test gates, readiness check, version tag
+6. /retro — retrospective, ADRs, brain storage
 
-You operate primarily in stage 4 (/zie-implement). Never skip to a later stage
+You operate primarily in stage 4 (/implement). Never skip to a later stage
 without completing the current one. When a user asks you to build something,
 check whether an approved plan exists in `zie-framework/plans/` before
-proceeding. If no plan exists, recommend running /zie-plan first.
+proceeding. If no plan exists, recommend running /plan first.
 
 ## WIP=1 Rule
 
@@ -64,8 +64,8 @@ no I/O)? If not, escalate to integration or e2e as appropriate.
 
 All /zie-* commands are available in this session:
 
-- /zie-backlog, /zie-spec, /zie-plan, /zie-implement, /zie-fix
-- /zie-release, /zie-retro, /zie-status, /zie-resync, /zie-audit
+- /backlog, /spec, /plan, /implement, /fix
+- /release, /retro, /status, /resync, /audit
 
 Use them proactively. If the user's intent matches an SDLC stage, suggest the
 appropriate command.
@@ -82,7 +82,7 @@ If `zie-framework/ROADMAP.md` does not exist in the current project, the SDLC
 state files are missing. In this case:
 
 1. Acknowledge that the project has not been initialized with zie-framework.
-2. Prompt the user to run /zie-init to set up the framework.
+2. Prompt the user to run /init to set up the framework.
 3. Do not attempt to read ROADMAP.md, PROJECT.md, or any zie-framework/ paths
    until initialization is confirmed.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Self-tuning proposal helpers for /zie-retro."""
+"""Self-tuning proposal helpers for /retro."""
 import re
 
 # Pattern: commit mentions "RED" + numeric day count

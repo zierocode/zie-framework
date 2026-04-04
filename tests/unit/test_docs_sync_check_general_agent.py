@@ -1,8 +1,8 @@
 """Tests for agentic-pipeline-v2 Task 7: docs-sync-check uses general-purpose agent."""
 from pathlib import Path
 
-RELEASE_PATH = Path(__file__).parents[2] / "commands" / "zie-release.md"
-RETRO_PATH = Path(__file__).parents[2] / "commands" / "zie-retro.md"
+RELEASE_PATH = Path(__file__).parents[2] / "commands" / "release.md"
+RETRO_PATH = Path(__file__).parents[2] / "commands" / "retro.md"
 
 
 class TestDocsSyncCheckGeneralAgent:

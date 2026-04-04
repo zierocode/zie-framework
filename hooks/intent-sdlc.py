@@ -78,16 +78,16 @@ COMPILED_PATTERNS = {
 }
 
 SUGGESTIONS = {
-    "init":      "/zie-init",
-    "backlog":   "/zie-backlog",
-    "spec":      "/zie-spec",
-    "plan":      "/zie-plan",
-    "implement": "/zie-implement",
-    "fix":       "/zie-fix",
-    "release":   "/zie-release",
-    "retro":     "/zie-retro",
-    "sprint":    "/zie-sprint",
-    "status":    "/zie-status",
+    "init":      "/init",
+    "backlog":   "/backlog",
+    "spec":      "/spec",
+    "plan":      "/plan",
+    "implement": "/implement",
+    "fix":       "/fix",
+    "release":   "/release",
+    "retro":     "/retro",
+    "sprint":    "/sprint",
+    "status":    "/status",
 }
 
 # ── SDLC context constants ────────────────────────────────────────────────────
@@ -102,14 +102,14 @@ STAGE_KEYWORDS = [
 ]
 
 STAGE_COMMANDS = {
-    "spec":        "/zie-spec",
-    "plan":        "/zie-plan",
-    "implement":   "/zie-implement",
-    "fix":         "/zie-fix",
-    "release":     "/zie-release",
-    "retro":       "/zie-retro",
-    "in-progress": "/zie-status",
-    "idle":        "/zie-status",
+    "spec":        "/spec",
+    "plan":        "/plan",
+    "implement":   "/implement",
+    "fix":         "/fix",
+    "release":     "/release",
+    "retro":       "/retro",
+    "in-progress": "/status",
+    "idle":        "/status",
 }
 
 STALE_THRESHOLD_SECS = 300
@@ -165,7 +165,7 @@ def _check_pipeline_preconditions(
         slug_list = ", ".join(f"'{s}'" for s in blocking)
         return (
             f"⛔ STOP. No approved spec for {slug_list}. "
-            f"You must run /zie-spec {blocking[0]} first. "
+            f"You must run /spec {blocking[0]} first. "
             f"Do not proceed with planning."
         )
 
@@ -192,10 +192,10 @@ def _positional_guidance(roadmap_content: str, cwd: Path, message: str) -> "str 
             slug_in_ready = True
             break
     if not has_approved_spec:
-        return f"Feature '{slug}' is in backlog. Start with /zie-spec {slug}"
+        return f"Feature '{slug}' is in backlog. Start with /spec {slug}"
     if has_approved_spec and not slug_in_ready:
-        return f"Spec approved for '{slug}'. Run /zie-plan {slug}"
-    return f"Plan ready for '{slug}'. Run /zie-implement to start"
+        return f"Spec approved for '{slug}'. Run /plan {slug}"
+    return f"Plan ready for '{slug}'. Run /implement to start"
 
 
 def derive_stage(task_text: str) -> str:
@@ -231,7 +231,7 @@ try:
         sys.exit(0)
     if message.startswith("---") or len(message) > 500:
         sys.exit(0)
-    if message.startswith("/zie-"):
+    if message.startswith("/") and len(message.split()[0]) < 20:
         sys.exit(0)
 
     cwd = get_cwd()
@@ -286,7 +286,7 @@ try:
         active_task = "none"
         stage = "idle"
 
-    suggested_cmd = STAGE_COMMANDS.get(stage, "/zie-status")
+    suggested_cmd = STAGE_COMMANDS.get(stage, "/status")
     test_status = get_test_status(cwd)
 
     # ── Pipeline gate check ───────────────────────────────────────────────────
@@ -300,10 +300,10 @@ try:
         if not is_track_active(cwd):
             no_track_msg = (
                 "no active track — pick one: "
-                "standard: /zie-backlog → /zie-spec → /zie-plan → /zie-implement | "
-                "hotfix: /zie-hotfix | "
-                "spike: /zie-spike | "
-                "chore: /zie-chore"
+                "standard: /backlog → /spec → /plan → /implement | "
+                "hotfix: /hotfix | "
+                "spike: /spike | "
+                "chore: /chore"
             )
 
     # ── Positional guidance (only when no gate and no dominant intent) ────────

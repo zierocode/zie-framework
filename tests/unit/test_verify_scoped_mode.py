@@ -23,6 +23,6 @@ class TestVerifyScopedMode:
 
 class TestZieFixScopeParam:
     def test_zie_fix_passes_scope_tests_only(self):
-        text = (COMMANDS_DIR / "zie-fix.md").read_text()
+        text = (COMMANDS_DIR / "fix.md").read_text()
         assert "scope=tests-only" in text, \
             "zie-fix.md must pass scope=tests-only to Skill(zie-framework:verify)"

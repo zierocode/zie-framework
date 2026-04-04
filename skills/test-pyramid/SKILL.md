@@ -13,11 +13,11 @@ effort: low
 
 ```text
          /\
-        /E2E\          → Playwright — user journeys, /zie-release only
+        /E2E\          → Playwright — user journeys, /release only
        /------\
-      /  INTG  \       → Real DB/services, /zie-release only
+      /  INTG  \       → Real DB/services, /release only
      /----------\
-    / UNIT TESTS \     → Every PostToolUse:Edit, /zie-implement constant
+    / UNIT TESTS \     → Every PostToolUse:Edit, /implement constant
    /--------------\
 ```
 
@@ -76,8 +76,8 @@ effort: low
 | Trigger | Tests to run |
 | --- | --- |
 | Every file save (PostToolUse hook) | Unit only (auto, fast) |
-| /zie-implement task complete | Unit only |
-| /zie-implement all tasks complete | Unit + Integration |
-| /zie-release gate | Unit + Integration + E2E + Visual |
+| /implement task complete | Unit only |
+| /implement all tasks complete | Unit + Integration |
+| /release gate | Unit + Integration + E2E + Visual |
 | Debugging a failing test | Relevant unit only |
 

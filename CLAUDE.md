@@ -8,7 +8,7 @@ A Claude Code plugin that installs a structured development workflow into any
 project:
 
 - **Ambient intent detection** via hooks
-- **Spec-first TDD** via `/zie-*` commands
+- **Spec-first TDD** via `/zie-framework:*` commands
 - **Brain integration** with zie-memory
 - **Safety guardrails** via PreToolUse hooks
 
@@ -36,9 +36,9 @@ project:
 .claude-plugin/plugin.json  # plugin metadata
 hooks/hooks.json            # hook event → script mapping
 hooks/*.py                  # hook implementations (Python)
-commands/zie-*.md           # slash command definitions
+commands/*.md               # slash command definitions
 skills/*/SKILL.md           # skill definitions
-templates/                  # templates for /zie-init
+templates/                  # templates for /init
 zie-framework/              # self-managed SDLC state (this repo uses itself)
   ├── PROJECT.md            # hub: project overview + knowledge links
   ├── project/              # spokes: architecture, components, decisions
@@ -82,7 +82,7 @@ claude --agent zie-framework:zie-audit-mode
 ## Key Rules
 
 - **Never commit secrets** — hooks, templates, commands are all public
-- **Idempotent commands** — all `/zie-*` commands must be safe to re-run
+- **Idempotent commands** — all commands must be safe to re-run
 - **Graceful degradation** — every feature must work without optional
   dependencies (zie-memory, playwright)
 - **Hook safety** — hooks must NEVER crash or block Claude when optional tools
@@ -141,18 +141,18 @@ Never raise an unhandled exception from a hook. Never use a non-zero exit code.
 
 | Command | Purpose |
 | --- | --- |
-| `/zie-init` | Bootstrap: initialize framework in a new project |
-| `/zie-backlog` | Capture a new idea as a backlog item |
-| `/zie-spec` | Write design spec for a backlog item |
-| `/zie-plan` | Draft implementation plan from spec |
-| `/zie-implement` | TDD implementation loop (WIP=1) |
-| `/zie-release` | Release gate — merge dev→main, version bump |
-| `/zie-retro` | Post-release retrospective + ADRs |
-| `/zie-sprint` | Sprint clear — batch all items: spec + plan + implement + release + retro |
-| `/zie-fix` | Debug and fix failing tests or broken features |
-| `/zie-status` | Show current SDLC state |
-| `/zie-audit` | Project audit across 9 dimensions |
-| `/zie-resync` | Rescan codebase + update knowledge docs |
+| `/init` | Bootstrap: initialize framework in a new project |
+| `/backlog` | Capture a new idea as a backlog item |
+| `/spec` | Write design spec for a backlog item |
+| `/plan` | Draft implementation plan from spec |
+| `/implement` | TDD implementation loop (WIP=1) |
+| `/release` | Release gate — merge dev→main, version bump |
+| `/retro` | Post-release retrospective + ADRs |
+| `/sprint` | Sprint clear — batch all items: spec + plan + implement + release + retro |
+| `/fix` | Debug and fix failing tests or broken features |
+| `/status` | Show current SDLC state |
+| `/audit` | Project audit across 9 dimensions |
+| `/resync` | Rescan codebase + update knowledge docs |
 
 ## SDLC State
 

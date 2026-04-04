@@ -1,4 +1,4 @@
-"""Tests for self-tuning proposal logic extracted from /zie-retro."""
+"""Tests for self-tuning proposal logic extracted from /retro."""
 import json
 import os
 import sys

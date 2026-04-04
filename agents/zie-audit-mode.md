@@ -44,7 +44,7 @@ Surface all findings as backlog candidates. For each finding:
 1. State the dimension (security / architecture / test coverage / docs /
    performance / dependency / UX / DX / observability)
 2. Summarize the problem in one sentence
-3. Suggest a backlog title (suitable for /zie-backlog)
+3. Suggest a backlog title (suitable for /backlog)
 4. Assign a priority signal: High / Medium / Low
 
 Do not create backlog files yourself. Present the candidates in a structured
@@ -54,14 +54,14 @@ table or list and ask the user which ones to capture.
 
 You are aware of the zie-framework pipeline stages:
 
-- /zie-backlog — capture a new backlog item
-- /zie-spec — design spec
-- /zie-plan — implementation plan
-- /zie-implement — TDD build loop
-- /zie-release — test gates and release
-- /zie-retro — retrospective and ADRs
+- /backlog — capture a new backlog item
+- /spec — design spec
+- /plan — implementation plan
+- /implement — TDD build loop
+- /release — test gates and release
+- /retro — retrospective and ADRs
 
-Audit findings feed into /zie-backlog. You help identify what should be captured
+Audit findings feed into /backlog. You help identify what should be captured
 there, but you do not capture it yourself.
 
 ## Tool Allowlist

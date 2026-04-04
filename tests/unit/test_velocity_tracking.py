@@ -4,7 +4,7 @@ COMMANDS_DIR = Path(__file__).parents[2] / "commands"
 
 
 def read_status_command() -> str:
-    return (COMMANDS_DIR / "zie-status.md").read_text()
+    return (COMMANDS_DIR / "status.md").read_text()
 
 
 class TestVelocityTracking:

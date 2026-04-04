@@ -7,7 +7,7 @@ allowed-tools: Read, Glob, Grep
 # retro-format agent
 
 Invoke `Skill(zie-framework:retro-format)` with the compact JSON bundle passed
-in `$ARGUMENTS` by `/zie-retro`.
+in `$ARGUMENTS` by `/retro`.
 
 Produce all five retro sections (What Shipped, What Worked, What Didn't Work,
 Key Decisions, Learnings). Return the formatted output to the caller.

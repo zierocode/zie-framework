@@ -10,22 +10,22 @@ def read(rel: str) -> str:
 
 class TestZieStatusPipeline:
     def test_pipeline_indicator_present(self):
-        text = read("commands/zie-status.md")
+        text = read("commands/status.md")
         assert "Pipeline" in text or "pipeline" in text.lower(), \
             "zie-status must have pipeline stage indicator"
 
     def test_pipeline_stages_documented(self):
-        text = read("commands/zie-status.md")
+        text = read("commands/status.md")
         for stage in ["backlog", "spec", "plan", "implement", "release", "retro"]:
             assert stage in text, f"pipeline indicator must show '{stage}' stage"
 
     def test_pipeline_uses_checkmarks(self):
-        text = read("commands/zie-status.md")
+        text = read("commands/status.md")
         assert "✓" in text or "▶" in text, \
             "pipeline indicator must use ✓/▶ symbols"
 
     def test_pipeline_only_when_active(self):
-        text = read("commands/zie-status.md")
+        text = read("commands/status.md")
         assert "Now lane is empty" in text or "empty" in text.lower(), \
             "pipeline indicator must be skipped when no active feature"
 

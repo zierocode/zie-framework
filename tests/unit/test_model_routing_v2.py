@@ -13,19 +13,19 @@ class TestZieReleaseModel:
         import re
 
         import yaml
-        text = read("commands/zie-release.md")
+        text = read("commands/release.md")
         match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
         assert match
         fm = yaml.safe_load(match.group(1))
         assert fm.get("model") == "haiku", "zie-release.md must use haiku"
 
     def test_version_suggestion_has_sonnet_annotation(self):
-        text = read("commands/zie-release.md")
+        text = read("commands/release.md")
         assert "model: sonnet" in text, "zie-release must have inline sonnet annotation"
         assert "version" in text.lower() or "bump" in text.lower()
 
     def test_changelog_step_has_sonnet_annotation(self):
-        text = read("commands/zie-release.md")
+        text = read("commands/release.md")
         # Both the version and changelog steps should have sonnet annotations
         assert text.count("model: sonnet") >= 2, \
             "zie-release must have ≥2 sonnet escalation comments (version + changelog)"

@@ -15,17 +15,17 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 # Format: relative_path -> (model, effort)
 EXPECTED = {
     # Commands
-    "commands/zie-status.md":    ("haiku",  "low"),
-    "commands/zie-backlog.md":   ("haiku",  "low"),
-    "commands/zie-spec.md":      ("sonnet", "medium"),
-    "commands/zie-plan.md":      ("sonnet", "medium"),
-    "commands/zie-implement.md": ("sonnet", "medium"),
-    "commands/zie-fix.md":       ("sonnet", "medium"),
-    "commands/zie-release.md":   ("haiku", "medium"),
-    "commands/zie-retro.md":     ("sonnet", "medium"),
-    "commands/zie-init.md":      ("sonnet", "medium"),
-    "commands/zie-resync.md":    ("sonnet", "medium"),
-    "commands/zie-audit.md":     ("sonnet", "medium"),
+    "commands/status.md":    ("haiku",  "low"),
+    "commands/backlog.md":   ("haiku",  "low"),
+    "commands/spec.md":      ("sonnet", "medium"),
+    "commands/plan.md":      ("sonnet", "medium"),
+    "commands/implement.md": ("sonnet", "medium"),
+    "commands/fix.md":       ("sonnet", "medium"),
+    "commands/release.md":   ("haiku", "medium"),
+    "commands/retro.md":     ("sonnet", "medium"),
+    "commands/init.md":      ("sonnet", "medium"),
+    "commands/resync.md":    ("sonnet", "medium"),
+    "commands/audit.md":     ("sonnet", "medium"),
     # Skills
     "skills/spec-design/SKILL.md":   ("sonnet", "high"),
     "skills/write-plan/SKILL.md":    ("sonnet", "medium"),
@@ -129,8 +129,8 @@ class TestAuditFiles:
     """zie-audit uses sonnet+medium per ADR-021 (supersedes ADR-012)."""
 
     def test_zie_audit_command_is_sonnet(self):
-        fm = parse_frontmatter("commands/zie-audit.md")
-        assert fm.get("model") == "sonnet", "commands/zie-audit.md must use sonnet (ADR-021)"
+        fm = parse_frontmatter("commands/audit.md")
+        assert fm.get("model") == "sonnet", "commands/audit.md must use sonnet (ADR-021)"
 
     def test_zie_audit_skill_is_sonnet(self):
         fm = parse_frontmatter("skills/zie-audit/SKILL.md")
@@ -148,8 +148,8 @@ class TestHaikuFiles:
     """Haiku is for mechanical, checklist, and reference tasks."""
 
     EXPECTED_HAIKU = [
-        "commands/zie-status.md",
-        "commands/zie-backlog.md",
+        "commands/status.md",
+        "commands/backlog.md",
         "skills/spec-reviewer/SKILL.md",
         "skills/plan-reviewer/SKILL.md",
         "skills/verify/SKILL.md",

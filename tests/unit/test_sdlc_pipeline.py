@@ -6,7 +6,7 @@ REPO_ROOT = os.path.abspath(
 
 
 def cmd(name):
-    return os.path.join(REPO_ROOT, "commands", f"zie-{name}.md")
+    return os.path.join(REPO_ROOT, "commands", f"{name}.md")
 
 
 def skill(name):
@@ -21,33 +21,33 @@ def read(rel):
 class TestNewCommandsExist:
     def test_zie_backlog_exists(self):
         assert os.path.exists(cmd("backlog")), \
-            "commands/zie-backlog.md must exist"
+            "commands/backlog.md must exist"
 
     def test_zie_spec_exists(self):
         assert os.path.exists(cmd("spec")), \
-            "commands/zie-spec.md must exist"
+            "commands/spec.md must exist"
 
     def test_zie_implement_exists(self):
         assert os.path.exists(cmd("implement")), \
-            "commands/zie-implement.md must exist"
+            "commands/implement.md must exist"
 
     def test_zie_release_exists(self):
         assert os.path.exists(cmd("release")), \
-            "commands/zie-release.md must exist"
+            "commands/release.md must exist"
 
 
 class TestOldCommandsRemoved:
     def test_zie_idea_removed(self):
         assert not os.path.exists(cmd("idea")), \
-            "commands/zie-idea.md must be removed (split into backlog+spec)"
+            "commands/idea.md must be removed (split into backlog+spec)"
 
     def test_zie_build_removed(self):
         assert not os.path.exists(cmd("build")), \
-            "commands/zie-build.md must be removed (renamed to implement)"
+            "commands/build.md must be removed (renamed to implement)"
 
     def test_zie_ship_removed(self):
         assert not os.path.exists(cmd("ship")), \
-            "commands/zie-ship.md must be removed (renamed to release)"
+            "commands/ship.md must be removed (renamed to release)"
 
 
 class TestIntentDetectUpdated:
@@ -55,32 +55,32 @@ class TestIntentDetectUpdated:
         return read("hooks/intent-sdlc.py")
 
     def test_has_backlog_suggestion(self):
-        assert '"/zie-backlog"' in self._hook(), \
-            "intent-detect must suggest /zie-backlog"
+        assert '"/backlog"' in self._hook(), \
+            "intent-detect must suggest /backlog"
 
     def test_has_spec_suggestion(self):
-        assert '"/zie-spec"' in self._hook(), \
-            "intent-detect must suggest /zie-spec"
+        assert '"/spec"' in self._hook(), \
+            "intent-detect must suggest /spec"
 
     def test_has_implement_suggestion(self):
-        assert '"/zie-implement"' in self._hook(), \
-            "intent-detect must suggest /zie-implement"
+        assert '"/implement"' in self._hook(), \
+            "intent-detect must suggest /implement"
 
     def test_has_release_suggestion(self):
-        assert '"/zie-release"' in self._hook(), \
-            "intent-detect must suggest /zie-release"
+        assert '"/release"' in self._hook(), \
+            "intent-detect must suggest /release"
 
     def test_no_idea_suggestion(self):
-        assert '"/zie-idea"' not in self._hook(), \
-            "intent-detect must not suggest /zie-idea"
+        assert '"/idea"' not in self._hook(), \
+            "intent-detect must not suggest /idea"
 
     def test_no_build_suggestion(self):
-        assert '"/zie-build"' not in self._hook(), \
-            "intent-detect must not suggest /zie-build"
+        assert '"/build"' not in self._hook(), \
+            "intent-detect must not suggest /build"
 
     def test_no_ship_suggestion(self):
-        assert '"/zie-ship"' not in self._hook(), \
-            "intent-detect must not suggest /zie-ship"
+        assert '"/ship"' not in self._hook(), \
+            "intent-detect must not suggest /ship"
 
 
 class TestReviewerSkillsExist:
@@ -111,12 +111,12 @@ class TestSkillsInvokeReviewers:
         # Reviewer gate lives in zie-plan.md, NOT inside the skill
         skill_content = read("skills/write-plan/SKILL.md")
         assert "plan-reviewer" not in skill_content, \
-            "write-plan skill must NOT invoke plan-reviewer (reviewer gate belongs in zie-plan.md)"
-        command_content = read("commands/zie-plan.md")
+            "write-plan skill must NOT invoke plan-reviewer (reviewer gate belongs in plan.md)"
+        command_content = read("commands/plan.md")
         assert "plan-reviewer" in command_content, \
-            "zie-plan.md must contain the plan-reviewer gate"
+            "plan.md must contain the plan-reviewer gate"
 
-    def test_zie_implement_invokes_impl_reviewer(self):
-        content = read("commands/zie-implement.md")
+    def test_implement_invokes_impl_reviewer(self):
+        content = read("commands/implement.md")
         assert "impl-reviewer" in content, \
-            "zie-implement must invoke impl-reviewer after each task"
+            "implement must invoke impl-reviewer after each task"

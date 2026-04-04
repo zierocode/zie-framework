@@ -4,7 +4,7 @@ COMMANDS_DIR = Path(__file__).parents[2] / "commands"
 
 
 def read_audit() -> str:
-    return (COMMANDS_DIR / "zie-audit.md").read_text()
+    return (COMMANDS_DIR / "audit.md").read_text()
 
 
 class TestPhase1ResearchProfile:

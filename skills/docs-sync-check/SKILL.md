@@ -12,7 +12,7 @@ effort: low
 # docs-sync-check — Living Docs Verification
 
 Verify that `CLAUDE.md` and `README.md` reflect the actual state of commands,
-skills, and hooks on disk. Called by `/zie-retro` and `/zie-release` as a
+skills, and hooks on disk. Called by `/retro` and `/release` as a
 parallel fork.
 
 ## Input

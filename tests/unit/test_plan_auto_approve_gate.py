@@ -1,7 +1,7 @@
 """Tests for agentic-pipeline-v2 Task 2: zie-plan auto-approve on reviewer APPROVED."""
 from pathlib import Path
 
-CMD_PATH = Path(__file__).parents[2] / "commands" / "zie-plan.md"
+CMD_PATH = Path(__file__).parents[2] / "commands" / "plan.md"
 
 
 def cmd_text() -> str:
@@ -23,12 +23,12 @@ class TestPlanAutoApprove:
             "zie-plan must document auto-approval on reviewer APPROVED"
 
     def test_redraft_override_documented(self):
-        """User can still override with /zie-plan re-draft."""
+        """User can still override with /plan re-draft."""
         text = cmd_text()
         assert "re-draft" in text, "zie-plan must document re-draft override option"
 
     def test_drop_override_documented(self):
-        """User can still override with /zie-plan drop."""
+        """User can still override with /plan drop."""
         text = cmd_text()
         assert "drop" in text, "zie-plan must document drop override option"
 

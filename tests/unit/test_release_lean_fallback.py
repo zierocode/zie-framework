@@ -2,7 +2,7 @@
 from pathlib import Path
 
 ROOT = Path(__file__).parents[2]
-RELEASE_MD = ROOT / "commands" / "zie-release.md"
+RELEASE_MD = ROOT / "commands" / "release.md"
 
 
 class TestReleaseLeanFallback:

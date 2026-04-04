@@ -1,7 +1,7 @@
 """Tests for context-lean-sprint Task 4: zie-plan passes context_bundle with adr_cache_path."""
 from pathlib import Path
 
-CMD_PATH = Path(__file__).parents[2] / "commands" / "zie-plan.md"
+CMD_PATH = Path(__file__).parents[2] / "commands" / "plan.md"
 
 
 def cmd_text() -> str:

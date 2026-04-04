@@ -17,7 +17,7 @@ hooks/hooks.json             # hook event → script mapping
 hooks/*.py                   # hook implementations (Python 3.x)
 commands/zie-*.md            # slash command definitions (markdown)
 skills/*/SKILL.md            # skill definitions (invoked via Skill tool)
-templates/                   # file templates for /zie-init
+templates/                   # file templates for /init
 zie-framework/               # self-managed SDLC state (this repo uses itself)
   ├── .config                # project config (JSON)
   ├── ROADMAP.md             # backlog + active work
@@ -52,7 +52,7 @@ User runs /zie-command
 ## Key Constraints
 
 - **WIP=1**: one active feature in Now at a time (`[ ]` item blocks new builds)
-- **Batch release**: `[x]` items accumulate in Now until `/zie-release` moves
+- **Batch release**: `[x]` items accumulate in Now until `/release` moves
   them to Done with version
 - **Graceful degradation**: all features work without zie-memory or superpowers
 - **Hook safety**: hooks must never crash — every hook has try/except + exit(0)
@@ -63,7 +63,7 @@ User runs /zie-command
 - **v1.3.0** (2026-03-23) — 6-stage SDLC pipeline; `project/context.md`
   renamed from `decisions.md`; reviewer context bundles; quick spec mode;
   hybrid release via `make release`.
-- **v1.4.0** (2026-03-23) — `/zie-audit` 9-dimension audit command with
+- **v1.4.0** (2026-03-23) — `/audit` 9-dimension audit command with
   external research; `research_profile` dynamic intelligence layer; intent-detect
   skip command content.
 - **v1.5.0** (2026-03-23) — `parse_roadmap_section()` dedup; `knowledge-hash.py`

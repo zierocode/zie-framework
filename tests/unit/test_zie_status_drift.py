@@ -1,8 +1,8 @@
-"""Tests that /zie-status spec references drift count display."""
+"""Tests that /status spec references drift count display."""
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
-CMD = REPO_ROOT / "commands" / "zie-status.md"
+CMD = REPO_ROOT / "commands" / "status.md"
 
 
 def test_drift_row_in_status():

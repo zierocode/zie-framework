@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-RELEASE_CMD = Path(__file__).parents[2] / "commands" / "zie-release.md"
+RELEASE_CMD = Path(__file__).parents[2] / "commands" / "release.md"
 ROOT = Path(__file__).parents[2]
 
 

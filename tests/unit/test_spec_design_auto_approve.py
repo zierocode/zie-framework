@@ -29,7 +29,7 @@ class TestSpecDesignAutoApprove:
     def test_print_handoff_present(self):
         """Handoff block must still be present."""
         text = skill_text()
-        assert "Next: Run /zie-plan" in text or "zie-plan" in text
+        assert "Next: Run /plan" in text or "zie-plan" in text
 
     def test_approved_frontmatter_auto_written(self):
         """frontmatter is written atomically when reviewer returns APPROVED (no user confirmation)."""

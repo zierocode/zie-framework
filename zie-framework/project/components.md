@@ -6,34 +6,34 @@
 
 | Command | Input | Output | Dependencies |
 | --- | --- | --- | --- |
-| /zie-backlog | idea title (optional) | backlog item file | none |
-| /zie-spec | backlog slug OR inline idea string; `--draft-plan` flag | approved spec + optional plan | spec-design |
-| /zie-plan | slug(s) | approved plan in Ready; auto-approves on reviewer ✅ APPROVED | write-plan skill |
-| /zie-implement | (reads ROADMAP Now) | feature tasks | tdd-loop, test-pyr |
-| /zie-fix | bug description | regression test + fix | debug, verify |
-| /zie-release | (ROADMAP Now) | release tag + ADRs; parallel gates 2-4; haiku model | verify, make release |
-| /zie-status | (reads files) | status snapshot | none |
-| /zie-resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
-| /zie-retro | (reads git log) | ADRs + brain memories | retro-format skill |
-| /zie-sprint | (reads ROADMAP Next/Ready) | batch pipeline: spec→plan→implement→release→retro for all items; phase-parallel, dependency-detected | Agent, Skill |
-| /zie-audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | audit report + backlog; shared_context bundle | Agent, WebSearch |
+| /backlog | idea title (optional) | backlog item file | none |
+| /spec | backlog slug OR inline idea string; `--draft-plan` flag | approved spec + optional plan | spec-design |
+| /plan | slug(s) | approved plan in Ready; auto-approves on reviewer ✅ APPROVED | write-plan skill |
+| /implement | (reads ROADMAP Now) | feature tasks | tdd-loop, test-pyr |
+| /fix | bug description | regression test + fix | debug, verify |
+| /release | (ROADMAP Now) | release tag + ADRs; parallel gates 2-4; haiku model | verify, make release |
+| /status | (reads files) | status snapshot | none |
+| /resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
+| /retro | (reads git log) | ADRs + brain memories | retro-format skill |
+| /sprint | (reads ROADMAP Next/Ready) | batch pipeline: spec→plan→implement→release→retro for all items; phase-parallel, dependency-detected | Agent, Skill |
+| /audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | audit report + backlog; shared_context bundle | Agent, WebSearch |
 
 ## Skills
 
 | Skill | ทำอะไร | Invoked by |
 | --- | --- | --- |
-| spec-design | Brainstorm → design spec + spec-reviewer loop | /zie-spec |
+| spec-design | Brainstorm → design spec + spec-reviewer loop | /spec |
 | spec-reviewer | Phase 1-3 review with context bundle | spec-design |
-| write-plan | Spec → task plan + plan-reviewer loop | /zie-plan, spec-design |
+| write-plan | Spec → task plan + plan-reviewer loop | /plan, spec-design |
 | plan-reviewer | Phase 1-3 review with context bundle | write-plan |
-| tdd-loop | RED/GREEN/REFACTOR guide | /zie-implement |
-| impl-reviewer | Phase 1-3 review with context bundle; `model: haiku` with sonnet escalation for security/arch changes | /zie-implement |
-| test-pyramid | Choose test level (unit/int/e2e) | /zie-implement (RED phase) |
-| debug | Reproduce → isolate → fix | /zie-implement, /zie-fix |
-| verify | Pre-release verification checklist; `context: fork` with optional captured `test_output` | /zie-fix, /zie-release, /zie-implement |
-| load-context | Load shared context bundle (ADRs + project/context.md) once per session | /zie-plan, /zie-implement, /zie-sprint |
+| tdd-loop | RED/GREEN/REFACTOR guide | /implement |
+| impl-reviewer | Phase 1-3 review with context bundle; `model: haiku` with sonnet escalation for security/arch changes | /implement |
+| test-pyramid | Choose test level (unit/int/e2e) | /implement (RED phase) |
+| debug | Reproduce → isolate → fix | /implement, /fix |
+| verify | Pre-release verification checklist; `context: fork` with optional captured `test_output` | /fix, /release, /implement |
+| load-context | Load shared context bundle (ADRs + project/context.md) once per session | /plan, /implement, /sprint |
 | reviewer-context | Shared Phase 1 protocol for all reviewer skills (cache-first ADR loading) | spec-reviewer, plan-reviewer, impl-reviewer |
-| docs-sync-check | Verify CLAUDE.md/README.md match commands/skills/hooks on disk; `context: fork` | /zie-retro, /zie-release |
+| docs-sync-check | Verify CLAUDE.md/README.md match commands/skills/hooks on disk; `context: fork` | /retro, /release |
 
 ## Hooks
 
@@ -76,9 +76,9 @@ invoke the corresponding skill.
 | --- | --- | --- | --- |
 | `agents/spec-reviewer.md` | `isolation: worktree` | `spec-design` skill | Review spec from clean committed snapshot |
 | `agents/plan-reviewer.md` | `isolation: worktree` | `write-plan` skill | Review plan from clean committed snapshot |
-| `agents/impl-reviewer.md` | `background: true` | `/zie-implement` step 6 | Review task impl asynchronously; deferred-check on next iteration |
-| `agents/zie-implement-mode.md` | `permissionMode: acceptEdits`, `tools: all` | `--agent zie-framework:zie-implement-mode` | TDD session agent — SDLC context, WIP=1, tdd-loop + test-pyramid preload |
-| `agents/zie-audit-mode.md` | `permissionMode: plan`, `tools: [Read, Grep, Glob, WebSearch]` | `--agent zie-framework:zie-audit-mode` | Read-only analysis session; findings surfaced as backlog candidates |
+| `agents/impl-reviewer.md` | `background: true` | `/implement` step 6 | Review task impl asynchronously; deferred-check on next iteration |
+| `agents/implement-mode.md` | `permissionMode: acceptEdits`, `tools: all` | `--agent zie-framework:zie-implement-mode` | TDD session agent — SDLC context, WIP=1, tdd-loop + test-pyramid preload |
+| `agents/audit-mode.md` | `permissionMode: plan`, `tools: [Read, Grep, Glob, WebSearch]` | `--agent zie-framework:zie-audit-mode` | Read-only analysis session; findings surfaced as backlog candidates |
 
 ### Field reference
 
@@ -97,5 +97,5 @@ Scripts in `hooks/` that are not registered as hook event handlers.
 
 | Script | Purpose |
 | --- | --- |
-| `hooks/knowledge-hash.py` | Compute SHA-256 of project structure for drift detection. Called by `make resync` / `/zie-resync`. Not registered in hooks.json. |
+| `hooks/knowledge-hash.py` | Compute SHA-256 of project structure for drift detection. Called by `make resync` / `/resync`. Not registered in hooks.json. |
 | `scripts/test_fast.sh` | Fast TDD feedback loop — runs pytest on changed files + `--lf`. Invoked by `make test-fast`. |

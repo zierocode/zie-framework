@@ -13,7 +13,7 @@ effort: medium
 Systematic 9-dimension analysis: internal codebase scan + external research.
 Produces a scored report and feeds selected findings into the backlog.
 
-Invoked by: `Skill(zie-framework:zie-audit)` from `/zie-audit`.
+Invoked by: `Skill(zie-framework:zie-audit)` from `/audit`.
 
 ## Arguments
 
@@ -26,7 +26,7 @@ Phase 3 researches only that dimension (deeply). All other phases run normally.
 
 ## Pre-flight
 
-1. Check `zie-framework/` exists — if not, tell user to run `/zie-init` first.
+1. Check `zie-framework/` exists — if not, tell user to run `/init` first.
 2. Read `zie-framework/.config` → project name, project_type, test_runner, has_frontend.
 3. Read `zie-framework/PROJECT.md` → tech stack, description.
 

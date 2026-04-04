@@ -10,7 +10,7 @@ COMMANDS_DIR = Path(__file__).parents[2] / "commands"
 
 class TestZieImplementInjections:
     def setup_method(self):
-        self.content = (COMMANDS_DIR / "zie-implement.md").read_text()
+        self.content = (COMMANDS_DIR / "implement.md").read_text()
 
     def test_git_log_injection_present(self):
         assert "!`git log -5 --oneline`" in self.content
@@ -44,7 +44,7 @@ class TestZieImplementInjections:
 
 class TestZieStatusInjections:
     def setup_method(self):
-        self.content = (COMMANDS_DIR / "zie-status.md").read_text()
+        self.content = (COMMANDS_DIR / "status.md").read_text()
 
     def test_roadmap_head_injection_present(self):
         assert "!`cat zie-framework/ROADMAP.md | head -30`" in self.content
@@ -69,7 +69,7 @@ class TestZieStatusInjections:
 
 class TestZieRetroInjections:
     def setup_method(self):
-        self.content = (COMMANDS_DIR / "zie-retro.md").read_text()
+        self.content = (COMMANDS_DIR / "retro.md").read_text()
 
     def test_commits_since_tag_injection_present(self):
         expected = (
@@ -101,19 +101,19 @@ class TestNoUnboundedInjections:
         return re.findall(r"!`([^`]+)`", content)
 
     def test_implement_injections_are_bounded(self):
-        for cmd in self._injections("zie-implement.md"):
+        for cmd in self._injections("implement.md"):
             if "git log" in cmd:
                 assert (
                     "-5" in cmd or "-20" in cmd or "..HEAD" in cmd
                 ), f"Unbounded git log in zie-implement.md: {cmd}"
 
     def test_status_injections_are_bounded(self):
-        for cmd in self._injections("zie-status.md"):
+        for cmd in self._injections("status.md"):
             if "cat" in cmd:
                 assert "head -30" in cmd, f"Unbounded cat in zie-status.md: {cmd}"
 
     def test_retro_injections_are_bounded(self):
-        for cmd in self._injections("zie-retro.md"):
+        for cmd in self._injections("retro.md"):
             if "git log" in cmd and "describe" not in cmd:
                 assert "-20" in cmd or "..HEAD" in cmd, (
                     f"Unbounded git log in zie-retro.md: {cmd}"

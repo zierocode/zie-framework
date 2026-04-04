@@ -7,7 +7,7 @@ allowed-tools: Read, Glob, Grep
 # docs-sync-check agent
 
 Invoke `Skill(zie-framework:docs-sync-check)` with the list of changed files
-passed in `$ARGUMENTS` by `/zie-retro` or `/zie-release`.
+passed in `$ARGUMENTS` by `/retro` or `/release`.
 
 Return a JSON verdict:
 ```json

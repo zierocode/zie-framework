@@ -1,7 +1,7 @@
 """Tests for parallel-release-gates Task 1: zie-release parallel gate execution."""
 from pathlib import Path
 
-CMD_PATH = Path(__file__).parents[2] / "commands" / "zie-release.md"
+CMD_PATH = Path(__file__).parents[2] / "commands" / "release.md"
 
 
 def cmd_text() -> str:

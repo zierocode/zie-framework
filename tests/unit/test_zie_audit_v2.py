@@ -1,7 +1,7 @@
-"""Tests for improved /zie-audit — v2 design."""
+"""Tests for improved /audit — v2 design."""
 from pathlib import Path
 
-AUDIT = Path(__file__).parents[2] / "commands" / "zie-audit.md"
+AUDIT = Path(__file__).parents[2] / "commands" / "audit.md"
 
 
 def read_audit() -> str:

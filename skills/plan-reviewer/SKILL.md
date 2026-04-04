@@ -119,7 +119,7 @@ If plan-reviewer has been invoked 3 times and issues persist, output:
 <list remaining issues>
 
 Next steps:
-- Fix issues above, then re-run: /zie-plan <slug>
+- Fix issues above, then re-run: /plan <slug>
 - Or split plan into smaller tasks and re-submit
 - Or ask Zie to review the plan section manually
 ```

@@ -1,12 +1,12 @@
-"""Structural tests for commands/zie-chore.md."""
+"""Structural tests for commands/chore.md."""
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
-CMD = REPO_ROOT / "commands" / "zie-chore.md"
+CMD = REPO_ROOT / "commands" / "chore.md"
 
 
 def test_file_exists():
-    assert CMD.exists(), "commands/zie-chore.md must exist"
+    assert CMD.exists(), "commands/chore.md must exist"
 
 
 def test_frontmatter_keys():

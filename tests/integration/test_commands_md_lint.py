@@ -11,22 +11,22 @@ ROOT = Path(__file__).parents[2]
 
 @pytest.fixture
 def zie_implement_md():
-    return (COMMANDS / "zie-implement.md").read_text()
+    return (COMMANDS / "implement.md").read_text()
 
 
 @pytest.fixture
 def zie_audit_md():
-    return (COMMANDS / "zie-audit.md").read_text()
+    return (COMMANDS / "audit.md").read_text()
 
 
 @pytest.fixture
 def zie_resync_md():
-    return (COMMANDS / "zie-resync.md").read_text()
+    return (COMMANDS / "resync.md").read_text()
 
 
 @pytest.fixture
 def zie_sprint_md():
-    return (COMMANDS / "zie-sprint.md").read_text()
+    return (COMMANDS / "sprint.md").read_text()
 
 
 # ── T1: zie-implement ─────────────────────────────────────────────────────────

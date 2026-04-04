@@ -68,7 +68,7 @@ class TestTestPyramidPruning:
     def test_trigger_table_preserved(self):
         text = read_skill("test-pyramid")
         assert "PostToolUse hook" in text
-        assert "/zie-release gate" in text
+        assert "/release gate" in text
 
 
 class TestWritePlanPruning:

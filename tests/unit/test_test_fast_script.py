@@ -37,7 +37,7 @@ def test_map_hooks_file_fallback_to_full_suite():
 
 def test_commands_md_skipped():
     """commands/*.md files produce no test mapping — skip (markdown)."""
-    result = _run(env_overrides={"_FAST_DRY_RUN": "1", "_FAST_CHANGED": "commands/zie-implement.md"})
+    result = _run(env_overrides={"_FAST_DRY_RUN": "1", "_FAST_CHANGED": "commands/implement.md"})
     assert "skip" in result.stdout.lower() or "skip" in result.stderr.lower()
 
 

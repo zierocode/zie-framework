@@ -92,7 +92,7 @@ class TestConfigDriftZieConfig:
         r = run_hook({"hook_event_name": "ConfigChange", "file_path": path}, tmp_path)
         assert r.returncode == 0
         ctx = parse_context(r)
-        assert "/zie-resync" in ctx
+        assert "/resync" in ctx
 
     def test_zie_config_context_mentions_reload(self, tmp_path):
         path = str(tmp_path / "zie-framework" / ".config")

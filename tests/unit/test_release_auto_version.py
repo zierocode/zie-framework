@@ -1,7 +1,7 @@
 """Tests for agentic-pipeline-v2 Task 3: zie-release auto-accepts version suggestion."""
 from pathlib import Path
 
-CMD_PATH = Path(__file__).parents[2] / "commands" / "zie-release.md"
+CMD_PATH = Path(__file__).parents[2] / "commands" / "release.md"
 
 
 def cmd_text() -> str:
