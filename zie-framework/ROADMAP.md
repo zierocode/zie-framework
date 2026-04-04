@@ -29,6 +29,12 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+- [ ] preflight-consolidation — [backlog](backlog/preflight-consolidation.md)
+- [ ] reviewer-context-dedup — [backlog](backlog/reviewer-context-dedup.md)
+- [ ] phase-prose-cleanup — [backlog](backlog/phase-prose-cleanup.md)
+- [ ] init-scan-prompt-extract — [backlog](backlog/init-scan-prompt-extract.md)
+- [ ] argument-parsing-inline — [backlog](backlog/argument-parsing-inline.md)
+
 ---
 
 ## Done
