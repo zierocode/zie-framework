@@ -12,12 +12,10 @@ effort: medium
 **Live context:**
 !`git log -5 --oneline`
 !`git status --short`
-!`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now 2>/dev/null || echo "knowledge-hash: unavailable"`
 
-0. **Pre-flight: Agent mode check** — if not running with `--agent zie-framework:zie-implement-mode`:
-   print `⚠️ Running /implement outside agent session. permissionMode and tool preloading will be missing.`
-   print `Recommended: exit and relaunch with: claude --agent zie-framework:zie-implement-mode`
-   Ask: `Continue anyway? (yes / no)` — if no → STOP. If yes → continue.
+0. **Pre-flight: Agent mode advisory** — if not running with `--agent zie-framework:zie-implement-mode`:
+   print `ℹ️ Tip: run inside \`claude --agent zie-framework:zie-implement-mode\` for best results.`
+   (advisory only — do not block, continue immediately)
 
 1. Check `zie-framework/` exists → if not, run `/init` first.
 2. **Pre-flight: ROADMAP guard** — check `zie-framework/ROADMAP.md` exists:
@@ -73,7 +71,7 @@ Test level selection (print once before task loop, not per task):
    - At each loop start: poll `reviewer_status` → `approved` clear; `issues_found` halt, fix, re-run `make test-unit`, re-invoke. Max 2 total iterations; confirm pass required. If 0 issues → APPROVED immediately.
 5. **→ LOW risk:** `make test-unit` + `[risk: LOW] Skipping impl-reviewer`.
 6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ T{N} done — {remaining} remaining`.
-   - Checkpoint every 3 tasks. Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
+   - Checkpoint every 3 tasks. If `zie_memory_enabled=true`: Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
 
 ## When All Tasks Complete
 

@@ -162,12 +162,9 @@ if __name__ == "__main__":
     # Single find_matching_test call — result reused for context injection and test command
     matching_test = find_matching_test(changed, test_runner, cwd)
 
-    # additionalContext injection — only fires when tests will actually run (after debounce)
+    # additionalContext injection — only fires when test file exists (after debounce)
     if matching_test:
-        _additional_context = f"Affected test: {matching_test}"
-    else:
-        _additional_context = f"No test file found for {changed.name} — write one"
-    print(json.dumps({"additionalContext": _additional_context}))
+        print(json.dumps({"additionalContext": f"Affected test: {matching_test}"}))
 
     auto_test_timeout_ms = config["auto_test_timeout_ms"]
     auto_test_max_wait_s = config["auto_test_max_wait_s"]

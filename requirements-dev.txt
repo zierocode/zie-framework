@@ -1,7 +1,9 @@
-# Dev dependencies — pinned lower-bounds (Dependabot-friendly)
-pytest>=9.0.3
-pytest-cov>=7.1.0
-coverage>=7.13.5
-bandit>=1.9.4
-commitizen>=4.13.9
-ruff==0.11.2
+# Dev dependencies — compatible-release pinning (~=X.Y.Z)
+# ~= allows patch/minor upgrades within the same major series (PEP 440).
+# This lets Dependabot auto-merge minor/patch bumps while blocking major breaks.
+pytest~=9.0.3
+pytest-cov~=7.1.0
+coverage~=7.13.5
+bandit~=1.9.4
+commitizen~=4.13.9
+ruff~=0.11.2

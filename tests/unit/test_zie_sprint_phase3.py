@@ -4,18 +4,18 @@ from pathlib import Path
 SPRINT_CMD = Path("commands/sprint.md")
 
 
-def test_phase3_no_agent():
+def test_phase2_no_agent():
     content = SPRINT_CMD.read_text()
-    phase3 = re.search(r"^## PHASE 3.*?(?=^## PHASE |\Z)", content, re.MULTILINE | re.DOTALL)
-    assert phase3, "Phase 3 not found"
-    assert "Agent(" not in phase3.group(0), "Phase 3 must not use Agent"
+    phase2 = re.search(r"^## PHASE 2.*?(?=^## PHASE |\Z)", content, re.MULTILINE | re.DOTALL)
+    assert phase2, "Phase 2 not found"
+    assert "Agent(" not in phase2.group(0), "Phase 2 (implement) must not use Agent"
 
 
-def test_phase3_has_skill():
+def test_phase2_has_skill():
     content = SPRINT_CMD.read_text()
-    phase3 = re.search(r"^## PHASE 3.*?(?=^## PHASE |\Z)", content, re.MULTILINE | re.DOTALL)
-    assert phase3, "Phase 3 not found"
-    assert "Skill(" in phase3.group(0) and "zie-implement" in phase3.group(0)
+    phase2 = re.search(r"^## PHASE 2.*?(?=^## PHASE |\Z)", content, re.MULTILINE | re.DOTALL)
+    assert phase2, "Phase 2 not found"
+    assert "Skill(" in phase2.group(0) and "zie-implement" in phase2.group(0)
 
 
 def test_phase1_keeps_agent():

@@ -2,14 +2,14 @@
 description: Emergency fix track — describe → fix → ship without full pipeline
 argument-hint: "<slug>"
 allowed-tools: Read, Edit, Write, Bash, Glob, Grep
-model: claude-opus-4-6
-effort: high
+model: sonnet
+effort: low
 ---
 
 # /hotfix — Emergency Hotfix Track
 
 A lightweight track for urgent production fixes that cannot wait for the full
-backlog → spec → plan → implement pipeline.
+backlog → spec → plan → implement pipeline. **Use only for production incidents requiring immediate release. Triggers release gate automatically. For non-urgent bugs, use /fix instead.**
 
 Opens a drift log entry, applies the fix, closes the drift log, then ships.
 

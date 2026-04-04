@@ -47,7 +47,16 @@
   ],
   "SubagentStart": [
     {
-      "matcher": "Explore|Plan",
+      "matcher": "Explore",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-context.py\""
+        }
+      ]
+    },
+    {
+      "matcher": "Plan",
       "hooks": [
         {
           "type": "command",
@@ -79,15 +88,6 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety-check.py\""
-        }
-      ]
-    },
-    {
-      "matcher": "Bash",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety_check_agent.py\""
         }
       ]
     }
@@ -151,6 +151,7 @@
   ],
   "SubagentStop": [
     {
+      "_matcher_note": "SubagentStop does not support matchers in Claude Code plugin spec — hook fires on every subagent completion in any project. Project guard (is_dir check) lives inside subagent-stop.py instead. Investigated 2026-04-04.",
       "hooks": [
         {
           "type": "command",

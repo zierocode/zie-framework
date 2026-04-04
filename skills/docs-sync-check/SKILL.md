@@ -40,6 +40,21 @@ If empty or unparseable: run full check across all commands/skills/hooks.
    - Glob `skills/*/SKILL.md` → extract parent directory names.
    - Glob `hooks/*.py` → extract base filenames (exclude `utils.py`).
 
+3b. **Read PROJECT.md** — parse Commands and Skills tables:
+    - Read `PROJECT.md` at the project root. If missing → set `project_md_stale: false`,
+      append "PROJECT.md not found — skipped" to `details`, skip cross-reference.
+    - Extract Commands table: every `| /command |` row. Skip header rows
+      (`| Command |`, `| --- |`). Strip the leading `/` from each command name.
+      Strip `.md` suffix from disk basenames before comparing.
+    - Extract Skills table: every `| skill-name |` row. Skip header rows
+      (`| Skill |`, `| --- |`). Skill names are bare (no path prefix).
+    - If a Commands or Skills table is absent from PROJECT.md, treat as empty
+      (all disk items → `missing_from_project_md`).
+    - Cross-reference:
+      - `missing_from_project_md`: commands/skills on disk NOT in PROJECT.md tables.
+      - `extra_in_project_md`: entries in PROJECT.md tables NOT found on disk.
+    - Set `project_md_stale: true` if either list is non-empty; `false` otherwise.
+
 4. **Compare** each category: docs vs. actual.
    - `missing_from_docs`: items on disk not mentioned in the doc.
    - `extra_in_docs`: items mentioned in doc but not on disk.
@@ -50,9 +65,12 @@ If empty or unparseable: run full check across all commands/skills/hooks.
 {
   "claude_md_stale": false,
   "readme_stale": false,
+  "project_md_stale": false,
   "missing_from_docs": [],
   "extra_in_docs": [],
-  "details": "CLAUDE.md in sync | README.md in sync"
+  "missing_from_project_md": [],
+  "extra_in_project_md": [],
+  "details": "CLAUDE.md in sync | README.md in sync | PROJECT.md in sync"
 }
 ```
 

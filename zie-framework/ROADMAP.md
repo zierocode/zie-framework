@@ -10,6 +10,8 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+<!-- Clear — all items released v1.19.0 -->
+
 ---
 
 ## Ready — Approved Plans
@@ -19,35 +21,30 @@
 
 <!-- CRITICAL -->
 
-<!-- HIGH -->
-
-<!-- MEDIUM -->
-
-<!-- LOW -->
+<!-- HIGH (in-flight) -->
+- [x] lean-retro-git-log-quad-read — deduplicate 4 git log reads in retro.md → 1
+- [ ] lean-project-md-commands-stale — sync PROJECT.md + CLAUDE.md commands/skills tables (4 missing commands, 1 ghost + 2 missing skills)
+- [ ] lean-docs-sync-blind-to-project-md — extend docs-sync-check scope to verify PROJECT.md
+- [ ] lean-spec-design-agent-syntax — fix @agent-spec-reviewer → Skill() in spec-design (reliability gap)
+- [ ] lean-double-pretooluse-on-bash — merge safety_check_agent.py into safety-check.py (eliminate per-Bash config read)
+- [ ] sec-shell-injection-confirm-wrap — add > < | \n to confirm-wrapper guard in safety-check.py:141
+- [ ] sec-shell-injection-stop-guard-slug — shlex.quote(slug) in stop-guard.py:64 subprocess call
+- [ ] lean-dual-audit-pipeline — collapse /audit command + zie-audit skill into one canonical pipeline [Strategic]
+- [ ] lean-reviewer-context-chain-depth — reduce reviewer skill chain depth 3–4 hops → 1–2 [Strategic]
 
 ---
 
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
-<!-- Audit 2026-03-26: 53 findings, score 73/100 -->
-<!-- Audit 2026-04-01: 9 findings added (4 HIGH, 5 MEDIUM) -->
-<!-- Audit 2026-04-02: Qwen3-coder-next deep review — 10 issues -->
-<!-- Audit 2026-04-04: Efficiency deep audit — 29 findings (14 HIGH, 2 MEDIUM, 13 LOW) — token/overhead focus -->
-
-<!-- CRITICAL -->
-
-<!-- HIGH -->
-
-<!-- MEDIUM -->
-
-<!-- LOW -->
 
 ---
 
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint10-lean-quality-refactor-v1.19.0 — 45 items: model downsizing (10 items: /hotfix, /release, /retro, impl-reviewer, resync, init, fix, plan, write-plan, debug), lean refactoring (15 items: lean-sprint-phase2, lean-retro-self-tuning, lean-prompt-pass-through, lean-auto-test-context, lean-intent-sdlc-idle-state, lean-chore-git-add, lean-knowledge-hash, lean-status-knowledge-hash, lean-subagent-context-idle, lean-implement-agent-mode, lean-verify-check2, lean-intent-sdlc-missing-tracks, lean-subagent-stop-no-matcher, lean-sec-prompt-injection-subagent, lean-mcp-zie-memory), intent detection patterns (hotfix, chore, spike), docs-sync (README sync), quality features (5 items: lean-fix-hotfix-triage, lean-spike-gitignore, lean-observability-health-command, lean-write-plan-duplicate-conflict-check, lean-plan-reviewer-n-squared, lean-notification-log-double-guard, lean-dep-pinning-inconsistency, lean-playwright-version-magic-constant), leadership tasks (3 items: lean-claudemd-trim, lean-stop-guard-nudge, lean-load-context-triple-invoke, lean-retro-git-log-quad) — 2294 unit + 1 skipped tests — v1.19.0 2026-04-04
 
 - [x] sprint9.1-efficiency-hotspot-v1.18.1 — 5 items: consolidate reviewer disk fallback, fix release config triple read, fix retro ROADMAP redundant reads, align load-context ADR cache protocol, fix sprint ROADMAP phase rebind — 2175 unit + 59 integration tests — v1.18.1 2026-04-04
 

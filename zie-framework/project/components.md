@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-04-04 (v1.18.0)
+**Last updated:** 2026-04-04 (v1.18.1)
 
 ## Commands
 
@@ -29,13 +29,13 @@
 | spec-reviewer | Phase 1-3 review with context bundle | spec-design |
 | write-plan | Spec → task plan + plan-reviewer loop | /plan, spec-design |
 | plan-reviewer | Phase 1-3 review with context bundle | write-plan |
-| tdd-loop | RED/GREEN/REFACTOR guide | /implement |
+| tdd-loop | RED/GREEN/REFACTOR guide; enforces "run tests once per phase" (never re-run for different grep — capture once, grep the capture) (v1.18.1) | /implement |
 | impl-reviewer | Phase 1-3 review with context bundle; `model: haiku` with sonnet escalation for security/arch changes | /implement |
 | test-pyramid | Choose test level (unit/int/e2e) | /implement (RED phase) |
 | debug | Reproduce → isolate → fix | /implement, /fix |
 | verify | Pre-release verification checklist; `context: fork` with optional captured `test_output` | /fix, /release, /implement |
-| load-context | Load shared context bundle (ADRs + project/context.md) once per session | /plan, /implement, /sprint |
-| reviewer-context | Shared Phase 1 protocol for all reviewer skills (cache-first ADR loading) | spec-reviewer, plan-reviewer, impl-reviewer |
+| load-context | Load shared context bundle (ADRs + project/context.md) once per session; Step 0 cache-check via get_cached_adrs before disk read (v1.18.1) | /plan, /implement, /sprint |
+| reviewer-context | Shared Phase 1 protocol for all reviewer skills (cache-first ADR loading); Phase 1 blocks in spec/plan/impl-reviewer now delegate to this skill via compact 2-line stubs (v1.18.1) | spec-reviewer, plan-reviewer, impl-reviewer |
 | docs-sync-check | Verify CLAUDE.md/README.md match commands/skills/hooks on disk; `context: fork` | /retro, /release |
 
 ## Hooks

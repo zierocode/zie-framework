@@ -17,6 +17,11 @@ and does not write to ROADMAP or produce a shippable artifact.
 ## Steps
 
 1. **Create sandbox** — `mkdir spike-<slug>/` at repo root. All spike files live here.
+   Add to `.gitignore` if not already present:
+   ```bash
+   grep -qF 'spike-*/' .gitignore 2>/dev/null || echo 'spike-*/' >> .gitignore
+   ```
+   Spike directories are throwaway — delete when done or archive to `zie-framework/archive/` if findings are worth keeping.
 
 2. **Define the question** — state clearly:
    - What are you trying to learn?

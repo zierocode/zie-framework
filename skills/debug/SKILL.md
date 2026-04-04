@@ -6,7 +6,7 @@ metadata:
 user-invocable: false
 argument-hint: ""
 model: sonnet
-effort: medium
+effort: low
 ---
 
 # debug — Systematic Debugging

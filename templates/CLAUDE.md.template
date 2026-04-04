@@ -17,6 +17,14 @@
 
 - (add project-specific rules here)
 
+## Hook Reference Docs
+
+| Topic | File |
+| --- | --- |
+| Hook Output Convention | `zie-framework/project/hook-conventions.md` |
+| Hook Error Handling Convention | `zie-framework/project/hook-conventions.md` |
+| Hook Configuration Keys | `zie-framework/project/config-reference.md` |
+
 ## SDLC State
 
 Managed by zie-framework — see `zie-framework/ROADMAP.md` for current backlog.

@@ -286,6 +286,44 @@ class TestSourceInvariants:
         source = Path(HOOK).read_text()
         assert "stop_hook_active" in source
 
+    def test_no_shell_true_in_nudge1(self):
+        """Nudge 1 block must not use shell=True (shell injection risk)."""
+        source = Path(HOOK).read_text()
+        assert "shell=True" not in source, "shell=True must be removed from stop-guard.py"
+
+    def test_no_nosec_b602_annotation(self):
+        """nosec B602 annotation must be removed after shell=True is eliminated."""
+        source = Path(HOOK).read_text()
+        assert "nosec B602" not in source, "# nosec B602 annotation must be removed"
+
+    def test_re_escape_used_in_nudge1(self):
+        """re.escape must be used when building the slug pattern (prevents regex injection)."""
+        source = Path(HOOK).read_text()
+        assert "re.escape" in source, "re.escape(slug) must be used to build the search pattern"
+
+    def test_git_log_uses_list_form(self):
+        """git log must be called with a list arg (shell=False) to prevent injection."""
+        source = Path(HOOK).read_text()
+        assert '"git", "log"' in source or "'git', 'log'" in source, (
+            "git log must be called with shell=False list form"
+        )
+
+    def test_nudge_gate_uses_cache_helpers(self):
+        """stop-guard.py must use get_cached_git_status for the nudge TTL gate."""
+        source = Path(HOOK).read_text()
+        assert "get_cached_git_status" in source
+        assert "write_git_status_cache" in source
+
+    def test_nudge_gate_ttl_is_1800(self):
+        """Nudge TTL must be 1800 seconds (30 min)."""
+        source = Path(HOOK).read_text()
+        assert "ttl=1800" in source, "Nudge gate TTL must be hardcoded to 1800s"
+
+    def test_nudge_gate_key_is_nudge_check(self):
+        """Nudge gate cache key must be 'nudge-check'."""
+        source = Path(HOOK).read_text()
+        assert '"nudge-check"' in source, "Cache key must be 'nudge-check'"
+
 
 # ---------------------------------------------------------------------------
 # hooks.json registration

@@ -65,6 +65,8 @@ When called with `scope=full` or with no scope argument → run all 5 checks as 
 
 ### 1. ตรวจ Tests
 
+**Guard:** if `test_output` provided and non-empty → use it as the result; skip `make test-unit`.
+
 ```bash
 make test-unit
 ```
@@ -87,8 +89,9 @@ make test-e2e
 
 ### 2. ไม่มี regressions
 
-- Run the full suite, not just the new tests.
-- Compare pass count to the previous run — no unexpected changes.
+**Guard:** if `test_output` provided and non-empty → use it (already ran in check 1); do NOT re-run `make test-unit`.
+
+- Compare pass count in `test_output` to the previous run — no unexpected changes.
 
 ### 3. ไม่มี TODO ค้างอยู่
 

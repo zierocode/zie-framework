@@ -18,6 +18,7 @@ from utils_safety import COMPILED_BLOCKS, COMPILED_WARNS, normalize_command
 from utils_event import get_cwd, read_event
 from utils_io import project_tmp_path
 from utils_config import load_config
+import safety_check_agent
 
 # Bash commands that warrant interactive confirmation.
 # Must NOT overlap with BLOCKS — those are hard stops.
@@ -29,7 +30,7 @@ CONFIRM_PATTERNS = [
     r"truncate\s+--size\s+0",
 ]
 
-_DANGEROUS_COMPOUND_RE = re.compile(r'(?:;|&&|\|\||`|\$\(|[{}])')
+_DANGEROUS_COMPOUND_RE = re.compile(r'(?:;|&&|\|\||`|\$\(|[{}>|<\n])')
 
 
 def _is_safe_for_confirmation_wrapper(command: str) -> bool:
@@ -99,7 +100,9 @@ if tool_name == "Bash":
     mode = config.get("safety_check_mode")
 
     if mode == "agent":
-        sys.exit(0)
+        # Inline dispatch — safety_check_agent handles regex fallback internally
+        result = safety_check_agent.evaluate(command, mode, config.get("safety_agent_timeout_s"))
+        sys.exit(result)
 
     result = evaluate(command)
 

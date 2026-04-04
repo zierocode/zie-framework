@@ -17,6 +17,9 @@ downstream reviewer call in the session.
 
 ## Steps
 
+**Fast-path:** If `context_bundle` is provided as an argument to this skill
+invocation → return `context_bundle` immediately. Skip all steps below.
+
 **Step 0: Cache check**
 - Call `get_cached_adrs(session_id, "zie-framework/decisions/")`.
   - Cache hit → `adrs_content` ← returned value; skip Step 1.

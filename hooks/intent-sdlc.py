@@ -70,6 +70,18 @@ PATTERNS = {
         r"\bstatus\b", r"ทำอะไรอยู่", r"where.*am.*i", r"progress",
         r"what.*next", r"ต่อไปทำ", r"ถัดไป", r"สถานะ",
     ],
+    "hotfix": [
+        r"\bhotfix\b", r"emergency", r"prod.*down", r"urgent.*fix",
+        r"critical.*fix", r"cannot wait", r"on.*fire", r"production.*issue",
+    ],
+    "chore": [
+        r"\bchore\b", r"bump.*version", r"update.*docs", r"housekeeping",
+        r"maintenance", r"cleanup", r"tidy.*up",
+    ],
+    "spike": [
+        r"\bspike\b", r"\bexplore\b", r"\binvestigate\b", r"\bresearch\b",
+        r"\bprototype\b", r"proof.*of.*concept", r"\bpoc\b", r"time.?box",
+    ],
 }
 
 COMPILED_PATTERNS = {
@@ -88,6 +100,9 @@ SUGGESTIONS = {
     "retro":     "/retro",
     "sprint":    "/sprint",
     "status":    "/status",
+    "hotfix":    "/hotfix",
+    "chore":     "/chore",
+    "spike":     "/spike",
 }
 
 # ── SDLC context constants ────────────────────────────────────────────────────
@@ -231,7 +246,7 @@ try:
         sys.exit(0)
     if message.startswith("---") or len(message) > 500:
         sys.exit(0)
-    if message.startswith("/") and len(message.split()[0]) < 20:
+    if message.split()[0].startswith("/"):
         sys.exit(0)
 
     cwd = get_cwd()
@@ -321,9 +336,13 @@ try:
         parts.append(f"intent:{best} → {intent_cmd}")
     if guidance_msg:
         parts.append(guidance_msg)
-    parts.append(
-        f"task:{active_task} | stage:{stage} | next:{suggested_cmd} | tests:{test_status}"
-    )
+    # State suffix: omit when idle + no active task + unambiguous intent (score >= 2)
+    _best_score = scores.get(best, 0) if best else 0
+    _idle_unambiguous = (stage == "idle" and active_task == "none" and _best_score >= 2)
+    if not _idle_unambiguous:
+        parts.append(
+            f"task:{active_task} | stage:{stage} | next:{suggested_cmd} | tests:{test_status}"
+        )
     context = "[zie-framework] " + " | ".join(parts)
 
     print(json.dumps({"additionalContext": context}))

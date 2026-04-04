@@ -33,25 +33,30 @@ class TestImplementProgress:
 
 
 class TestAuditProgress:
+    """zie-audit skill is canonical implementation since lean-dual-audit-pipeline."""
+
+    def _skill(self):
+        return (Path(__file__).parents[2] / "skills" / "zie-audit" / "SKILL.md").read_text()
+
     def test_phase_structure_present(self):
-        text = (COMMANDS_DIR / "audit.md").read_text()
+        text = self._skill()
         assert "## Phase 1" in text and "## Phase 2" in text, \
-            "zie-audit.md must contain Phase 1 and Phase 2 sections"
+            "zie-audit skill must contain Phase 1 and Phase 2 sections"
 
     def test_three_dimension_agents_present(self):
-        text = (COMMANDS_DIR / "audit.md").read_text()
-        assert "Agent 1" in text and "Agent 2" in text and "Agent 3" in text, \
-            "zie-audit.md must describe 3 dimension agents"
+        text = self._skill()
+        assert "Agent A" in text and "Agent B" in text and "Agent C" in text, \
+            "zie-audit skill must describe dimension agents (A, B, C...)"
 
     def test_research_parallel_dispatch_present(self):
-        text = (COMMANDS_DIR / "audit.md").read_text()
+        text = self._skill()
         assert "parallel" in text.lower() or "simultaneously" in text.lower(), \
-            "zie-audit.md must describe parallel agent dispatch"
+            "zie-audit skill must describe parallel agent dispatch"
 
     def test_synthesis_phase_present(self):
-        text = (COMMANDS_DIR / "audit.md").read_text()
-        assert "## Phase 3" in text and ("Synthesis" in text or "synthesis" in text), \
-            "zie-audit.md must contain a Phase 3 Synthesis section"
+        text = self._skill()
+        assert "## Phase 4" in text and ("Synthesis" in text or "synthesis" in text), \
+            "zie-audit skill must contain a Synthesis phase"
 
 
 class TestReleaseProgress:

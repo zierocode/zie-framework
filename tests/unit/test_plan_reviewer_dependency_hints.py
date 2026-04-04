@@ -30,3 +30,28 @@ class TestPlanReviewerDependencyHints:
         assert "**Header**" in text
         assert "**TDD structure**" in text
         assert "**YAGNI**" in text
+
+    def test_file_map_heuristic_present(self):
+        text = SKILL_FILE.read_text()
+        assert (
+            "file → tasks" in text or "file→tasks" in text
+            or "file → [task" in text or "file-map" in text.lower()
+        ), "Step 10 must describe the file-map heuristic"
+
+    def test_pair_check_removed(self):
+        text = SKILL_FILE.read_text()
+        assert "for each pair" not in text.lower(), \
+            "Step 10 must not instruct pair-wise checking"
+
+    def test_step10_map_build_before_flag(self):
+        text = SKILL_FILE.read_text()
+        step10_idx = text.find("**Dependency hints**")
+        assert step10_idx != -1, "Step 10 header must exist"
+        step10_text = text[step10_idx:step10_idx + 600]
+        map_mention = (
+            "file→tasks" in step10_text or "file → tasks" in step10_text
+            or "file → [task" in step10_text
+        )
+        flag_mention = "blocking" in step10_text
+        assert map_mention, "Step 10 must describe building a file→tasks map"
+        assert flag_mention, "Step 10 must describe flagging conflicts as blocking"

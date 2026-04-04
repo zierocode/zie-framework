@@ -17,10 +17,9 @@ context, and ROADMAP lanes. Returns `adrs_content` and `context_content`.
 
 ## Steps
 
-**Fast path** — if `context_bundle` provided by caller:
-- `adrs_content` ← `context_bundle.adrs`
-- `context_content` ← `context_bundle.context`
-- Skip disk reads below.
+**Fast-path (unconditional):** If `context_bundle` is provided → extract
+`adrs_content = context_bundle.adrs` and `context_content = context_bundle.context`.
+Return immediately. Skip all disk reads below.
 
 **Disk fallback** — if `context_bundle` absent (backward-compatible):
 

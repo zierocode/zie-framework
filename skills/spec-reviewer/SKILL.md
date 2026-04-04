@@ -22,12 +22,10 @@ Caller must provide:
 - Path to spec file (`zie-framework/specs/YYYY-MM-DD-<slug>-design.md`)
 - Backlog item context (problem statement + motivation)
 
-## Phase 1 — Load Context Bundle
+## Phase 1 — Load Context Bundle (inline)
 
-Invoke the `reviewer-context` skill to load shared context.
-<!-- context-load: if context_bundle provided → fast path; absent → read from disk:
-     get_cached_adrs → ADR-000-summary.md → decisions/ADR-*.md → write_adr_cache,
-     project/context.md, ROADMAP lanes -->
+- **Fast-path:** if context_bundle provided by caller → `adrs_content = context_bundle.adrs` · `context_content = context_bundle.context` · skip disk reads.
+- **Disk fallback:** read from disk — `get_cached_adrs(session_id, "zie-framework/decisions/")` → `adrs_content`; cache miss → read `decisions/*.md` (including `ADR-000-summary.md`) → `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`. Read `project/context.md` → `context_content`.
 
 Returns: `adrs_content`, `context_content`.
 

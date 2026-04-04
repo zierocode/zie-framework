@@ -2,7 +2,7 @@
 description: Post-release or end-of-session retrospective — document learnings, write ADRs, update ROADMAP, store in brain.
 allowed-tools: Read, Write, Bash, Glob, Grep, Skill
 model: sonnet
-effort: medium
+effort: low
 ---
 
 # /retro — Retrospective + ADRs + Brain Storage
@@ -14,13 +14,14 @@ effort: medium
 Commits since last tag:
 !`git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline`
 
-Recent activity window:
-!`git log -20 --oneline`
+Recent activity (last 50 commits — bound as `git_log_raw` at pre-flight):
+!`git log -50 --oneline`
 
 1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
 2. Read `zie-framework/.config` → project, zie_memory_enabled.
 3. Bind `roadmap_raw` — load `zie-framework/ROADMAP.md` once (reused by all downstream sections, no second read). Extract: Grep `## Now` → read to next `---`. Grep `## Done` → read ~20 lines only (bind as `done_section_raw`). Grep `## Next` → read to next `---` (cache as `next_lane`).
-4. Print: "Analyzing git log..." — git context already injected above, no Bash needed.
+4. Bind `git_log_raw` — the `!git log -50 --oneline` bang output injected above. Used by self-tuning and docs-sync guard — no Bash call needed.
+   Print: "Analyzing git log..." — git context already injected above, no Bash needed.
 
 ## Steps
 
@@ -64,7 +65,7 @@ Build compact JSON bundle:
    Print the five sections immediately after formatting. Candidates for ADRs (decisions with lasting consequences) are passed to the ADR writer agent below.
 
 2. **Check docs sync.**
-   Skip guard: if `git log -1 --format="%s"` starts with `release:` → print `"Docs-sync: skipped (ran during release)"` and skip.
+   Skip guard: if the first line of `git_log_raw` starts with `release:` → print `"Docs-sync: skipped (ran during release)"` and skip.
    Invoke `Skill(zie-framework:docs-sync-check)`. Print the returned `details` string as the verdict.
 
 ### รวมผลลัพธ์
@@ -103,25 +104,10 @@ Inline after ROADMAP update — no Agent call:
 5. Archive to `zie-framework/archive/ROADMAP-archive-YYYY-MM.md` (YYYY-MM from item's date). Create with header if absent; append `## Archived YYYY-MM-DD` section. Never truncate archive.
 6. Rewrite `## Done` to kept items only. Print: `Done-rotation: kept <N>, archived <M> to <K> file(s)` or `≤10 items, skipped`.
 
-### Self-tuning proposals
+### Self-tuning proposals (deferred — runs after all blocking work)
 
-After docs-sync verdict, before auto-commit:
-
-1. Read `zie-framework/.config`. If absent → print `"Self-tuning: skipped (no .config)"` and skip.
-2. Scan `git log --oneline -50` for commits matching `RED` + a numeric day count (e.g. "RED phase stuck 3 days").
-   Parse up to 5 RED cycle durations. If average > 3 days → propose `auto_test_max_wait_s: <current> → 30`.
-3. Check current `safety_check_mode`; if `"agent"` and no `"BLOCK"` found in `git log --oneline -20` →
-   propose `safety_check_mode: "agent" → "regex"`.
-4. If no proposals → print `"Self-tuning: no changes proposed"` and continue.
-5. Otherwise print:
-   ```
-   [zie-framework] Self-tuning proposals:
-     <key>: <from_val> → <to_val>  (<reason>)
-   Apply? Type "apply" to write to .config, or skip.
-   ```
-6. Wait for user input:
-   - `"apply"` → merge proposals into `.config`, write atomically; print `"Self-tuning: applied N change(s)"`
-   - Any other → print `"Self-tuning: no changes applied"` and continue
+Self-tuning is advisory and runs after commit, ROADMAP update, and all blocking steps.
+See "Self-tuning proposals" section at the end of this command.
 
 ### Auto-commit retro outputs
 
@@ -174,4 +160,23 @@ Print top 1–3: `<slug> — <title> [<priority>] | Run: /plan <slug>`
 If Next lane empty: `"Backlog is empty — add items with /backlog"`
 
 Advisory only — nothing auto-started.
+
+### Self-tuning proposals
+
+Non-blocking — runs last, after all commits, ROADMAP updates, and Suggest next.
+
+1. Read `zie-framework/.config`. If absent → print `"Self-tuning: skipped (no .config)"` and skip.
+2. Check `self_tuning_enabled` key in `.config`. If `false` → skip silently.
+3. Scan `git_log_raw` (already bound at pre-flight) for commits matching `RED` + a numeric day count (e.g. "RED phase stuck 3 days").
+   Parse up to 5 RED cycle durations. If average > 3 days → propose `auto_test_max_wait_s: <current> → 30`.
+4. Check current `safety_check_mode`; if `"agent"` and no `"BLOCK"` found in `git_log_raw` →
+   propose `safety_check_mode: "agent" → "regex"`.
+5. If no proposals → print `"Self-tuning: no changes proposed"` and return.
+6. Otherwise print (advisory, non-blocking — no user input required):
+   ```
+   [zie-framework] Self-tuning proposals:
+     <key>: <from_val> → <to_val>  (<reason>)
+
+   To apply: run /chore with the proposal above, or set self_tuning_enabled: false in .config to opt out.
+   ```
 

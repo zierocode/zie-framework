@@ -22,12 +22,10 @@ Caller must provide:
 - Path to plan file (`zie-framework/plans/YYYY-MM-DD-<slug>.md`)
 - Path to spec file (for context on what must be implemented)
 
-## Phase 1 — Load Context Bundle
+## Phase 1 — Load Context Bundle (inline)
 
-Invoke the `reviewer-context` skill to load shared context.
-<!-- context-load: if context_bundle provided → fast path; absent → read from disk:
-     get_cached_adrs → ADR-000-summary.md → decisions/ADR-*.md → write_adr_cache,
-     project/context.md, ROADMAP lanes -->
+- **Fast-path:** if context_bundle provided by caller → `adrs_content = context_bundle.adrs` · `context_content = context_bundle.context` · skip disk reads.
+- **Disk fallback:** read from disk — `get_cached_adrs(session_id, "zie-framework/decisions/")` → `adrs_content`; cache miss → read `decisions/*.md` (including `ADR-000-summary.md`) → `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`. Read `project/context.md` → `context_content`.
 
 Returns: `adrs_content`, `context_content`.
 
@@ -49,17 +47,18 @@ Read the plan and check each item:
    where needed?
 8. **Spec coverage** — Does the plan cover every requirement in the spec?
 9. **YAGNI** — Does the plan include anything the spec doesn't require?
-10. **Dependency hints** — For each pair of tasks, check whether they modify
-   any common files or share a sequential data dependency. If a pair has
-   neither, and neither task has a `depends_on` annotation, output a
-   suggestion (not a blocking issue):
-   "Tasks N and M appear independent — consider adding `<!-- depends_on: -->` to enable parallel execution"
+10. **Dependency hints** — Build a file → tasks map: for each task, collect all
+   file paths it creates or modifies; record `file → [task IDs]`. Then:
 
-   **File conflict detection:** If two tasks write to the same output file
-   but lack `depends_on` annotation, flag as a blocking issue:
-   "Tasks N and M both write to X.py — add `<!-- depends_on: TN -->` to prevent file conflict"
+   - **File conflict (blocking):** Any file appearing in 2+ task IDs without a
+     `depends_on` annotation connecting those tasks → flag as a blocking issue:
+     "Tasks N and M both write to X.py — add `<!-- depends_on: TN -->` to prevent file conflict"
+   - **Independent tasks (advisory):** Any task with no shared files and no
+     `depends_on` annotation → output a suggestion (not a blocking issue):
+     "Tasks N and M appear independent — consider adding `<!-- depends_on: -->` to enable parallel execution"
 
-   Suggestions do not prevent an APPROVED verdict, but file conflict warnings do.
+   Skip this check when the plan has 0 or 1 tasks. File conflict warnings
+   block APPROVED; suggestions do not.
 
 ## Phase 3 — Context Checks
 

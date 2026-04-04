@@ -229,11 +229,15 @@ class TestSubagentContextAgentFilter:
 # ── Edge cases: missing files ─────────────────────────────────────────────────
 
 class TestSubagentContextMissingFiles:
-    def test_no_roadmap_emits_active_none(self, tmp_path):
+    def test_no_roadmap_no_context_idle_exit(self, tmp_path):
+        """When idle (no active task), hook exits silently — no noise to emit."""
         cwd = make_cwd(tmp_path, plan=SAMPLE_PLAN, context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
-        ctx = parse_context(r)
-        assert "Active: none" in ctx
+        # No ROADMAP → both feature_slug and active_task are "none" → idle early exit
+        assert r.stdout.strip() == "", (
+            f"Idle subagent-context must produce no output, got: {r.stdout!r}"
+        )
+        assert r.returncode == 0
 
     def test_no_plan_files_emits_task_unknown(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, context_md=SAMPLE_CONTEXT_MD)
@@ -303,13 +307,17 @@ class TestHooksJsonRegistration:
         assert "SubagentStart" in data["hooks"], \
             "SubagentStart key missing from hooks.json"
 
-    def test_subagentstart_matcher_is_explore_or_plan(self):
+    def test_subagentstart_has_separate_explore_and_plan_matchers(self):
+        """SubagentStart must have separate Explore and Plan entries (not combined)."""
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         data = json.loads(hooks_json.read_text())
         entry = data["hooks"]["SubagentStart"]
-        assert len(entry) > 0
-        assert entry[0].get("matcher") == "Explore|Plan", \
-            f"Expected matcher 'Explore|Plan', got {entry[0].get('matcher')!r}"
+        matchers = [e.get("matcher") for e in entry]
+        assert "Explore" in matchers, "SubagentStart must have an 'Explore' matcher"
+        assert "Plan" in matchers, "SubagentStart must have a 'Plan' matcher"
+        assert "Explore|Plan" not in matchers, (
+            "SubagentStart must not use combined 'Explore|Plan' matcher — use separate entries"
+        )
 
     def test_subagentstart_command_references_correct_script(self):
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"

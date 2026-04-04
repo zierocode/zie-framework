@@ -9,30 +9,33 @@ def read(rel: str) -> str:
 
 
 class TestZieAuditFocusFlag:
+    """Focus flag logic lives in the zie-audit skill (canonical since lean-dual-audit-pipeline)."""
+
     def test_focus_flag_documented(self):
+        # audit.md (thin dispatcher) documents --focus; skill handles it
         text = read("commands/audit.md")
-        assert "--focus" in text, "zie-audit must document --focus flag"
+        assert "--focus" in text, "audit.md must document --focus flag"
 
     def test_focus_map_present(self):
-        text = read("commands/audit.md")
-        assert "focus_map" in text or "focus map" in text.lower(), \
-            "zie-audit must have focus_map for agent selection"
+        text = read("skills/zie-audit/SKILL.md")
+        assert "focus" in text.lower() or "Focus map" in text, \
+            "zie-audit skill must have focus map for agent selection"
 
     def test_all_four_focus_tokens_listed(self):
-        text = read("commands/audit.md")
+        text = read("skills/zie-audit/SKILL.md")
         for token in ["security", "code", "structure", "external"]:
-            assert token in text, f"zie-audit focus map must include '{token}'"
+            assert token in text, f"zie-audit skill focus map must include '{token}'"
 
     def test_unrecognized_focus_runs_all(self):
-        text = read("commands/audit.md")
-        assert "full audit" in text.lower() or "all 4" in text or "all agents" in text.lower() or \
-               "{1, 2, 3, 4}" in text, \
-            "zie-audit must run all agents for unrecognized focus value"
+        text = read("skills/zie-audit/SKILL.md")
+        assert "full audit" in text.lower() or "all agents" in text.lower() or \
+               "unrecognized" in text.lower(), \
+            "zie-audit skill must run all agents for unrecognized focus value"
 
     def test_conditional_agent_spawn(self):
-        text = read("commands/audit.md")
+        text = read("skills/zie-audit/SKILL.md")
         assert "active_agents" in text or "conditional" in text.lower(), \
-            "zie-audit must conditionally spawn agents based on focus"
+            "zie-audit skill must conditionally spawn agents based on focus"
 
 
 class TestZieSpecDraftPlanFlag:

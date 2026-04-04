@@ -48,10 +48,19 @@ class TestAuditPhase:
 
 
 class TestPhaseStructure:
-    def test_has_five_phases(self):
+    def test_has_four_phases(self):
         text = _text()
-        for n in ("1", "2", "3", "4", "5"):
+        for n in ("1", "2", "3", "4"):
             assert f"PHASE {n}" in text, f"must have PHASE {n}"
+
+    def test_no_standalone_phase2_plan(self):
+        text = _text()
+        # Phase 2 is now IMPLEMENT — planning is inlined in Phase 1
+        phase2_idx = text.index("PHASE 2")
+        phase3_idx = text.index("PHASE 3")
+        phase2_section = text[phase2_idx:phase3_idx]
+        assert "IMPLEMENT" in phase2_section or "sequential" in phase2_section.lower(), \
+            "Phase 2 must be IMPLEMENT (not a standalone plan phase)"
 
     def test_phase1_spec_parallel(self):
         text = _text()
@@ -61,33 +70,41 @@ class TestPhaseStructure:
         assert "parallel" in phase1_section.lower() or "run_in_background" in phase1_section, \
             "Phase 1 must use parallel agents for spec"
 
+    def test_phase1_has_inline_retry(self):
+        text = _text()
+        phase1_idx = text.index("PHASE 1")
+        phase2_idx = text.index("PHASE 2")
+        phase1_section = text[phase1_idx:phase2_idx]
+        assert "retry" in phase1_section.lower() or "inline retry" in phase1_section.lower(), \
+            "Phase 1 must have inline retry for partial failures (no separate Phase 2 plan)"
+
     def test_phase1_uses_skill_chain(self):
         text = _text()
         assert "spec-reviewer" in text and "write-plan" in text and "plan-reviewer" in text, \
             "Phase 1 must use skill chain (spec-reviewer, write-plan, plan-reviewer)"
 
-    def test_phase3_sequential_wip1(self):
+    def test_phase2_sequential_wip1(self):
+        text = _text()
+        phase2_idx = text.index("PHASE 2")
+        phase3_idx = text.index("PHASE 3")
+        phase2_section = text[phase2_idx:phase3_idx]
+        assert "sequential" in phase2_section.lower() or "WIP=1" in phase2_section, \
+            "Phase 2 must be sequential (WIP=1)"
+
+    def test_phase3_batch_release(self):
         text = _text()
         phase3_idx = text.index("PHASE 3")
         phase4_idx = text.index("PHASE 4")
         phase3_section = text[phase3_idx:phase4_idx]
-        assert "sequential" in phase3_section.lower() or "WIP=1" in phase3_section, \
-            "Phase 3 must be sequential (WIP=1)"
+        assert "release" in phase3_section.lower(), \
+            "Phase 3 must invoke release"
 
-    def test_phase4_batch_release(self):
+    def test_phase4_retro(self):
         text = _text()
         phase4_idx = text.index("PHASE 4")
-        phase5_idx = text.index("PHASE 5")
-        phase4_section = text[phase4_idx:phase5_idx]
-        assert "release" in phase4_section.lower(), \
-            "Phase 4 must invoke release"
-
-    def test_phase5_retro(self):
-        text = _text()
-        phase5_idx = text.index("PHASE 5")
-        phase5_section = text[phase5_idx:]
-        assert "retro" in phase5_section.lower(), \
-            "Phase 5 must invoke retro"
+        phase4_section = text[phase4_idx:]
+        assert "retro" in phase4_section.lower(), \
+            "Phase 4 must invoke retro"
 
 
 class TestContextBundle:
@@ -148,10 +165,10 @@ class TestErrorHandling:
         assert "halt" in text.lower() or "STOP" in text or "stop" in text.lower(), \
             "phase failure must halt sprint"
 
-    def test_phase5_retro_non_blocking(self):
+    def test_phase4_retro_non_blocking(self):
         text = _text()
         assert "non-blocking" in text.lower() or "Non-blocking" in text, \
-            "Phase 5 retro failure must be non-blocking"
+            "Phase 4 retro failure must be non-blocking"
 
 
 class TestSummaryOutput:

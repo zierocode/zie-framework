@@ -24,6 +24,15 @@ Invoked by: `Skill(zie-framework:zie-audit)` from `/audit`.
 When `--focus <dimension>` is provided: Phase 2 runs only the matching agent;
 Phase 3 researches only that dimension (deeply). All other phases run normally.
 
+Focus map (for agent selection):
+- `security`, `deps` → Agent A
+- `code`, `perf` → Agent B
+- `structure`, `obs` → Agent E
+- `external` → Phase 3 only
+
+If unrecognized focus value → print warning and run full audit (all agents).
+`active_agents` controls conditional agent spawn: only agents in `active_agents` are spawned.
+
 ## Pre-flight
 
 1. Check `zie-framework/` exists — if not, tell user to run `/init` first.
@@ -49,23 +58,40 @@ test_runner, has_frontend, deployment, special_ctx). Detect from:
 `requirements.txt`, `pyproject.toml`, `package.json`, `go.mod`, `Cargo.toml`,
 `Dockerfile`, `docker-compose.yml`, `.config`, source files.
 
+Read `zie-framework/ROADMAP.md` → extract existing backlog slugs from Next + Ready lanes.
+Read `zie-framework/decisions/` → list ADR filenames (skip flagging intentional decisions).
+Run `git log --oneline -15` → bind as `git_log` (higher weight for recently-changed code).
+
+`shared_context = { research_profile, backlog_slugs, adr_filenames, git_log }`
+
 ## Phase 2 — Parallel Internal Analysis
 
 Spawn 5 parallel agents via `Agent` tool. Each receives `research_profile`.
 
-- **Agent A — Security**: secrets, shell injection, input validation, auth,
-  error leakage, outdated deps with CVE hints
+- **Agent A — Security + Dependency Health**: secrets, shell injection, input
+  validation, auth, error leakage, outdated deps with CVE hints; overly-loose
+  version pins, license risks, deps with actively-maintained alternatives
 - **Agent B — Lean / Efficiency**: dead code, duplicated logic, over-engineering,
-  unnecessary dependencies
+  unnecessary dependencies; async/hot-path perf checks, N+1 patterns, missing
+  caching for repeated expensive calls, blocking calls in hot paths
 - **Agent C — Quality / Testing**: untested modules, fragile tests, weak
   assertions, missing edge cases, TODO/FIXME count
 - **Agent D — Docs**: stale references, missing docs, broken examples,
   README completeness, CHANGELOG/VERSION sync
-- **Agent E — Architecture**: high coupling, SRP violations, inconsistent
-  patterns, silent failures
+- **Agent E — Architecture + Observability**: high coupling, SRP violations,
+  inconsistent patterns, silent failures; missing health check endpoints,
+  unstructured error reporting, missing metrics hooks, no graceful shutdown;
+  MCP Server Usage check: read `~/.claude/settings.json` (global) and
+  `.claude/settings.json` (repo-local) to build `configured_servers`.
+  If neither exists or `mcpServers` is absent → skip this check entirely.
+  Grep `commands/*.md` and `skills/*/SKILL.md` for `mcp__<name>__`.
+  Zero matches → emit LOW finding: server configured but never referenced —
+  consider removing to reduce context overhead
 
 Sub-checks distributed across agents: Performance (B/E), Dependency Health (A/C),
 Developer Experience (D), Standards compliance (E).
+
+Each agent receives `research_profile`. Do not re-read project manifests, git log, or ADR lists — they are in shared_context.
 
 Each agent returns: `[{severity, dimension, description, location, effort}]`
 
@@ -84,12 +110,27 @@ Cross-reference Phase 2 + Phase 3. Bump severity one level for findings present
 in both (external validation = higher confidence). Deduplicate. Score each
 dimension using the rubric in `reference.md`. Compute weighted overall score.
 
+Filter: remove any finding whose slug matches an existing backlog slug or ADR
+filename (already tracked or intentionally decided — skip).
+
+Categorize:
+- **Quick Win** — Impact ≥ 3 and Effort ≤ 2
+- **Strategic** — Impact ≥ 4 and Effort > 2
+- **Defer** — Impact < 3
+
+no WebSearch in this phase — synthesis only.
+
 ## Phase 5 — Report + Backlog Selection
 
-Print scored report (Overall Score, 9 dimension scores, findings by severity).
+Print scored report (Overall Score, 9 dimension scores, findings by severity:
+CRITICAL / HIGH / MEDIUM / LOW).
 Save to `zie-framework/evidence/audit-YYYY-MM-DD.md` (gitignored).
 
-Prompt: `Add to backlog: enter numbers, "high", "all", or "none"`
+Show all CRITICAL + HIGH findings at once and ask once per group:
+```
+CRITICAL findings (N): ...  Add all CRITICAL to backlog? (yes / no)
+HIGH findings (N): ...      Add to backlog: (all / select numbers / skip)
+```
 
 For each selected finding: create `zie-framework/backlog/<slug>.md` and add to
 `zie-framework/ROADMAP.md` Next lane.

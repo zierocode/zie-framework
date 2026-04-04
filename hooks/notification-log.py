@@ -61,22 +61,19 @@ def _append_and_write(log_path, message):
 
 
 # --- Inner operations: file I/O; errors are logged, hook still exits 0 ---
+# hooks.json matcher ensures only permission_prompt events reach here; no inner type check needed
 try:
     message = sanitize_log_field(event.get("message", ""))
     project = safe_project_name(get_cwd().name)
-
-    if notification_type == "permission_prompt":
-        log_path = project_tmp_path("permission-log", project)
-        records = _append_and_write(log_path, message)
-        count = sum(1 for r in records if r.get("msg") == message)
-        if count >= 3:
-            print(json.dumps({
-                "additionalContext": (
-                    "This permission has been asked 3+ times this session. "
-                    "Run /zie-permissions to add it to the allow list."
-                )
-            }))
-
-
+    log_path = project_tmp_path("permission-log", project)
+    records = _append_and_write(log_path, message)
+    count = sum(1 for r in records if r.get("msg") == message)
+    if count >= 3:
+        print(json.dumps({
+            "additionalContext": (
+                "This permission has been asked 3+ times this session. "
+                "Run /zie-permissions to add it to the allow list."
+            )
+        }))
 except Exception as e:
     print(f"[zie-framework] notification-log: {e}", file=sys.stderr)

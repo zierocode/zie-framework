@@ -524,26 +524,26 @@ class TestAdditionalContextInjection:
 
     # --- no match ---
 
-    def test_context_write_one_when_no_test_found(self, tmp_path):
-        """When no matching test exists, context prompts Claude to write one."""
+    def test_no_context_when_no_test_found(self, tmp_path):
+        """When no matching test exists, additionalContext is suppressed (no noise)."""
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
         (cwd / "tests").mkdir()
         changed = str(cwd / "src" / "billing.py")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
         ctx = parse_additional_context(r.stdout)
-        assert ctx is not None, f"No additionalContext found in stdout: {r.stdout!r}"
-        assert "billing.py" in ctx
-        assert "write one" in ctx
+        assert ctx is None, (
+            f"additionalContext must be suppressed when no test file found, got: {ctx!r}"
+        )
 
-    def test_context_write_one_message_format(self, tmp_path):
-        """'write one' message must match exact format from spec."""
+    def test_no_context_write_one_message_suppressed(self, tmp_path):
+        """'write one' message is suppressed — no additionalContext emitted when no test."""
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
         (cwd / "tests").mkdir()
         changed = str(cwd / "src" / "stripe.py")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
         ctx = parse_additional_context(r.stdout)
-        assert ctx == "No test file found for stripe.py — write one", (
-            f"Message format mismatch: {ctx!r}"
+        assert ctx is None, (
+            f"additionalContext must not fire when no test file exists, got: {ctx!r}"
         )
 
     # --- debounce suppresses context (context only fires when tests actually run) ---
@@ -605,7 +605,9 @@ class TestAdditionalContextInjection:
     def test_additional_context_valid_json_line(self, tmp_path):
         """The additionalContext line must be valid flat JSON parseable independently."""
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
-        (cwd / "tests").mkdir()
+        tests_dir = cwd / "tests" / "unit"
+        tests_dir.mkdir(parents=True)
+        (tests_dir / "test_auth.py").write_text("# test")
         changed = str(cwd / "src" / "auth.py")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
         json_lines = []
@@ -628,7 +630,9 @@ class TestAdditionalContextInjection:
     def test_additional_context_is_string(self, tmp_path):
         """additionalContext value must be a string, not a dict or list."""
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
-        (cwd / "tests").mkdir()
+        tests_dir = cwd / "tests" / "unit"
+        tests_dir.mkdir(parents=True)
+        (tests_dir / "test_auth.py").write_text("# test")
         changed = str(cwd / "src" / "auth.py")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
         ctx = parse_additional_context(r.stdout)
@@ -651,16 +655,16 @@ class TestAdditionalContextInjection:
         assert ctx is not None
         assert "button.test.ts" in ctx
 
-    def test_context_write_one_for_vitest_no_match(self, tmp_path):
-        """'write one' context emitted for vitest when no .test.ts found."""
+    def test_no_context_for_vitest_no_match(self, tmp_path):
+        """No additionalContext emitted for vitest when no .test.ts found (suppressed)."""
         cwd = make_cwd(tmp_path, config={"test_runner": "vitest"})
         (cwd / "src").mkdir()
         changed = str(cwd / "src" / "modal.tsx")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
         ctx = parse_additional_context(r.stdout)
-        assert ctx is not None
-        assert "modal.tsx" in ctx
-        assert "write one" in ctx
+        assert ctx is None, (
+            f"additionalContext must be suppressed when no test file found, got: {ctx!r}"
+        )
 
 
 class TestAutoTestGitTimeout:
@@ -828,7 +832,7 @@ class TestExtensionSkipGuard:
         assert r.stdout.strip() == ""
 
     def test_no_extension_proceeds(self, tmp_path):
-        """AC-4: file with no extension proceeds normally."""
+        """AC-4: file with no extension proceeds normally (exits 0, may or may not have context)."""
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
         f = cwd / "Makefile"
         f.write_text("all:\n\techo hi")
@@ -837,7 +841,6 @@ class TestExtensionSkipGuard:
             tmp_cwd=cwd,
         )
         assert r.returncode == 0
-        assert "additionalContext" in r.stdout
 
     def test_skip_guard_before_debounce(self, tmp_path):
         """AC-1 variant: skipped file does not write debounce sentinel."""

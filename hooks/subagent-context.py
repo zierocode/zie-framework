@@ -46,6 +46,10 @@ try:
 except Exception as e:
     print(f"[zie-framework] subagent-context: {e}", file=sys.stderr)
 
+# Early exit when idle — no active task, zero signal to emit
+if active_task == "none" and feature_slug == "none":
+    sys.exit(0)
+
 # Find most-recent plan file and extract first incomplete task (Plan agents only)
 if re.search(r'Plan', agent_type, re.IGNORECASE):
     if feature_slug != "none" or active_task == "unknown":

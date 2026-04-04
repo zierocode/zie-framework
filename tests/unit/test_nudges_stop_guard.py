@@ -142,3 +142,62 @@ class TestStaleBacklogNudge:
         r = run_hook({"stop_hook_active": True}, cwd=str(tmp_path))
         assert r.returncode == 0
         assert "[zie-framework] nudge:" not in r.stdout
+
+
+class TestNudgeTTLGate:
+    def test_nudge_skipped_on_cache_hit(self, tmp_path):
+        """When nudge-check sentinel is fresh, nudges do not run."""
+        import sys as _sys
+        _sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
+        from utils_roadmap import write_git_status_cache
+        session_id = str(uuid.uuid4())
+        write_git_status_cache(session_id, "nudge-check", "1")
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / "ROADMAP.md").write_text(
+            "## Now\n\n"
+            "## Next\n"
+            "- [ ] old-item — 2019-01-01\n\n"
+            "## Done\n"
+        )
+        r = run_hook({}, cwd=str(tmp_path), env_overrides={"CLAUDE_SESSION_ID": session_id})
+        assert r.returncode == 0
+        assert "[zie-framework] nudge:" not in r.stdout
+
+    def test_nudge_runs_on_cache_miss(self, tmp_path):
+        """When nudge-check sentinel is absent, nudges run normally."""
+        session_id = str(uuid.uuid4())
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / "ROADMAP.md").write_text(
+            "## Now\n\n"
+            "## Next\n"
+            "- [ ] old-item — 2019-01-01\n\n"
+            "## Done\n"
+        )
+        r = run_hook({}, cwd=str(tmp_path), env_overrides={"CLAUDE_SESSION_ID": session_id})
+        assert r.returncode == 0
+        assert "[zie-framework] nudge:" in r.stdout
+        assert "30 days" in r.stdout
+
+    def test_nudge_runs_when_no_session_id(self, tmp_path):
+        """When CLAUDE_SESSION_ID is unset, nudges run (degenerate: no caching)."""
+        zf = tmp_path / "zie-framework"
+        zf.mkdir()
+        (zf / "ROADMAP.md").write_text(
+            "## Now\n\n"
+            "## Next\n"
+            "- [ ] old-item — 2019-01-01\n\n"
+            "## Done\n"
+        )
+        env = {k: v for k, v in os.environ.items() if k != "CLAUDE_SESSION_ID"}
+        env["CLAUDE_CWD"] = str(tmp_path)
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input=json.dumps({}),
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+        assert r.returncode == 0
+        assert "[zie-framework] nudge:" in r.stdout

@@ -112,10 +112,10 @@ are always asked regardless of completeness.
    **Out of Scope:** <list>
    ```
 
-5. **Spec reviewer loop** — dispatch `@agent-spec-reviewer` with:
-   <!-- fallback: Skill(zie-framework:spec-reviewer) -->
+5. **Spec reviewer loop** — invoke `Skill(zie-framework:spec-reviewer)` with:
    - Path to spec file
    - Backlog item context
+   - `context_bundle=<context_bundle>` (pass through for inline fast-path)
    - If ❌ Issues Found → fix issues → re-invoke reviewer → repeat until ✅ APPROVED
    - Max 3 iterations → surface to human
 

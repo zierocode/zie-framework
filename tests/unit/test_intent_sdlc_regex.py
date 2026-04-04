@@ -28,6 +28,30 @@ def _has_compile_inside_function(tree: ast.Module) -> bool:
     return False
 
 
+def test_hotfix_pattern_in_patterns():
+    """PATTERNS must include 'hotfix' category."""
+    text = HOOK_PATH.read_text()
+    assert '"hotfix"' in text or "'hotfix'" in text, (
+        "intent-sdlc.py PATTERNS must include 'hotfix' category"
+    )
+
+
+def test_chore_pattern_in_patterns():
+    """PATTERNS must include 'chore' category."""
+    text = HOOK_PATH.read_text()
+    assert '"chore"' in text or "'chore'" in text, (
+        "intent-sdlc.py PATTERNS must include 'chore' category"
+    )
+
+
+def test_spike_pattern_in_patterns():
+    """PATTERNS must include 'spike' category."""
+    text = HOOK_PATH.read_text()
+    assert '"spike"' in text or "'spike'" in text, (
+        "intent-sdlc.py PATTERNS must include 'spike' category"
+    )
+
+
 def test_compiled_patterns_at_module_level():
     """COMPILED_PATTERNS must be a module-level assignment."""
     source = HOOK_PATH.read_text()
