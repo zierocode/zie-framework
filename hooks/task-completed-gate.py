@@ -13,7 +13,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, load_config, read_event
+from utils_event import get_cwd, read_event
+from utils_config import load_config
 
 IMPL_EXTS = frozenset((
     ".py", ".ts", ".tsx", ".js", ".jsx",

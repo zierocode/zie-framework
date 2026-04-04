@@ -4,7 +4,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
-from utils import load_config, sanitize_log_field
+from utils_config import load_config
+from utils_event import sanitize_log_field
 
 
 def test_sanitize_newline():

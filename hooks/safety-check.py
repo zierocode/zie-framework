@@ -14,10 +14,10 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import (
-    COMPILED_BLOCKS, COMPILED_WARNS,
-    get_cwd, load_config, normalize_command, project_tmp_path, read_event,
-)
+from utils_safety import COMPILED_BLOCKS, COMPILED_WARNS, normalize_command
+from utils_event import get_cwd, read_event
+from utils_io import project_tmp_path
+from utils_config import load_config
 
 # Bash commands that warrant interactive confirmation.
 # Must NOT overlap with BLOCKS — those are hard stops.

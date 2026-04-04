@@ -10,7 +10,7 @@ import pytest
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "wip-checkpoint.py")
 sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-from utils import persistent_project_path
+from utils_io import persistent_project_path
 
 SAMPLE_ROADMAP = """## Now
 - [ ] Refactor the payment module

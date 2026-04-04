@@ -4,7 +4,9 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import atomic_write, call_zie_memory_api, get_cwd, parse_roadmap_now, persistent_project_path, read_event
+from utils_event import call_zie_memory_api, get_cwd, read_event
+from utils_io import atomic_write, persistent_project_path
+from utils_roadmap import parse_roadmap_now
 
 # Outer guard — any unhandled exception exits 0 (never blocks Claude)
 try:

@@ -1,68 +1,15 @@
-"""Shared utilities for zie-framework hooks. Not a hook — do not run directly.
-
-Storage tiers
--------------
-Tmp paths (project_tmp_path / safe_write_tmp):
-    Session-scoped state. Cleared by session-cleanup.py on Stop.
-    Use for: debounce timestamps, ephemeral counters that reset each session.
-
-Persistent paths (get_plugin_data_dir / persistent_project_path / safe_write_persistent):
-    Cross-session state backed by $CLAUDE_PLUGIN_DATA (set by Claude Code).
-    Falls back to tempfile.gettempdir() with a warning when the env var is absent.
-    Use for: edit counters that survive restart, pending_learn markers.
-"""
+#!/usr/bin/env python3
+"""ROADMAP parsing, caching, ADR caching, and mtime gate helpers."""
 import json
 import os
 import re
 import sys
 import tempfile
 import time
-import urllib.request
 from pathlib import Path
 
-CONFIG_SCHEMA: dict = {
-    "subprocess_timeout_s": (5, int),
-    "safety_agent_timeout_s": (30, int),
-    "auto_test_max_wait_s": (15, int),
-    "auto_test_timeout_ms": (30000, int),
-}
-
-
-def validate_config(config: dict) -> dict:
-    """Fill all CONFIG_SCHEMA keys with typed defaults.
-
-    Missing keys → filled with schema default (no warning).
-    Wrong-type keys → replaced with schema default (warning emitted).
-    None input → treated as {}.
-    Returns a new dict with all schema keys guaranteed present and correctly typed.
-    """
-    if config is None:
-        config = {}
-    result = dict(config)
-    wrong_type_keys = []
-    for key, (default, expected_type) in CONFIG_SCHEMA.items():
-        if key not in result:
-            result[key] = default
-        elif not isinstance(result[key], expected_type):
-            wrong_type_keys.append(key)
-            result[key] = default
-    if wrong_type_keys:
-        print(
-            f"[zie-framework] config: defaulted keys: {', '.join(wrong_type_keys)}",
-            file=sys.stderr,
-        )
-    return result
-
-
-CONFIG_DEFAULTS: dict = {
-    "safety_check_mode": "regex",
-    "test_runner": "",
-    "auto_test_debounce_ms": 3000,
-    "auto_test_timeout_ms": 30000,
-    "test_indicators": "",
-    "project_type": "unknown",
-    "zie_memory_enabled": False,
-}
+sys.path.insert(0, os.path.dirname(__file__))
+from utils_io import atomic_write, safe_write_tmp
 
 SDLC_STAGES: list = [
     "init", "backlog", "spec", "plan",
@@ -71,11 +18,7 @@ SDLC_STAGES: list = [
 
 
 def sanitize_log_field(value: object) -> str:
-    """Strip ASCII control characters from a log field value.
-
-    Converts value to str first, then replaces chars in range
-    0x00-0x1f and 0x7f with '?' to prevent log injection.
-    """
+    """Strip ASCII control characters from a log field value."""
     return re.sub(r'[\x00-\x1f\x7f]', '?', str(value))
 
 
@@ -167,108 +110,6 @@ def read_roadmap_cached(roadmap_path, session_id: str, ttl: int = 30, tmp_dir=No
         return content
     except Exception:
         return ""
-
-
-def atomic_write(path: Path, content: str) -> None:
-    """Write content to path atomically using an unpredictable temp file and rename.
-
-    Uses tempfile.NamedTemporaryFile to avoid predictable sibling names and
-    eliminate the TOCTOU window. Sets owner-only (0o600) permissions on the
-    final file after rename.
-    """
-    with tempfile.NamedTemporaryFile(
-        mode='w', dir=path.parent, delete=False, suffix='.tmp'
-    ) as f:
-        f.write(content)
-        tmp_name = f.name
-    try:
-        os.replace(tmp_name, path)
-        os.chmod(path, 0o600)
-    except OSError:
-        try:
-            os.unlink(tmp_name)
-        except OSError:
-            pass
-        raise
-
-
-def is_zie_initialized(cwd: Path) -> bool:
-    """Return True if cwd contains a zie-framework directory (not just a file)."""
-    return (cwd / "zie-framework").is_dir()
-
-
-def get_project_name(cwd: Path) -> str:
-    """Return sanitized project name derived from directory name."""
-    return safe_project_name(cwd.name)
-
-
-def safe_project_name(project: str) -> str:
-    """Sanitize a project name to alphanumeric-and-dash only.
-
-    Single source of truth for the sanitization rule used in tmp paths and
-    session-cleanup globs. Replaces any non-alphanumeric character with '-'.
-    """
-    return re.sub(r'[^a-zA-Z0-9]', '-', project)
-
-
-def project_tmp_path(name: str, project: str) -> Path:
-    """Return a project-scoped tmp path to prevent cross-project collisions.
-
-    Uses tempfile.gettempdir() for portability (resolves Bandit B108).
-    """
-    return Path(tempfile.gettempdir()) / f"zie-{safe_project_name(project)}-{name}"
-
-
-def get_plugin_data_dir(project: str) -> Path:
-    """Return the persistent data directory for a project.
-
-    Reads $CLAUDE_PLUGIN_DATA (set by Claude Code at hook invocation time).
-    If the env var is absent or empty, falls back to a /tmp path and logs a
-    warning to stderr so the caller is not silently degraded.
-
-    Always creates the directory before returning.
-    """
-    base = os.environ.get("CLAUDE_PLUGIN_DATA", "")
-    if base:
-        path = Path(base) / safe_project_name(project)
-    else:
-        print(
-            "[zie-framework] CLAUDE_PLUGIN_DATA not set, using tempfile.gettempdir() fallback",
-            file=sys.stderr,
-        )
-        path = Path(tempfile.gettempdir()) / f"zie-{safe_project_name(project)}-persistent"
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
-def safe_write_persistent(path: Path, content: str) -> bool:
-    """Atomically write content to a persistent path, refusing to follow symlinks.
-
-    Uses NamedTemporaryFile for an unpredictable intermediate name. Sets
-    owner-only (0o600) permissions on the final file. Returns True on success,
-    False if path is a symlink or an OSError occurs.
-    """
-    if os.path.islink(path):
-        print(
-            f"[zie-framework] WARNING: persistent path is a symlink, skipping write: {path}",
-            file=sys.stderr,
-        )
-        return False
-    try:
-        with tempfile.NamedTemporaryFile(
-            mode='w', dir=path.parent, delete=False, suffix='.tmp'
-        ) as f:
-            f.write(content)
-            tmp_name = f.name
-        os.replace(tmp_name, path)
-        os.chmod(path, 0o600)
-        return True
-    except OSError:
-        try:
-            os.unlink(tmp_name)
-        except OSError:
-            pass
-        return False
 
 
 def get_cached_roadmap(session_id: str, ttl: int = 30, tmp_dir=None) -> str | None:
@@ -390,142 +231,6 @@ def write_adr_cache(
         return (False, None)
     except Exception:
         return (False, None)
-
-
-def persistent_project_path(name: str, project: str) -> Path:
-    """Return a project-scoped persistent path under CLAUDE_PLUGIN_DATA.
-
-    Mirrors project_tmp_path() but uses get_plugin_data_dir() instead of /tmp.
-    Example: persistent_project_path("edit-count", "my-proj")
-             -> Path("<CLAUDE_PLUGIN_DATA>/my-proj/edit-count")
-    """
-    return get_plugin_data_dir(project) / name
-
-
-def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeout: int = 5) -> None:
-    """POST payload as JSON to a zie-memory API endpoint. Re-raises on network error.
-
-    Caller is responsible for URL validation (must be https://) and error handling.
-    """
-    data = json.dumps(payload).encode()
-    req = urllib.request.Request(
-        f"{url}{endpoint}",
-        data=data,
-        headers={
-            "Authorization": f"Bearer {key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    urllib.request.urlopen(req, timeout=timeout)  # nosec B310 — URL built from hardcoded zie-memory API base, not user input
-
-
-def load_config(cwd: Path) -> dict:
-    """Read zie-framework/.config as JSON and return a validated dict.
-
-    Merges CONFIG_DEFAULTS first, then loaded values, then validates CONFIG_SCHEMA
-    keys for type safety. Always returns a fully-typed dict with all known keys.
-    Absent file returns all defaults silently. Parse errors logged to stderr.
-    """
-    config_path = cwd / "zie-framework" / ".config"
-    try:
-        raw = json.loads(config_path.read_text())
-        if not isinstance(raw, dict):
-            raise TypeError(f"config must be a JSON object, got {type(raw).__name__}")
-        merged = {**CONFIG_DEFAULTS, **raw}
-        return validate_config(merged)
-    except FileNotFoundError:
-        return validate_config(dict(CONFIG_DEFAULTS))
-    except Exception as e:
-        print(f"[zie-framework] config parse error: {e}", file=sys.stderr)
-        return validate_config(dict(CONFIG_DEFAULTS))
-
-
-def normalize_command(cmd: str) -> str:
-    """Normalize whitespace and lowercase a shell command for pattern matching."""
-    return re.sub(r'\s+', ' ', cmd.strip().lower())
-
-
-BLOCKS = [
-    # Filesystem destruction
-    (r"rm\s+-rf\s+(/\s|/\b|/$)", "rm -rf / is blocked — this would destroy the system"),
-    (r"rm\s+-rf\s+~", "rm -rf ~ is blocked — this would destroy your home directory"),
-    (r"rm\s+-rf\s+\.(?!/\S)", "rm -rf . blocked — use explicit paths"),
-    # Database destruction
-    (r"\bdrop\s+database\b", "DROP DATABASE blocked — use migrations to remove databases"),
-    (r"\bdrop\s+table\b", "DROP TABLE blocked — use alembic/migrations for schema changes"),
-    (r"\btruncate\s+table\b", "TRUNCATE TABLE blocked — be explicit with user before truncating"),
-    # Force push
-    (r"git\s+push\s+.*--force\b", "Force push blocked — use 'git push' normally or ask Zie explicitly"),
-    (r"git\s+push\s+.*-f\b", "Force push blocked — use 'git push' normally"),
-    (r"git\s+push\b(?!.*--tags).*\borigin\s+main\b", "Direct push to main blocked — use 'make release NEW=x.y.z' instead"),
-    (r"git\s+push\b(?!.*--tags).*\borigin\s+master\b", "Direct push to master blocked — use 'make release NEW=x.y.z' instead"),
-    # Hard reset
-    (r"git\s+reset\s+--hard\b", "git reset --hard blocked — this discards uncommitted work. Use 'git stash' instead"),
-    # Skip hooks
-    (r"--no-verify\b", "--no-verify blocked — hooks exist for a reason. Fix the hook failure instead"),
-]
-
-# Non-blocking notices. Do NOT add patterns already caught by BLOCKS above.
-WARNS = [
-    (r"docker\s+compose\s+down\s+.*--volumes\b",
-     "docker compose down --volumes will delete DB data — make sure you have a backup"),
-    (r"alembic\s+downgrade\b",
-     "Alembic downgrade detected — verify this won't lose production data"),
-]
-
-# Compiled once at import time — use these in hot-path hooks instead of re.search(string, ...)
-COMPILED_BLOCKS = [(re.compile(p, re.IGNORECASE), msg) for p, msg in BLOCKS]
-COMPILED_WARNS  = [(re.compile(p, re.IGNORECASE), msg) for p, msg in WARNS]
-
-
-def read_event() -> dict:
-    """Read and parse the hook event from stdin.
-
-    Exits with code 0 on any parse failure — hooks must never crash.
-    """
-    try:
-        return json.loads(sys.stdin.read())
-    except Exception:
-        sys.exit(0)
-
-
-def get_cwd() -> Path:
-    """Return the working directory for the current Claude Code session.
-
-    Prefers CLAUDE_CWD env var (set by Claude Code) over os.getcwd().
-    """
-    return Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
-
-
-def safe_write_tmp(path: Path, content: str) -> bool:
-    """Atomically write content to path, refusing to follow symlinks.
-
-    Uses NamedTemporaryFile for an unpredictable intermediate name. Sets
-    owner-only (0o600) permissions on the final file. Returns True on success,
-    False if path is a symlink or an OSError occurs.
-    """
-    if os.path.islink(path):
-        print(
-            f"[zie-framework] WARNING: tmp path is a symlink, skipping write: {path}",
-            file=sys.stderr,
-        )
-        return False
-    try:
-        with tempfile.NamedTemporaryFile(
-            mode='w', dir=path.parent, delete=False, suffix='.tmp'
-        ) as f:
-            f.write(content)
-            tmp_name = f.name
-        os.replace(tmp_name, path)
-        os.chmod(path, 0o600)
-        return True
-    except OSError:
-        try:
-            os.unlink(tmp_name)
-        except OSError:
-            pass
-        return False
 
 
 def compact_roadmap_done(
@@ -706,32 +411,3 @@ def compute_max_mtime(base_dir: Path, pattern: str = "*.md") -> float:
 def is_mtime_fresh(max_mtime: float, written_at: float) -> bool:
     """Return True if max_mtime <= written_at (no file newer than last write)."""
     return max_mtime <= written_at
-
-
-def log_hook_timing(
-    hook_name: str,
-    duration_ms: int,
-    exit_code: int,
-    session_id: str | None = None,
-) -> None:
-    """Append a JSON timing entry to the session timing log.
-
-    No-op when session_id is empty or None. Never raises.
-    """
-    if not session_id:
-        return
-    try:
-        from datetime import datetime, timezone
-        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
-        log_dir = Path(tempfile.gettempdir()) / f"zie-{safe_id}"
-        log_dir.mkdir(parents=True, exist_ok=True)
-        entry = json.dumps({
-            "hook": hook_name,
-            "duration_ms": duration_ms,
-            "exit_code": exit_code,
-            "ts": datetime.now(timezone.utc).isoformat(),
-        })
-        with open(log_dir / "timing.log", "a") as f:
-            f.write(entry + "\n")
-    except Exception:
-        pass

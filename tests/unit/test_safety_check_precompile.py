@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "hooks"))
 
-import utils  # noqa: E402
+import utils_safety as utils  # noqa: E402
 
 
 def test_compiled_blocks_are_patterns():

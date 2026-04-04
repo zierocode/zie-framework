@@ -9,7 +9,7 @@ import pytest
 
 HOOKS_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")), "hooks")
 sys.path.insert(0, HOOKS_DIR)
-from utils import project_tmp_path
+from utils_io import project_tmp_path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "auto-test.py")

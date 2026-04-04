@@ -13,7 +13,9 @@ from pathlib import Path
 _hook_start = time.monotonic()
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, load_config, log_hook_timing, project_tmp_path, read_event, safe_write_tmp  # noqa: E402
+from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
+from utils_config import load_config
+from utils_io import project_tmp_path, safe_write_tmp
 
 _SUMMARY_RE = _re.compile(r'\d+\s+(passed|failed|error|skipped|xfailed|xpassed)')
 _SKIP_EXTENSIONS = {".md", ".json", ".yaml", ".yml", ".toml", ".cfg", ".ini", ".txt"}

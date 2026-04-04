@@ -16,6 +16,7 @@
 - [x] retro-inline-format
 - [x] zie-init-delegate-scan
 - [x] merge-safety-hooks
+- [x] split-utils-py
 
 ---
 

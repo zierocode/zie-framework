@@ -9,7 +9,7 @@ import pytest
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "subagent-stop.py")
 sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-from utils import project_tmp_path
+from utils_io import project_tmp_path
 
 
 def run_hook(event: dict, tmp_cwd=None, env_overrides=None):

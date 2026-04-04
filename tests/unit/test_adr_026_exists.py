@@ -21,5 +21,5 @@ def test_adr_026_has_required_sections():
 
 def test_compact_roadmap_done_importable():
     sys.path.insert(0, str(Path(__file__).parents[2] / "hooks"))
-    from utils import compact_roadmap_done
+    from utils_roadmap import compact_roadmap_done
     assert callable(compact_roadmap_done)

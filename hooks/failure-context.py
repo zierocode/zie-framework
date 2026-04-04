@@ -6,12 +6,11 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import (
+from utils_event import get_cwd, read_event
+from utils_config import load_config
+from utils_roadmap import (
     get_cached_git_status,
-    get_cwd,
-    load_config,
     parse_roadmap_section_content,
-    read_event,
     read_roadmap_cached,
     write_git_status_cache,
 )

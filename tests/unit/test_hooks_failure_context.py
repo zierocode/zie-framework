@@ -183,7 +183,7 @@ class TestFailureContextRoadmapCache:
         """Cache content takes priority over disk ROADMAP."""
         import sys
         sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-        from utils import write_roadmap_cache
+        from utils_roadmap import write_roadmap_cache
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         # Disk: empty Now
@@ -208,7 +208,7 @@ class TestFailureContextGitCache:
     def test_git_log_from_cache(self, tmp_path):
         """Cached git log is used instead of running a subprocess."""
         sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-        from utils import write_git_status_cache
+        from utils_roadmap import write_git_status_cache
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         sid = "test-git-cache-fc-77x"
         write_git_status_cache(sid, "log", "abc1234 cached commit message")

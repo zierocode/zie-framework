@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[2] / "hooks"))
-from utils import parse_roadmap_ready  # noqa: E402
+from utils_roadmap import parse_roadmap_ready  # noqa: E402
 
 ROADMAP_WITH_READY = """
 ## Now

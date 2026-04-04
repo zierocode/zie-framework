@@ -7,7 +7,9 @@ from datetime import datetime, timezone
 sys.path.insert(0, os.path.dirname(__file__))
 
 try:
-    from utils import get_cwd, parse_roadmap_now, project_tmp_path, read_event, safe_project_name, sanitize_log_field
+    from utils_event import get_cwd, read_event, sanitize_log_field
+    from utils_io import project_tmp_path, safe_project_name
+    from utils_roadmap import parse_roadmap_now
     event = read_event()
 except Exception:
     sys.exit(0)

@@ -10,7 +10,8 @@ import sys
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, project_tmp_path, read_event, safe_project_name, safe_write_tmp, sanitize_log_field
+from utils_event import get_cwd, read_event, sanitize_log_field
+from utils_io import project_tmp_path, safe_project_name, safe_write_tmp
 
 # --- Outer guard: parse event; any failure exits 0 silently ---
 try:

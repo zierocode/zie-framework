@@ -13,13 +13,9 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import (
-    get_cwd,
-    parse_roadmap_section_content,
-    project_tmp_path,
-    read_event,
-    read_roadmap_cached,
-)
+from utils_event import get_cwd, read_event
+from utils_io import project_tmp_path
+from utils_roadmap import parse_roadmap_section_content, read_roadmap_cached
 
 # ── Intent detection constants ────────────────────────────────────────────────
 

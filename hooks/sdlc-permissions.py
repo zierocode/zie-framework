@@ -6,7 +6,8 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import normalize_command, read_event
+from utils_safety import normalize_command
+from utils_event import read_event
 
 # Ordered allowlist.
 # The metachar guard below blocks injection via &&, ||, ;, |, `, $(

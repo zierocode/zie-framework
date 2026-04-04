@@ -11,7 +11,7 @@ import os as _os
 import sys as _sys
 
 _sys.path.insert(0, _os.path.join(REPO_ROOT, "hooks"))
-from utils import persistent_project_path
+from utils_io import persistent_project_path
 
 SAMPLE_ROADMAP = """## Now
 - [ ] Implement login flow
