@@ -6,7 +6,7 @@ from pathlib import Path
 HOOKS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "hooks"))
 sys.path.insert(0, HOOKS_DIR)
 
-from utils import get_project_name, is_zie_initialized
+from utils_io import get_project_name, is_zie_initialized
 
 
 class TestIsZieInitialized:

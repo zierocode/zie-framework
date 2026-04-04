@@ -6,7 +6,8 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, parse_roadmap_section_content, read_event, read_roadmap_cached
+from utils_event import get_cwd, read_event
+from utils_roadmap import parse_roadmap_section_content, read_roadmap_cached
 
 # ── Outer guard ───────────────────────────────────────────────────────────────
 

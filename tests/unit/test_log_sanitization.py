@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
-from utils import project_tmp_path, safe_project_name
+from utils_io import project_tmp_path, safe_project_name
 
 REPO_ROOT = str(Path(__file__).parent.parent.parent)
 

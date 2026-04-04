@@ -6,7 +6,14 @@ argument-hint: ""
 model: haiku
 effort: low
 context: fork
+deprecated: true
+deprecated_since: "2026-04-04"
+deprecated_reason: "Logic inlined into /zie-retro command. Skill no longer called."
 ---
+
+> **DEPRECATED** (2026-04-04): This skill is no longer invoked by /zie-retro.
+> The retro-format logic is now inlined directly in the command.
+> Kept for reference only. Do not invoke.
 
 # Retro Format — zie-framework
 

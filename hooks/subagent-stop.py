@@ -14,7 +14,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from utils import atomic_write, get_cwd, project_tmp_path, read_event
+from utils_event import get_cwd, read_event
+from utils_io import atomic_write, project_tmp_path
 
 # --- Tier 1: outer guard ---------------------------------------------------
 try:

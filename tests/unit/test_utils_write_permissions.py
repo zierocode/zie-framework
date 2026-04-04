@@ -10,7 +10,7 @@ from pathlib import Path
 HOOKS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "hooks"))
 sys.path.insert(0, HOOKS_DIR)
 
-from utils import atomic_write, safe_write_persistent, safe_write_tmp
+from utils_io import atomic_write, safe_write_persistent, safe_write_tmp
 
 
 def _mode(path: Path) -> str:

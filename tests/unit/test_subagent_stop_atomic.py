@@ -8,7 +8,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parents[2]
 sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
-from utils import project_tmp_path  # noqa: E402
+from utils_io import project_tmp_path  # noqa: E402
 
 
 def _run_subagent_stop(tmp_path, agent_id="agent-1", agent_type="reviewer"):

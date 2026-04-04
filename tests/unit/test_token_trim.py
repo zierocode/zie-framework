@@ -19,5 +19,5 @@ def test_zie_release_word_count():
 
 
 def test_zie_retro_word_count():
-    """zie-retro.md must be ≤1000 words (standardised limit — sprint7)."""
-    assert _word_count(COMMANDS / "zie-retro.md") <= 1000
+    """zie-retro.md must be ≤1200 words (raised from 1000 — roadmap-done-rotation adds inline step)."""
+    assert _word_count(COMMANDS / "zie-retro.md") <= 1200

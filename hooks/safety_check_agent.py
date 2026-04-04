@@ -11,7 +11,9 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import BLOCKS, get_cwd, load_config, normalize_command, read_event
+from utils_safety import BLOCKS, normalize_command
+from utils_event import get_cwd, read_event
+from utils_config import load_config
 
 MAX_CMD_CHARS = 4096
 

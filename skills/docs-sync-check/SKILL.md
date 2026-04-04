@@ -7,7 +7,14 @@ allowed-tools: Read, Glob
 argument-hint: ""
 model: haiku
 effort: low
+deprecated: true
+deprecated_since: "2026-04-04"
+deprecated_reason: "Logic inlined into /zie-retro and /zie-release commands. Skill no longer called."
 ---
+
+> **DEPRECATED** (2026-04-04): This skill is no longer invoked by /zie-retro or /zie-release.
+> The docs-sync-check logic is now inlined directly in these commands.
+> Kept for reference only. Do not invoke.
 
 # docs-sync-check — Living Docs Verification
 

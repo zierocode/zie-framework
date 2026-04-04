@@ -6,7 +6,7 @@ import sys
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-from utils import write_roadmap_cache
+from utils_roadmap import write_roadmap_cache
 
 
 def run_hook(event, tmp_cwd=None, session_id=None):
@@ -67,7 +67,7 @@ class TestIntentSdlcHappyPath:
 
     def test_outputs_single_json_blob(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
-        r = run_hook({"prompt": "implement this"}, tmp_cwd=cwd)
+        r = run_hook({"prompt": "implement this feature"}, tmp_cwd=cwd)
         assert r.returncode == 0
         parsed = json.loads(r.stdout)
         assert "additionalContext" in parsed
@@ -170,7 +170,7 @@ class TestPipelineGates:
     def test_plan_intent_no_roadmap_slug_no_gate(self, tmp_path):
         roadmap = "## Now\n\n## Next\n- [ ] my-feature — spec\n\n## Ready\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
-        r = run_hook({"prompt": "ready to plan"}, tmp_cwd=cwd)
+        r = run_hook({"prompt": "we are ready to plan now"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
         assert "⛔" not in ctx
 
@@ -300,7 +300,7 @@ class TestPositionalGuidance:
     def test_no_spec_nudges_zie_spec(self, tmp_path):
         roadmap = "## Now\n\n## Next\n- [ ] auth-login — backlog\n\n## Ready\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
-        r = run_hook({"prompt": "what about auth-login"}, tmp_cwd=cwd)
+        r = run_hook({"prompt": "let's plan auth-login now"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
         assert "zie-spec" in ctx
 
@@ -308,7 +308,7 @@ class TestPositionalGuidance:
         roadmap = "## Now\n\n## Next\n- [ ] auth-login — spec\n\n## Ready\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
         self._make_spec(cwd / "zie-framework" / "specs", "auth-login", approved=True)
-        r = run_hook({"prompt": "what about auth-login"}, tmp_cwd=cwd)
+        r = run_hook({"prompt": "let's plan auth-login now"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
         assert "zie-plan" in ctx
 
@@ -320,7 +320,7 @@ class TestPositionalGuidance:
         )
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
         self._make_spec(cwd / "zie-framework" / "specs", "auth-login", approved=True)
-        r = run_hook({"prompt": "what about auth-login"}, tmp_cwd=cwd)
+        r = run_hook({"prompt": "what is the progress on auth-login"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
         assert "zie-implement" in ctx
 

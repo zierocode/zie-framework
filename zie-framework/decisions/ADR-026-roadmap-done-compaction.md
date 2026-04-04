@@ -1,32 +1,24 @@
-# ADR-026: ROADMAP Done Section Auto-Compaction
+## ADR-026: ROADMAP Done Section Auto-Compaction
 
-Date: 2026-03-30
-Status: Accepted
+**Date:** 2026-03-27
+**Status:** Accepted (Compressed from ADR-000-summary.md)
 
 ## Context
 
-ROADMAP.md Done section grows ~2 entries per release. At 36 entries today,
-it will reach 150+ entries within 6 months, making the file unwieldy for
-manual review. The existing 20-line read limit in `/zie-retro` mitigates
-context impact today but could drift if the limit is removed or relaxed.
-A self-managing state file aligns with the zie-framework principle that
-SDLC artifacts stay readable as the project ages.
+The ROADMAP.md Done section grows without bound. After many releases the
+section exceeds 20 entries, making the file harder to scan and adding noise
+to every context read that ingests ROADMAP.md.
 
 ## Decision
 
-Add `compact_roadmap_done()` to `hooks/utils.py`. When invoked by the
-`retro-format` skill after every ROADMAP Done update: if entry count > 20
-and some entries are older than 6 months, compact those old entries into a
-single `[archive]` summary line and write their detail to
-`zie-framework/archive/ROADMAP-<version-range>.md`. The 20 most-recent
-entries always remain in full detail. Threshold and cutoff are hardcoded
-(not config) per YAGNI.
+Add `compact_roadmap_done()` to `hooks/utils.py`. When the Done section has
+more than 20 entries and some are older than 6 months, compact the oldest
+entries into a single archive summary line of the form
+`<!-- archived N items older than YYYY-MM -->`.
 
 ## Consequences
 
-**Positive:** Done section stays at ≤ 20 full-detail entries automatically.
-Archive files preserve full history. No manual cleanup required.
-**Negative:** Old entries are no longer visible in ROADMAP.md directly;
-reviewer must follow the archive link.
-**Neutral:** Threshold (20) and cutoff (6 months) are hardcoded. Future
-parameterization possible via zie-framework/.config (separate backlog item).
+- Done section stays compact; recent history is immediately visible.
+- Oldest entries are summarised, not deleted — audit trail preserved.
+- `compact_roadmap_done()` is called by `/zie-retro` after writing the Done
+  section update.

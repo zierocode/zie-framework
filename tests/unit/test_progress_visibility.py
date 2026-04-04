@@ -11,15 +11,17 @@ class TestImplementProgress:
 
     def test_red_phase_marker_present(self):
         text = (COMMANDS_DIR / "zie-implement.md").read_text()
-        assert "→ RED" in text, "zie-implement.md must contain → RED phase marker"
+        assert "→ TDD loop" in text or "Skill(zie-framework:tdd-loop)" in text, \
+            "zie-implement.md must contain → TDD loop marker or Skill(zie-framework:tdd-loop) invocation"
 
     def test_green_phase_marker_present(self):
         text = (COMMANDS_DIR / "zie-implement.md").read_text()
-        assert "→ GREEN" in text, "zie-implement.md must contain → GREEN phase marker"
+        assert "Skill(zie-framework:tdd-loop)" in text, \
+            "zie-implement.md must invoke Skill(zie-framework:tdd-loop) (covers GREEN phase)"
 
     def test_refactor_phase_marker_present(self):
         text = (COMMANDS_DIR / "zie-implement.md").read_text()
-        assert "→ REFACTOR" in text, "zie-implement.md must contain → REFACTOR phase marker"
+        assert "REFACTOR" in text, "zie-implement.md must mention REFACTOR phase"
 
     def test_task_done_marker_present(self):
         text = (COMMANDS_DIR / "zie-implement.md").read_text()

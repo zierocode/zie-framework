@@ -9,7 +9,9 @@ from pathlib import Path
 _hook_start = _time.monotonic()
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, load_config, log_hook_timing, parse_roadmap_now, read_event  # noqa: E402
+from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
+from utils_config import load_config
+from utils_roadmap import parse_roadmap_now
 
 PLAYWRIGHT_MIN_VERSION = (1, 55, 1)
 

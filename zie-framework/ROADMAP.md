@@ -64,15 +64,15 @@
   if they just orchestrate sequential commands, replace with inline
 - [ ] implement-skill-dedup — zie-implement.md lines 51–74 duplicate
   tdd-loop skill (RED-GREEN-REFACTOR); trim to 3-line pointer to skill
-- [ ] roadmap-done-rotation — /zie-retro should auto-archive Done items
+- [x] roadmap-done-rotation — /zie-retro should auto-archive Done items
   older than 90 days to archive/ROADMAP-archive-YYYY-MM.md;
   keep 10 most recent inline
 
 <!-- LOW -->
 
-- [ ] audit-mcp-check — add MCP server audit to /zie-audit; warn about
+- [x] audit-mcp-check — add MCP server audit to /zie-audit; warn about
   unused MCP servers that bloat context with tool definitions
-- [ ] proactive-compact-hint — in Stop/TaskCompleted hooks, check
+- [x] proactive-compact-hint — in Stop/TaskCompleted hooks, check
   context usage and suggest /compact if above threshold
 
 ---
@@ -101,6 +101,10 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint7-optimization-v1.17 — 12 features: merge-safety-hooks (consolidate PreToolUse), split-utils-py (5 sub-modules, 0 regressions), sprint-agent-audit (Skill not Agent in Phase 3), implement-skill-dedup (Skill pointer not prose), roadmap-done-rotation (auto-archive >90d), audit-mcp-check (MCP server audit), proactive-compact-hint (context usage warning), plus 5 earlier items (truncate-auto-test, intent-sdlc-early-exit, release-inline-gates, retro-inline-format, zie-init-delegate-scan) — 2085 unit + 59 integration tests — v1.16.3 2026-04-04
+
+- [x] v1.16.2-maintenance — ROADMAP backlog refresh (12 Next items), pre-commit hook simplified to stub — v1.16.2 2026-04-03
 
 - [x] audit-comprehensive-v1 — 26 fixes:
   hook timing instrumentation, env permissions (0o600), input guarding (braces),

@@ -6,7 +6,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parents[2]
 sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
-from utils import compact_roadmap_done
+from utils_roadmap import compact_roadmap_done
 
 
 def _date_str(months_ago: int) -> str:

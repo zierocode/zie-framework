@@ -6,7 +6,8 @@ import tempfile
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, read_event, safe_project_name
+from utils_event import get_cwd, read_event
+from utils_io import safe_project_name
 
 event = read_event()
 

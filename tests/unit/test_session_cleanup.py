@@ -7,7 +7,7 @@ from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-from utils import project_tmp_path
+from utils_io import project_tmp_path
 
 
 def run_hook(cwd_name, stdin_data=None):
@@ -61,7 +61,7 @@ class TestSessionCleanupDeletes:
         """Glob pattern used by session-cleanup must match safe_project_name() output."""
         import tempfile
         sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-        from utils import safe_project_name
+        from utils_io import safe_project_name
         project = "my project!"
         safe = safe_project_name(project)
         tmp1 = Path(tempfile.gettempdir()) / f"zie-{safe}-last-test"

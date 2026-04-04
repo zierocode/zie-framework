@@ -110,6 +110,19 @@ connection pool exhaustion risks, unbounded memory growth patterns.
 WebSearch: max 2 queries — only if a specific dep/framework has known
 performance footguns relevant to `{shared_context.stack}`.
 
+**MCP Server Usage check** (context efficiency):
+
+Read settings files to build the configured server list:
+1. Expand `~/.claude/settings.json` to absolute path. Read if it exists.
+2. Read `.claude/settings.json` (repo-root-relative) if it exists.
+3. From each file that exists, extract keys of the `mcpServers` object. Union all keys across both files into `configured_servers`.
+4. If no settings file exists, or `mcpServers` is absent or `{}` in all found files → skip this check entirely (no output).
+
+For each name in `configured_servers`:
+- Grep `commands/*.md` and `skills/*/SKILL.md` for the literal prefix `mcp__<name>__`.
+- If zero matches found across both scopes → emit LOW finding: `MCP server '<name>' configured but never referenced in commands or skills — consider removing to reduce context overhead`
+- If at least one match found → no finding for this server (clean pass).
+
 Output: findings list with severity.
 
 **Agent 3 — Structural + Observability**

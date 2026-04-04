@@ -20,11 +20,13 @@ class TestDocsSyncCheckGeneralAgent:
                "subagent_type='zie-framework:docs-sync-check'" not in text, \
             "zie-retro must not reference zie-framework:docs-sync-check agent"
 
-    def test_release_uses_general_purpose_for_docs_sync(self):
-        """zie-release uses general-purpose agent for docs sync."""
+    def test_release_uses_inline_bash_for_docs_sync(self):
+        """zie-release uses inline Bash (not Agent) for docs sync check."""
         text = RELEASE_PATH.read_text()
-        assert "general-purpose" in text, \
-            "zie-release must use general-purpose agent"
+        assert "python3 -c" in text or "make docs-sync" in text, \
+            "zie-release must use inline Bash or make docs-sync for docs sync"
+        assert "Agent(" not in text, \
+            "zie-release must not use Agent() spawning for docs sync"
 
     def test_retro_uses_general_purpose_for_docs_sync(self):
         """zie-retro uses general-purpose agent for docs sync."""

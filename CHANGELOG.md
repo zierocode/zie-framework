@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.16.3 — 2026-04-04
+
+### Features
+
+- **proactive-compact-hint** — New Stop hook warns when context usage ≥80% (configurable via `compact_hint_threshold` in .config); prints informational hint to encourage `/compact` before continuing
+- **audit-mcp-check** — `/zie-audit` Agent 2 now detects unused MCP servers configured in settings.json but never referenced in commands/skills — reports LOW findings to reduce context overhead
+- **roadmap-done-rotation** — `/zie-retro` now auto-archives Done items >90 days old to `archive/ROADMAP-archive-YYYY-MM.md` (append-only); keeps 10 most-recent items inline for history
+- **implement-skill-dedup** — `/zie-implement` task loop now uses `Skill(zie-framework:tdd-loop)` pointer instead of inline RED/GREEN/REFACTOR prose — reduces duplication, improves maintainability
+
+### Changed
+
+- **sprint-agent-audit** — `/zie-sprint` Phase 3 (IMPLEMENT) replaces Agent spawning with direct Skill invocation for sequential execution — improves clarity, reduces token overhead
+- **split-utils-py** — Refactored 737-line `hooks/utils.py` into 5 focused sub-modules: `utils_config`, `utils_safety`, `utils_event`, `utils_io`, `utils_roadmap` — each hook imports only what it needs, improves discoverability and maintainability
+- **merge-safety-hooks** — Consolidated `safety-check.py` and `input-sanitizer.py` into single PreToolUse entry in hooks.json — reduces subprocess spawns from 3→2 per Bash call
+- **zie-init delegation** — Step 2 (scan + knowledge drift) delegated to Agent(Explore) with JSON output → reduces command size by ~100 lines
+- **retro inlining** — `/zie-retro` now does format + docs-sync checks inline (Bash) instead of spawning agents — keeps ADR + ROADMAP agents for file writes only
+- **release gate inlining** — `/zie-release` replaces 4 Agent spawns (test-int, test-e2e, lint, visual) with inline parallel Bash execution — saves ~40k tokens per release
+- **intent-sdlc early-exit** — `intent-sdlc.py` now exits early when message is clearly non-SDLC (length <5, no SDLC keywords) — reduces processing overhead on casual messages
+
+### Fixed
+
+- **auto-test output truncation** — `auto-test.py` now truncates test output injection to pass/fail summary + first failure block; skips truncation for .md and config files — improves context efficiency
+- **rm -rf pattern false positive** — BLOCKS pattern now uses negative lookahead to distinguish `rm -rf ./` (bare dot, blocked) from `rm -rf ./subdir/` (confirm-wrapped) — fixes over-aggressive blocking
+
 ## v1.16.2 — 2026-04-03
 
 ### Changed

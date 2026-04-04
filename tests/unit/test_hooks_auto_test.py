@@ -9,7 +9,7 @@ import pytest
 
 HOOKS_DIR = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")), "hooks")
 sys.path.insert(0, HOOKS_DIR)
-from utils import project_tmp_path
+from utils_io import project_tmp_path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "auto-test.py")
@@ -729,3 +729,130 @@ class TestAutoTestWallClockGuard:
         source = Path(HOOK).read_text()
         # The guard condition must check max_wait > 0
         assert "auto_test_max_wait_s" in source
+
+
+def _load_truncate():
+    """Import truncate_test_output from auto-test.py via importlib."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "auto_test_hook",
+        os.path.join(HOOKS_DIR, "auto-test.py"),
+    )
+    mod = importlib.util.module_from_spec(spec)
+    mod.__name__ = "auto_test_hook"
+    try:
+        spec.loader.exec_module(mod)
+    except SystemExit:
+        pass
+    return mod.truncate_test_output
+
+
+class TestTruncateTestOutput:
+    def setup_method(self):
+        self.fn = _load_truncate()
+
+    def test_summary_line_extracted(self):
+        """AC-5: summary line present in output."""
+        raw = (
+            "collected 5 items\n\ntest_foo.py::test_bar FAILED\n\n"
+            "FAILED test_foo.py::test_bar - AssertionError\n\n"
+            "1 failed, 4 passed in 0.12s\n"
+        )
+        result = self.fn(raw)
+        assert "1 failed, 4 passed" in result
+
+    def test_first_failed_block_extracted(self):
+        """AC-5: first FAILED block present."""
+        raw = (
+            "FAILED test_foo.py::test_bar - AssertionError: expected 1\n"
+            "E   assert 0 == 1\n\n"
+            "2 failed in 0.5s\n"
+        )
+        result = self.fn(raw)
+        assert "FAILED test_foo.py::test_bar" in result
+        assert "assert 0 == 1" in result
+
+    def test_capped_at_30_lines(self):
+        """AC-5: output capped at 30 lines."""
+        long_block = "\n".join([f"E   line {i}" for i in range(100)])
+        raw = f"FAILED test_x.py::test_y\n{long_block}\n\n1 failed in 1s\n"
+        result = self.fn(raw)
+        assert len(result.splitlines()) <= 30
+
+    def test_fallback_when_no_failed_block(self):
+        """AC-6: fallback to first 10 non-empty lines."""
+        raw = "\n".join([f"line {i}" for i in range(50)]) + "\n1 failed in 0.1s\n"
+        result = self.fn(raw)
+        non_empty = [ln for ln in result.splitlines() if ln.strip()]
+        assert len(non_empty) <= 12
+
+    def test_header_present(self):
+        """Output starts with zie-framework header."""
+        raw = "FAILED test.py::t\n\n1 failed in 0.1s\n"
+        result = self.fn(raw)
+        assert "[zie-framework] Tests FAILED" in result
+
+
+class TestExtensionSkipGuard:
+    """AC-1, AC-2, AC-3, AC-4: extension skip guard fires before debounce."""
+
+    def test_md_file_skipped_silently(self, tmp_path):
+        """AC-1: .md file → no output, exit 0."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        md_file = cwd / "README.md"
+        md_file.write_text("# test")
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(md_file)}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    @pytest.mark.parametrize("ext", [".json", ".yaml", ".yml", ".toml", ".cfg", ".ini", ".txt"])
+    def test_non_code_extensions_skipped(self, tmp_path, ext):
+        """AC-2: other non-code extensions also skipped."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        f = cwd / f"config{ext}"
+        f.write_text("data")
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(f)}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_uppercase_extension_skipped(self, tmp_path):
+        """AC-3: .MD uppercase skipped via .lower()."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        f = cwd / "README.MD"
+        f.write_text("# test")
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(f)}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert r.stdout.strip() == ""
+
+    def test_no_extension_proceeds(self, tmp_path):
+        """AC-4: file with no extension proceeds normally."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        f = cwd / "Makefile"
+        f.write_text("all:\n\techo hi")
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(f)}},
+            tmp_cwd=cwd,
+        )
+        assert r.returncode == 0
+        assert "additionalContext" in r.stdout
+
+    def test_skip_guard_before_debounce(self, tmp_path):
+        """AC-1 variant: skipped file does not write debounce sentinel."""
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
+        md_file = cwd / "notes.md"
+        md_file.write_text("hi")
+        run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": str(md_file)}},
+            tmp_cwd=cwd,
+        )
+        debounce = project_tmp_path("last-test", cwd.name)
+        assert not debounce.exists()

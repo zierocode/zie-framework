@@ -45,7 +45,7 @@ class TestTestIndicatorsConfigurable:
         """load_config must be imported from utils in task-completed-gate.py."""
         content = (REPO_ROOT / "hooks" / "task-completed-gate.py").read_text()
         assert "load_config" in content
-        assert "from utils import" in content
+        assert ("from utils import" in content or "from utils_config import" in content)
 
     def test_is_impl_file_still_referenced(self):
         """is_impl_file must still exist in task-completed-gate.py."""

@@ -10,7 +10,7 @@ import pytest
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "sdlc-compact.py")
 sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-from utils import project_tmp_path
+from utils_io import project_tmp_path
 
 SAMPLE_ROADMAP = """## Now
 - [ ] Implement sdlc-compact hook

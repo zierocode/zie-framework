@@ -93,18 +93,21 @@ class TestHandoffBlockPlan:
 
 class TestIntentDrivenImplement:
     def test_red_section_not_bullet_list(self):
-        """RED section in zie-implement must be intent paragraph, not 4+ bullet items."""
+        """TDD in zie-implement must be a Skill pointer, not 4+ inline bullet items."""
         content = read("commands/zie-implement.md")
-        red_start = content.find("(RED)")
-        green_start = content.find("(GREEN)")
-        assert red_start != -1 and green_start != -1, \
-            "zie-implement must have (RED) and (GREEN) phase markers"
-        red_section = content[red_start:green_start]
-        # Count bullet lines (lines starting with "   -")
-        bullet_lines = [ln for ln in red_section.split("\n")
-                        if ln.strip().startswith("- ")]
+        assert "Skill(zie-framework:tdd-loop)" in content, \
+            "zie-implement must invoke Skill(zie-framework:tdd-loop) for TDD loop"
+        # The tdd-loop invocation must not be buried in 4+ bullets
+        tdd_pos = content.find("Skill(zie-framework:tdd-loop)")
+        tdd_line = content[:tdd_pos].count("\n")
+        # Find the surrounding step lines
+        lines = content.splitlines()
+        context_start = max(0, tdd_line - 3)
+        context_end = min(len(lines), tdd_line + 3)
+        nearby = lines[context_start:context_end]
+        bullet_lines = [ln for ln in nearby if ln.strip().startswith("- ")]
         assert len(bullet_lines) <= 2, \
-            f"zie-implement RED section must be intent-driven (≤ 2 bullets), found {len(bullet_lines)}"
+            f"zie-implement TDD invocation must be concise (≤ 2 nearby bullets), found {len(bullet_lines)}"
 
 
 # ── Task 9: Gate descriptions simplified in zie-release ───────────────────────

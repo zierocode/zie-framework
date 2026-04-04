@@ -14,17 +14,10 @@ sys.path.insert(0, str(REPO_ROOT / "hooks"))
 import json
 from unittest.mock import patch
 
-from utils import (
-    get_cached_roadmap,
-    get_cwd,
-    load_config,
-    parse_roadmap_now,
-    parse_roadmap_section,
-    project_tmp_path,
-    read_event,
-    validate_config,
-    write_roadmap_cache,
-)
+from utils_config import load_config, validate_config
+from utils_event import get_cwd, read_event
+from utils_io import project_tmp_path
+from utils_roadmap import get_cached_roadmap, parse_roadmap_now, parse_roadmap_section, write_roadmap_cache
 
 
 class TestParseRoadmapNow:
@@ -90,13 +83,13 @@ class TestProjectTmpPath:
 
 class TestAtomicWrite:
     def test_writes_content_to_target(self, tmp_path):
-        from utils import atomic_write
+        from utils_io import atomic_write
         target = tmp_path / "pending_learn.txt"
         atomic_write(target, "project=foo\nwip=bar\n")
         assert target.read_text() == "project=foo\nwip=bar\n"
 
     def test_atomic_write_no_predictable_tmp_sibling(self, tmp_path):
-        from utils import atomic_write
+        from utils_io import atomic_write
         target = tmp_path / "pending_learn.txt"
         atomic_write(target, "hello")
         assert not target.with_suffix(".tmp").exists(), (
@@ -104,49 +97,49 @@ class TestAtomicWrite:
         )
 
     def test_atomic_write_permissions(self, tmp_path):
-        from utils import atomic_write
+        from utils_io import atomic_write
         target = tmp_path / "pending_learn.txt"
         atomic_write(target, "hello")
         mode = oct(os.stat(target).st_mode)[-3:]
         assert mode == "600", f"Expected 600 permissions, got {mode}"
 
     def test_overwrites_existing_file(self, tmp_path):
-        from utils import atomic_write
+        from utils_io import atomic_write
         target = tmp_path / "pending_learn.txt"
         target.write_text("old content")
         atomic_write(target, "new content")
         assert target.read_text() == "new content"
 
     def test_handles_empty_content(self, tmp_path):
-        from utils import atomic_write
+        from utils_io import atomic_write
         target = tmp_path / "out.txt"
         atomic_write(target, "")
         assert target.read_text() == ""
 
 class TestSafeProjectName:
     def test_alphanumeric_unchanged(self):
-        from utils import safe_project_name
+        from utils_io import safe_project_name
         assert safe_project_name("myproject") == "myproject"
 
     def test_spaces_replaced_with_dash(self):
-        from utils import safe_project_name
+        from utils_io import safe_project_name
         assert safe_project_name("my project") == "my-project"
 
     def test_special_chars_replaced(self):
-        from utils import safe_project_name
+        from utils_io import safe_project_name
         assert safe_project_name("my project!") == "my-project-"
 
     def test_empty_string_returns_empty(self):
-        from utils import safe_project_name
+        from utils_io import safe_project_name
         assert safe_project_name("") == ""
 
     def test_already_safe_no_change(self):
-        from utils import safe_project_name
+        from utils_io import safe_project_name
         assert safe_project_name("zie-framework") == "zie-framework"
 
     def test_project_tmp_path_uses_safe_project_name(self):
         """project_tmp_path output must equal <tmpdir>/zie-{safe_project_name(p)}-{name}."""
-        from utils import safe_project_name
+        from utils_io import safe_project_name
         p = "my project!"
         expected = Path(tempfile.gettempdir()) / f"zie-{safe_project_name(p)}-last-test"
         assert project_tmp_path("last-test", p) == expected
@@ -154,7 +147,7 @@ class TestSafeProjectName:
 
 class TestCallZieMemoryApi:
     def test_raises_on_unreachable_url(self):
-        from utils import call_zie_memory_api
+        from utils_event import call_zie_memory_api
         with pytest.raises(Exception):
             call_zie_memory_api(
                 "https://localhost:19999", "fake-key",
@@ -162,7 +155,7 @@ class TestCallZieMemoryApi:
             )
 
     def test_raises_type_error_on_non_serializable_payload(self):
-        from utils import call_zie_memory_api
+        from utils_event import call_zie_memory_api
         with pytest.raises((TypeError, Exception)):
             call_zie_memory_api(
                 "https://localhost:19999", "fake-key",
@@ -172,7 +165,7 @@ class TestCallZieMemoryApi:
     def test_constructs_correct_request(self):
         from unittest import mock
 
-        from utils import call_zie_memory_api
+        from utils_event import call_zie_memory_api
         captured = {}
 
         def fake_urlopen(req, timeout=None):
@@ -196,7 +189,7 @@ class TestCallZieMemoryApi:
     def test_default_timeout_is_5(self):
         from unittest import mock
 
-        from utils import call_zie_memory_api
+        from utils_event import call_zie_memory_api
         captured = {}
 
         def fake_urlopen(req, timeout=None):
@@ -213,25 +206,25 @@ class TestCallZieMemoryApi:
 
 class TestGetPluginDataDir:
     def test_uses_claude_plugin_data_when_set(self, tmp_path, monkeypatch):
-        from utils import get_plugin_data_dir
+        from utils_io import get_plugin_data_dir
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         result = get_plugin_data_dir("my-project")
         assert str(result).startswith(str(tmp_path))
 
     def test_subdirectory_is_safe_project_name(self, tmp_path, monkeypatch):
-        from utils import get_plugin_data_dir, safe_project_name
+        from utils_io import get_plugin_data_dir, safe_project_name
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         result = get_plugin_data_dir("my project!")
         assert result.name == safe_project_name("my project!")
 
     def test_directory_is_created(self, tmp_path, monkeypatch):
-        from utils import get_plugin_data_dir
+        from utils_io import get_plugin_data_dir
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         result = get_plugin_data_dir("newproject")
         assert result.is_dir()
 
     def test_fallback_to_tmp_when_env_unset(self, monkeypatch, capsys):
-        from utils import get_plugin_data_dir, safe_project_name
+        from utils_io import get_plugin_data_dir, safe_project_name
         monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
         result = get_plugin_data_dir("myproject")
         safe = safe_project_name("myproject")
@@ -239,7 +232,7 @@ class TestGetPluginDataDir:
         assert result == expected
 
     def test_fallback_emits_stderr_warning(self, monkeypatch, capsys):
-        from utils import get_plugin_data_dir
+        from utils_io import get_plugin_data_dir
         monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
         get_plugin_data_dir("myproject")
         captured = capsys.readouterr()
@@ -247,13 +240,13 @@ class TestGetPluginDataDir:
         assert "fallback" in captured.err.lower() or "/tmp" in captured.err
 
     def test_fallback_directory_is_created(self, monkeypatch):
-        from utils import get_plugin_data_dir
+        from utils_io import get_plugin_data_dir
         monkeypatch.delenv("CLAUDE_PLUGIN_DATA", raising=False)
         result = get_plugin_data_dir("myproject")
         assert result.is_dir()
 
     def test_empty_env_var_treated_as_unset(self, monkeypatch, capsys):
-        from utils import get_plugin_data_dir
+        from utils_io import get_plugin_data_dir
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", "")
         result = get_plugin_data_dir("myproject")
         assert str(result).startswith(str(tempfile.gettempdir()))
@@ -261,12 +254,12 @@ class TestGetPluginDataDir:
         assert "CLAUDE_PLUGIN_DATA" in captured.err
 
     def test_returns_path_object(self, tmp_path, monkeypatch):
-        from utils import get_plugin_data_dir
+        from utils_io import get_plugin_data_dir
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         assert isinstance(get_plugin_data_dir("proj"), Path)
 
     def test_special_chars_in_project_name_sanitized(self, tmp_path, monkeypatch):
-        from utils import get_plugin_data_dir
+        from utils_io import get_plugin_data_dir
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         result = get_plugin_data_dir("my/evil/../project")
         # Path() must not escape tmp_path via traversal
@@ -276,21 +269,21 @@ class TestGetPluginDataDir:
 
 class TestSafeWritePersistent:
     def test_normal_write_returns_true(self, tmp_path):
-        from utils import safe_write_persistent
+        from utils_io import safe_write_persistent
         target = tmp_path / "data.txt"
         result = safe_write_persistent(target, "hello")
         assert result is True
         assert target.read_text() == "hello"
 
     def test_write_is_atomic_no_tmp_sibling(self, tmp_path):
-        from utils import safe_write_persistent
+        from utils_io import safe_write_persistent
         target = tmp_path / "data.txt"
         safe_write_persistent(target, "content")
         tmp_sibling = tmp_path / "data.txt.tmp"
         assert not tmp_sibling.exists()
 
     def test_symlink_returns_false(self, tmp_path):
-        from utils import safe_write_persistent
+        from utils_io import safe_write_persistent
         real = tmp_path / "real.txt"
         real.write_text("protected")
         link = tmp_path / "link.txt"
@@ -300,7 +293,7 @@ class TestSafeWritePersistent:
         assert real.read_text() == "protected"
 
     def test_symlink_emits_stderr_warning(self, tmp_path, capsys):
-        from utils import safe_write_persistent
+        from utils_io import safe_write_persistent
         link = tmp_path / "link.txt"
         link.symlink_to(tmp_path / "anything")
         safe_write_persistent(link, "x")
@@ -309,7 +302,7 @@ class TestSafeWritePersistent:
         assert "symlink" in captured.err.lower()
 
     def test_dangling_symlink_returns_false(self, tmp_path):
-        from utils import safe_write_persistent
+        from utils_io import safe_write_persistent
         link = tmp_path / "dangling.txt"
         link.symlink_to(tmp_path / "does-not-exist")
         result = safe_write_persistent(link, "data")
@@ -318,21 +311,21 @@ class TestSafeWritePersistent:
     def test_oserror_returns_false(self, tmp_path):
         from unittest import mock
 
-        from utils import safe_write_persistent
+        from utils_io import safe_write_persistent
         target = tmp_path / "err.txt"
         with mock.patch("os.replace", side_effect=OSError("disk full")):
             result = safe_write_persistent(target, "data")
         assert result is False
 
     def test_overwrites_existing_content(self, tmp_path):
-        from utils import safe_write_persistent
+        from utils_io import safe_write_persistent
         target = tmp_path / "data.txt"
         target.write_text("old")
         safe_write_persistent(target, "new")
         assert target.read_text() == "new"
 
     def test_path_not_existing_is_normal_write(self, tmp_path):
-        from utils import safe_write_persistent
+        from utils_io import safe_write_persistent
         target = tmp_path / "new.txt"
         assert not target.exists()
         result = safe_write_persistent(target, "first")
@@ -340,7 +333,7 @@ class TestSafeWritePersistent:
         assert target.read_text() == "first"
 
     def test_safe_write_persistent_permissions(self, tmp_path):
-        from utils import safe_write_persistent
+        from utils_io import safe_write_persistent
         target = tmp_path / "data.txt"
         safe_write_persistent(target, "data")
         mode = oct(os.stat(target).st_mode)[-3:]
@@ -349,26 +342,26 @@ class TestSafeWritePersistent:
 
 class TestPersistentProjectPath:
     def test_returns_path_inside_plugin_data_dir(self, tmp_path, monkeypatch):
-        from utils import persistent_project_path
+        from utils_io import persistent_project_path
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         result = persistent_project_path("edit-count", "myproject")
         assert result.parent.parent == tmp_path
 
     def test_filename_matches_name_arg(self, tmp_path, monkeypatch):
-        from utils import persistent_project_path
+        from utils_io import persistent_project_path
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         result = persistent_project_path("pending_learn.txt", "myproject")
         assert result.name == "pending_learn.txt"
 
     def test_returns_path_object(self, tmp_path, monkeypatch):
-        from utils import persistent_project_path
+        from utils_io import persistent_project_path
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         assert isinstance(persistent_project_path("x", "y"), Path)
 
     def test_mirrors_project_tmp_path_structure(self, tmp_path, monkeypatch):
         """persistent_project_path and project_tmp_path must use the same
         safe_project_name sanitization for the project segment."""
-        from utils import persistent_project_path, safe_project_name
+        from utils_io import persistent_project_path, safe_project_name
         monkeypatch.setenv("CLAUDE_PLUGIN_DATA", str(tmp_path))
         result = persistent_project_path("edit-count", "my project!")
         safe = safe_project_name("my project!")
@@ -377,7 +370,7 @@ class TestPersistentProjectPath:
 
 class TestSafeWriteTmp:
     def test_normal_write_returns_true(self, tmp_path):
-        from utils import safe_write_tmp
+        from utils_io import safe_write_tmp
         target = tmp_path / "zie-test-foo"
         result = safe_write_tmp(target, "hello")
         assert result is True
@@ -385,7 +378,7 @@ class TestSafeWriteTmp:
 
     def test_normal_write_is_atomic(self, tmp_path):
         """Content is written via a .tmp sibling then renamed."""
-        from utils import safe_write_tmp
+        from utils_io import safe_write_tmp
         target = tmp_path / "zie-test-atomic"
         safe_write_tmp(target, "data")
         tmp_sibling = tmp_path / "zie-test-atomic.tmp"
@@ -393,7 +386,7 @@ class TestSafeWriteTmp:
         assert target.read_text() == "data"
 
     def test_symlink_returns_false(self, tmp_path):
-        from utils import safe_write_tmp
+        from utils_io import safe_write_tmp
         real_file = tmp_path / "real.txt"
         real_file.write_text("secret")
         link = tmp_path / "zie-test-link"
@@ -403,14 +396,14 @@ class TestSafeWriteTmp:
         assert real_file.read_text() == "secret"
 
     def test_symlink_to_nonexistent_returns_false(self, tmp_path):
-        from utils import safe_write_tmp
+        from utils_io import safe_write_tmp
         link = tmp_path / "zie-test-dangling"
         link.symlink_to(tmp_path / "does-not-exist")
         result = safe_write_tmp(link, "data")
         assert result is False
 
     def test_symlink_blocked_emits_stderr_warning(self, tmp_path, capsys):
-        from utils import safe_write_tmp
+        from utils_io import safe_write_tmp
         link = tmp_path / "zie-test-warn"
         link.symlink_to(tmp_path / "anything")
         safe_write_tmp(link, "x")
@@ -421,14 +414,14 @@ class TestSafeWriteTmp:
     def test_oserror_returns_false(self, tmp_path):
         from unittest import mock
 
-        from utils import safe_write_tmp
+        from utils_io import safe_write_tmp
         target = tmp_path / "zie-test-err"
         with mock.patch("os.replace", side_effect=OSError("disk full")):
             result = safe_write_tmp(target, "data")
         assert result is False
 
     def test_path_not_exist_is_normal_write(self, tmp_path):
-        from utils import safe_write_tmp
+        from utils_io import safe_write_tmp
         target = tmp_path / "zie-test-new"
         assert not target.exists()
         result = safe_write_tmp(target, "first-run")
@@ -436,7 +429,7 @@ class TestSafeWriteTmp:
         assert target.read_text() == "first-run"
 
     def test_safe_write_tmp_permissions(self, tmp_path):
-        from utils import safe_write_tmp
+        from utils_io import safe_write_tmp
         target = tmp_path / "zie-test-perms"
         safe_write_tmp(target, "data")
         mode = oct(os.stat(target).st_mode)[-3:]
@@ -587,7 +580,7 @@ class TestParseRoadmapSection:
 
     def test_parse_roadmap_section_delegates_to_content(self, tmp_path, monkeypatch):
         """parse_roadmap_section must call parse_roadmap_section_content, not re-implement."""
-        import utils as utils_module
+        import utils_roadmap as utils_module
         f = tmp_path / "ROADMAP.md"
         f.write_text("## Alpha\n- [ ] task one\n")
         calls = []
@@ -629,12 +622,12 @@ class TestLoadConfig:
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text('{"safety_check_mode": "agent"}')
-        from utils import load_config
+        from utils_config import load_config
         result = load_config(tmp_path)
         assert result.get("safety_check_mode") == "agent"
 
     def test_returns_defaults_when_no_config(self, tmp_path):
-        from utils import load_config
+        from utils_config import load_config
         result = load_config(tmp_path)
         assert result["subprocess_timeout_s"] == 5
 
@@ -642,7 +635,7 @@ class TestLoadConfig:
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text("not valid json")
-        from utils import load_config
+        from utils_config import load_config
         result = load_config(tmp_path)
         assert result["subprocess_timeout_s"] == 5
 
@@ -650,7 +643,7 @@ class TestLoadConfig:
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text("")
-        from utils import load_config
+        from utils_config import load_config
         result = load_config(tmp_path)
         assert result["subprocess_timeout_s"] == 5
 
@@ -658,7 +651,7 @@ class TestLoadConfig:
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text('{"playwright_enabled": false, "has_frontend": true}')
-        from utils import load_config
+        from utils_config import load_config
         result = load_config(tmp_path)
         assert result["playwright_enabled"] is False
         assert result["has_frontend"] is True
@@ -667,7 +660,7 @@ class TestLoadConfig:
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text('{"debounce_ms": 3000}')
-        from utils import load_config
+        from utils_config import load_config
         result = load_config(tmp_path)
         assert result["debounce_ms"] == 3000
 
@@ -675,7 +668,7 @@ class TestLoadConfig:
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text('{"test_runner": "pytest"}')
-        from utils import load_config
+        from utils_config import load_config
         result = load_config(tmp_path)
         assert result["test_runner"] == "pytest"
 
@@ -726,76 +719,76 @@ class TestNormalizeCommand:
         ("GIT PUSH ORIGIN MAIN", "git push origin main"),
     ])
     def test_normalize_command(self, cmd, expected):
-        from utils import normalize_command
+        from utils_safety import normalize_command
         assert normalize_command(cmd) == expected
 
     def test_lowercases_command(self):
-        from utils import normalize_command
+        from utils_safety import normalize_command
         result = normalize_command("MAKE TEST")
         assert result == "make test"
 
     def test_collapses_tabs_and_newlines(self):
-        from utils import normalize_command
+        from utils_safety import normalize_command
         result = normalize_command("git\t\tcommit\n-m\r\nmsg")
         assert result == "git commit -m msg"
 
 
 class TestBlocksWarns:
     def test_blocks_importable_from_utils(self):
-        from utils import BLOCKS
+        from utils_safety import BLOCKS
         assert isinstance(BLOCKS, list)
         assert len(BLOCKS) > 0
 
     def test_warns_importable_from_utils(self):
-        from utils import WARNS
+        from utils_safety import WARNS
         assert isinstance(WARNS, list)
         assert len(WARNS) > 0
 
     def test_blocks_entries_are_tuples(self):
-        from utils import BLOCKS
+        from utils_safety import BLOCKS
         for entry in BLOCKS:
             assert isinstance(entry, tuple)
             assert len(entry) == 2
 
     def test_warns_entries_are_tuples(self):
-        from utils import WARNS
+        from utils_safety import WARNS
         for entry in WARNS:
             assert isinstance(entry, tuple)
             assert len(entry) == 2
 
     def test_blocks_contains_rm_rf_pattern(self):
-        from utils import BLOCKS
+        from utils_safety import BLOCKS
         patterns = [p for p, _ in BLOCKS]
         assert any("rm" in p for p in patterns)
 
     def test_warns_contains_docker_compose_pattern(self):
-        from utils import WARNS
+        from utils_safety import WARNS
         patterns = [p for p, _ in WARNS]
         assert any("docker" in p for p in patterns)
 
 
 class TestSdlcStages:
     def test_sdlc_stages_is_exported(self):
-        from utils import SDLC_STAGES
+        from utils_roadmap import SDLC_STAGES
         assert SDLC_STAGES is not None
 
     def test_sdlc_stages_is_list(self):
-        from utils import SDLC_STAGES
+        from utils_roadmap import SDLC_STAGES
         assert isinstance(SDLC_STAGES, list)
 
     def test_sdlc_stages_contains_eight_entries(self):
-        from utils import SDLC_STAGES
+        from utils_roadmap import SDLC_STAGES
         assert len(SDLC_STAGES) == 8
 
     def test_sdlc_stages_values(self):
-        from utils import SDLC_STAGES
+        from utils_roadmap import SDLC_STAGES
         assert SDLC_STAGES == [
             "init", "backlog", "spec", "plan",
             "implement", "fix", "release", "retro",
         ]
 
     def test_sdlc_stages_all_strings(self):
-        from utils import SDLC_STAGES
+        from utils_roadmap import SDLC_STAGES
         assert all(isinstance(s, str) for s in SDLC_STAGES)
 
     def test_intent_sdlc_has_sdlc_stage_keywords(self):
@@ -937,7 +930,7 @@ class TestRoadmapCache:
 # TestGitStatusCache
 # ---------------------------------------------------------------------------
 
-from utils import get_cached_git_status, write_git_status_cache
+from utils_roadmap import get_cached_git_status, write_git_status_cache
 
 
 class TestGitStatusCache:
@@ -1070,7 +1063,7 @@ class TestValidateConfig:
 
 class TestConfigDefaults:
     def test_config_defaults_has_all_required_keys(self):
-        from utils import CONFIG_DEFAULTS
+        from utils_config import CONFIG_DEFAULTS
         required = {
             "safety_check_mode", "test_runner", "auto_test_debounce_ms",
             "auto_test_timeout_ms", "test_indicators", "project_type", "zie_memory_enabled",
@@ -1078,7 +1071,7 @@ class TestConfigDefaults:
         assert required <= set(CONFIG_DEFAULTS.keys())
 
     def test_config_defaults_correct_types(self):
-        from utils import CONFIG_DEFAULTS
+        from utils_config import CONFIG_DEFAULTS
         assert isinstance(CONFIG_DEFAULTS["safety_check_mode"], str)
         assert isinstance(CONFIG_DEFAULTS["test_runner"], str)
         assert isinstance(CONFIG_DEFAULTS["auto_test_debounce_ms"], int)
@@ -1088,13 +1081,13 @@ class TestConfigDefaults:
         assert isinstance(CONFIG_DEFAULTS["zie_memory_enabled"], bool)
 
     def test_load_config_includes_config_defaults_keys(self, tmp_path):
-        from utils import CONFIG_DEFAULTS, load_config
+        from utils_config import CONFIG_DEFAULTS, load_config
         result = load_config(tmp_path)
         for key in CONFIG_DEFAULTS:
             assert key in result, f"load_config result must include CONFIG_DEFAULTS key: {key}"
 
     def test_loaded_values_override_defaults(self, tmp_path):
-        from utils import CONFIG_DEFAULTS, load_config
+        from utils_config import CONFIG_DEFAULTS, load_config
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text('{"safety_check_mode": "agent", "auto_test_debounce_ms": 500}')
@@ -1105,7 +1098,7 @@ class TestConfigDefaults:
         assert result["zie_memory_enabled"] == CONFIG_DEFAULTS["zie_memory_enabled"]
 
     def test_config_defaults_not_mutated_by_load_config(self, tmp_path):
-        from utils import CONFIG_DEFAULTS, load_config
+        from utils_config import CONFIG_DEFAULTS, load_config
         original = dict(CONFIG_DEFAULTS)
         load_config(tmp_path)
         assert CONFIG_DEFAULTS == original
@@ -1115,7 +1108,7 @@ class TestConfigDefaults:
 # TestComputeMaxMtime / TestIsMtimeFresh
 # ---------------------------------------------------------------------------
 
-from utils import compute_max_mtime, is_mtime_fresh  # noqa: E402
+from utils_roadmap import compute_max_mtime, is_mtime_fresh  # noqa: E402
 
 
 class TestCacheWriteStderrLogs:
@@ -1136,7 +1129,7 @@ class TestCacheWriteStderrLogs:
         """AC-2: mkdir failure → stderr log, no raise."""
         import pathlib
 
-        from utils import write_git_status_cache
+        from utils_roadmap import write_git_status_cache
 
         def bad_mkdir(self, **kwargs):
             raise PermissionError("disk full")
@@ -1184,7 +1177,7 @@ class TestIsMtimeFresh:
         assert is_mtime_fresh(1001.0, 1000.0) is False
 
 
-from utils import log_hook_timing  # noqa: E402
+from utils_event import log_hook_timing  # noqa: E402
 
 
 class TestLogHookTiming:

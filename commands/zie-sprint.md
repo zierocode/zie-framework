@@ -162,25 +162,13 @@ Reload ROADMAP (items now in Ready).
 
 Read Ready items from ROADMAP (ordered by priority: CRITICAL → HIGH → MEDIUM → LOW).
 
-```
-For each item in Ready:
-  [impl N/total] <slug>
+For each item in priority order:
 
-  1. Move item from Ready → Now in ROADMAP
-  2. Spawn Agent(subagent_type="general-purpose", run_in_background=True):
-     prompt: "Implement item. Slug: <slug>.
-     (1) Invoke /zie-implement <slug>
-     (2) All tasks complete and tests pass (skipping retro)
-     (3) Capture final git commit hash
-     Report: [impl-<slug>] ✓ <commit-hash> or ❌ <issue>"
-     context_bundle: <from Step 0>
-  3. (Non-blocking) Pre-load context for next item:
-     - Read next item's plan file (cache it for step 4)
-     - Warm up brain recall if enabled
-  4. Wait for agent to complete before moving to next item (sequential)
-```
-
-Print progress: `[impl N/total] <slug> ✓ | ❌ <issue>`
+1. Move item from Ready → Now in ROADMAP
+2. Read `zie-framework/plans/*-<slug>.md` (only this file per item)
+3. Invoke: `Skill(zie-framework:zie-implement, <slug>)`
+4. Success: `[impl N/total] <slug> ✓ <commit>`
+5. Failure: `[impl N/total] <slug> ❌ <issue>` → halt sprint
 
 After all impl complete: all items marked `[x]` in Now.
 

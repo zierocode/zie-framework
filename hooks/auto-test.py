@@ -2,6 +2,7 @@
 """PostToolUse:Edit/Write hook — run relevant unit tests after file edits."""
 import json
 import os
+import re as _re
 import signal
 import subprocess
 import sys
@@ -12,7 +13,57 @@ from pathlib import Path
 _hook_start = time.monotonic()
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils import get_cwd, load_config, log_hook_timing, project_tmp_path, read_event, safe_write_tmp  # noqa: E402
+from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
+from utils_config import load_config
+from utils_io import project_tmp_path, safe_write_tmp
+
+_SUMMARY_RE = _re.compile(r'\d+\s+(passed|failed|error|skipped|xfailed|xpassed)')
+_SKIP_EXTENSIONS = {".md", ".json", ".yaml", ".yml", ".toml", ".cfg", ".ini", ".txt"}
+
+
+def truncate_test_output(raw: str) -> str:
+    """Reduce pytest output to summary line + first FAILED block, capped at 30 lines."""
+    lines = raw.splitlines()
+
+    # Find summary line (last matching line)
+    summary_line = ""
+    for line in reversed(lines):
+        if _SUMMARY_RE.search(line):
+            summary_line = line.strip()
+            break
+
+    # Find first FAILED block
+    failed_block: list[str] = []
+    in_block = False
+    for line in lines:
+        if not in_block and _re.match(r'^(FAILED|E   |_ )', line):
+            in_block = True
+        if in_block:
+            if not line.strip() or line.startswith('='):
+                break
+            failed_block.append(line)
+
+    header = "[zie-framework] Tests FAILED — fix before continuing"
+
+    if failed_block:
+        parts = [header]
+        if summary_line:
+            parts.append(summary_line)
+        parts.append("")
+        parts.extend(failed_block)
+        result = "\n".join(parts)
+        result_lines = result.splitlines()
+        if len(result_lines) > 30:
+            result = "\n".join(result_lines[:30])
+        return result
+    else:
+        non_empty = [ln for ln in lines if ln.strip()][:10]
+        parts = [header]
+        if summary_line:
+            parts.append(summary_line)
+        parts.append("")
+        parts.extend(non_empty)
+        return "\n".join(parts)
 
 
 def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None:
@@ -84,6 +135,11 @@ if __name__ == "__main__":
         sys.exit(0)
 
     changed = Path(file_path).resolve()
+
+    # Skip non-code files silently — no tests, no debounce write
+    if changed.suffix.lower() in _SKIP_EXTENSIONS:
+        sys.exit(0)
+
     cwd_resolved = cwd.resolve()
     if not changed.is_relative_to(cwd_resolved):
         sys.exit(0)
@@ -171,11 +227,7 @@ if __name__ == "__main__":
             if rc == 0:
                 print("[zie-framework] Tests pass ✓")
             else:
-                print("[zie-framework] Tests FAILED — fix before continuing")
-                lines = (stdout_data + stderr_data).splitlines()
-                for line in lines[:20]:
-                    if line.strip():
-                        print(f"  {line}")
+                print(truncate_test_output(stdout_data + stderr_data))
         else:
             # Fallback path: subprocess.run with auto_test_timeout_ms
             result = subprocess.run(
@@ -188,11 +240,7 @@ if __name__ == "__main__":
             if result.returncode == 0:
                 print("[zie-framework] Tests pass ✓")
             else:
-                print("[zie-framework] Tests FAILED — fix before continuing")
-                lines = (result.stdout + result.stderr).splitlines()
-                for line in lines[:20]:
-                    if line.strip():
-                        print(f"  {line}")
+                print(truncate_test_output(result.stdout + result.stderr))
     except subprocess.TimeoutExpired:
         print(f"[zie-framework] Tests timed out ({timeout}s) — check for hanging tests")
     except FileNotFoundError:

@@ -10,7 +10,7 @@ import pytest
 REPO_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "hooks"))
 
-from utils import get_cached_adrs, write_adr_cache
+from utils_roadmap import get_cached_adrs, write_adr_cache
 
 
 class TestGetCachedAdrs:

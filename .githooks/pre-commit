@@ -1,2 +1,8 @@
 #!/bin/bash
-echo "Pre-commit hook placeholder"
+# Pre-commit: sync version and run lint/bandit checks
+make sync-version || exit 1
+if command -v bandit &>/dev/null; then
+    make lint-bandit || exit 1
+else
+    echo "[pre-commit] bandit not installed — skipping bandit check (pip install bandit)"
+fi
