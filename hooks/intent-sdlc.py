@@ -15,7 +15,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_io import project_tmp_path
-from utils_roadmap import parse_roadmap_section_content, read_roadmap_cached
+from utils_roadmap import is_track_active, parse_roadmap_section_content, read_roadmap_cached
 
 # ── Intent detection constants ────────────────────────────────────────────────
 
@@ -169,22 +169,6 @@ def _check_pipeline_preconditions(
             f"Do not proceed with planning."
         )
 
-    if intent == "implement":
-        in_now = False
-        for line in roadmap_content.splitlines():
-            if line.startswith("##") and "now" in line.lower():
-                in_now = True
-                continue
-            if line.startswith("##") and in_now:
-                break
-            if in_now and re.search(r'-\s*\[\s*\]', line):
-                return None  # has open item — gate passes
-        return (
-            "⛔ STOP. No active feature in Now lane. "
-            "Complete /zie-backlog → /zie-spec → /zie-plan first, "
-            "then start /zie-implement. Do not write code."
-        )
-
     return None
 
 
@@ -307,18 +291,32 @@ try:
 
     # ── Pipeline gate check ───────────────────────────────────────────────────
     gate_msg = None
-    if best and best in ("plan", "implement"):
+    if best and best == "plan":
         gate_msg = _check_pipeline_preconditions(best, roadmap_content, cwd, message)
+
+    # ── No-active-track check ─────────────────────────────────────────────────
+    no_track_msg = None
+    if gate_msg is None and best in ("implement", "fix"):
+        if not is_track_active(cwd):
+            no_track_msg = (
+                "no active track — pick one: "
+                "standard: /zie-backlog → /zie-spec → /zie-plan → /zie-implement | "
+                "hotfix: /zie-hotfix | "
+                "spike: /zie-spike | "
+                "chore: /zie-chore"
+            )
 
     # ── Positional guidance (only when no gate and no dominant intent) ────────
     guidance_msg = None
-    if gate_msg is None and (not intent_cmd or best == "status"):
+    if gate_msg is None and no_track_msg is None and (not intent_cmd or best == "status"):
         guidance_msg = _positional_guidance(roadmap_content, cwd, message)
 
     # ── Build combined context ────────────────────────────────────────────────
     parts = []
     if gate_msg:
         parts.append(gate_msg)
+    elif no_track_msg:
+        parts.append(no_track_msg)
     elif intent_cmd:
         parts.append(f"intent:{best} → {intent_cmd}")
     if guidance_msg:

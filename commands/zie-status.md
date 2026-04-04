@@ -25,6 +25,8 @@ Knowledge hash:
 
 2. **Read files**: `zie-framework/.config` (including `knowledge_hash`,
    `knowledge_synced_at`), `VERSION`, specs/plans dirs เพื่อ context.
+   Read drift count from `zie-framework/.drift-log` — count non-empty lines
+   (each line is one drift event). If file missing → count is 0.
    For ROADMAP.md — use targeted reads only:
    - **Now section**: Grep `## Now` → Read from that line to next `---` separator.
    - **Next count**: Grep `- [` lines between `## Next` and next `---` → count only.
@@ -85,6 +87,7 @@ Knowledge hash:
    | Version | \<VERSION> |
    | Velocity | \<velocity string> |
    | Brain | \<enabled\|disabled> |
+   | Drift | \<N> bypass events (`zie-framework/.drift-log`) |
    | Knowledge | \<✓ synced (date) \| ⚠ drift: /zie-resync \| ? no baseline> |
 
    **ROADMAP**

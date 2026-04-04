@@ -10,6 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 - [x] UX Output Formatting and Progress Visibility — [plan](plans/2026-04-04-ux-output-formatting-and-progress.md)
+- [x] Workflow Enforcement and Escape Hatches — [plan](plans/2026-04-04-workflow-enforcement-escape-hatches.md)
 
 ---
 
@@ -25,7 +26,6 @@
 <!-- MEDIUM -->
 
 <!-- LOW -->
-- [ ] Workflow Enforcement and Escape Hatches — [plan](plans/2026-04-04-workflow-enforcement-escape-hatches.md)
 - [ ] Smarter Framework Intelligence — [plan](plans/2026-04-04-smarter-framework-intelligence.md)
 - [ ] Remove zie- prefix from command names — [plan](plans/2026-04-04-remove-zie-prefix-from-command-names.md)
 

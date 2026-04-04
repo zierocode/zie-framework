@@ -40,12 +40,16 @@ class TestIntentSdlcHappyPath:
         return json.loads(r.stdout)["additionalContext"]
 
     def test_fix_intent_detected(self, tmp_path):
-        cwd = make_cwd_with_zf(tmp_path)
+        cwd = make_cwd_with_zf(
+            tmp_path, "## Now\n- [ ] my-feature — fix\n\n## Next\n"
+        )
         r = run_hook({"prompt": "there is a bug in the auth module"}, tmp_cwd=cwd)
         assert "/zie-fix" in self._ctx(r)
 
     def test_implement_intent_detected(self, tmp_path):
-        cwd = make_cwd_with_zf(tmp_path)
+        cwd = make_cwd_with_zf(
+            tmp_path, "## Now\n- [ ] my-feature — implement\n\n## Next\n"
+        )
         r = run_hook({"prompt": "start coding this task now"}, tmp_cwd=cwd)
         assert "/zie-implement" in self._ctx(r)
 
@@ -195,19 +199,19 @@ class TestPipelineGates:
         ctx = self._ctx(r)
         assert "⛔" not in ctx
 
-    def test_implement_intent_no_now_item_blocks(self, tmp_path):
+    def test_implement_intent_no_now_item_suggests_tracks(self, tmp_path):
         roadmap = "## Now\n\n## Next\n- [ ] my-feature — plan\n\n## Ready\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
         r = run_hook({"prompt": "let's start coding now"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
-        assert "⛔" in ctx
+        assert "/zie-hotfix" in ctx or "no active track" in ctx
 
-    def test_implement_intent_all_done_now_blocks(self, tmp_path):
+    def test_implement_intent_all_done_now_suggests_tracks(self, tmp_path):
         roadmap = "## Now\n- [x] my-feature — implement\n\n## Next\n\n## Ready\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
         r = run_hook({"prompt": "continue implementing"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
-        assert "⛔" in ctx
+        assert "/zie-hotfix" in ctx or "no active track" in ctx
 
     def test_implement_intent_active_now_passes(self, tmp_path):
         roadmap = "## Now\n- [ ] my-feature — implement\n\n## Next\n\n## Ready\n"
@@ -332,3 +336,45 @@ class TestPositionalGuidance:
         if r.stdout.strip():
             ctx = json.loads(r.stdout)["additionalContext"]
             assert "auth-login" not in ctx
+
+
+class TestNoActiveTrackSuggestion:
+    """intent-sdlc emits escape-hatch prompt when no active track detected."""
+
+    def _ctx(self, r):
+        assert r.returncode == 0
+        out = r.stdout.strip()
+        assert out, f"no output; stderr={r.stderr}"
+        return json.loads(out)["additionalContext"]
+
+    def test_fix_intent_no_active_track_emits_track_options(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path, "## Now\n\n## Next\n")
+        r = run_hook({"prompt": "there is a bug in the auth module"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "/zie-hotfix" in ctx
+
+    def test_implement_intent_no_active_track_emits_track_options(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path, "## Now\n\n## Next\n")
+        r = run_hook({"prompt": "start coding this task now"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "/zie-hotfix" in ctx
+
+    def test_no_suggestion_when_now_lane_active(self, tmp_path):
+        cwd = make_cwd_with_zf(
+            tmp_path, "## Now\n- [ ] my-feature — implement\n\n## Next\n"
+        )
+        r = run_hook({"prompt": "there is a bug in the auth module"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "no active track" not in ctx.lower()
+
+    def test_general_chat_no_suggestion(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path, "## Now\n\n## Next\n")
+        r = run_hook({"prompt": "what is the weather in bangkok"}, tmp_cwd=cwd)
+        assert r.stdout.strip() == ""
+
+    def test_spike_and_chore_options_present(self, tmp_path):
+        cwd = make_cwd_with_zf(tmp_path, "## Now\n\n## Next\n")
+        r = run_hook({"prompt": "start coding and implement this task"}, tmp_cwd=cwd)
+        ctx = self._ctx(r)
+        assert "/zie-spike" in ctx
+        assert "/zie-chore" in ctx
