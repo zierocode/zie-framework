@@ -219,11 +219,13 @@ class TestZieImplementTestPyramid:
     def test_build_guidance_printed_before_red_phase(self):
         content = read("commands/zie-implement.md")
         guidance_pos = content.find("Test level selection")
-        red_pos = content.find("→ RED")
-        assert guidance_pos != -1 and red_pos != -1, \
-            "/zie-implement must have both Test level selection guidance and → RED phase marker"
-        assert guidance_pos < red_pos, \
-            "Test level selection guidance must appear before the → RED phase marker"
+        tdd_pos = content.find("→ TDD loop")
+        if tdd_pos == -1:
+            tdd_pos = content.find("Skill(zie-framework:tdd-loop)")
+        assert guidance_pos != -1 and tdd_pos != -1, \
+            "/zie-implement must have both Test level selection guidance and TDD loop invocation"
+        assert guidance_pos < tdd_pos, \
+            "Test level selection guidance must appear before the TDD loop invocation"
 
     def test_build_pyramid_guides_test_level(self):
         content = read("commands/zie-implement.md")

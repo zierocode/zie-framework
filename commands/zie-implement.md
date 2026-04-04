@@ -48,7 +48,7 @@ Load once: Read `decisions/*.md` → Call `write_adr_cache(session_id, adrs_cont
 - Returns `(False, None)` → set `adr_cache_path = None`
 Read `project/context.md` → `context_content`. Pass `context_bundle={adr_cache_path, context}` to every impl-reviewer call.
 
-**TDD:** RED → GREEN → REFACTOR per task. `tdd: deep` in plan → invoke `Skill(zie-framework:tdd-loop)`.
+**TDD:** Every task uses RED → GREEN → REFACTOR via `Skill(zie-framework:tdd-loop)`.
 
 Test level selection (print once before task loop, not per task):
 - unit — isolated logic, pure functions, single-module behavior
@@ -61,16 +61,16 @@ Test level selection (print once before task loop, not per task):
 
 0. Read this task's full section from the plan file (from its `### Task N` heading to the next `### Task` heading or EOF).
 1. Print `[T{N}/{total}] {description}`
-2. **→ RED (failing test)** — write failing test (RED). `make test-unit` must FAIL. (Test pass → feature exists, skip task.)
-3. **→ GREEN (implementation)** — minimum code to pass (GREEN). `make test-unit` must PASS.
-4. **→ REFACTOR (cleanup)** — clean up. `make test-unit` still PASS.
-5. **Risk Classification** — set `risk_level = HIGH` or `LOW`:
+2. **→ TDD loop** — Invoke `Skill(zie-framework:tdd-loop)`. Follow it exactly.
+   If tests already pass before writing any test → feature exists, skip task.
+   Skill exits after REFACTOR; continue to step 3.
+3. **Risk Classification** — set `risk_level = HIGH` or `LOW`:
    - HIGH: new function/class, changed behavior, external API call, file I/O, subprocess, non-test production code changed, or `<!-- review: required -->`
    - LOW: test-only, docs/config, rename/reformat, minor constant addition
-6. **Spawn async impl-reviewer** (HIGH only): `@agent-impl-reviewer` (background) with task description, AC, changed files, `context_bundle`. Record in pending list. Do NOT block.
+4. **Spawn async impl-reviewer** (HIGH only): `@agent-impl-reviewer` (background) with task description, AC, changed files, `context_bundle`. Record in pending list. Do NOT block.
    - At each loop start: poll `reviewer_status` → `approved` clear; `issues_found` halt, fix, re-run `make test-unit`, re-invoke. Max 2 total iterations; confirm pass required. If 0 issues → APPROVED immediately.
-7. **→ LOW risk:** `make test-unit` + `[risk: LOW] Skipping impl-reviewer`.
-8. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ done — {remaining} remaining`.
+5. **→ LOW risk:** `make test-unit` + `[risk: LOW] Skipping impl-reviewer`.
+6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ done — {remaining} remaining`.
    - Checkpoint every 3 tasks. Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
 
 ## When All Tasks Complete

@@ -18,6 +18,7 @@
 - [x] merge-safety-hooks
 - [x] split-utils-py
 - [x] sprint-agent-audit
+- [x] implement-skill-dedup
 
 ---
 
