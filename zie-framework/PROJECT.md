@@ -4,7 +4,7 @@ AI-native SDLC framework plugin for Claude Code. ติดตั้ง structure
 workflow เข้าไปในทุก project: spec-first TDD, intent detection, memory
 integration, safety guardrails.
 
-**Version**: 1.16.2  **Status**: active
+**Version**: 1.16.3  **Status**: active
 
 ---
 
