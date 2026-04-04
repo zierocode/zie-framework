@@ -10,7 +10,7 @@ effort: low
 
 Fast path for fixing bugs. Skips brainstorming and planning — goes directly to
 debugging, regression test, fix, and verify. Use this instead of /implement
-for bugs and regressions.
+for bugs and regressions. **Use for non-urgent bugs. Does not trigger an immediate release. For production incidents requiring immediate release, use /hotfix instead.**
 
 ## ตรวจสอบก่อนเริ่ม
 

@@ -16,7 +16,7 @@ integration, safety guardrails.
 | /spec | Backlog item → design spec with reviewer loop |
 | /plan | Approved spec → draft plan → approval → Ready lane |
 | /implement | Ready → TDD implementation + impl-reviewer gate |
-| /fix | Bug → regression test → fix → verify |
+| /fix | Bug → regression test → fix → verify. Non-urgent bugs; no immediate release. |
 | /release | Release gate → readiness check → `make release` → retro |
 | /status | Snapshot สถานะปัจจุบัน |
 | /resync | Rescan codebase + update knowledge docs + hash |
@@ -24,7 +24,7 @@ integration, safety guardrails.
 | /audit | 9-dimension audit + external research → scored report → backlog |
 | /sprint | Sprint clear — batch all items through full pipeline (spec→plan→implement→release→retro) |
 | /chore | Maintenance task track — no spec required |
-| /hotfix | Emergency fix track — describe → fix → ship without full pipeline |
+| /hotfix | Emergency fix track — prod incidents only; triggers immediate release. Use /fix for non-urgent bugs. |
 | /spike | Time-boxed exploration in an isolated sandbox directory |
 
 ## Skills
