@@ -59,7 +59,9 @@ Test level selection (print once before task loop, not per task):
 
 0. Read this task's full section from the plan file (from its `### Task N` heading to the next `### Task` heading or EOF).
 1. Print `[T{N}/{total}] {description}`
-2. **→ TDD loop** — Invoke `Skill(zie-framework:tdd-loop)`. Follow it exactly.
+2. **→ TDD loop** — Print `→ RED` before writing tests; print `→ GREEN` before
+   implementing; print `→ REFACTOR` before cleanup. Then invoke
+   `Skill(zie-framework:tdd-loop)`. Follow it exactly.
    If tests already pass before writing any test → feature exists, skip task.
    Skill exits after REFACTOR; continue to step 3.
 3. **Risk Classification** — set `risk_level = HIGH` or `LOW`:
@@ -68,7 +70,7 @@ Test level selection (print once before task loop, not per task):
 4. **Spawn async impl-reviewer** (HIGH only): `@agent-impl-reviewer` (background) with task description, AC, changed files, `context_bundle`. Record in pending list. Do NOT block.
    - At each loop start: poll `reviewer_status` → `approved` clear; `issues_found` halt, fix, re-run `make test-unit`, re-invoke. Max 2 total iterations; confirm pass required. If 0 issues → APPROVED immediately.
 5. **→ LOW risk:** `make test-unit` + `[risk: LOW] Skipping impl-reviewer`.
-6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ done — {remaining} remaining`.
+6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ T{N} done — {remaining} remaining`.
    - Checkpoint every 3 tasks. Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
 
 ## When All Tasks Complete

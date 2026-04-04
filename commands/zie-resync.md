@@ -19,7 +19,7 @@ All updates require user confirmation before writing.
 
 ## Steps
 
-1. Print: "Exploring codebase..."
+1. Print: `[Exploring codebase...]`
 
 2. Invoke `Agent(subagent_type=Explore)`:
    - **Before scanning code**: read existing project docs as primary

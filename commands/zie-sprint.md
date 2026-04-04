@@ -107,6 +107,8 @@ This bundle is passed to every downstream agent/skill call.
 
 ## PHASE 1: SPEC ALL (Parallel)
 
+TaskCreate subject="Phase 1/5 — Spec All"
+
 Skip items that already have approved specs.
 
 **Items to spec**: `needs_spec` (from Step 0).
@@ -132,8 +134,13 @@ Wait for all Phase 1 agents → collect results.
 - Any failed → print error, halt sprint
 
 After Phase 1: reload ROADMAP (items moved from Next → Ready by skill chain).
+TaskUpdate → Phase 1/5 complete
+Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
+Print ETA: `Phase 1/5 — 4 phases remaining`
 
 ## PHASE 2: PLAN ALL (Parallel)
+
+TaskCreate subject="Phase 2/5 — Plan All"
 
 Items still needing plans (those not covered by Phase 1's skill chain).
 
@@ -152,8 +159,13 @@ Print: `"Phase 2: Planning <N> items in parallel..."`
 Wait for all plans to be approved (plan-reviewer gates).
 
 Reload ROADMAP (items now in Ready).
+TaskUpdate → Phase 2/5 complete
+Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
+Print ETA: `Phase 2/5 — 3 phases remaining`
 
 ## PHASE 3: IMPLEMENT (Sequential, WIP=1)
+
+TaskCreate subject="Phase 3/5 — Implement"
 
 Read Ready items from ROADMAP (ordered by priority: CRITICAL → HIGH → MEDIUM → LOW).
 
@@ -166,8 +178,13 @@ For each item in priority order:
 5. Failure: `[impl N/total] <slug> ❌ <issue>` → halt sprint
 
 After all impl complete: all items marked `[x]` in Now.
+TaskUpdate → Phase 3/5 complete
+Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
+Print ETA: `Phase 3/5 — 2 phases remaining`
 
 ## PHASE 4: BATCH RELEASE
+
+TaskCreate subject="Phase 4/5 — Release"
 
 Invoke `/zie-release` (which already handles moving all `[x]` items from Now → Done):
 
@@ -184,8 +201,13 @@ zie-release --bump-to=<version_override>
 Print: `"Phase 4: Batch release..."`
 
 On success: single git merge dev→main, tag, version bump.
+TaskUpdate → Phase 4/5 complete
+Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
+Print ETA: `Phase 4/5 — 1 phase remaining`
 
 ## PHASE 5: SPRINT RETRO
+
+TaskCreate subject="Phase 5/5 — Retro"
 
 After release completes, invoke `/zie-retro`:
 
@@ -198,6 +220,9 @@ This runs single retro covering all shipped items in batch.
 Print: `"Phase 5: Sprint retro..."`
 
 On complete: print sprint summary.
+TaskUpdate → Phase 5/5 complete
+Print progress bar: `████████████████████ 5/5 (100%)`
+Print ETA: `Sprint complete`
 
 ## Summary
 

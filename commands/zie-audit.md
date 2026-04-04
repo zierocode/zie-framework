@@ -47,6 +47,8 @@ if not active_agents:
 
 ## Phase 1 — Context Bundle
 
+Print: `[Phase 1/4] Context Bundle`
+
 Build a context bundle for all downstream agents. All reads are inline — no
 agent needed.
 
@@ -73,7 +75,11 @@ Extract:
 
 ## Phase 2 — Parallel Dimension Scan
 
+Print: `[Phase 2/4] Parallel Dimension Scan`
+
 Print header: `## Phase 2 — Parallel Dimension Scan (active: Agent N, ...)`. Each agent is conditional: only spawn if agent number in `active_agents`.
+After each agent completes, print: `Agent {X} ({Domain}) ✓` (e.g. `Agent 1 (Security/Deps) ✓`).
+Before each WebSearch call, print: `[Research {N}/15]` (increment N per call, cap at 15).
 
 Spawn up to 4 Agents **simultaneously** (`run_in_background: true`). Pass `shared_context`
 to each with instruction: **"Do not re-read project manifests, git log, or ADR lists — they are in shared_context."**
@@ -171,6 +177,8 @@ Wait for all 4 agents before Phase 3.
 
 ## Phase 3 — Synthesis
 
+Print: `[Phase 3/4] Synthesis`
+
 no WebSearch — inline synthesis, no additional agent needed.
 
 1. **Filter** — remove any finding whose slug matches an existing backlog item
@@ -214,6 +222,8 @@ Dimensions with 0 findings: <list or "none">
 ```
 
 ## Phase 4 — Batch Backlog Integration
+
+Print: `[Phase 4/4] Findings Output`
 
 Show all CRITICAL + HIGH findings at once. Ask once per group:
 
