@@ -25,15 +25,6 @@
 
 ---
 
-## Ready — Approved Plans
-
-<!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
-<!-- Order: Critical → High → Medium → Low -->
-
-- [ ] argument-parsing-inline — [plan](plans/2026-04-04-argument-parsing-inline.md)
-
----
-
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
