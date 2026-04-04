@@ -30,7 +30,7 @@ CONFIRM_PATTERNS = [
     r"truncate\s+--size\s+0",
 ]
 
-_DANGEROUS_COMPOUND_RE = re.compile(r'(?:;|&&|\|\||`|\$\(|[{}])')
+_DANGEROUS_COMPOUND_RE = re.compile(r'(?:;|&&|\|\||`|\$\(|[{}>|<\n])')
 
 
 def _is_safe_for_confirmation_wrapper(command: str) -> bool:
