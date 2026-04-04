@@ -9,11 +9,6 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-- [x] Consolidate Reviewer Disk Fallback — [plan](plans/2026-04-04-consolidate-reviewer-disk-fallback.md)
-- [x] Fix Release Config Triple Read — [plan](plans/2026-04-04-fix-release-config-triple-read.md)
-- [x] Fix Retro ROADMAP Redundant Reads — [plan](plans/2026-04-04-fix-retro-roadmap-redundant-reads.md)
-- [x] Align load-context ADR Cache Protocol — [plan](plans/2026-04-04-align-load-context-adr-cache-protocol.md)
-- [x] Fix Sprint ROADMAP Phase Rebind — [backlog](backlog/fix-sprint-roadmap-phase-rebind.md)
 
 ---
 
@@ -53,6 +48,8 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint9.1-efficiency-hotspot-v1.18.1 — 5 items: consolidate reviewer disk fallback, fix release config triple read, fix retro ROADMAP redundant reads, align load-context ADR cache protocol, fix sprint ROADMAP phase rebind — 2175 unit + 59 integration tests — v1.18.1 2026-04-04
 
 - [x] sprint9-command-refactor-v1.18 — 4 items: UX output formatting and progress visibility, workflow enforcement and escape hatches, smarter framework intelligence, remove zie- prefix from command names — 2162 unit + 59 integration tests — v1.18.0 2026-04-04
 
