@@ -173,7 +173,7 @@ For each item in priority order:
 
 1. Move item from Ready → Now in ROADMAP
 2. Read `zie-framework/plans/*-<slug>.md` (only this file per item)
-3. Invoke: `Skill(zie-framework:zie-implement, <slug>)`
+3. Invoke: `Skill(zie-framework:zie-implement, <slug>, context_bundle=<context_bundle>)`
 4. Success: `[impl N/total] <slug> ✓ <commit>`
 5. Failure: `[impl N/total] <slug> ❌ <issue>` → halt sprint
 
