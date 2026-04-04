@@ -103,6 +103,26 @@ Inline after ROADMAP update — no Agent call:
 5. Archive to `zie-framework/archive/ROADMAP-archive-YYYY-MM.md` (YYYY-MM from item's date). Create with header if absent; append `## Archived YYYY-MM-DD` section. Never truncate archive.
 6. Rewrite `## Done` to kept items only. Print: `Done-rotation: kept <N>, archived <M> to <K> file(s)` or `≤10 items, skipped`.
 
+### Self-tuning proposals
+
+After docs-sync verdict, before auto-commit:
+
+1. Read `zie-framework/.config`. If absent → print `"Self-tuning: skipped (no .config)"` and skip.
+2. Scan `git log --oneline -50` for commits matching `RED` + a numeric day count (e.g. "RED phase stuck 3 days").
+   Parse up to 5 RED cycle durations. If average > 3 days → propose `auto_test_max_wait_s: <current> → 30`.
+3. Check current `safety_check_mode`; if `"agent"` and no `"BLOCK"` found in `git log --oneline -20` →
+   propose `safety_check_mode: "agent" → "regex"`.
+4. If no proposals → print `"Self-tuning: no changes proposed"` and continue.
+5. Otherwise print:
+   ```
+   [zie-framework] Self-tuning proposals:
+     <key>: <from_val> → <to_val>  (<reason>)
+   Apply? Type "apply" to write to .config, or skip.
+   ```
+6. Wait for user input:
+   - `"apply"` → merge proposals into `.config`, write atomically; print `"Self-tuning: applied N change(s)"`
+   - Any other → print `"Self-tuning: no changes applied"` and continue
+
 ### Auto-commit retro outputs
 
 After ADR + ROADMAP agents complete, auto-commit:

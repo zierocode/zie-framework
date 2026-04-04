@@ -414,6 +414,46 @@ def is_mtime_fresh(max_mtime: float, written_at: float) -> bool:
     return max_mtime <= written_at
 
 
+def parse_roadmap_items_with_dates(roadmap_path, section_name: str) -> list:
+    """Extract items from a named ## section with parsed ISO dates.
+
+    Returns a list of (item_text: str, date: datetime.date | None) tuples.
+    date is the first YYYY-MM-DD found in the raw line, or None if absent.
+    Returns [] if file missing, section absent, or empty.
+    """
+    import datetime as _dt
+    _DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
+    try:
+        path = Path(roadmap_path)
+        if not path.exists():
+            return []
+        content = path.read_text()
+        results = []
+        in_section = False
+        for line in content.splitlines():
+            if line.startswith("##") and section_name.lower() in line.lower():
+                in_section = True
+                continue
+            if line.startswith("##") and in_section:
+                break
+            if in_section and line.strip().startswith("- "):
+                clean = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', line.strip())
+                clean = clean.lstrip("- ").lstrip("[ ]").lstrip("[x]").strip()
+                if not clean:
+                    continue
+                m = _DATE_RE.search(line)
+                date = None
+                if m:
+                    try:
+                        date = _dt.date.fromisoformat(m.group(1))
+                    except ValueError:
+                        date = None
+                results.append((clean, date))
+        return results
+    except Exception:
+        return []
+
+
 def is_track_active(cwd) -> bool:
     """Return True if any active workflow track exists.
 

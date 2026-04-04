@@ -29,9 +29,28 @@ problem and motivation. Output lives in `zie-framework/backlog/`.
 3. **Re-run guard**: if `zie-framework/backlog/SLUG.md` already exists →
    print "Backlog item 'SLUG' already exists. Edit the file directly or
    use a different title." and stop.
+
+3b. **Infer tag** from title using keyword map (case-insensitive, first match wins):
+    - `bug`: fix, error, crash, broken
+    - `chore`: cleanup, update, bump, refactor
+    - `debt`: tech debt, debt, legacy, slow
+    - `feature`: add, new, implement, support (default)
+
+    Capture inferred tag as `<inferred-tag>`.
+
+3c. **Duplicate check**: split new slug by `-` → token set. For each `.md` file in
+    `zie-framework/backlog/`:
+    - Tokenize its basename (strip `.md`, split by `-`)
+    - If ≥2 tokens overlap with new slug → warn: `"Similar item exists: backlog/<slug>.md"`
+    - Does NOT block creation. Print all warnings before continuing.
+
 4. Write `zie-framework/backlog/<slug>.md`:
 
    ```markdown
+   ---
+   tags: [<inferred-tag>]
+   ---
+
    # <Idea Title>
 
    ## Problem
