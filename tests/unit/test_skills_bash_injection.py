@@ -18,20 +18,9 @@ class TestZieImplementInjections:
     def test_git_status_injection_present(self):
         assert "!`git status --short`" in self.content
 
-    def test_knowledge_hash_injection_present(self):
-        assert (
-            "!`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now"
-            in self.content
-        )
-
-    def test_knowledge_hash_injection_has_fallback(self):
-        assert (
-            '2>/dev/null || echo "knowledge-hash: unavailable"`' in self.content
-            or "2>/dev/null || echo 'knowledge-hash: unavailable'`" in self.content
-        )
-
-    def test_claude_skill_dir_used_for_script_path(self):
-        assert "${CLAUDE_SKILL_DIR}" in self.content
+    def test_no_knowledge_hash_injection(self):
+        """knowledge-hash.py removed from implement.md — drift handled by session-resume."""
+        assert "knowledge-hash.py" not in self.content
 
     def test_injections_in_preflight_section(self):
         inject_pos = self.content.find("!`git log -5 --oneline`")

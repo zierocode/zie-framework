@@ -12,7 +12,6 @@ effort: medium
 **Live context:**
 !`git log -5 --oneline`
 !`git status --short`
-!`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now 2>/dev/null || echo "knowledge-hash: unavailable"`
 
 0. **Pre-flight: Agent mode check** — if not running with `--agent zie-framework:zie-implement-mode`:
    print `⚠️ Running /implement outside agent session. permissionMode and tool preloading will be missing.`
