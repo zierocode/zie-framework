@@ -9,10 +9,6 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-- [x] UX Output Formatting and Progress Visibility — [plan](plans/2026-04-04-ux-output-formatting-and-progress.md)
-- [x] Workflow Enforcement and Escape Hatches — [plan](plans/2026-04-04-workflow-enforcement-escape-hatches.md)
-- [x] Smarter Framework Intelligence — [plan](plans/2026-04-04-smarter-framework-intelligence.md)
-- [x] Remove zie- prefix from command names — [plan](plans/2026-04-04-remove-zie-prefix-from-command-names.md)
 
 ---
 
@@ -52,6 +48,8 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint9-command-refactor-v1.18 — 4 items: UX output formatting and progress visibility, workflow enforcement and escape hatches, smarter framework intelligence, remove zie- prefix from command names — 2162 unit + 59 integration tests — v1.18.0 2026-04-04
 
 - [x] sprint8-efficiency-v1.17 — 29 items: Haiku model for safety-check agent (~80% cost cut), XML injection guard in safety-check prompt, mtime-gate ROADMAP cache (ADR-045), fire-and-forget session-resume drift check, strip static additionalContext from 3 hooks, shared load-context skill (ADR-048), shared reviewer-context skill, retro inline ADR+ROADMAP writes (ADR-047), docs-sync via Skill() in retro+release, sprint Phase 1 skill chain, subagent-context Explore guard (ADR-046), wip-checkpoint counter fix, task-gate silent exit, retro-format skill deleted, pin pytest CVE-2025-71176, zie-plan Notes removed, stop-hooks matcher documented — 2083 unit + 59 integration tests — v1.17.0 2026-04-04
 
