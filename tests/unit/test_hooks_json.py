@@ -1,6 +1,7 @@
 """Structural tests for hooks/hooks.json."""
 import json
 import os
+from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOKS_JSON = os.path.join(REPO_ROOT, "hooks", "hooks.json")
@@ -170,6 +171,8 @@ class TestHooksJsonSessionLearnCleanup:
 
 
 class TestHooksJsonSafetyCheckAgent:
+    """safety_check_agent.py is imported by safety-check.py — NOT a standalone hook."""
+
     def _load(self):
         with open(HOOKS_JSON) as f:
             return json.load(f)
@@ -182,45 +185,36 @@ class TestHooksJsonSafetyCheckAgent:
             for hook in entry.get("hooks", [])
         ]
 
-    def test_safety_check_agent_in_pretooluse(self):
+    def test_safety_check_agent_not_in_pretooluse(self):
+        """safety_check_agent.py must NOT be registered as a standalone PreToolUse hook."""
         data = self._load()
         commands = self._pretooluse_commands(data)
-        assert any("safety_check_agent.py" in cmd for cmd in commands), (
-            "safety_check_agent.py not registered in PreToolUse"
+        assert not any("safety_check_agent.py" in cmd for cmd in commands), (
+            "safety_check_agent.py must be imported by safety-check.py, "
+            "not registered as a standalone PreToolUse hook (eliminates per-Bash double-fire)"
         )
 
-    def test_safety_check_agent_uses_plugin_root(self):
+    def test_only_one_pretooluse_entry_for_bash(self):
+        """Only one PreToolUse hook entry fires on Bash events."""
         data = self._load()
-        commands = self._pretooluse_commands(data)
-        agent_cmds = [c for c in commands if "safety_check_agent.py" in c]
-        assert agent_cmds, "safety_check_agent.py not found in PreToolUse"
-        assert "${CLAUDE_PLUGIN_ROOT}" in agent_cmds[0]
-
-    def test_safety_check_agent_type_is_command(self):
-        data = self._load()
-        for entry in data["hooks"].get("PreToolUse", []):
-            for hook in entry.get("hooks", []):
-                if "safety_check_agent.py" in hook.get("command", ""):
-                    assert hook["type"] == "command"
-                    return
-        raise AssertionError("safety_check_agent.py not found in PreToolUse hooks")
+        bash_entries = [
+            e for e in data["hooks"].get("PreToolUse", [])
+            if "Bash" in e.get("matcher", "")
+        ]
+        assert len(bash_entries) == 1, (
+            f"Expected exactly 1 PreToolUse entry matching Bash, found {len(bash_entries)}"
+        )
 
     def test_safety_check_agent_script_exists(self):
         script = os.path.join(REPO_ROOT, "hooks", "safety_check_agent.py")
         assert os.path.exists(script), f"Hook script not found: {script}"
 
-    def test_safety_check_agent_matches_bash(self):
-        """Agent hook must only fire on Bash tool calls."""
-        data = self._load()
-        for entry in data["hooks"].get("PreToolUse", []):
-            for hook in entry.get("hooks", []):
-                if "safety_check_agent.py" in hook.get("command", ""):
-                    matcher = entry.get("matcher", "")
-                    assert "Bash" in matcher, (
-                        f"safety_check_agent.py entry has unexpected matcher: {matcher!r}"
-                    )
-                    return
-        raise AssertionError("safety_check_agent.py not found in PreToolUse hooks")
+    def test_safety_check_imports_agent_module(self):
+        """safety-check.py must import safety_check_agent for inline dispatch."""
+        content = Path(os.path.join(REPO_ROOT, "hooks", "safety-check.py")).read_text()
+        assert "safety_check_agent" in content, (
+            "safety-check.py must import/reference safety_check_agent for inline agent dispatch"
+        )
 
 
 class TestHooksJsonWipCheckpointBackground:

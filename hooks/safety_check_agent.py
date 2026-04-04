@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""PreToolUse:Bash hook — AI-powered safety check using a Claude subagent.
+"""AI-powered safety check using a Claude subagent.
+
+This module is imported by safety-check.py for agent-mode dispatch.
+It is NOT registered as a standalone hook in hooks.json.
+Run directly only for manual testing: python3 safety_check_agent.py
 
 Named with underscores (safety_check_agent.py) to allow Python importlib
 to load it cleanly from tests and other hooks.
