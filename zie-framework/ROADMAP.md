@@ -21,16 +21,7 @@
 
 <!-- CRITICAL -->
 
-<!-- HIGH (in-flight) -->
-- [x] lean-retro-git-log-quad-read — deduplicate 4 git log reads in retro.md → 1
-- [ ] lean-project-md-commands-stale — sync PROJECT.md + CLAUDE.md commands/skills tables (4 missing commands, 1 ghost + 2 missing skills)
-- [ ] lean-docs-sync-blind-to-project-md — extend docs-sync-check scope to verify PROJECT.md
-- [ ] lean-spec-design-agent-syntax — fix @agent-spec-reviewer → Skill() in spec-design (reliability gap)
-- [ ] lean-double-pretooluse-on-bash — merge safety_check_agent.py into safety-check.py (eliminate per-Bash config read)
-- [ ] sec-shell-injection-confirm-wrap — add > < | \n to confirm-wrapper guard in safety-check.py:141
-- [ ] sec-shell-injection-stop-guard-slug — shlex.quote(slug) in stop-guard.py:64 subprocess call
-- [ ] lean-dual-audit-pipeline — collapse /audit command + zie-audit skill into one canonical pipeline [Strategic]
-- [ ] lean-reviewer-context-chain-depth — reduce reviewer skill chain depth 3–4 hops → 1–2 [Strategic]
+<!-- Clear — all items released v1.19.0 -->
 
 ---
 

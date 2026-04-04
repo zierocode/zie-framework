@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-04-04 (v1.18.1)
+**Last updated:** 2026-04-04 (v1.19.0)
 
 ## Commands
 
@@ -18,8 +18,8 @@
 | /status | (reads files) | status snapshot | none |
 | /resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
 | /retro | (reads git log) | ADRs + brain memories | retro-format skill |
-| /sprint | (reads ROADMAP Next/Ready) | batch pipeline: spec→plan→implement→release→retro for all items; phase-parallel, dependency-detected | Agent, Skill |
-| /audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | audit report + backlog; shared_context bundle | Agent, WebSearch |
+| /sprint | (reads ROADMAP Next/Ready) | batch pipeline: spec+plan→implement→release→retro for all items; Phase 2 folded into Phase 1 inline retry (ADR-055, v1.19.0); dependency-detected | Agent, Skill |
+| /audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | thin dispatcher → zie-audit skill (canonical); audit report + backlog (v1.19.0) | zie-audit skill |
 
 ## Skills
 
@@ -35,7 +35,7 @@
 | debug | Reproduce → isolate → fix | /implement, /fix |
 | verify | Pre-release verification checklist; `context: fork` with optional captured `test_output` | /fix, /release, /implement |
 | load-context | Load shared context bundle (ADRs + project/context.md) once per session; Step 0 cache-check via get_cached_adrs before disk read (v1.18.1) | /plan, /implement, /sprint |
-| reviewer-context | Shared Phase 1 protocol for all reviewer skills (cache-first ADR loading); Phase 1 blocks in spec/plan/impl-reviewer now delegate to this skill via compact 2-line stubs (v1.18.1) | spec-reviewer, plan-reviewer, impl-reviewer |
+| reviewer-context | Shared context-load protocol; no longer auto-invoked in reviewer chain (ADR-054, v1.19.0) — each reviewer now loads context inline. Available for explicit call if needed. | (optional, caller-explicit) |
 | docs-sync-check | Verify CLAUDE.md/README.md match commands/skills/hooks on disk; `context: fork` | /retro, /release |
 
 ## Hooks
@@ -57,7 +57,7 @@
 | config-drift.py | ConfigChange:project_settings\|user_settings | ตรวจ CLAUDE.md / settings.json / zie-framework/.config drift → inject additionalContext to re-read |
 | compact-hint.py | Stop | print /compact hint when context_window usage ≥ compact_hint_threshold (default 0.8); configurable via .config; stop_hook_active infinite-loop guard |
 | notification-log.py | Notification:permission_prompt\|idle_prompt | log permission + idle events; inject additionalContext on 3+ repeated permission requests |
-| safety_check_agent.py | PreToolUse:Bash | agent-based safety check (active when safety_check_mode=agent\|both in .config) |
+| safety_check_agent.py | PreToolUse:Bash | agent-based safety check; merged into safety-check.py inline dispatch (v1.19.0) — no separate file read per Bash call |
 | sdlc-permissions.py | PermissionRequest | auto-approve safe SDLC Bash operations (make test-unit, git status, etc.) without interrupting Claude |
 | stopfailure-log.py | StopFailure | capture API errors and rate-limit notifications to per-project tmp log |
 | subagent-stop.py | SubagentStop | capture subagent completion with ID; enables resume-by-ID pattern in same session |
