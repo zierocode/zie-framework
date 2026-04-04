@@ -15,8 +15,7 @@ effort: medium
 !`python3 ${CLAUDE_SKILL_DIR}/../../hooks/knowledge-hash.py --now 2>/dev/null || echo "knowledge-hash: unavailable"`
 
 0. **Pre-flight: Agent mode check** — if not running with `--agent zie-framework:zie-implement-mode`:
-   display `⚠️ Running /zie-implement outside agent session. Recommended: claude --agent zie-framework:zie-implement-mode. Continue anyway? (yes / cancel)`
-   yes → continue, cancel → stop.
+   print `⚠️ Running /zie-implement outside agent session. For best results use: claude --agent zie-framework:zie-implement-mode` and continue immediately.
 
 1. Check `zie-framework/` exists → if not, run `/zie-init` first.
 2. **Pre-flight: ROADMAP guard** — check `zie-framework/ROADMAP.md` exists:
@@ -43,10 +42,9 @@ Tasks without `depends_on` run in parallel (max 4 concurrent). Tasks with `<!-- 
 
 <!-- context-load: adrs + project context -->
 
-Load once: Read `decisions/*.md` → Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`:
-- Returns `(True, adr_cache_path)` → save path
-- Returns `(False, None)` → set `adr_cache_path = None`
-Read `project/context.md` → `context_content`. Pass `context_bundle={adr_cache_path, context}` to every impl-reviewer call.
+Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
+(calls `write_adr_cache`, bundles `adr_cache_path` + `decisions/` + `project/context.md`).
+Pass `context_bundle` to every impl-reviewer call.
 
 **TDD:** Every task uses RED → GREEN → REFACTOR via `Skill(zie-framework:tdd-loop)`.
 

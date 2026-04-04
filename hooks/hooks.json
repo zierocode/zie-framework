@@ -116,6 +116,7 @@
   ],
   "Stop": [
     {
+      "_stop_matcher_note": "Stop events do not support matchers — the matcher field is silently ignored by Claude Code. All Stop hooks fire unconditionally on every session stop. Gate logic must live inside each hook (e.g. is_interrupt check, compact_hint_threshold). Investigated 2026-04-04.",
       "hooks": [
         {
           "type": "command",

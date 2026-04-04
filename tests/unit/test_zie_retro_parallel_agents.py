@@ -1,4 +1,4 @@
-"""Tests for parallel-release-gates Task 2: zie-retro parallel ADR+ROADMAP agents."""
+"""Tests for zie-retro.md inline ADR+ROADMAP writes."""
 from pathlib import Path
 
 CMD_PATH = Path(__file__).parents[2] / "commands" / "zie-retro.md"
@@ -8,39 +8,28 @@ def cmd_text() -> str:
     return CMD_PATH.read_text()
 
 
-class TestRetroParallelAgents:
-    def test_adr_roadmap_agents_both_present(self):
-        """Both ADR-write and ROADMAP-update agents are in the parallel section."""
+class TestRetroInlineWrites:
+    def test_adr_and_roadmap_both_present(self):
+        """Both ADR-write and ROADMAP-update instructions are in the retro command."""
         text = cmd_text()
-        assert "ADR" in text and "ROADMAP" in text and "parallel" in text.lower(), \
-            "zie-retro must have both ADR and ROADMAP agents in parallel section"
+        assert "ADR" in text and "ROADMAP" in text, \
+            "zie-retro must have both ADR and ROADMAP update instructions"
 
-    def test_agents_use_general_purpose(self):
-        """Both retro agents use general-purpose."""
+    def test_no_run_in_background_in_retro(self):
+        """Retro must not use run_in_background (inline writes, not agents)."""
         text = cmd_text()
-        assert text.count("general-purpose") >= 2, \
-            "zie-retro must use general-purpose for both ADR + ROADMAP agents"
-
-    def test_agents_run_in_background(self):
-        """Both agents use run_in_background=True."""
-        text = cmd_text()
-        assert text.count("run_in_background=True") >= 2 or \
-               text.count("run_in_background: true") >= 2 or \
-               "run_in_background" in text, \
-            "zie-retro agents must use run_in_background=True"
+        assert "run_in_background" not in text, \
+            "zie-retro must not use run_in_background for ADR/ROADMAP writes"
 
     def test_no_skill_references_in_prompts(self):
-        """Agent prompts do not contain zie-framework: skill references."""
+        """ADR/ROADMAP section must not spawn zie-framework:retro-format agents."""
         text = cmd_text()
-        # The actual prompts should not call zie-framework:retro-format
-        # (fallback comments are allowed)
-        main_text = text.split("<!-- fallback")[0]
-        assert 'subagent_type="zie-framework:retro-format"' not in main_text and \
-               "subagent_type='zie-framework:retro-format'" not in main_text, \
-            "Agent prompts must not reference zie-framework:retro-format"
+        assert 'subagent_type="zie-framework:retro-format"' not in text and \
+               "subagent_type='zie-framework:retro-format'" not in text, \
+            "Retro must not reference zie-framework:retro-format agent"
 
-    def test_await_both_before_brain_store(self):
-        """Results collected before proceeding to brain store."""
+    def test_no_subagent_type_in_adr_section(self):
+        """ADR/ROADMAP write section must not spawn any agents."""
         text = cmd_text()
-        assert "Await both" in text or "await" in text.lower(), \
-            "zie-retro must await both agents before brain store"
+        assert 'subagent_type=' not in text, \
+            "zie-retro must not use subagent_type in ADR/ROADMAP section"

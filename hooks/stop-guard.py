@@ -18,6 +18,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_config import load_config
+from utils_roadmap import get_cached_git_status, write_git_status_cache
 
 # Canonical implementation file patterns for zie-framework layout.
 # Paths are matched against the raw path token from `git status --short`
@@ -53,19 +54,28 @@ try:
     cwd = get_cwd()
     config = load_config(cwd)
     subprocess_timeout = config["subprocess_timeout_s"]
-    result = subprocess.run(
-        ["git", "status", "--short", "--untracked-files=all"],
-        cwd=str(cwd),
-        capture_output=True,
-        text=True,
-        timeout=subprocess_timeout,
-    )
-    # Non-zero return code means not a git repo, detached HEAD, or bare repo.
-    if result.returncode != 0:
-        sys.exit(0)
+    session_id = os.environ.get("CLAUDE_SESSION_ID", "")
+
+    # Use session cache to avoid repeated git subprocess on every Stop event
+    cached = get_cached_git_status(session_id, "status")
+    if cached is not None:
+        status_output = cached
+    else:
+        result = subprocess.run(
+            ["git", "status", "--short", "--untracked-files=all"],
+            cwd=str(cwd),
+            capture_output=True,
+            text=True,
+            timeout=subprocess_timeout,
+        )
+        # Non-zero return code means not a git repo, detached HEAD, or bare repo.
+        if result.returncode != 0:
+            sys.exit(0)
+        status_output = result.stdout
+        write_git_status_cache(session_id, "status", status_output)
 
     uncommitted = []
-    for line in result.stdout.splitlines():
+    for line in status_output.splitlines():
         if len(line) < 4:
             continue
         # git status --short format: XY<space>path

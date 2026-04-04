@@ -40,7 +40,7 @@ Recent activity window:
 
 ### สร้าง compact summary
 
-Build compact JSON bundle for retro-format fork:
+Build compact JSON bundle:
 
 ```json
 {
@@ -63,21 +63,9 @@ Build compact JSON bundle for retro-format fork:
 
    Print the five sections immediately after formatting. Candidates for ADRs (decisions with lasting consequences) are passed to the ADR writer agent below.
 
-2. **Check docs sync inline.**
-   Skip guard: if `git log -1 --format="%s"` starts with `release:` → print `"Docs-sync: skipped (ran during release)"` and skip the rest of this block.
-
-   Otherwise, run inline:
-   1. Glob `zie-framework/commands/*.md` → extract base names (strip `.md`) → command names
-   2. Glob `zie-framework/skills/*/SKILL.md` → extract parent directory names → skill names
-   3. Glob `zie-framework/hooks/*.py` → extract base names (exclude utils.py) → hook names
-   4. Read `CLAUDE.md` — check Development Commands section lists all commands/skills
-   5. Read `README.md` — check commands/skills tables list all commands/skills
-   6. Compare:
-      - `missing_from_docs` = on disk but not in docs
-      - `extra_in_docs` = in docs but not on disk
-   7. Print verdict:
-      - If in sync: `"CLAUDE.md in sync | README.md in sync"`
-      - If stale: update `CLAUDE.md` and/or `README.md` inline (Read/Edit/Write each), print `"Updated CLAUDE.md: added <X>, removed <Y>"` / `"Updated README.md: added <X>, removed <Y>"`
+2. **Check docs sync.**
+   Skip guard: if `git log -1 --format="%s"` starts with `release:` → print `"Docs-sync: skipped (ran during release)"` and skip.
+   Invoke `Skill(zie-framework:docs-sync-check)`. Print the returned `details` string as the verdict.
 
 ### รวมผลลัพธ์
 
@@ -89,18 +77,24 @@ Build compact JSON bundle for retro-format fork:
   with `"Project snapshot: <version>. Components changed: <list>. Decisions: <new ADR slugs>."`
   `tags=[project-knowledge, zie-framework, <version>] supersedes=[project-knowledge, zie-framework]`
 
-### บันทึก ADRs + อัปเดต ROADMAP (parallel)
+### บันทึก ADRs + อัปเดต ROADMAP
 
-Launch both as parallel Agent calls — two Agent tool uses in one message. No write conflict (different paths):
+**Write ADRs inline.** For each decision in `decisions_json`:
+- Compose ADR content: 5-section format — Status (Accepted), Context (1–3 sentences),
+  Decision (1–3 sentences), Consequences (Positive/Negative/Neutral), Alternatives.
+- Call `Write` → `zie-framework/decisions/ADR-<NNN>-<slug>.md`
+- Print `[ADR N/total]` after each file.
+- On error: print `[zie-framework] retro: ADR write failed — <error>` and continue.
 
-1. `Agent(subagent_type="general-purpose", run_in_background=True, prompt="Write ADRs for decisions made this session. Context: done_section_current={done_section_current}. For each decision in {decisions_json}: create file zie-framework/decisions/ADR-<NNN>-<slug>.md with 5-section format: Status (Accepted), Context (1-3 sentences), Decision (1-3 sentences), Consequences (Positive/Negative/Neutral), Alternatives. Next ADR number: {next_adr_n}. Print [ADR N/total] for each file created.")` — creates ADR files, printing `[ADR N/total]` for each
-2. `Agent(subagent_type="general-purpose", run_in_background=True, prompt="Update ROADMAP Done section. Read zie-framework/ROADMAP.md. Find ## Done section. Move shipped items from {shipped_items} to Done with date and version tag. Replace ## Done block (from heading to next --- separator or EOF). Done context for reference: {done_section_current}.")` — updates Done lane in `zie-framework/ROADMAP.md`
-
-Await both. Then proceed to brain store.
+**Update ROADMAP Done inline.**
+- Read `zie-framework/ROADMAP.md`.
+- Move shipped items from `shipped_items` to the `## Done` section with date and version tag.
+- Call `Edit` (or `Write`) to persist the updated file.
+- On error: print `[zie-framework] retro: ROADMAP update failed — <error>` and continue.
 
 ### Done-rotation (inline)
 
-Inline after ROADMAP-update agent — no Agent call:
+Inline after ROADMAP update — no Agent call:
 
 1. Read `## Done` from `zie-framework/ROADMAP.md`. ≤ 10 items → skip entirely.
 2. Extract date from each item: all `YYYY-MM-DD` matches, take last. No date → keep inline always.
@@ -108,10 +102,6 @@ Inline after ROADMAP-update agent — no Agent call:
 4. Candidates: rank 11+ items where `today − date > 90 days`.
 5. Archive to `zie-framework/archive/ROADMAP-archive-YYYY-MM.md` (YYYY-MM from item's date). Create with header if absent; append `## Archived YYYY-MM-DD` section. Never truncate archive.
 6. Rewrite `## Done` to kept items only. Print: `Done-rotation: kept <N>, archived <M> to <K> file(s)` or `≤10 items, skipped`.
-
-**Failure mode:** If either Agent fails → skip brain store. Do not retry.
-
-<!-- fallback: if Agent tool unavailable, run ADR write and ROADMAP update inline (blocking, sequential). ADR format: see zie-framework/decisions/ for examples. Only create for decisions with lasting consequences. ROADMAP: move shipped items to Done with date; if standalone ask Zie to re-prioritize Next. -->
 
 ### Auto-commit retro outputs
 

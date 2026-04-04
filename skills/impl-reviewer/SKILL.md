@@ -24,34 +24,18 @@ Caller must provide:
 
 ## Phase 1 — Load Context Bundle
 
-**if context_bundle provided by caller** — use it for shared context:
-- `context_content` ← `context_bundle.context` (skip step 3 below)
-- ADR loading (in priority order):
-  1. `context_bundle.adr_cache_path` present → read JSON at that path →
-     use `content` field as `adrs_content`. If file missing or malformed →
-     fall through to next option.
-  2. `context_bundle.adrs` present (legacy) → use directly as `adrs_content`.
-  3. Neither present → proceed to step 2 below (disk fallback).
+Invoke the `reviewer-context` skill to load shared context. It handles:
+- **if context_bundle provided by caller** — uses `context_bundle.context` directly;
+  for ADRs checks `context_bundle.adr_cache_path` first (read JSON `content` field),
+  then falls back to `context_bundle.adrs` (legacy), then disk fallback
+- **If `context_bundle` absent** — read from disk: `decisions/*.md` (via
+  `get_cached_adrs` cache; reads `ADR-000-summary.md` first, then calls
+  `write_adr_cache`), `project/context.md`
 
-**If `context_bundle` absent** — read from disk as fallback (backward-compatible):
+Also read each file listed in the caller's "files changed" input (note "FILE NOT FOUND"
+if any are missing).
 
-Before reviewing, load the following context (skip gracefully if missing —
-never block review):
-
-1. **Modified files** — read each file listed in the caller's "files changed"
-   input; note "FILE NOT FOUND" if any are missing.
-2. **ADRs** — load via session cache (cache-first, summary-aware):
-   a. Call `get_cached_adrs(session_id, "zie-framework/decisions/")`.
-      - Cache hit → use returned string as `adrs_content`. Skip individual file reads.
-      - Cache miss → load from disk:
-        - If `ADR-000-summary.md` exists → read it first (compressed history).
-        - Read remaining individual `zie-framework/decisions/ADR-*.md` files
-          (excluding `ADR-000-summary.md`); concatenate all into `adrs_content`.
-        - Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`.
-   b. If `decisions/` directory is empty or missing → `adrs_content = "No ADRs found"`.
-   `session_id` is available from the Claude Code session context.
-3. **Design context** — read `zie-framework/project/context.md` if it
-   exists. If missing → note "No context doc", skip.
+Returns: `adrs_content`, `context_content`.
 
 ## Phase 2 — Review Checklist
 

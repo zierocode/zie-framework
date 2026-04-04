@@ -97,10 +97,10 @@ class TestWritePlanPruning:
         assert "approved: false" in text
         assert "## โครงสร้าง Task" in text
 
-    def test_reviewer_loop_preserved(self):
+    def test_reviewer_loop_not_in_skill(self):
+        # Reviewer gate belongs in zie-plan.md, not in the write-plan skill
         text = read_skill("write-plan")
-        assert "plan-reviewer" in text
-        assert "Max 3 iterations" in text
+        assert "plan-reviewer" not in text
 
 
 class TestSpecDesignPruning:
@@ -264,53 +264,3 @@ class TestVerifyPruning:
         assert "README.md" in text
 
 
-class TestRetroFormatPruning:
-    def test_csv_export_example_absent(self):
-        text = read_skill("retro-format")
-        assert "csv-export feature (v1.0.11)" not in text, \
-            "Ship example block must be removed"
-
-    def test_tdd_scope_tight_example_absent(self):
-        text = read_skill("retro-format")
-        assert "TDD cycle kept feature scope tight" not in text, \
-            "Worked-well example block must be removed"
-
-    def test_sqlalchemy_example_absent(self):
-        text = read_skill("retro-format")
-        assert "SQLAlchemy async session management with LLM calls" not in text, \
-            "Pain points example block must be removed"
-
-    def test_hnsw_example_absent(self):
-        text = read_skill("retro-format")
-        assert "HNSW LATERAL join for dedup" not in text, \
-            "Decisions example block must be removed"
-
-    def test_asyncpg_cast_example_absent(self):
-        text = read_skill("retro-format")
-        assert "asyncpg CAST syntax" not in text, \
-            "Patterns example block must be removed"
-
-    def test_section_headers_preserved(self):
-        text = read_skill("retro-format")
-        assert "### สิ่งที่ Ship ออกไป" in text
-        assert "### สิ่งที่ทำงานได้ดี" in text
-        assert "### สิ่งที่เจ็บปวด" in text
-        assert "### การตัดสินใจสำคัญ" in text
-        assert "### Pattern ที่ควรจำ" in text
-
-    def test_adr_template_preserved(self):
-        text = read_skill("retro-format")
-        assert "## รูปแบบ ADR" in text
-        assert "## Context" in text
-        assert "## Decision" in text
-        assert "## Consequences" in text
-
-    def test_frequency_table_preserved(self):
-        text = read_skill("retro-format")
-        assert "## ความถี่ของ Retro" in text
-        assert "After /zie-release" in text
-
-    def test_roadmap_checklist_preserved(self):
-        text = read_skill("retro-format")
-        assert "## Checklist อัปเดต ROADMAP" in text
-        assert "All shipped items moved to Done" in text

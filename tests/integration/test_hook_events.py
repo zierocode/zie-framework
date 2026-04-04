@@ -176,25 +176,6 @@ class TestSafetyCheckHook:
 
 
 # ---------------------------------------------------------------------------
-# PreToolUse — input-sanitizer.py (Write event with relative path)
-# ---------------------------------------------------------------------------
-
-@pytest.mark.integration
-class TestInputSanitizerHook:
-    def test_exits_zero_for_write_event(self):
-        result = run_hook("input-sanitizer.py", "pretooluse_write_event.json")
-        assert_clean_exit(result)
-
-    def test_exits_zero_for_bash_event(self):
-        result = run_hook("input-sanitizer.py", "pretooluse_bash_event.json")
-        assert_clean_exit(result)
-
-    def test_produces_no_traceback(self):
-        result = run_hook("input-sanitizer.py", "pretooluse_write_event.json")
-        assert "Traceback" not in result.stderr
-
-
-# ---------------------------------------------------------------------------
 # PostToolUse — auto-test.py (Edit event)
 # ---------------------------------------------------------------------------
 

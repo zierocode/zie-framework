@@ -46,32 +46,35 @@ try:
 except Exception as e:
     print(f"[zie-framework] subagent-context: {e}", file=sys.stderr)
 
-# Find most-recent plan file and extract first incomplete task
-if feature_slug != "none" or active_task == "unknown":
-    try:
-        plans_dir = cwd / "zie-framework" / "plans"
-        plan_files = sorted(
-            plans_dir.glob("*.md"),
-            key=lambda p: p.stat().st_mtime,
-            reverse=True,
-        )
-        if plan_files:
-            plan_text = plan_files[0].read_text()
-            found = None
-            for line in plan_text.splitlines():
-                if re.search(r'- \[ \]', line):
-                    found = line
-                    break
-            if found is not None:
-                task = re.sub(r'^\s*-\s*\[\s*\]\s*', '', found)
-                task = re.sub(r'\*\*', '', task).strip()
-                active_task = task if task else "unknown"
+# Find most-recent plan file and extract first incomplete task (Plan agents only)
+if re.search(r'Plan', agent_type, re.IGNORECASE):
+    if feature_slug != "none" or active_task == "unknown":
+        try:
+            plans_dir = cwd / "zie-framework" / "plans"
+            plan_files = sorted(
+                plans_dir.glob("*.md"),
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+            if plan_files:
+                plan_text = plan_files[0].read_text()
+                found = None
+                for line in plan_text.splitlines():
+                    if re.search(r'- \[ \]', line):
+                        found = line
+                        break
+                if found is not None:
+                    task = re.sub(r'^\s*-\s*\[\s*\]\s*', '', found)
+                    task = re.sub(r'\*\*', '', task).strip()
+                    active_task = task if task else "unknown"
+                else:
+                    active_task = "all tasks complete"
             else:
-                active_task = "all tasks complete"
-        else:
-            active_task = "unknown"
-    except Exception as e:
-        print(f"[zie-framework] subagent-context: {e}", file=sys.stderr)
+                active_task = "unknown"
+        except Exception as e:
+            print(f"[zie-framework] subagent-context: {e}", file=sys.stderr)
+else:
+    active_task = "n/a"
 
 # Count ADRs from project/context.md
 try:
@@ -85,9 +88,12 @@ except Exception as e:
     print(f"[zie-framework] subagent-context: {e}", file=sys.stderr)
 
 # Emit additionalContext
-payload = (
-    f"[zie-framework] Active: {feature_slug} | "
-    f"Task: {active_task} | "
-    f"ADRs: {adr_count} (see zie-framework/project/context.md)"
-)
+if active_task == "n/a":
+    payload = f"[zie-framework] Active: {feature_slug} | ADRs: {adr_count}"
+else:
+    payload = (
+        f"[zie-framework] Active: {feature_slug} | "
+        f"Task: {active_task} | "
+        f"ADRs: {adr_count}"
+    )
 print(json.dumps({"additionalContext": payload}))

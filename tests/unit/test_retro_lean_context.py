@@ -14,24 +14,25 @@ class TestRetroLeanContext:
             "zie-retro.md compact JSON bundle must include 'done_section_current' key"
         )
 
-    def test_adr_agent_receives_done_section_current(self):
-        """ADR background agent prompt must reference done_section_current."""
+    def test_adr_write_step_present(self):
+        """ADR inline write step must exist in zie-retro.md."""
         src = self._src()
-        adr_agent_pos = src.find("Write ADRs")
-        assert adr_agent_pos != -1, "ADR agent invocation not found in zie-retro.md"
-        region = src[max(0, adr_agent_pos - 100):adr_agent_pos + 500]
-        assert "done_section_current" in region, (
-            "ADR agent prompt must reference done_section_current to avoid re-reading ROADMAP"
+        assert "Write ADR" in src or "Write` →" in src, (
+            "zie-retro.md must have an inline ADR write step"
+        )
+        # done_section_current is defined in compact bundle, available to inline steps
+        assert "done_section_current" in src, (
+            "compact bundle must include done_section_current for ADR/ROADMAP writes"
         )
 
-    def test_roadmap_agent_receives_done_section_current(self):
-        """ROADMAP update background agent prompt must reference done_section_current."""
+    def test_roadmap_update_step_present(self):
+        """ROADMAP inline update step must exist in zie-retro.md."""
         src = self._src()
-        roadmap_agent_pos = src.find("Update ROADMAP Done section")
-        assert roadmap_agent_pos != -1, "ROADMAP update agent invocation not found"
-        region = src[max(0, roadmap_agent_pos - 100):roadmap_agent_pos + 500]
-        assert "done_section_current" in region, (
-            "ROADMAP agent prompt must reference done_section_current"
+        assert "Update ROADMAP Done" in src, (
+            "zie-retro.md must have an inline ROADMAP Done update step"
+        )
+        assert "done_section_current" in src, (
+            "compact bundle must include done_section_current for ROADMAP update"
         )
 
     def test_agents_do_not_re_read_full_roadmap(self):

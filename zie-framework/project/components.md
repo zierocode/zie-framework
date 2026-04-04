@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-04-01 (v1.16.0)
+**Last updated:** 2026-04-04 (v1.16.3)
 
 ## Commands
 
@@ -39,7 +39,7 @@
 | Hook | Event | ทำอะไร |
 | --- | --- | --- |
 | auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save (debounced, `debounce_ms=0` = disabled); OSError-guarded rglob + c.exists() |
-| safety-check.py | PreToolUse:Bash | บล็อก dangerous cmds (exit 2 = block); MAX_MESSAGE_LEN=500 ReDoS guard; whitespace normalised before match |
+| safety-check.py | PreToolUse:Write/Edit/Bash | บล็อก dangerous cmds (exit 2 = block); includes metachar injection guard + path traversal checks (input-sanitizer merged in v1.16.3); MAX_MESSAGE_LEN=500 ReDoS guard; whitespace normalised before match |
 | intent-detect.py | PreToolUse:Bash | ตรวจ intent → suggest cmd (JSON out) |
 | session-resume.py | SessionStart | แสดง project state + active feature |
 | failure-context.py | PostToolUseFailure:Bash/Write/Edit | inject SDLC debug context (active task, branch, last commit, quick-fix hint); is_interrupt guard; reads branch/log from session git cache before subprocess |
@@ -51,14 +51,19 @@
 | sdlc-context.py | UserPromptSubmit | inject [sdlc] task/stage/next/tests context into every prompt |
 | subagent-context.py | SubagentStart:Explore/Plan | inject active feature slug, first incomplete task, ADR count into research subagents |
 | config-drift.py | ConfigChange:project_settings\|user_settings | ตรวจ CLAUDE.md / settings.json / zie-framework/.config drift → inject additionalContext to re-read |
-| input-sanitizer.py | PreToolUse:Bash | resolve relative paths → absolute; rewrite dangerous Bash patterns to require confirmation |
+| compact-hint.py | Stop | print /compact hint when context_window usage ≥ compact_hint_threshold (default 0.8); configurable via .config; stop_hook_active infinite-loop guard |
 | notification-log.py | Notification:permission_prompt\|idle_prompt | log permission + idle events; inject additionalContext on 3+ repeated permission requests |
 | safety_check_agent.py | PreToolUse:Bash | agent-based safety check (active when safety_check_mode=agent\|both in .config) |
 | sdlc-permissions.py | PermissionRequest | auto-approve safe SDLC Bash operations (make test-unit, git status, etc.) without interrupting Claude |
 | stopfailure-log.py | StopFailure | capture API errors and rate-limit notifications to per-project tmp log |
 | subagent-stop.py | SubagentStop | capture subagent completion with ID; enables resume-by-ID pattern in same session |
 | task-completed-gate.py | TaskCompleted | block on failing tests; warn on uncommitted files at task completion |
-| utils.py | (shared library) | read_event(), get_cwd(), load_config(), parse_roadmap_now/section/ready(), compact_roadmap_done(), project_tmp_path(), call_zie_memory_api(), safe_write_tmp(), normalize_command(), safe_project_name(), get_cached_git_status/write_git_status_cache(), get_cached_adrs(adr_dir, session_id) + write_adr_cache(session_id, adrs_content, adr_dir) (session-scoped ADR cache for parallel agents), log_hook_timing(hook_name, duration_ms, exit_code, session_id) (JSON timing log at /tmp/zie-{session}/timing.log), BLOCKS, WARNS, SDLC_STAGES |
+| utils.py | (compatibility shim) | re-exports all symbols from 5 sub-modules for backwards compatibility; split in v1.16.3 |
+| utils_config.py | (sub-module) | CONFIG_SCHEMA, CONFIG_DEFAULTS, validate_config(), load_config() |
+| utils_safety.py | (sub-module) | BLOCKS (rm -rf bare dot guard, negative lookahead), WARNS, COMPILED_BLOCKS, COMPILED_WARNS, normalize_command() |
+| utils_event.py | (sub-module) | read_event(), get_cwd(), sanitize_log_field(), log_hook_timing(), call_zie_memory_api() |
+| utils_io.py | (sub-module) | safe_project_name(), project_tmp_path(), get_plugin_data_dir(), persistent_project_path(), is_zie_initialized(), get_project_name(), atomic_write(), safe_write_tmp(), safe_write_persistent() |
+| utils_roadmap.py | (sub-module) | SDLC_STAGES, parse_roadmap_now/section/ready/content/done(), compact_roadmap_done(), compute_max_mtime(), is_mtime_fresh(), get/write ADR cache, get/write git status cache |
 
 ## Agents
 

@@ -16,11 +16,12 @@ class TestRetroGeneralPurposeAgent:
                "subagent_type='zie-framework:retro-format'" not in text, \
             "zie-retro must not reference zie-framework:retro-format agent"
 
-    def test_uses_general_purpose_agent(self):
-        """zie-retro uses general-purpose agent with inline instructions."""
+    def test_no_general_purpose_agent(self):
+        """zie-retro must not spawn general-purpose agents — ADRs are written inline."""
         text = cmd_text()
-        assert "general-purpose" in text, \
-            "zie-retro must use general-purpose agent type"
+        assert 'subagent_type="general-purpose"' not in text and \
+               "subagent_type='general-purpose'" not in text, \
+            "zie-retro must not spawn general-purpose agents for ADR/ROADMAP writes"
 
     def test_inline_adr_instructions(self):
         """Agent instructions cover ADR 5-section format."""
@@ -28,11 +29,6 @@ class TestRetroGeneralPurposeAgent:
         assert "ADR" in text and ("Status" in text or "Context" in text or "Decision" in text), \
             "zie-retro agent must have inline ADR format instructions"
 
-    def test_retro_format_fallback_via_skill(self):
-        """Fallback via Skill(retro-format) still documented for unavailable agent."""
-        text = cmd_text()
-        assert "retro-format" in text, \
-            "zie-retro must retain retro-format reference in fallback comment"
 
 
 class TestRetroAutoCommit:

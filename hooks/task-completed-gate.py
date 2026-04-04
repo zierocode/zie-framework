@@ -115,7 +115,6 @@ def main():
 
     title_lower = title.lower()
     if not re.search(r'\bimplement\b', title_lower) and not re.search(r'\bfix\b', title_lower):
-        print("[zie-framework] task-completed-gate: advisory task — gate skipped")
         sys.exit(0)
 
     cwd = get_cwd()

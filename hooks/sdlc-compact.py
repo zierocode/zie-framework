@@ -135,7 +135,7 @@ elif hook_event_name == "PostCompact":
 
     # --- Build context block ---
     try:
-        lines = ["[zie-framework] SDLC state restored after context compaction."]
+        lines = []
         if snapshot.get("active_task"):
             lines.append(f"Active task: {snapshot['active_task']}")
         if snapshot.get("now_items") and len(snapshot["now_items"]) > 1:

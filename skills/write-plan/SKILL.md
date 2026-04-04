@@ -128,18 +128,6 @@ slots become available.
 
 Save plan to: `zie-framework/plans/YYYY-MM-DD-<feature-slug>.md`
 
-After saving, run the **plan reviewer loop**:
-
-- Invoke `Skill(zie-framework:plan-reviewer)` with path to plan + path to spec
-- If ❌ Issues Found → fix issues → re-invoke reviewer → repeat until ✅ APPROVED
-- Max 3 iterations → surface to human
-
-Then update `zie-framework/ROADMAP.md`:
-
-- Add to "Ready" section: `- [ ] <feature name> —
-  [plan](plans/YYYY-MM-DD-<feature-slug>.md) ✓ approved`
-- Wait for explicit approval before marking `approved: true` in frontmatter
-
 ## Notes
 
 - Exact file paths always

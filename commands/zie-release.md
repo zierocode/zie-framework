@@ -26,29 +26,10 @@ effort: medium
 
 ### Pre-Gate-1: Docs Sync (background)
 
-Run docs-sync check before unit tests — concurrently (run_in_background=True):
-
-```bash
-# run_in_background=True
-python3 -c "
-import re, pathlib, sys
-cmds_dir = pathlib.Path('commands')
-skills_dir = pathlib.Path('skills')
-claude_md = pathlib.Path('CLAUDE.md').read_text()
-readme = pathlib.Path('README.md').read_text()
-commands = [f.stem for f in cmds_dir.glob('zie-*.md')]
-skills = [f.parent.name for f in skills_dir.glob('*/SKILL.md')]
-missing = [c for c in commands if c not in claude_md]
-missing += [s for s in skills if s not in readme]
-if missing:
-    print('[docs-sync] FAILED:', missing)
-    sys.exit(1)
-print('[docs-sync] PASSED')
-"
-```
+Run docs-sync check before unit tests — invoke `Skill(zie-framework:docs-sync-check)` (run_in_background=True if supported).
+Fallback: if Skill unavailable → print `[zie-framework] docs-sync-check unavailable — skipping`. Manual check: `make docs-sync`
 
 Collect result with other gate results (see "Collect Parallel Gate Results" below).
-On `[docs-sync] FAILED` → update stale docs inline (Read/Edit/Write) before version bump.
 
 ### ตรวจสอบ: Unit Tests
 

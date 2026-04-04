@@ -7,8 +7,26 @@ from unittest.mock import patch
 from safety_check_agent import invoke_subagent
 
 
-def test_prompt_contains_code_fence():
-    """Command must be wrapped in backtick fence to prevent injection."""
+def test_invoke_subagent_uses_haiku_model():
+    """invoke_subagent must pass --model claude-haiku-4-5-20251001 to reduce API cost."""
+    captured_args = []
+
+    def fake_run(args, **kwargs):
+        captured_args.extend(args)
+        class R:
+            stdout = "ALLOW"
+        return R()
+
+    with patch("safety_check_agent.subprocess.run", side_effect=fake_run):
+        invoke_subagent("ls -la")
+
+    assert "--model" in captured_args, "--model flag missing from subprocess args"
+    model_idx = captured_args.index("--model")
+    assert captured_args[model_idx + 1] == "claude-haiku-4-5-20251001"
+
+
+def test_prompt_contains_xml_delimiter():
+    """Command must be wrapped in XML tags to prevent injection."""
     captured_prompt = []
 
     def fake_run(cmd, **kwargs):
@@ -21,11 +39,12 @@ def test_prompt_contains_code_fence():
         invoke_subagent("ls -la")
 
     prompt = captured_prompt[0]
-    assert "```" in prompt
+    assert "<command>" in prompt
+    assert "</command>" in prompt
     assert "ls -la" in prompt
 
-def test_injected_newlines_inside_fence():
-    """Injected newlines in command must stay inside the code fence."""
+def test_injected_newlines_inside_xml_delimiter():
+    """Injected newlines in command must stay inside the XML delimiter."""
     captured_prompt = []
 
     def fake_run(cmd, **kwargs):
@@ -39,10 +58,10 @@ def test_injected_newlines_inside_fence():
         invoke_subagent(malicious)
 
     prompt = captured_prompt[0]
-    fence_start = prompt.index("```")
-    fence_end = prompt.index("```", fence_start + 3)
+    tag_start = prompt.index("<command>")
+    tag_end = prompt.index("</command>")
     injected_position = prompt.find("Ignore above")
-    assert fence_start < injected_position < fence_end
+    assert tag_start < injected_position < tag_end
 
 
 from unittest.mock import MagicMock
@@ -57,7 +76,7 @@ class TestCommandLengthCap:
         captured_prompts = []
 
         def mock_run(args, **kwargs):
-            captured_prompts.append(args[2])
+            captured_prompts.append(args[-1])
             m = MagicMock()
             m.stdout = "ALLOW"
             return m
@@ -74,7 +93,7 @@ class TestCommandLengthCap:
         captured_prompts = []
 
         def mock_run(args, **kwargs):
-            captured_prompts.append(args[2])
+            captured_prompts.append(args[-1])
             m = MagicMock()
             m.stdout = "ALLOW"
             return m

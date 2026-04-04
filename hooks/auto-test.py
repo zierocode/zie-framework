@@ -144,14 +144,6 @@ if __name__ == "__main__":
     if not changed.is_relative_to(cwd_resolved):
         sys.exit(0)
 
-    # additionalContext injection — fires before debounce so Claude always gets the hint
-    _ctx_test = find_matching_test(changed, test_runner, cwd)
-    if _ctx_test:
-        _additional_context = f"Affected test: {_ctx_test}"
-    else:
-        _additional_context = f"No test file found for {changed.name} — write one"
-    print(json.dumps({"additionalContext": _additional_context}))
-
     # Debounce: skip test run if same file was tested recently (within debounce window)
     if _debounce_env:
         try:
@@ -167,13 +159,22 @@ if __name__ == "__main__":
             sys.exit(0)
     safe_write_tmp(debounce_file, file_path)
 
+    # Single find_matching_test call — result reused for context injection and test command
+    matching_test = find_matching_test(changed, test_runner, cwd)
+
+    # additionalContext injection — only fires when tests will actually run (after debounce)
+    if matching_test:
+        _additional_context = f"Affected test: {matching_test}"
+    else:
+        _additional_context = f"No test file found for {changed.name} — write one"
+    print(json.dumps({"additionalContext": _additional_context}))
+
     auto_test_timeout_ms = config["auto_test_timeout_ms"]
     auto_test_max_wait_s = config["auto_test_max_wait_s"]
     timeout = auto_test_timeout_ms // 1000
 
     # Build test command
     if test_runner == "pytest":
-        matching_test = find_matching_test(changed, "pytest", cwd)
         if matching_test:
             cmd = ["python3", "-m", "pytest", matching_test, "-x", "-q", "--tb=short", "--no-header"]
         else:

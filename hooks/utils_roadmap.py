@@ -17,11 +17,6 @@ SDLC_STAGES: list = [
 ]
 
 
-def sanitize_log_field(value: object) -> str:
-    """Strip ASCII control characters from a log field value."""
-    return re.sub(r'[\x00-\x1f\x7f]', '?', str(value))
-
-
 def parse_roadmap_section(roadmap_path, section_name: str) -> list:
     """Extract cleaned items from a named ## section of ROADMAP.md.
 
@@ -95,44 +90,50 @@ def parse_roadmap_section_content(content: str, section_name: str) -> list:
     return lines
 
 
-def read_roadmap_cached(roadmap_path, session_id: str, ttl: int = 30, tmp_dir=None) -> str:
-    """Return ROADMAP.md content using session cache, falling back to disk read.
+def read_roadmap_cached(roadmap_path, session_id: str, tmp_dir=None) -> str:
+    """Return ROADMAP.md content using mtime-gated session cache, falling back to disk read.
 
-    On cache miss: reads from disk and writes to cache.
+    On cache miss or mtime mismatch: reads from disk and writes to cache.
     On any read error: returns empty string.
     """
-    cached = get_cached_roadmap(session_id, ttl=ttl, tmp_dir=tmp_dir)
+    cached = get_cached_roadmap(session_id, roadmap_path, tmp_dir=tmp_dir)
     if cached is not None:
         return cached
     try:
         content = Path(roadmap_path).read_text()
-        write_roadmap_cache(session_id, content, tmp_dir=tmp_dir)
+        write_roadmap_cache(session_id, content, roadmap_path, tmp_dir=tmp_dir)
         return content
     except Exception:
         return ""
 
 
-def get_cached_roadmap(session_id: str, ttl: int = 30, tmp_dir=None) -> str | None:
-    """Return cached ROADMAP.md content if fresh (age < ttl seconds), else None."""
+def get_cached_roadmap(session_id: str, roadmap_path, tmp_dir=None) -> str | None:
+    """Return cached ROADMAP.md content if mtime matches current file mtime, else None."""
     try:
         safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
-        cache_path = Path(tmp_dir or tempfile.gettempdir()) / f"zie-{safe_id}" / "roadmap.cache"
-        if cache_path.exists():
-            age = time.time() - cache_path.stat().st_mtime
-            if age < ttl:
-                return cache_path.read_text()
-        return None
+        cache_path = Path(tmp_dir or tempfile.gettempdir()) / f"zie-{safe_id}" / "roadmap-cache.json"
+        if not cache_path.exists():
+            return None
+        data = json.loads(cache_path.read_text())
+        current_mtime = os.path.getmtime(roadmap_path)
+        if abs(data["mtime"] - current_mtime) > 0.001:
+            return None
+        return data["content"]
     except Exception:
         return None
 
 
-def write_roadmap_cache(session_id: str, content: str, tmp_dir=None) -> None:
-    """Write ROADMAP.md content to the session cache."""
+def write_roadmap_cache(session_id: str, content: str, roadmap_path, tmp_dir=None) -> None:
+    """Write ROADMAP.md content to the session cache keyed by roadmap file mtime."""
     try:
         safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
         cache_dir = Path(tmp_dir or tempfile.gettempdir()) / f"zie-{safe_id}"
         cache_dir.mkdir(parents=True, exist_ok=True)
-        (cache_dir / "roadmap.cache").write_text(content)
+        try:
+            mtime = os.path.getmtime(roadmap_path)
+        except Exception:
+            mtime = 0.0
+        (cache_dir / "roadmap-cache.json").write_text(json.dumps({"mtime": mtime, "content": content}))
     except Exception as e:
         print(f"[zie-framework] write_roadmap_cache: {e}", file=sys.stderr)
 

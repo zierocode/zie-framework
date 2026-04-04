@@ -38,6 +38,8 @@ except Exception:
 
 try:
     cwd = get_cwd()
+    if not (cwd / "zie-framework").exists():
+        sys.exit(0)
     config = load_config(cwd)
     subprocess_timeout = config["subprocess_timeout_s"]
     session_id = event.get("session_id", "default")
@@ -96,8 +98,7 @@ try:
         "[SDLC context at failure]\n"
         f"Active task: {active_task}\n"
         f"Branch: {branch}\n"
-        f"Last commit: {last_commit}\n"
-        "Quick fix: run `make test-unit` to reproduce; check output above for root cause."
+        f"Last commit: {last_commit}"
     )
 
     print(json.dumps({"additionalContext": context_string}))

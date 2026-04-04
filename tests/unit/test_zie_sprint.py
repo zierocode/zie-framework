@@ -61,9 +61,10 @@ class TestPhaseStructure:
         assert "parallel" in phase1_section.lower() or "run_in_background" in phase1_section, \
             "Phase 1 must use parallel agents for spec"
 
-    def test_phase1_uses_draft_plan_flag(self):
-        assert "--draft-plan" in _text(), \
-            "Phase 1 must use --draft-plan to combine spec+plan in one agent call"
+    def test_phase1_uses_skill_chain(self):
+        text = _text()
+        assert "spec-reviewer" in text and "write-plan" in text and "plan-reviewer" in text, \
+            "Phase 1 must use skill chain (spec-reviewer, write-plan, plan-reviewer)"
 
     def test_phase3_sequential_wip1(self):
         text = _text()

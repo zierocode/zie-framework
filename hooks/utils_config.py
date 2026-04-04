@@ -9,6 +9,8 @@ CONFIG_SCHEMA: dict = {
     "safety_agent_timeout_s": (30, int),
     "auto_test_max_wait_s": (15, int),
     "auto_test_timeout_ms": (30000, int),
+    "compact_hint_threshold": (0.8, float),
+    "playwright_enabled": (False, bool),
 }
 
 CONFIG_DEFAULTS: dict = {

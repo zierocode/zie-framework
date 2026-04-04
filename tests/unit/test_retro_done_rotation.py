@@ -62,14 +62,14 @@ class TestAutoCommitExtended:
 
 
 class TestRotationPosition:
-    def test_rotation_after_await_both(self):
+    def test_rotation_after_roadmap_update(self):
         text = _text()
-        await_pos = text.find("Await both")
+        roadmap_pos = text.find("Update ROADMAP Done")
         rotation_pos = text.find("Done-rotation")
-        assert await_pos != -1 and rotation_pos != -1, \
-            "Both 'Await both' and 'Done-rotation' must exist in zie-retro.md"
-        assert await_pos < rotation_pos, \
-            "Done-rotation must appear after 'Await both'"
+        assert roadmap_pos != -1, "ROADMAP update step must exist in zie-retro.md"
+        assert rotation_pos != -1, "Done-rotation section must exist in zie-retro.md"
+        assert roadmap_pos < rotation_pos, \
+            "Done-rotation must appear after the ROADMAP Done update step"
 
     def test_rotation_before_auto_commit(self):
         text = _text()

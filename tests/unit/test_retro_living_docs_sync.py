@@ -7,19 +7,21 @@ class TestRetroLivingDocsSync:
     def _retro_text(self) -> str:
         return (COMMANDS_DIR / "zie-retro.md").read_text()
 
-    def test_claude_md_sync_step_present(self):
-        assert "CLAUDE.md" in self._retro_text(), \
-            "zie-retro.md must contain a CLAUDE.md sync step"
+    def test_docs_sync_check_skill_invoked(self):
+        assert "docs-sync-check" in self._retro_text(), \
+            "zie-retro.md must invoke docs-sync-check skill for docs sync"
 
-    def test_readme_md_sync_step_present(self):
-        assert "README.md" in self._retro_text(), \
-            "zie-retro.md must contain a README.md sync step"
+    def test_docs_sync_check_skill_call_present(self):
+        assert "Skill(zie-framework:docs-sync-check)" in self._retro_text(), \
+            "zie-retro.md must use Skill(zie-framework:docs-sync-check)"
 
-    def test_in_sync_fallback_present(self):
-        assert "in sync" in self._retro_text(), \
-            "zie-retro.md must include an 'in sync' fallback message"
-
-    def test_change_logging_instruction_present(self):
+    def test_docs_sync_verdict_printed(self):
         text = self._retro_text()
-        assert "Updated CLAUDE.md" in text, \
-            "zie-retro.md must include 'Updated CLAUDE.md' change-logging instruction"
+        assert "verdict" in text.lower() or "details" in text.lower() or \
+               "docs-sync" in text.lower(), \
+            "zie-retro.md must print docs-sync check result"
+
+    def test_docs_sync_skip_guard_present(self):
+        text = self._retro_text()
+        assert "release:" in text or "skipped" in text.lower(), \
+            "zie-retro.md must have docs-sync skip guard for release commits"

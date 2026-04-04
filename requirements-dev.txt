@@ -1,6 +1,5 @@
 # Dev dependencies — pinned lower-bounds (Dependabot-friendly)
-# pytest >=9.0.2: current latest; CVE-2025-71176 fix expected in next patch release
-pytest>=9.0.2
+pytest>=9.0.3
 pytest-cov>=7.1.0
 coverage>=7.13.5
 bandit>=1.9.4
