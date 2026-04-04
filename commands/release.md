@@ -10,8 +10,8 @@ effort: medium
 ## ตรวจสอบก่อนเริ่ม
 
 1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. อ่าน `zie-framework/.config` — ใช้ has_frontend, playwright_enabled เป็น
-   context
+2. Read `zie-framework/.config` → bind `has_frontend`, `playwright_enabled`
+   (reused by Gates 3–4; read once here, never again).
 3. Read `VERSION` → current version.
 4. Check current git branch → should be `dev`. Warn if not.
 5. Verify `VERSION` file exists and is non-empty:
@@ -57,7 +57,7 @@ Report: `[Gate 2/5] PASSED`, `[Gate 2/5] SKIPPED` (if no integration tests), or 
 
 **Gate 3/5 — E2E tests (conditional):**
 
-Read `playwright_enabled` from `zie-framework/.config` inline.
+Check pre-bound `playwright_enabled` (from pre-flight Step 2).
 - If `playwright_enabled=false` → print `[Gate 3/5] SKIPPED` (no Bash call issued).
 - If `playwright_enabled=true`:
 
@@ -70,7 +70,7 @@ Read `playwright_enabled` from `zie-framework/.config` inline.
 
 **Gate 4/5 — Visual check (conditional):**
 
-Read `has_frontend` and `playwright_enabled` from `zie-framework/.config` inline.
+Check pre-bound `has_frontend` and `playwright_enabled` (from pre-flight Step 2).
 - If `has_frontend=false` OR `playwright_enabled=false` → print `[Gate 4/5] SKIPPED` (no Bash call issued).
 - If both true:
 

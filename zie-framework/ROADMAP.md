@@ -9,7 +9,7 @@
 ## Now — Active Sprint
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
-- [ ] Consolidate Reviewer Disk Fallback — [plan](plans/2026-04-04-consolidate-reviewer-disk-fallback.md)
+- [x] Consolidate Reviewer Disk Fallback — [plan](plans/2026-04-04-consolidate-reviewer-disk-fallback.md)
 
 ---
 
