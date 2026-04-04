@@ -23,23 +23,10 @@ then re-run /init."`
 
 ## Steps
 
-0. **Re-run guard**: if `zie-framework/` already exists, check completeness:
-
-   **Complete** = `zie-framework/PROJECT.md` exists AND
-   `zie-framework/project/architecture.md` exists AND
-   `zie-framework/.config` contains `"knowledge_hash"` with a non-empty value.
-
-   - **If complete**: print "Already initialized." then **skip to Step 3**
-     (create missing files only — all steps idempotent). Knowledge scan is
-     not repeated; run `/resync` to update knowledge docs.
-
-   - **If incomplete** (missing knowledge docs or missing/empty
-     `knowledge_hash`): print "Existing framework found, but knowledge scan
-     not yet done. Scanning codebase..." then proceed to Step 2 (skip Step 1
-     project-type detection only if `.config` already exists with
-     `project_type`).
-
-   - **If `zie-framework/` does not exist**: proceed normally from Step 1.
+0. **Re-run guard** — if `zie-framework/` exists:
+   - **Complete** (`PROJECT.md` + `project/architecture.md` + non-empty `knowledge_hash` in `.config`): print "Already initialized." → skip to Step 3.
+   - **Incomplete** (missing docs or empty `knowledge_hash`): print "Existing framework found, but knowledge scan not yet done. Scanning codebase..." → Step 2 (skip project-type detect if `.config` has `project_type`).
+   - **Absent**: proceed from Step 1.
 
 1. **Detect project type** by reading existing files:
    - `requirements.txt` or `pyproject.toml` → `python-api`
@@ -61,58 +48,11 @@ then re-run /init."`
    **If existing** → print "Existing project detected. Scanning
    codebase..." then:
 
-   a. Invoke `Agent(subagent_type=Explore)` with the following
-      self-contained prompt. Receive `scan_report` JSON.
+   a. Invoke `Agent(subagent_type=Explore)` with the prompt from
+      `templates/init-scan-prompt.md` (read the file verbatim — pass as prompt).
+      Receive `scan_report` JSON.
 
-      > **Explore agent prompt (self-contained — pass verbatim):**
-      >
-      > ```
-      > You are scanning an existing software project to help initialize zie-framework.
-      >
-      > Scan the project at the current working directory. Read existing documentation
-      > first as primary sources (they encode deliberate intent, not just structure):
-      >   README.md, CHANGELOG.md, ARCHITECTURE.md, AGENTS.md,
-      >   docs/**, **/specs/*.md, **/plans/*.md, **/decisions/*.md
-      >   (exclude anything inside zie-framework/)
-      >
-      > Then scan the codebase structure to fill in any gaps.
-      >
-      > Exclude from all scans:
-      >   node_modules/, .git/, build/, dist/, .next/, __pycache__/, *.pyc,
-      >   coverage/, zie-framework/
-      >
-      > Return ONLY a JSON object with this exact structure (no markdown, no prose).
-      > The parent parser will extract JSON from the first '{' to the last '}'.
-      >
-      > {
-      >   "architecture_pattern": "<string>",
-      >   "components": [{ "name": "<string>", "purpose": "<one-line string>" }],
-      >   "tech_stack": [{ "name": "<string>", "version": "<string | null>" }],
-      >   "data_flow": "<string>",
-      >   "key_constraints": ["<string>"],
-      >   "test_strategy": { "runner": "<string | null>", "coverage_areas": ["<string>"] },
-      >   "active_areas": ["<string>"],
-      >   "existing_hooks": "<path to hooks/hooks.json if present, else null>",
-      >   "existing_config": "<path to zie-framework/.config if present, else null>",
-      >   "migration_candidates": {
-      >     "specs":      ["<relative path>"],
-      >     "plans":      ["<relative path>"],
-      >     "decisions":  ["<relative path>"],
-      >     "backlog":    ["<relative path>"]
-      >   }
-      > }
-      >
-      > For migration_candidates: include files matching these patterns (excluding
-      > anything already inside zie-framework/):
-      >   specs:     **/specs/*.md, **/spec/*.md
-      >   plans:     **/plans/*.md, **/plan/*.md
-      >   decisions: **/decisions/*.md, **/adr/*.md, ADR-*.md (at project root)
-      >   backlog:   **/backlog/*.md
-      >
-      > For existing_hooks: check if hooks/hooks.json exists at project root.
-      > For existing_config: check if zie-framework/.config exists.
-      > If a field cannot be determined, use null for scalars or [] for arrays.
-      > ```
+      Prompt: see `templates/init-scan-prompt.md`
 
       **Parse `scan_report`:**
 
@@ -175,6 +115,8 @@ then re-run /init."`
       Filter candidates: skip `README.md`, `CHANGELOG.md`, `LICENSE*`,
       `CLAUDE.md`, `AGENTS.md`, files already inside `zie-framework/`.
       Validate each path exists on disk before presenting.
+
+      Scan globs used: `**/specs/*.md`, `**/plans/*.md`, `**/decisions/*.md`, `**/backlog/*.md`
 
       | Source key | Destination |
       | --- | --- |
@@ -261,27 +203,9 @@ then re-run /init."`
      - Rename to `Makefile.local` (remove `.example` suffix).
 
 7. **Negotiate `_bump-extra` + `_publish`** in `Makefile.local`:
-
-   - Read `Makefile.local` — check if `_bump-extra` already has real commands
-     (not just `@true`).
-   - If stub: ask "Which version files need bumping on release?"
-     Present options by `project_type`:
-
-     | project\_type | Suggested `_bump-extra` |
-     | --- | --- |
-     | `python-api` | `sed` pyproject.toml version |
-     | `python-plugin` | `jq` plugin.json version |
-     | `typescript-cli` | `npm version $(NEW) --no-git-tag-version` |
-     | `typescript-fullstack` | `npm version $(NEW) --no-git-tag-version` |
-     | (other) | prompt user to describe version files |
-
-   - Present draft and ask: "Does this look right? (yes / no / edit)"
-   - `yes` → write into `Makefile.local`; `no` → leave as `@true`; `edit` → redraft.
-
-   - Ask separately: "Does this project need a publish step after release?
-     (e.g. gh release, npm publish, docker push, vercel deploy — or 'no')"
-   - If yes: add appropriate `_publish` recipe to `Makefile.local`.
-   - If no: leave `_publish` as `@true`.
+   - If `_bump-extra` is already a real command (not `@true`): skip.
+   - If stub: ask "Which version files need bumping?" — suggest by `project_type` (pyproject.toml / plugin.json / npm version). Present draft; `yes` → write, `no` → leave stub, `edit` → redraft.
+   - Ask separately: "Need a publish step? (gh release / npm publish / docker push / no)" — write `_publish` recipe if yes, else leave as `@true`.
 
 8. **Create `VERSION`** at project root — keep as-is if exists;
    create with content `0.1.0` if missing.
