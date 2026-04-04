@@ -81,8 +81,6 @@ Before defining tasks, map out which files will be created or modified:
 - L plan: 8–15 tasks (multi-sprint — consider splitting)
 - ⚠️ >15 tasks: plan is too large — split by feature boundary
 
-**File conflict check:** Before assigning tasks, verify no two independent tasks write to the same output file. If they do, add `<!-- depends_on: TN -->` to serialize them.
-
 ## โครงสร้าง Task
 
 Each task follows TDD RED → GREEN → REFACTOR:
