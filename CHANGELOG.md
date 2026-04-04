@@ -1,5 +1,37 @@
 # Changelog
 
+## v1.17.0 — 2026-04-04
+
+### Features
+
+- **load-context skill** — New `skills/load-context/SKILL.md` shared skill consolidates ADR + project context bundle load; replaces 3 inline duplicates in `zie-plan`, `zie-implement`, `zie-sprint`
+- **reviewer-context skill** — New `skills/reviewer-context/SKILL.md` extracts identical Phase 1 protocol from spec-reviewer, plan-reviewer, and impl-reviewer — single source of truth for cache-first ADR loading
+- **subagent-context Explore guard** — Explore agents no longer read plan files (no active task mid-spec); Plan agents retain full `Task:` field — reduces wasted I/O per subagent spawn
+- **safety-check Haiku model** — `safety_check_agent.py` routes to `claude-haiku-4-5-20251001` for binary ALLOW/BLOCK classification — ~80% cost reduction per Bash call
+- **safety-check XML injection guard** — Shell command wrapped in `<command>...</command>` XML delimiters in subagent prompt — prevents prompt injection via crafted Bash commands
+- **roadmap cache mtime-gate** — `utils_roadmap.py` ROADMAP cache now invalidates on file modification time change instead of 30s TTL — more accurate, zero false hits
+
+### Changed
+
+- **strip static additionalContext** — Removed boilerplate strings from `failure-context.py`, `sdlc-compact.py`, `subagent-context.py` per-event payloads; moved to `CLAUDE.md` Hook Context Hints section
+- **session-resume fire-and-forget** — `session-resume.py` knowledge drift check now uses `subprocess.Popen` (non-blocking) instead of `subprocess.run` — off SessionStart critical path
+- **retro inline ADR writes** — `/zie-retro` writes ADRs and updates ROADMAP inline (Write/Edit tools) instead of spawning background agents — eliminates 2 subagent spawns per retro
+- **docs-sync consolidation** — `/zie-retro` and `/zie-release` both delegate docs sync to `Skill(zie-framework:docs-sync-check)` — removes 3 inline implementations
+- **sprint Phase 1 skill chain** — `/zie-sprint` Phase 1 invokes spec-design → spec-reviewer → write-plan → plan-reviewer skill chain directly instead of `--draft-plan` flag
+- **wip-checkpoint counter fix** — Counter file written before modulo check so count persists across subprocess invocations — checkpoint every 5 edits now works correctly
+- **write-plan reviewer removed** — `skills/write-plan/SKILL.md` no longer invokes plan-reviewer loop (reviewer gate belongs in `zie-plan.md`) — removes duplicate reviewer invocation
+- **zie-implement agent warn** — Outside agent session: warn-only print instead of interactive confirm/cancel — non-blocking for script use
+- **zie-status velocity** — Single `git log --tags --simplify-by-decoration` call replaces sequential `git tag` loop — O(1) velocity computation
+
+### Fixed
+
+- **wip-checkpoint modulo** — Fixed counter never reaching 5 (write was after modulo check; each subprocess started fresh from 0)
+- **stop-guard session isolation** — Unique `CLAUDE_SESSION_ID` per test run prevents cache leaking between parallel tests
+- **retro-format skill deleted** — Removed deprecated `skills/retro-format/SKILL.md` (~140 lines dead code)
+- **pin pytest CVE-2025-71176** — `requirements-dev.txt` now pins `pytest>=9.0.3`
+- **zie-plan Notes section** — Removed redundant Notes section (~6 lines)
+- **task-gate suppress advisory** — Task-completed-gate exits silently (empty stdout) for docs/config tasks instead of printing advisory
+
 ## v1.16.3 — 2026-04-04
 
 ### Features

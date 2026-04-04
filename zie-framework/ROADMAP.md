@@ -10,6 +10,36 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [x] safety-check-agent-haiku-model — Haiku for binary ALLOW/BLOCK
+- [x] auto-test-context-debounce — additionalContext after debounce
+- [x] safety-check-prompt-injection — XML-wrap shell command in subagent prompt
+- [x] write-plan-duplicate-reviewer — remove double reviewer loop
+- [x] strip-static-additionalcontext — static boilerplate → CLAUDE.md
+- [x] knowledge-hash-background — drift check off SessionStart critical path
+- [x] auto-test-double-rglob — cache find_matching_test, avoid double rglob
+- [x] stop-guard-cached-git — session cache in stop-guard
+- [x] config-schema-missing-keys — add compact_hint_threshold + playwright_enabled
+- [x] context-load-extract — shared load-context skill, 3 inline duplicates removed
+- [x] intent-sdlc-roadmap-gate — skip ROADMAP read for non-Now intents
+- [x] roadmap-cache-mtime-gate — mtime-gate instead of 30s TTL
+- [x] docs-sync-consolidate — single Skill() call in retro + release
+- [x] retro-inline-agents — inline ADR+ROADMAP writes, 2 subagent spawns eliminated
+- [x] sprint-phase1-skill-direct — skills directly in sprint Phase 1
+- [x] reviewer-skills-boilerplate — shared reviewer-context skill, Phase 1 deduplicated
+- [x] sanitize-log-field-dead-copy — dead function copy removed
+- [x] task-gate-suppress-advisory — suppress stdout noise on skip
+- [x] wip-checkpoint-modulo-guard — counter write before modulo check
+- [x] failure-context-zf-guard — zie-framework existence guard
+- [x] retro-format-skill-remove — deprecated retro-format skill deleted
+- [x] intent-sdlc-dead-guards — dead MAX_MESSAGE_LEN + redundant .strip() removed
+- [x] safety-check-compiled-blocks — COMPILED_BLOCKS in fallback path
+- [x] zie-status-git-velocity-cache — single git log command for velocity
+- [x] zie-implement-agent-mode-warn — warn-only agent-mode check
+- [x] pin-pytest-cve-2025-71176 — pytest >= 9.0.3
+- [x] zie-plan-notes-trim — Notes section removed
+- [x] stop-hooks-matcher-investigate — Stop hook matcher documented in hooks.json
+- [x] subagent-context-explore-guard — skip plan file read for Explore agents
+
 ---
 
 ## Ready — Approved Plans
@@ -33,31 +63,11 @@
 <!-- Audit 2026-03-26: 53 findings, score 73/100 -->
 <!-- Audit 2026-04-01: 9 findings added (4 HIGH, 5 MEDIUM) -->
 <!-- Audit 2026-04-02: Qwen3-coder-next deep review — 10 issues -->
+<!-- Audit 2026-04-04: Efficiency deep audit — 29 findings (14 HIGH, 2 MEDIUM, 13 LOW) — token/overhead focus -->
 
 <!-- CRITICAL -->
 
 <!-- HIGH -->
-
-<!-- MEDIUM -->
-
-<!-- LOW -->
-
----
-
-## Ready — Approved Plans
-
-<!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
-<!-- Order: Critical → High → Medium → Low -->
-
-<!-- CRITICAL -->
-
-<!-- HIGH -->
-
-- [x] qwen3-coder-next-deep-review — 10 issues (3 CRITICAL, 3 HIGH, 3 MEDIUM, 1 LOW):
-  - hooks.json async key, claude CLI dependency, symlink handling (CRITICAL)
-  - knowledge-hash EXCLUDE_PATHS, intent-sdlc case-insensitive, metachar guard (HIGH)
-  - command length, glob filtering, decision fallback (MEDIUM)
-  — [plan](plans/2026-04-02-qwen3-coder-next-deep-review.md) [✅ implemented] v1.16.1 2026-04-02
 
 <!-- MEDIUM -->
 
