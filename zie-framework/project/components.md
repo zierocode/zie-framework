@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-04-04 (v1.20.0)
+**Last updated:** 2026-04-06 (v1.21.0)
 
 ## Commands
 
@@ -18,7 +18,7 @@
 | /status | (reads files) | status snapshot | none |
 | /resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
 | /retro | (reads git log) | ADRs + brain memories | retro-format skill |
-| /sprint | (reads ROADMAP Next/Ready) | batch pipeline: spec+plan→implement→release→retro for all items; Phase 2 folded into Phase 1 inline retry (ADR-055, v1.19.0); dependency-detected | Agent, Skill |
+| /sprint | (reads ROADMAP Next/Ready) | batch pipeline: spec+plan→implement→release→retro; Phase 1 as Skill() chain (ADR-060); autonomous_mode=true for unattended run; Phase 4 auto-retro (v1.21.0) | Agent, Skill |
 | /audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | thin dispatcher → zie-audit skill (canonical); audit report + backlog (v1.19.0) | zie-audit skill |
 
 ## Skills

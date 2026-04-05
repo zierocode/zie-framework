@@ -68,3 +68,6 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-055 | Sprint Phase 2 Collapse | Sprint Phase 2 (plan) folded into Phase 1 parallel; spec+plan run as single concurrent wave. | Accepted |
 | ADR-056 | Pre-flight Guard Centralization | Canonical 3-step pre-flight extracted to command-conventions.md; 6 commands reference it by link instead of duplicating inline. | Accepted |
 | ADR-057 | Template Extraction Pattern | Large inline prompt blocks (>100 words) extracted to templates/ files; command retains one-line reference. | Accepted |
+| ADR-058 | Inline Reviewer Replaces Async Agent | impl-reviewer moved from async Agent spawn + polling to inline Skill(); gated on HIGH risk; auto-fix 1 retry then interrupt. | Accepted |
+| ADR-059 | Light Retro ADR Gate | Full ADR writing gated on `<!-- adr: required -->` in plan; absent → one-line summary only; ~80% retro overhead reduction. | Accepted |
+| ADR-060 | Autonomous Sprint Mode | autonomous_mode=true: clarity scoring, inline reviewers, auto-fix, auto-retro; only 3 interrupt cases. | Accepted |
