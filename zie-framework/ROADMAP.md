@@ -19,11 +19,14 @@
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
 
+- [ ] Lean Autonomous Sprint — [spec](specs/2026-04-06-lean-autonomous-sprint-design.md) · [plan](plans/2026-04-06-lean-autonomous-sprint.md)
+
 ---
 
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
+
 
 ---
 
