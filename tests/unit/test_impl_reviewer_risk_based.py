@@ -76,8 +76,13 @@ class TestLowRiskSignals:
 class TestReviewerGate:
     def test_reviewer_gated_on_high(self):
         t = text()
-        assert "risk_level" in t and "HIGH" in t and "@agent-impl-reviewer" in t, \
-            "Reviewer invocation must be present and gated by risk_level"
+        assert "risk_level" in t and "HIGH" in t, \
+            "Reviewer invocation must be gated by risk_level=HIGH"
+
+    def test_inline_review_gated_on_high(self):
+        t = text().lower()
+        assert "inline" in t and "high" in t, \
+            "Inline review must be present and gated on HIGH risk"
 
     def test_low_path_runs_make_test_unit(self):
         t = text()
@@ -85,11 +90,11 @@ class TestReviewerGate:
             "make test-unit must remain present for the LOW path"
 
     def test_reviewer_not_invoked_unconditionally(self):
-        t = text()
+        t = text().lower()
         lines = t.splitlines()
-        reviewer_lines = [i for i, ln in enumerate(lines) if "@agent-impl-reviewer" in ln]
-        assert reviewer_lines, "Reviewer invocation line must exist"
-        for idx in reviewer_lines:
+        inline_lines = [i for i, ln in enumerate(lines) if "inline" in ln and "review" in ln]
+        assert inline_lines, "Inline review line must exist in implement.md"
+        for idx in inline_lines:
             context_block = "\n".join(lines[max(0, idx - 10):idx + 1])
-            assert "HIGH" in context_block, \
-                f"@agent-impl-reviewer at line {idx+1} must be inside a HIGH risk guard"
+            assert "high" in context_block, \
+                f"Inline review at line {idx+1} must be inside a HIGH risk guard"

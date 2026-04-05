@@ -98,22 +98,39 @@ Flag handling is inline at each consuming step below.
 Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
 (reads `decisions/*.md` ADRs + `project/context.md`).
 
+## Autonomous Mode
+
+Set `autonomous_mode=true` for all downstream skill invocations.
+This flag suppresses interactive turns, approval gates, and agent spawns in spec-design, write-plan, and retro.
+
+**Interruption Protocol** — sprint pauses for user only in 3 cases:
+1. Backlog clarity score < 2 → ask 1 question per vague item, then continue
+2. Auto-fix failed after 1 retry → surface issue + interrupt
+3. Unresolvable dependency conflict between items → ask once before Phase 1
+
+**Clarity scoring** (per Next item needing spec — computed in Step 0 AUDIT):
+- +1 if `## Problem` has ≥ 2 sentences
+- +1 if `## Rough Scope` has content
+- +1 if title names a concrete action ("add X", "fix Y", "remove Z")
+- Score ≥ 2 → `[clarity: direct]` — write spec without Q&A
+- Score < 2 → `[clarity: ask]` — ask 1 clarifying question first, then write
+
 ## PHASE 1: SPEC ALL (Parallel)
 
 TaskCreate subject="Phase 1/4 — Spec All"
 
-```
-For each item in needs_spec (all launched concurrently — no cap):
-  - Spawn Agent(subagent_type="general-purpose", run_in_background=True):
-    prompt: "Run spec + plan workflow for slug: <slug>.
-    (1) Skill(spec-design, '<slug> quick') — write the spec
-    (2) Skill(spec-reviewer, '<slug>') — review and approve spec
-    (3) Skill(write-plan, '<slug>') — write the implementation plan
-    (4) Skill(plan-reviewer, '<slug>') — review and approve plan
-    Confirm both spec and plan are approved before returning.
-    Report: [spec-<slug>] ✓ or ❌ <issue>"
-    context_bundle: <from Step 0>
-```
+For `[clarity: ask]` items: ask 1 question per item first, then proceed.
+
+For each item in needs_spec (all launched concurrently — parallel Skill calls, passing `context_bundle`):
+1. `Skill(zie-framework:spec-design, '<slug> autonomous')` — writes spec, runs spec-reviewer inline, auto-approves
+2. After spec approved: `Skill(zie-framework:write-plan, '<slug>')` — writes plan
+3. Inline plan-reviewer: invoke `Skill(zie-framework:plan-reviewer)` in current context — no Agent spawn
+   - ✅ APPROVED → write `approved: true`, move ROADMAP Next → Ready automatically
+   - ❌ Issues Found → fix inline (1 pass) → re-check → auto-approve
+   - Second failure → interrupt (Interruption Protocol case 2)
+
+No intermediate general-purpose Agent spawn. Skills run directly in sprint context.
+On failure: inline retry once → if still failing → interrupt (Interruption Protocol case 2).
 
 Print: `"Phase 1: Speccing <N> items in parallel (all concurrent)..."`
 
@@ -173,15 +190,19 @@ TaskUpdate → Phase 3/4 complete
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 3/4 — 1 phase remaining`
 
-## PHASE 4: SPRINT RETRO
+## PHASE 4: SPRINT RETRO (auto)
 
 TaskCreate subject="Phase 4/4 — Retro"
+
+Auto-invoke retro inline — no user prompt. Retro runs automatically in light mode
+(ROADMAP Done + ADR-000-summary only). Full ADR writing triggered only if any shipped
+plan contains `<!-- adr: required -->`.
 
 ```bash
 zie-retro
 ```
 
-Print: `"Phase 5: Sprint retro..."`
+Print: `"Phase 4: Sprint retro (automatically)..."`
 TaskUpdate → Phase 4/4 complete
 Print progress bar: `████████████████████ 4/4 (100%)`
 Print ETA: `Sprint complete`

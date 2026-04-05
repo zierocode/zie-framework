@@ -10,7 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-<!-- -->
+- [x] lean-autonomous-sprint
 
 ---
 
@@ -19,7 +19,6 @@
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
 
-- [ ] Lean Autonomous Sprint — [spec](specs/2026-04-06-lean-autonomous-sprint-design.md) · [plan](plans/2026-04-06-lean-autonomous-sprint.md)
 
 ---
 

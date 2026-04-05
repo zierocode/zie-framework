@@ -16,8 +16,9 @@ class TestImplementResumePattern:
             "zie-implement.md must mention agent usage"
         )
 
-    def test_fresh_subagent_fallback_documented(self):
+    def test_failure_recovery_documented(self):
         src = self._src()
-        assert "fresh" in src or "new subagent" in src or "start" in src, (
-            "zie-implement.md must document what to do when session has ended"
+        t = src.lower()
+        assert "interrupt" in t or "surface" in t or "stuck" in t or "ask" in t, (
+            "zie-implement.md must document what to do when implementation fails"
         )

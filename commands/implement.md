@@ -63,15 +63,18 @@ Test level selection (print once before task loop, not per task):
 3. **Risk Classification** — set `risk_level = HIGH` or `LOW`:
    - HIGH: new function/class, changed behavior, external API call, file I/O, subprocess, non-test production code changed, or `<!-- review: required -->`
    - LOW: test-only, docs/config, rename/reformat, minor constant addition
-4. **Spawn async impl-reviewer** (HIGH only): `@agent-impl-reviewer` (background) with task description, AC, changed files, `context_bundle`. Record in pending list. Do NOT block.
-   - At each loop start: poll `reviewer_status` → `approved` clear; `issues_found` halt, fix, re-run `make test-unit`, re-invoke. Max 2 total iterations; confirm pass required. If 0 issues → APPROVED immediately.
+4. **Inline impl-review** (HIGH only): Check changed files in current context — no Agent spawn.
+   - Review changed files against task AC, project patterns, and `context_bundle` ADRs (if available)
+   - ✅ No issues → continue
+   - ❌ Issues found → auto-fix inline → `make test-unit`
+     - Pass → continue
+     - Fail after 1 retry → surface issue + interrupt (ask Zie)
 5. **→ LOW risk:** `make test-unit` + `[risk: LOW] Skipping impl-reviewer`.
 6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ T{N} done — {remaining} remaining`.
    - Checkpoint every 3 tasks. If `zie_memory_enabled=true`: Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
 
 ## When All Tasks Complete
 
-0. Wait for any still-pending reviewers (max 120s). Apply `issues_found` loop if needed.
 1. Run `make test-unit 2>&1 | tail -30` → capture output as `last_test_output`. **Run once — never re-run just to grep differently.** Fail → `Skill(zie-framework:debug)`. Also run `make test-int` (if available).
 2. `TaskCreate` verify task → `Skill(zie-framework:verify)` with `$ARGUMENTS={"test_output": "<last_test_output>", "scope": "tests-only"}` — passes captured output so verify skips re-running tests. → `TaskUpdate` completed.
 3. Update ROADMAP.md Now lane: `[ ]` → `[x]`.

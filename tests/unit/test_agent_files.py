@@ -79,42 +79,31 @@ class TestZieImplementCommand:
     def _read_command(self):
         return (COMMANDS_DIR / "implement.md").read_text()
 
-    def test_spawns_background_agent(self):
+    def test_inline_review_for_high_risk(self):
         text = self._read_command()
-        assert "@agent-impl-reviewer" in text, \
-            "zie-implement must invoke @agent-impl-reviewer (agent file, not skill)"
+        assert "inline" in text.lower() and "HIGH" in text, \
+            "zie-implement must describe inline review gated on HIGH risk"
 
-    def test_deferred_check_protocol_present(self):
+    def test_no_background_agent_spawn(self):
         text = self._read_command()
-        assert "reviewer_status" in text, \
-            "zie-implement must check reviewer_status for deferred results"
+        assert "@agent-impl-reviewer" not in text, \
+            "zie-implement must not spawn @agent-impl-reviewer background agent"
 
-    def test_pending_approved_issues_states_covered(self):
-        text = self._read_command()
-        for state in ("pending", "approved", "issues_found"):
-            assert state in text, \
-                f"zie-implement must handle reviewer_status: {state}"
+    def test_auto_fix_protocol_present(self):
+        t = text = self._read_command()
+        t = text.lower()
+        assert "auto-fix" in t or ("fix" in t and "retry" in t), \
+            "zie-implement must describe auto-fix protocol after review issues"
 
-    def test_final_wait_before_verify(self):
-        text = self._read_command()
-        assert "final-wait" in text or "still-pending" in text or \
-               "wait for any" in text.lower(), \
-            "zie-implement must wait for pending reviewers before verify step"
-
-    def test_120s_timeout_surfaced(self):
-        text = self._read_command()
-        assert "120" in text, \
-            "zie-implement must surface the 120s timeout threshold"
-
-    def test_max_3_iterations_preserved(self):
-        text = self._read_command()
-        assert "3" in text and "iteration" in text.lower(), \
-            "zie-implement must preserve max-3-iteration gate"
+    def test_interrupt_on_fix_failure(self):
+        t = self._read_command().lower()
+        assert "interrupt" in t or "surface" in t, \
+            "zie-implement must interrupt when auto-fix fails"
 
     def test_no_inline_impl_reviewer_skill(self):
         text = self._read_command()
         assert "Skill(zie-framework:impl-reviewer)" not in text, \
-            "inline Skill call must be replaced by @agent-impl-reviewer invocation"
+            "zie-implement must not call impl-reviewer as a Skill"
 
 
 class TestComponentsDocAgents:
