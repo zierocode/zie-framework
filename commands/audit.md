@@ -11,4 +11,4 @@ Parse `--focus <dim>` from `$ARGUMENTS` if present (e.g. `--focus security`).
 
 Invoke `Skill(zie-framework:zie-audit)` passing `--focus <dim>` or no args.
 
-The skill handles all audit phases, agent dispatch, synthesis, scoring, and backlog selection.
+Phases: [Phase 1/3] dimension research (Agent ✓), [Phase 2/3] synthesis, [Phase 3/3] backlog. [Research 1/15] per WebSearch.
