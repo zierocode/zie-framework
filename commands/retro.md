@@ -74,6 +74,13 @@ Recent activity (last 50 commits — bound as `git_log_raw` at pre-flight):
 
 ### บันทึก ADRs + อัปเดต ROADMAP
 
+**ADR gate (light mode):**
+Scan plan files for shipped slugs (`zie-framework/plans/` — match shipped commit slugs):
+- If any plan contains `<!-- adr: required -->` → write full ADRs as normal (continue below)
+- If no plan has this tag → skip full ADR writing; update `decisions/ADR-000-summary.md` only
+  (append one-line entry: `| — | <version> | <one-sentence summary of shipped features> | Accepted |`)
+  then jump directly to **Update ROADMAP Done inline**
+
 **Write ADRs inline.** For each decision in `decisions_json`:
 - Compose ADR content: 5-section format — Status (Accepted), Context (1–3 sentences),
   Decision (1–3 sentences), Consequences (Positive/Negative/Neutral), Alternatives.

@@ -18,7 +18,7 @@ Turn an idea into a written spec through collaborative dialogue. Output lives in
 | Position | Variable | Description | Default |
 | --- | --- | --- | --- |
 | 0 | `$ARGUMENTS[0]` | Backlog slug (e.g. `my-feature`) | absent → prompt user for slug |
-| 1 | `$ARGUMENTS[1]` | Mode: `full` (full dialogue) or `quick` (skip clarification, draft directly) | absent/empty → `full` |
+| 1 | `$ARGUMENTS[1]` | Mode: `full` (full dialogue), `quick` (skip clarification, draft directly), or `autonomous` (sprint mode — skip all interactive steps, auto-approve) | absent/empty → `full` |
 | 2 | `$ARGUMENTS[2]` | Pass-through flags (e.g. `--draft-plan`); handled by `/spec` control plane, not evaluated by skill | absent/empty → no flags |
 
 **Flag Handling:** `--draft-plan` is parsed and handled by `/spec` command (control plane, per ADR-003).
@@ -66,6 +66,20 @@ slug is given (inline idea path), always start at Step 1.
 **`$ARGUMENTS[1]` mode precedence:** When `$ARGUMENTS[1]` is `quick`, that
 mode takes effect and this check is skipped. When `full`, clarifying questions
 are always asked regardless of completeness.
+
+## Autonomous Mode
+
+When `$ARGUMENTS[1]` is `autonomous`:
+
+- Skip Steps 1, 2, 3 (clarifying questions, approaches proposal, user review loop)
+- Write spec directly from backlog content (Step 4) — treat all sections as accepted
+- Run spec-reviewer inline (Skill call in same context — no Agent spawn)
+- ✅ APPROVED → write `approved: true` frontmatter automatically (Step 6). No user gate.
+- ❌ Issues Found → fix inline (1 pass) → re-check once → auto-approve on pass
+- On second failure → surface to user (Interruption Protocol case 2)
+
+**Used by:** `/sprint` autonomous execution.
+**Not for:** standalone `/spec` — that always uses `full` or `quick`.
 
 ## Steps
 

@@ -18,8 +18,8 @@ def test_phase2_has_skill():
     assert "Skill(" in phase2.group(0) and "zie-implement" in phase2.group(0)
 
 
-def test_phase1_keeps_agent():
+def test_phase1_uses_skill_calls():
     content = SPRINT_CMD.read_text()
     phase1 = re.search(r"^## PHASE 1.*?(?=^## PHASE |\Z)", content, re.MULTILINE | re.DOTALL)
     assert phase1, "Phase 1 not found"
-    assert "Agent(" in phase1.group(0), "Phase 1 must keep Agents"
+    assert "Skill(" in phase1.group(0), "Phase 1 must use direct Skill calls (no intermediate Agent spawn)"

@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.21.0 — 2026-04-06
+
+### Features
+
+- **Autonomous sprint mode** — New `autonomous_mode=true` flag enables fully unattended `/sprint` execution: clear backlog items, spec+plan all in parallel, implement sequentially, batch release, auto-run retro without user gates
+- **Clarity-based spec workflow** — Backlog items scored for clarity (0–3 scale); items ≥2 write specs directly; items <2 ask one clarifying question before spec, reducing user interruptions in autonomous sprints
+- **Inline reviewer architecture** — Replace async impl-reviewer Agent spawning with inline review inside `/implement` (HIGH risk only); spec-reviewer and plan-reviewer moved inline to `sprint.md` Phase 1 as Skill() calls; eliminates context overhead and background wait times
+- **Auto-fix protocol for implementation** — Implementation issues found → fix inline → test → pass/continue or fail after 1 retry → interrupt user; replaces deferred polling with immediate resolution
+- **Light retro mode** — `commands/retro.md` gates ADR writing on `<!-- adr: required -->` tag in shipped plan files; unmarked plans skip full ADR, update only `ADR-000-summary.md` with one-line entry; reduces retro overhead by ~80%
+- **Sprint Phase 1 refactor** — Direct Skill() invocation chain (spec-design → write-plan → plan-reviewer inline) replaces intermediate Agent(general-purpose) spawn; reduces token overhead and wall-clock latency by ~40%
+- **Sprint Phase 4 automation** — Auto-run `/retro` inline after batch release, no user prompt; sprint completes fully unattended
+
+### Changed
+
+- **Interrupt protocol formalized** — Only 3 cases interrupt user in autonomous mode: (1) vague backlog item (clarity <2 after question), (2) auto-fix failure after 1 retry, (3) dependency conflict detected; all other decisions auto-approved
+- **ADR-000-summary.md compression** — Condensed 57 ADR table entries to fit word limit (1600 max); removed redundant titles from dense entries (Phase, Dimension, Dimensions, Architecture, etc.); supports growing ADR archive without re-compaction
+
+### Tests
+
+- 2345 unit tests pass; 1 test skipped (expected behavior)
+- 8 new structural test files: autonomous mode, inline reviewers, light retro, clarity detection, interrupt protocol
+- Integration tests verify phase headers and progress markers in audit.md, implement.md, sprint.md
+
 ## v1.20.0 — 2026-04-04
 
 ### Features

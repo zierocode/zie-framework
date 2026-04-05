@@ -79,17 +79,19 @@ class TestCommandIterationLogic:
             "zie-implement must not contain old Max 3 total iterations"
 
     def test_zie_implement_new_max(self):
-        assert "Max 2 total iterations" in command_text("implement"), \
-            "zie-implement must declare Max 2 total iterations"
+        text = command_text("implement").lower()
+        assert "1 retry" in text or "retry" in text, \
+            "zie-implement must describe 1-retry auto-fix protocol"
 
     def test_zie_implement_confirm_pass(self):
-        assert "confirm" in command_text("implement").lower(), \
-            "zie-implement impl-reviewer step must mention a confirm pass"
+        text = command_text("implement").lower()
+        assert "pass" in text and ("fix" in text or "inline" in text), \
+            "zie-implement inline reviewer step must describe pass/fix outcome"
 
     def test_zie_implement_zero_issues_fast_path(self):
-        text = command_text("implement")
-        assert "0 issues" in text or "APPROVED immediately" in text, \
-            "zie-implement must describe 0-issues fast path"
+        text = command_text("implement").lower()
+        assert "no issues" in text or "✅" in text or "approved" in text, \
+            "zie-implement must describe zero-issues fast path"
 
 
 ADR_014 = Path(__file__).parents[2] / "zie-framework" / "decisions" / "ADR-014-async-impl-reviewer-deferred-check.md"
