@@ -7,6 +7,8 @@ effort: low
 
 # /release — Release Gate → Merge dev→main → Tag
 
+> **Context tip:** If called after a long session (sprint / implement), run `/compact` first to free context before proceeding.
+
 ## ตรวจสอบก่อนเริ่ม
 
 1. Check `zie-framework/` exists → if not, tell user to run `/init` first.

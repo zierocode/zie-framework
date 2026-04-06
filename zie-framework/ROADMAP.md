@@ -33,6 +33,8 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] context-token-reduction-hotfix — zie-release-mode agent (fresh-context release), sprint context_bundle pass-through (plan-reviewer), compact-hint two-level thresholds (80% soft / 90% hard), ADR-000-summary.md trim to 1559w — 2345 unit tests — v1.22.0 2026-04-06
+
 - [x] lean-autonomous-sprint — autonomy + lightweight retro: autonomous mode flag, clarity detection, interruption protocol, inline reviewers (spec/plan/impl), auto-fix protocol, light retro (ADR gate), sprint Phase 1 refactor (Skill calls not Agent), Phase 4 auto-run retro — 2345 unit tests — v1.21.0 2026-04-06
 
 - [x] lean-efficiency-sprint-v1.20.0 — 5 items: preflight-consolidation (canonical pre-flight guard + 6-command consolidation), reviewer-context-dedup (delete dead skill + 213w cleanup), phase-prose-cleanup (200w reduction sprint/retro/release), init-scan-prompt-extract (400w prompt → template + compress step 0+7), argument-parsing-inline (Python parse blocks → argument tables in spec+sprint) — 2323 unit + 59 integration tests — v1.20.0 2026-04-04

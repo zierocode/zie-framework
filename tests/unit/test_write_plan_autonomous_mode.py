@@ -37,5 +37,5 @@ class TestWritePlanAutonomousMode:
         phase1_idx = t.index("PHASE 1")
         phase2_idx = t.index("PHASE 2")
         phase1 = t[phase1_idx:phase2_idx]
-        assert "Skill(zie-framework:plan-reviewer)" in phase1, \
+        assert "Skill(zie-framework:plan-reviewer" in phase1, \
             "Sprint Phase 1 must call plan-reviewer via Skill (not Agent spawn)"

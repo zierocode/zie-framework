@@ -77,6 +77,9 @@ ship: ## Run tests then prompt for /zie-release
 	@echo "All tests passed. Run /zie-release for the full release gate."
 
 # ── Release ───────────────────────────────────────────────────────────────────
+zie-release: ## Run /release in a fresh agent context — avoids context overflow (usage: make zie-release)
+	claude --agent zie-framework:zie-release-mode
+
 bump: ## Bump VERSION + PROJECT.md + _bump-extra (usage: make bump NEW=1.2.3)
 ifndef NEW
 	$(error NEW is required — usage: make bump NEW=1.2.3)

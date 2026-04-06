@@ -44,10 +44,18 @@ try:
         sys.exit(0)
 
     pct = current / max_tokens
-    if pct >= threshold:
+    hard_threshold = config.get("compact_hard_threshold", 0.9)
+    if pct >= hard_threshold:
+        print(
+            f"[zie-framework] Context at {int(pct * 100)}% \u2014 too full for heavy commands."
+            " Start a fresh session instead: run `make zie-release` in a new terminal"
+            " for release, or open a new Claude window for other commands."
+        )
+    elif pct >= threshold:
         print(
             f"[zie-framework] Context at {int(pct * 100)}%"
-            " \u2014 consider running /compact to free space before continuing."
+            " \u2014 approaching limit. Use `make zie-release` for release"
+            " or start a new session before running heavy commands."
         )
 except Exception as e:
     print(f"[zie-framework] compact-hint: {e}", file=sys.stderr)

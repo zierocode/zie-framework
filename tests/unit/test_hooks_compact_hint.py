@@ -42,7 +42,7 @@ class TestHintPrinted:
         r = run_hook(cwd, event=event)
         assert r.returncode == 0
         assert "[zie-framework] Context at 85%" in r.stdout
-        assert "/compact" in r.stdout
+        assert "make zie-release" in r.stdout
 
     def test_hint_printed_at_exactly_threshold(self, tmp_path):
         """Boundary: event at exactly 80% → hint printed (>= not >)."""

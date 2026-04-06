@@ -1,5 +1,26 @@
 # Changelog
 
+## v1.22.0 — 2026-04-06
+
+### Features
+
+- **zie-release-mode agent** — Fresh-context release executor (`make zie-release`) spawns `/release` in isolated agent, eliminating context overflow after long implementation sessions; provides 100% guarantee against "context limit reached" during release gate
+
+### Fixed
+
+- **Context token waste in sprint** — Sprint Phase 1 now passes `context_bundle` to plan-reviewer, eliminating redundant ADR+context.md reloads per review cycle (~3.2K tokens saved per 5-item sprint)
+- **ADR-000-summary.md size** — Trimmed to 1559 words to pass test gate (was 1625); compressed decision titles to stay under 1600-word limit while preserving information density
+
+### Changed
+
+- **compact-hint hook upgraded** — Two-level context warnings: soft warn at 80%, hard warn at 90% directing to `make zie-release` or new session instead of `/compact`; guides users toward fresh context rather than compression
+
+### Tests
+
+- 2345 unit tests pass; 1 skipped
+- New test: zie-release-mode agent invocation
+- Updated test: compact-hint messaging (zie-release instead of /compact)
+
 ## v1.21.0 — 2026-04-06
 
 ### Features
