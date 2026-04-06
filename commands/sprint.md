@@ -124,7 +124,7 @@ For `[clarity: ask]` items: ask 1 question per item first, then proceed.
 For each item in needs_spec (all launched concurrently — parallel Skill calls, passing `context_bundle`):
 1. `Skill(zie-framework:spec-design, '<slug> autonomous')` — writes spec, runs spec-reviewer inline, auto-approves
 2. After spec approved: `Skill(zie-framework:write-plan, '<slug>')` — writes plan
-3. Inline plan-reviewer: invoke `Skill(zie-framework:plan-reviewer)` in current context — no Agent spawn
+3. Inline plan-reviewer: invoke `Skill(zie-framework:plan-reviewer, context_bundle=<context_bundle>)` in current context — no Agent spawn
    - ✅ APPROVED → write `approved: true`, move ROADMAP Next → Ready automatically
    - ❌ Issues Found → fix inline (1 pass) → re-check → auto-approve
    - Second failure → interrupt (Interruption Protocol case 2)
@@ -150,6 +150,8 @@ TaskUpdate → Phase 1/4 complete
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 1/4 — 3 phases remaining`
 
+**Context checkpoint:** Run `/compact` now to clear Phase 1 conversation history before implementation.
+
 ## PHASE 2: IMPLEMENT (Sequential, WIP=1)
 
 TaskCreate subject="Phase 2/4 — Implement"
@@ -168,6 +170,8 @@ After all impl complete: all items marked `[x]` in Now.
 TaskUpdate → Phase 2/4 complete
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 2/4 — 2 phases remaining`
+
+**Context checkpoint:** Run `/compact` now to clear implementation history before release.
 
 ## PHASE 3: BATCH RELEASE
 
