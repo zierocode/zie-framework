@@ -21,14 +21,19 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 (ROADMAP.md not found → STOP and run /init to initialize this project.)
 
 1. **Pre-flight: Ready lane guard** — read Ready lane:
-   - Empty → auto-run `/plan` → get approval → continue. If still empty → STOP: "Ready lane is empty."
+   - Empty → auto-run `/plan` → get approval → continue. If still empty → STOP: "No approved plan in Ready lane. Run /plan first."
    - Read plan header only: everything up to (not including) the first `### Task` heading — check frontmatter for `approved: true`.
    - Not approved → STOP: "Plan in Ready lane is not approved — run /plan to get approval."
-4. Pull first Ready item → move to Now.
-5. Check uncommitted work: warn if implementation files untracked.
-6. Read `zie-framework/.config` for context.
-7. If `zie_memory_enabled=true` and resuming: `mcp__plugin_zie-memory_zie-memory__recall` `tags=[wip]` to restore context.
-8. `TaskCreate` for each plan task.
+
+2. **Pre-flight: WIP=1 guard** — read Now lane:
+   - Not empty → STOP: "WIP=1 active: '<task>'. Finish or release before starting new work."
+   - (Pass-through if Now lane is empty — proceed.)
+
+3. Pull first Ready item → move to Now.
+4. Check uncommitted work: warn if implementation files untracked.
+5. Read `zie-framework/.config` for context.
+6. If `zie_memory_enabled=true` and resuming: `mcp__plugin_zie-memory_zie-memory__recall` `tags=[wip]` to restore context.
+7. `TaskCreate` for each plan task.
 
 ## Task Parallelism
 

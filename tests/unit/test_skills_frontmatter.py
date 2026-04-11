@@ -69,10 +69,10 @@ class TestInternalProcessSkillsFrontmatter:
 
 
 class TestPlanningSkillsFrontmatter:
-    def test_spec_design_effort_high(self):
+    def test_spec_design_effort_medium(self):
         fm = read_frontmatter("spec-design")
-        assert fm.get("effort") == "high", \
-            "spec-design must have effort: high"
+        assert fm.get("effort") == "medium", \
+            "spec-design must have effort: medium (lowered from high per ADR-063 effort routing)"
 
     def test_write_plan_effort_low(self):
         fm = read_frontmatter("write-plan")

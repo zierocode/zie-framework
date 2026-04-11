@@ -81,12 +81,23 @@ Scan plan files for shipped slugs (`zie-framework/plans/` — match shipped comm
   (append one-line entry: `| — | <version> | <one-sentence summary of shipped features> | Accepted |`)
   then jump directly to **Update ROADMAP Done inline**
 
-**Write ADRs inline.** For each decision in `decisions_json`:
+**Write ADRs inline** (parallel with ROADMAP update — different target files, no race):
+Launch ADR writes and ROADMAP update as two parallel tool calls in a single message:
+
+→ **ADR writes:** For each decision in `decisions_json`:
 - Compose ADR content: 5-section format — Status (Accepted), Context (1–3 sentences),
   Decision (1–3 sentences), Consequences (Positive/Negative/Neutral), Alternatives.
 - Call `Write` → `zie-framework/decisions/ADR-<NNN>-<slug>.md`
 - Print `[ADR N/total]` after each file.
 - On error: print `[zie-framework] retro: ADR write failed — <error>` and continue.
+
+→ **Update ROADMAP Done** (parallel with ADR writes):
+- Use `roadmap_raw` (bound at pre-flight — no re-read needed).
+- Move shipped items from `shipped_items` to the `## Done` section with date and version tag.
+- Call `Edit` (or `Write`) to persist the updated file.
+- On error: print `[zie-framework] retro: ROADMAP update failed — <error>` and continue.
+
+Wait for both to complete, then:
 
 **Update ADR-000-summary.md** — if any new ADR files were written this session:
 - For each new `ADR-<NNN>-<slug>.md` just written: append 1-line entry to
@@ -94,12 +105,6 @@ Scan plan files for shipped slugs (`zie-framework/plans/` — match shipped comm
   `| ADR-NNN | Title | One-sentence decision | Accepted |`
 - If `ADR-000-summary.md` missing → create it with table header then append entries.
 - Skip if no new ADRs were written.
-
-**Update ROADMAP Done inline.**
-- Use `roadmap_raw` (bound at pre-flight — no re-read needed).
-- Move shipped items from `shipped_items` to the `## Done` section with date and version tag.
-- Call `Edit` (or `Write`) to persist the updated file.
-- On error: print `[zie-framework] retro: ROADMAP update failed — <error>` and continue.
 
 ### Done-rotation (inline)
 

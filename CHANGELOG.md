@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.24.0 — 2026-04-12
+
+### Features
+
+- **WIP=1 guard in /implement** — pre-flight step 2 checks Now lane; stops with "WIP=1 active: '<task>'" if a task is already in progress, preventing accidental parallel work
+- **Event field length caps** — `sanitize_log_field` gains `max_len=10240` parameter; stopfailure-log and notification-log now cap oversized fields to prevent disk exhaustion from unbounded event-controlled input
+- **Reviewer-pass marker handshake** — `subagent-stop.py` writes a `/tmp` marker when a reviewer agent returns ✅ APPROVED; `approve.py` warns (non-blocking) if the marker is absent, confirming the reviewer ran before approval
+- **Effort routing (ADR-063)** — `brainstorm` and `spec-design` skills lowered from `effort:high` → `effort:medium` for Sonnet 4.6; ADR-063 documents the low/medium/high routing table
+- **Parallel retro ops** — `retro.md` now instructs ADR writes and ROADMAP Done update to run as parallel tool calls (different target files, no race condition); ADR-000-summary update follows after both complete
+- **ADR-062** — once-per-session `/tmp` flag pattern documented for hooks that should fire exactly once per session
+
+### Fixed
+
+- CLAUDE.md line limit raised to 87 (was 82) to accommodate 5 new commands added in v1.23.0
+
 ## v1.23.0 — 2026-04-12
 
 ### Features

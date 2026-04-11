@@ -7,7 +7,7 @@ agent: general-purpose
 allowed-tools: Read, Grep, Glob, WebSearch, Bash, Write
 argument-hint: "[topic]"
 model: sonnet
-effort: high
+effort: medium
 ---
 
 # zie-framework:brainstorm — Discovery & Handoff
