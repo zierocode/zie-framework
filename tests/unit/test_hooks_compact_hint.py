@@ -1,12 +1,24 @@
 """Tests for hooks/compact-hint.py"""
 import json
 import os
+import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "compact-hint.py")
+
+
+def _clean_tier_flags(cwd_path: Path, session_id: str = "nosid") -> None:
+    """Delete any stale compact tier flags for this project + session."""
+    safe_project = re.sub(r'[^a-zA-Z0-9]', '-', cwd_path.name)
+    safe_sid = re.sub(r'[^a-zA-Z0-9]', '-', session_id) if session_id else "nosid"
+    tmp = Path(tempfile.gettempdir())
+    for tier in ("70", "80", "90"):
+        flag = tmp / f"zie-{safe_project}-compact-tier-{tier}-{safe_sid}"
+        flag.unlink(missing_ok=True)
 
 
 def run_hook(tmp_cwd, event=None, config=None, env_overrides=None):
@@ -19,6 +31,9 @@ def run_hook(tmp_cwd, event=None, config=None, env_overrides=None):
         zf = Path(tmp_cwd) / "zie-framework"
         zf.mkdir(parents=True, exist_ok=True)
         (zf / ".config").write_text(json.dumps(config))
+    # Clean stale tier flags so each test starts fresh
+    sid = event.get("session_id", "") if isinstance(event, dict) else ""
+    _clean_tier_flags(Path(tmp_cwd), sid)
     return subprocess.run(
         [sys.executable, HOOK],
         input=json.dumps(event),
@@ -54,10 +69,10 @@ class TestHintPrinted:
 
 
 class TestNoHint:
-    def test_no_hint_when_below_threshold(self, tmp_path):
-        """Event at 70% with default threshold 0.8 → no stdout output."""
+    def test_no_hint_when_below_soft_threshold(self, tmp_path):
+        """Event at 65% — below all thresholds (soft=70%) → no stdout output."""
         cwd = make_cwd(tmp_path)
-        event = {"context_window": {"current_tokens": 700, "max_tokens": 1000}}
+        event = {"context_window": {"current_tokens": 650, "max_tokens": 1000}}
         r = run_hook(cwd, event=event)
         assert r.returncode == 0
         assert r.stdout.strip() == ""
@@ -92,11 +107,11 @@ class TestNoHint:
 
 class TestThresholdConfig:
     def test_threshold_configurable(self, tmp_path):
-        """compact_hint_threshold=0.9 in .config → no hint at 85%, hint at 91%."""
+        """compact_hint_threshold=0.9, soft_threshold=0.9 → no hint at 85%, hint at 91%."""
         cwd = make_cwd(tmp_path)
-        config = {"compact_hint_threshold": 0.9}
+        config = {"compact_hint_threshold": 0.9, "compact_soft_threshold": 0.9}
 
-        # 85% — below custom threshold → no hint
+        # 85% — below custom thresholds → no hint
         event_85 = {"context_window": {"current_tokens": 850, "max_tokens": 1000}}
         r85 = run_hook(cwd, event=event_85, config=config)
         assert r85.returncode == 0

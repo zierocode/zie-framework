@@ -144,6 +144,25 @@ try:
 
     print("\n".join(lines))
 
+    # ── Session continuity snapshot (from .remember/now.md) ───────────────────
+    try:
+        now_buf = cwd / ".remember" / "now.md"
+        if now_buf.is_file():
+            buf_text = now_buf.read_text().strip()
+            if buf_text:
+                # Extract first meaningful content line (skip headings + blanks)
+                snippet = ""
+                for line in buf_text.splitlines():
+                    stripped = line.strip()
+                    if stripped and not stripped.startswith("#"):
+                        snippet = stripped[:120]
+                        break
+                if snippet:
+                    print(f"[zie-framework] Last session: {snippet}")
+    except Exception as _e:
+        if not isinstance(_e, (IsADirectoryError, PermissionError)):
+            print(f"[zie-framework] session-resume: continuity read skipped: {_e}", file=sys.stderr)
+
     # ── Framework self-awareness block ────────────────────────────────────────
 
     # Staleness check: warn if PROJECT.md older than latest git commit
