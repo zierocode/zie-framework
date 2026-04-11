@@ -379,6 +379,24 @@ try:
     if gate_msg is None and no_track_msg is None and (not intent_cmd or best == "status"):
         guidance_msg = _positional_guidance(roadmap_content, cwd, message)
 
+    # ── Read pattern aggregate for personalized thresholds ───────────────────
+    _agg_path = project_tmp_path("pattern-aggregate", cwd.name)
+    _pattern_agg: dict = {}
+    try:
+        if _agg_path.exists():
+            _pattern_agg = json.loads(_agg_path.read_text())
+    except Exception:
+        pass  # Missing or corrupt aggregate — use defaults
+    _most_common_stage = _pattern_agg.get("most_common_stage", "")
+
+    # Suppress pipeline-position hint when user consistently works at implement stage
+    # (they know the pipeline; don't nag with "start with /spec" on every message)
+    _suppress_guidance = (
+        guidance_msg is not None
+        and _most_common_stage == "implement"
+        and best in ("implement", "status")
+    )
+
     # ── Build combined context ────────────────────────────────────────────────
     parts = []
     if gate_msg:
@@ -387,7 +405,7 @@ try:
         parts.append(no_track_msg)
     elif intent_cmd:
         parts.append(f"intent:{best} → {intent_cmd}")
-    if guidance_msg:
+    if guidance_msg and not _suppress_guidance:
         parts.append(guidance_msg)
     # State suffix: omit when idle + no active task + unambiguous intent (score >= 2)
     _best_score = scores.get(best, 0) if best else 0

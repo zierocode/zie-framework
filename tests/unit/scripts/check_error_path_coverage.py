@@ -27,6 +27,7 @@ HOOKS_IN_SCOPE = [
     "design-tracker",
     "stop-capture",
     "quality-gate",
+    "session-learn",
 ]
 
 # Map hook name → keyword that would appear in a test ID covering that hook
@@ -34,6 +35,7 @@ _HOOK_KEYWORDS = {h: h.replace("-", "_").replace(".", "_") for h in HOOKS_IN_SCO
 # Override ambiguous mappings
 _HOOK_KEYWORDS["safety-check"] = "safety_check"
 _HOOK_KEYWORDS["safety_check_agent"] = "safety_check_agent"
+_HOOK_KEYWORDS["session-learn"] = "adaptive_learning"  # error-path in test_adaptive_learning.py
 
 
 def main():

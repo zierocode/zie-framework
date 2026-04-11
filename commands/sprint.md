@@ -22,6 +22,12 @@ Run a complete sprint cycle: spec+plan all items concurrently (no cap), implemen
    completes successfully (after retro), delete `.zie/handoff.md`.
    If handoff.md is malformed (missing frontmatter) → warn and fall back to
    manual prompt mode.
+7. **Sprint resume check** — Read `zie-framework/.sprint-state` if it exists:
+   - Parse JSON: `{phase, items, completed_phases, remaining_items, started_at}`
+   - If found, ask: `"Incomplete sprint found (phase {phase}/4, {N} items remaining). Resume? (yes / restart)"`
+   - `yes` → skip audit, jump to the phase stored in state, use remaining_items
+   - `restart` → delete `.sprint-state`, proceed with fresh sprint
+   - If file is malformed → delete it, proceed fresh
 
 ## Arguments
 
@@ -152,6 +158,7 @@ Wait for all Phase 1 agents → collect results.
 
 After Phase 1 (+ any retries): reload ROADMAP → bind as `roadmap_post_phase1`.
 TaskUpdate → Phase 1/4 complete
+Write `zie-framework/.sprint-state` → `{"phase": 2, "items": <all_slugs>, "completed_phases": [1], "remaining_items": <ready_slugs>, "started_at": <iso_ts>}`
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 1/4 — 3 phases remaining`
 
@@ -173,6 +180,7 @@ For each item in priority order:
 
 After all impl complete: all items marked `[x]` in Now.
 TaskUpdate → Phase 2/4 complete
+Write `zie-framework/.sprint-state` → `{"phase": 3, "items": <all_slugs>, "completed_phases": [1, 2], "remaining_items": [], "started_at": <iso_ts>}`
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 2/4 — 2 phases remaining`
 
@@ -196,6 +204,7 @@ zie-release --bump-to=<version_override>
 
 Print: `"Phase 4: Batch release..."`
 TaskUpdate → Phase 3/4 complete
+Write `zie-framework/.sprint-state` → `{"phase": 4, "items": <all_slugs>, "completed_phases": [1, 2, 3], "remaining_items": [], "started_at": <iso_ts>}`
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 3/4 — 1 phase remaining`
 
@@ -213,6 +222,7 @@ zie-retro
 
 Print: `"Phase 4: Sprint retro (automatically)..."`
 TaskUpdate → Phase 4/4 complete
+Delete `zie-framework/.sprint-state` (sprint complete — no resume needed)
 Print progress bar: `████████████████████ 4/4 (100%)`
 Print ETA: `Sprint complete`
 
