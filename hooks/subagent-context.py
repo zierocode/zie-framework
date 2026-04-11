@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""SubagentStart hook — inject SDLC context into Explore/Plan subagents."""
+"""SubagentStart hook — inject SDLC context into subagents per per-agent budget table.
+
+ADR-046 superseded: the Explore/Plan-only guard is replaced by AGENT_BUDGETS
+which handles all agent types explicitly with a conservative default for unknowns.
+
+Session cache: first inject per session writes a flag; subsequent SubagentStart
+events for the same project skip inject to avoid redundant context.
+"""
 import json
 import os
 import re
@@ -7,27 +14,67 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
+from utils_io import atomic_write, project_tmp_path
 from utils_roadmap import parse_roadmap_section_content, read_roadmap_cached
+
+# Per-agent context budget table (supersedes ADR-046 Explore/Plan guard).
+# Value: True = inject context; False = skip inject entirely.
+AGENT_BUDGETS = {
+    "spec-reviewer":  True,   # receives spec file + ADR summary
+    "plan-reviewer":  True,   # receives plan + spec + ADR summary
+    "impl-reviewer":  True,   # receives changed files + plan
+    "resync":         True,   # receives git log + file structure
+    "Explore":        True,
+    "Plan":           True,
+    "brainstorm":     False,  # skill has own Phase 1 discovery — no injection
+}
+_DEFAULT_INJECT = False  # conservative default: don't inject unknown agent types
+
 
 # ── Outer guard ───────────────────────────────────────────────────────────────
 
 try:
     event = read_event()
     agent_type = event.get("agentType", "")
-    if not re.search(r'Explore|Plan', agent_type, re.IGNORECASE):
-        sys.exit(0)
     cwd = get_cwd()
     if not (cwd / "zie-framework").exists():
         sys.exit(0)
 except Exception:
     sys.exit(0)
 
+# ── Budget table check ────────────────────────────────────────────────────────
+
+# Normalize: case-insensitive match against budget table keys
+_should_inject = _DEFAULT_INJECT
+for key, inject in AGENT_BUDGETS.items():
+    if re.search(re.escape(key), agent_type, re.IGNORECASE):
+        _should_inject = inject
+        break
+
+if not _should_inject:
+    sys.exit(0)
+
+# ── Session cache check ───────────────────────────────────────────────────────
+# Cache is session-scoped: key on session_id so a new session always injects.
+# If session_id is absent (spec: fallback to always-inject), skip cache entirely.
+
+session_id = event.get("session_id", "")
+project = cwd.name
+
+if session_id:
+    safe_sid = re.sub(r'[^a-zA-Z0-9]', '-', session_id)
+    cache_flag = project_tmp_path(f"session-context-{safe_sid}", project)
+    if cache_flag.exists():
+        # Already injected this session — skip to avoid redundant context
+        sys.exit(0)
+else:
+    cache_flag = None  # no session_id → always inject (spec fallback)
+
 # ── Inner operations ──────────────────────────────────────────────────────────
 
 feature_slug = "none"
 active_task = "unknown"
 adr_count = "unknown"
-session_id = event.get("session_id", "default")
 
 # Read ROADMAP Now lane (via session cache)
 try:
@@ -46,7 +93,7 @@ try:
 except Exception as e:
     print(f"[zie-framework] subagent-context: {e}", file=sys.stderr)
 
-# Early exit when idle — no active task, zero signal to emit
+# Early exit when idle
 if active_task == "none" and feature_slug == "none":
     sys.exit(0)
 
@@ -101,3 +148,12 @@ else:
         f"ADRs: {adr_count}"
     )
 print(json.dumps({"additionalContext": payload}))
+
+# Write session cache flag so subsequent SubagentStart events skip inject
+# cache_flag is None when session_id was absent (spec fallback: always inject)
+if cache_flag is not None:
+    try:
+        atomic_write(cache_flag, "cached")
+    except Exception as e:
+        print(f"[zie-framework] subagent-context: cache write failed: {e}", file=sys.stderr)
+        # Non-fatal — next subagent will just inject again
