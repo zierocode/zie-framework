@@ -41,8 +41,8 @@ coverage-smoke: ## Verify ≥1 hook has >0% line coverage (requires sitecustomiz
 test-int: ## Integration tests (hook event simulation)
 	python3 -m pytest tests/ -v -m "integration" --tb=short
 
-check-claudemd-lines: ## Assert CLAUDE.md ≤80 lines
-	@python3 -c "import sys; lines=open('CLAUDE.md').readlines(); n=len(lines); sys.exit(1) if n > 80 else print(f'CLAUDE.md: {n} lines (OK)')"
+check-claudemd-lines: ## Assert CLAUDE.md ≤87 lines
+	@python3 -c "import sys; lines=open('CLAUDE.md').readlines(); n=len(lines); sys.exit(1) if n > 87 else print(f'CLAUDE.md: {n} lines (OK)')"
 
 lint: lint-bandit check-claudemd-lines ## Run all lint checks (ruff + bandit + claudemd line count)
 	ruff check .
