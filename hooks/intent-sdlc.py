@@ -82,6 +82,11 @@ PATTERNS = {
         r"\bspike\b", r"\bexplore\b", r"\binvestigate\b", r"\bresearch\b",
         r"\bprototype\b", r"proof.*of.*concept", r"\bpoc\b", r"time.?box",
     ],
+    "brainstorm": [
+        r"\bimprove\b", r"what if", r"\bresearch\b", r"deep dive",
+        r"อยากให้มี", r"ควรจะ", r"น่าจะเพิ่ม", r"ปรับอะไรดี",
+        r"คิดว่าขาดอะไร", r"\bexplore\b",
+    ],
 }
 
 COMPILED_PATTERNS = {
@@ -103,6 +108,7 @@ SUGGESTIONS = {
     "hotfix":    "/hotfix",
     "chore":     "/chore",
     "spike":     "/spike",
+    "brainstorm": "invoke zie-framework:brainstorm skill",
 }
 
 # ── SDLC context constants ────────────────────────────────────────────────────
