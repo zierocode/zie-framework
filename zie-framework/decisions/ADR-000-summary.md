@@ -72,3 +72,8 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-059 | Light Retro ADR Gate | Full ADR writing gated on `<!-- adr: required -->` in plan; absent → one-line summary only; ~80% retro overhead reduction. | Accepted |
 | ADR-060 | Autonomous Sprint Mode | autonomous_mode=true: clarity scoring, inline reviewers, auto-fix, auto-retro; only 3 interrupt cases. | Accepted |
 | — | v1.22.0 | zie-release-mode agent (fresh-context via `make zie-release`), sprint context_bundle pass-through to plan-reviewer, compact-hint two-level thresholds (80% warn / 90% redirect). | Accepted |
+| ADR-061 | Context Efficiency Budget Table | Token budget table: hooks <500t, commands <2000t, agents <10000t; load-context once per session not per task. | Accepted |
+| ADR-062 | Once-Per-Session /tmp Flag Pattern | Once-per-session behavior via scoped `/tmp/zie-{project}/` flags; hooks write flag on first fire, check on subsequent calls. | Accepted |
+| ADR-063 | Effort Routing Strategy | Effort level routing: low (status/single-step), medium (multi-step incl. brainstorm+spec-design), high (sprint orchestrator only). | Accepted |
+| — | v1.23.0 | Sprint A+B: 3-tier compact-hint, brainstorm skill, conversation capture, /rescue /health /next, code-quality-gate, sprint-reliability, adaptive-learning. | Accepted |
+| — | v1.24.0 | Sprint C+D: WIP=1 implement guard, event field length caps, reviewer-pass marker, effort routing ADR-063, parallel retro ops. | Accepted |
