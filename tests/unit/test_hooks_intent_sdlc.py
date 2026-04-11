@@ -373,8 +373,10 @@ class TestNoActiveTrackSuggestion:
         assert r.stdout.strip() == ""
 
     def test_spike_and_chore_options_present(self, tmp_path):
+        # Use a message with only one sprint signal (score<2) so new-intent scoring
+        # doesn't short-circuit to sprint hint before reaching no-active-track logic.
         cwd = make_cwd_with_zf(tmp_path, "## Now\n\n## Next\n")
-        r = run_hook({"prompt": "start coding and implement this task"}, tmp_cwd=cwd)
+        r = run_hook({"prompt": "implement this task"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
         assert "/spike" in ctx
         assert "/chore" in ctx
