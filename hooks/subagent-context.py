@@ -62,11 +62,16 @@ session_id = event.get("session_id", "")
 project = cwd.name
 
 if session_id:
+    import time as _time
     safe_sid = re.sub(r'[^a-zA-Z0-9]', '-', session_id)
     cache_flag = project_tmp_path(f"session-context-{safe_sid}", project)
     if cache_flag.exists():
-        # Already injected this session — skip to avoid redundant context
-        sys.exit(0)
+        flag_age = _time.time() - cache_flag.stat().st_mtime
+        if flag_age < 7200:
+            # Already injected this session — skip to avoid redundant context
+            sys.exit(0)
+        # Stale flag (>2h) — delete and re-inject
+        cache_flag.unlink(missing_ok=True)
 else:
     cache_flag = None  # no session_id → always inject (spec fallback)
 

@@ -267,20 +267,19 @@ try:
         for p in compiled_pats
     )
 
-    if len(message) < 15 and not has_sdlc_keyword:
-        context = (
-            "[zie-framework] intent: unclear — "
-            "please clarify your request before proceeding"
-        )
-        print(json.dumps({"additionalContext": context}))
-        sys.exit(0)
+    if len(message) < 15:
+        if not has_sdlc_keyword:
+            context = (
+                "[zie-framework] intent: unclear — "
+                "please clarify your request before proceeding"
+            )
+            print(json.dumps({"additionalContext": context}))
+        sys.exit(0)  # short messages always exit (ambiguous even with keyword)
 
     if not has_sdlc_keyword:
         sys.exit(0)
 
-    # ── New-intent scoring (≥2 threshold, structured hint format) ────────────
-    # Sprint/fix/chore: score signals; if ≥2 → emit structured hint + exit
-    # (existing intents keep their >= 1 threshold below)
+    # ── New-intent signal tables (≥2 threshold, evaluated after roadmap read) ──
     NEW_INTENT_SIGNALS = {
         "sprint": [
             r"ทำเลย", r"\bimplement\b", r"\bbuild\b", r"สร้าง",
@@ -300,20 +299,6 @@ try:
         "fix":    "invoke /fix or /hotfix track",
         "chore":  "use /chore to track this maintenance task",
     }
-    for intent_name, signals in NEW_INTENT_SIGNALS.items():
-        compiled_signals = [re.compile(p, re.IGNORECASE) for p in signals]
-        score = sum(1 for p in compiled_signals if p.search(message))
-        if score >= 2:
-            hint = NEW_INTENT_HINTS[intent_name]
-            context = f"[zie-framework] intent: {intent_name} — {hint}"
-            print(json.dumps({"additionalContext": context}))
-            if intent_name == "sprint":
-                try:
-                    sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
-                    sprint_flag.write_text("active")
-                except Exception:
-                    pass
-            sys.exit(0)
 
     # ── Intent detection (no ROADMAP needed) ─────────────────────────────────
     intent_cmd = None
@@ -346,6 +331,25 @@ try:
 
     suggested_cmd = STAGE_COMMANDS.get(stage, "/status")
     test_status = get_test_status(cwd)
+
+    # ── New-intent scoring (≥2 threshold) ─────────────────────────────────────
+    # Sprint only fires when idle (no active Now lane item); fix/chore always fire.
+    for intent_name, signals in NEW_INTENT_SIGNALS.items():
+        if intent_name == "sprint" and active_task != "none":
+            continue  # user has planned work — they're already in the pipeline
+        compiled_signals = [re.compile(p, re.IGNORECASE) for p in signals]
+        score = sum(1 for p in compiled_signals if p.search(message))
+        if score >= 2:
+            hint = NEW_INTENT_HINTS[intent_name]
+            context = f"[zie-framework] intent: {intent_name} — {hint}"
+            print(json.dumps({"additionalContext": context}))
+            if intent_name == "sprint":
+                try:
+                    sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
+                    sprint_flag.write_text("active")
+                except Exception:
+                    pass
+            sys.exit(0)
 
     # ── Pipeline gate check ───────────────────────────────────────────────────
     gate_msg = None
