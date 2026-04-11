@@ -63,13 +63,11 @@ Test level selection (print once before task loop, not per task):
 3. **Risk Classification** — set `risk_level = HIGH` or `LOW`:
    - HIGH: new function/class, changed behavior, external API call, file I/O, subprocess, non-test production code changed, or `<!-- review: required -->`
    - LOW: test-only, docs/config, rename/reformat, minor constant addition
-4. **Inline impl-review** (HIGH only): Check changed files in current context — no Agent spawn.
-   - Review changed files against task AC, project patterns, and `context_bundle` ADRs (if available)
+4. **impl-reviewer** (HIGH only): <!-- BLOCKING: do not mark task complete until reviewer returns ✅ APPROVED -->
+   invoke `Skill(zie-framework:impl-reviewer)` with task AC, list of changed files, and `context_bundle`.
    - ✅ No issues → continue
-   - ❌ Issues found → auto-fix inline → `make test-unit`
-     - Pass → continue
-     - Fail after 1 retry → surface issue + interrupt (ask Zie)
-5. **→ LOW risk:** `make test-unit` + `[risk: LOW] Skipping impl-reviewer`.
+   - ❌ Issues found → auto-fix inline → `make test-unit` → if pass continue; if fail after 1 retry → surface to Zie
+5. **→ LOW risk:** `make test-unit` + print `[risk: LOW] Skipping impl-reviewer`.
 6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ T{N} done — {remaining} remaining`.
    - Checkpoint every 3 tasks. If `zie_memory_enabled=true`: Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
 

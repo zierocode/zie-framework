@@ -126,7 +126,8 @@ When `$ARGUMENTS[1]` is `autonomous`:
    **Out of Scope:** <list>
    ```
 
-5. **Spec reviewer loop** — invoke `Skill(zie-framework:spec-reviewer)` with:
+5. **Spec reviewer loop** — <!-- BLOCKING: do not write frontmatter (Step 6) until reviewer returns ✅ APPROVED -->
+   invoke `Skill(zie-framework:spec-reviewer)` with:
    - Path to spec file
    - Backlog item context
    - `context_bundle=<context_bundle>` (pass through for inline fast-path)
