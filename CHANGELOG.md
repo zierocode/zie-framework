@@ -1,5 +1,33 @@
 # Changelog
 
+## v1.23.0 — 2026-04-12
+
+### Features
+
+- **3-tier context warnings** — compact-hint.py upgraded to 3-tier system: soft hint at 70% (once/session), recommendation at 80%, hard warning at 90%; each tier fires only once per session via `/tmp` flags to prevent nag repetition
+- **Brainstorm skill** — 4-phase discovery skill: reads project context, researches via WebSearch (≤6 queries), synthesizes + presents, writes `.zie/handoff.md` for sprint pickup; sets `brainstorm-active` flag so stop-capture defers
+- **Conversation capture** — `design-tracker.py` UserPromptSubmit hook detects design signals (≥2 hits) and writes `design-mode` flag; `stop-capture.py` Stop hook captures session intent to `.zie/handoff.md` on session end
+- **Session continuity** — session-resume.py reads `.remember/now.md` WIP buffer and prints first non-heading line as "Last session:" context at startup
+- **Framework self-awareness** — session-resume.py: PROJECT.md staleness check vs git commit mtime, command map from SKILL.md, backlog nudge from ROADMAP Next lane; Playwright CVE-2025-59288 minimum version guard (1.55.1)
+- **Intent intelligence** — intent-sdlc.py: short-message gate (`<15 chars` always exits), brainstorm pattern detection, idle-gate for sprint scoring (only fires when `active_task=none`), threshold scoring for fix/chore/sprint intents (≥2 signals)
+- **Adaptive learning** — session-learn.py records stage+timestamp to `pattern-log.jsonl` on every session stop; rebuilds aggregate every 10 sessions; intent-sdlc.py reads aggregate to suppress pipeline-position guidance for experienced implement-stage users
+- **Sprint reliability** — `/sprint` writes `.sprint-state` JSON after each phase checkpoint; detects incomplete sprint on restart and offers resume/restart; state deleted on successful retro completion
+- **Code quality gate** — `quality-gate.py` PreToolUse:Bash hook fires on `git commit`; warn-only checks: coverage data presence, dead-code signals in staged diff, optional bandit scan; always exits 0
+- **Reviewer-pass marker** — `subagent-stop.py` writes `/tmp` marker when reviewer agent returns ✅ APPROVED; `approve.py` warns if marker absent (ensuring reviewer ran before approval)
+- **New commands** — `/next` (backlog ranking by impact+age−deps), `/rescue` (pipeline diagnosis), `/health` (hook health + config validation), `/brief` (display `.zie/handoff.md`), `/guide` (framework walkthrough)
+- **Mechanical reviewer gate** — `reviewer-gate.py` PreToolUse:Write|Edit blocks direct `approved:true` writes; only `hooks/approve.py` can set approval status
+
+### Fixed
+
+- **Subagent context stale cache** — Added 2h TTL to session-context cache flag in `subagent-context.py`; prevents stale flags from persisting across re-runs
+- **Sprint idle-gate** — Sprint scoring in NEW_INTENT_SIGNALS only fires when `active_task=none`; prevents spurious sprint hints mid-implementation
+
+### Tests
+
+- 2501 unit tests pass, 60 deselected
+- 15 hooks tracked with error-path coverage gate (was 12)
+- New test files: test_quality_gate.py, test_sprint_state.py, test_adaptive_learning.py, test_compact_hint_tiers.py
+
 ## v1.22.0 — 2026-04-06
 
 ### Features

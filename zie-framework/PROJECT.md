@@ -4,7 +4,7 @@ AI-native SDLC framework plugin for Claude Code. ติดตั้ง structure
 workflow เข้าไปในทุก project: spec-first TDD, intent detection, memory
 integration, safety guardrails.
 
-**Version**: 1.22.0  **Status**: active
+**Version**: 1.23.0  **Status**: active
 
 ---
 
@@ -26,6 +26,12 @@ integration, safety guardrails.
 | /chore | Maintenance task track — no spec required |
 | /hotfix | Emergency fix track — prod incidents only; triggers immediate release. Use /fix for non-urgent bugs. |
 | /spike | Time-boxed exploration in an isolated sandbox directory |
+| /next | Rank backlog items by impact, age, and dependencies — recommend top 3 |
+| /rescue | Pipeline diagnosis — stuck items + recovery actions |
+| /health | Hook health + config validation check |
+| /guide | On-demand framework walkthrough + pipeline position |
+| /brief | Display `.zie/handoff.md` session brief |
+| /init | Bootstrap: initialize framework in a new project |
 
 ## Skills
 
