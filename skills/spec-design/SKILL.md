@@ -5,7 +5,7 @@ argument-hint: "<slug> [full|quick]"
 metadata:
   zie_memory_enabled: true
 model: sonnet
-effort: high
+effort: medium
 ---
 
 # spec-design — Brainstorm → Spec

@@ -28,7 +28,7 @@ EXPECTED = {
     "commands/resync.md":    ("haiku",  "medium"),
     "commands/audit.md":     ("sonnet", "medium"),
     # Skills
-    "skills/spec-design/SKILL.md":   ("sonnet", "high"),
+    "skills/spec-design/SKILL.md":   ("sonnet", "medium"),
     "skills/write-plan/SKILL.md":    ("sonnet", "low"),
     "skills/debug/SKILL.md":         ("sonnet", "low"),
     "skills/spec-reviewer/SKILL.md": ("haiku",  "low"),
