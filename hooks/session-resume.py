@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """SessionStart hook — inject current SDLC state for instant session orientation."""
 import os
+import re
 import subprocess
 import sys
 import time as _time
@@ -11,7 +12,7 @@ _hook_start = _time.monotonic()
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
 from utils_config import load_config
-from utils_roadmap import parse_roadmap_now
+from utils_roadmap import parse_roadmap_now, is_mtime_fresh, parse_roadmap_section
 
 # Minimum safe Playwright version — derived from CVE-2025-59288.
 # CVE-2025-59288: arbitrary code execution via malicious CDP response.
@@ -75,6 +76,7 @@ try:
     zf = cwd / "zie-framework"
 
     if not zf.exists():
+        print("[zie-framework] init: project not set up — run /init to initialize zie-framework")
         sys.exit(0)
 
     # Read config
@@ -141,6 +143,79 @@ try:
     ]
 
     print("\n".join(lines))
+
+    # ── Framework self-awareness block ────────────────────────────────────────
+
+    # Staleness check: warn if PROJECT.md older than latest git commit
+    try:
+        project_md_mtime = (zf / "PROJECT.md").stat().st_mtime
+        git_commit_mtime = float(
+            subprocess.check_output(
+                ["git", "log", "-1", "--format=%ct"], cwd=str(cwd)
+            ).decode().strip()
+        )
+        # is_mtime_fresh(max_mtime, written_at): True when max_mtime <= written_at
+        # max_mtime=git_commit_mtime, written_at=project_md_mtime → True = fresh
+        stale = not is_mtime_fresh(git_commit_mtime, project_md_mtime)
+        if stale:
+            print("[zie-framework] knowledge: PROJECT.md outdated — run /resync to refresh")
+    except FileNotFoundError:
+        pass  # PROJECT.md absent — skip
+    except Exception:
+        pass  # git unavailable or other error — treat as fresh, skip warning
+
+    # Load command map from SKILL.md (static data read, not callable skill)
+    _HARDCODED_FALLBACK = (
+        "[zie-framework] framework: commands — "
+        "/backlog /spec /plan /implement /sprint /fix /chore /hotfix "
+        "/guide /status /audit /retro /release /resync /init"
+    )
+    try:
+        skill_path = cwd / "skills" / "using-zie-framework" / "SKILL.md"
+        skill_text = skill_path.read_text()
+        # Extract command list lines from ## Command Map section
+        in_cmd_map = False
+        cmd_names = []
+        for line in skill_text.splitlines():
+            if "## Command Map" in line:
+                in_cmd_map = True
+                continue
+            if line.startswith("##") and in_cmd_map:
+                break
+            if in_cmd_map and line.strip().startswith("- `/"):
+                m = re.search(r'`(/[a-z]+)`', line)
+                if m:
+                    cmd_names.append(m.group(1))
+        if cmd_names:
+            # Apply conditional guards for commands not yet shipped
+            guarded = ["/health", "/rescue", "/next"]
+            commands_dir = cwd / "commands"
+            final_cmds = []
+            for cmd in cmd_names:
+                slug = cmd.lstrip("/")
+                if cmd in guarded and not (commands_dir / f"{slug}.md").exists():
+                    continue
+                final_cmds.append(cmd)
+            cmd_line = "[zie-framework] framework: commands — " + " ".join(final_cmds)
+        else:
+            cmd_line = _HARDCODED_FALLBACK
+    except Exception:
+        cmd_line = _HARDCODED_FALLBACK
+
+    print(cmd_line)
+    print("[zie-framework] workflow: backlog→spec→plan→implement→release→retro (use /sprint for full pipeline)")
+    print("[zie-framework] anti-patterns: never approve spec/plan directly; always run reviewer first; never skip pipeline on \"ทำเลย\"")
+
+    # Backlog nudge: Next lane items pending
+    try:
+        next_items = parse_roadmap_section(roadmap_file, "next")
+        if next_items:
+            print(
+                f"[zie-framework] backlog: {len(next_items)} item(s) pending"
+                f" — run /spec {next_items[0]} to start designing"
+            )
+    except Exception:
+        pass
 
     # Drift detection — fire-and-forget background check
     try:
