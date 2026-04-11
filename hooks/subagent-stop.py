@@ -33,6 +33,17 @@ try:
     raw_msg = event.get("last_assistant_message")
     last_message = str(raw_msg or "")[:500]
 
+    # Write a session marker when a reviewer agent returns ✅ APPROVED.
+    # approve.py reads these markers to confirm the reviewer ran.
+    _REVIEWER_KINDS = {"spec-reviewer": "spec", "plan-reviewer": "plan"}
+    if agent_type in _REVIEWER_KINDS and "\u2705 APPROVED" in last_message:
+        kind = _REVIEWER_KINDS[agent_type]
+        marker = project_tmp_path(f"reviewer-approved-{kind}", cwd.name)
+        try:
+            marker.write_text("approved")
+        except Exception:
+            pass  # never block on marker write failure
+
     record = {
         "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "agent_id": agent_id,

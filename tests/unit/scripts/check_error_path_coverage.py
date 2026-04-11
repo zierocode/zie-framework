@@ -23,6 +23,7 @@ HOOKS_IN_SCOPE = [
     "failure-context",
     "session-cleanup",
     "notification-log",
+    "reviewer-gate",
 ]
 
 # Map hook name → keyword that would appear in a test ID covering that hook

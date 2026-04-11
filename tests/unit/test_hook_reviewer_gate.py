@@ -97,6 +97,7 @@ class TestReviewerGateAllows:
 
 
 class TestReviewerGateErrorPath:
+    @pytest.mark.error_path
     def test_exits_zero_on_malformed_event(self):
         """Graceful degradation — never block Claude on hook error."""
         r = subprocess.run(
