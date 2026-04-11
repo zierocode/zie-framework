@@ -260,17 +260,60 @@ except Exception:
 try:
     session_id = event.get("session_id", "default")
 
-    # ── Early-exit guards ─────────────────────────────────────────────────────
-    if len(message) < 15:
-        sys.exit(0)
-
+    # ── Early-exit guard (short + zero SDLC keywords → unclear intent) ─────────
     has_sdlc_keyword = any(
         p.search(message)
         for compiled_pats in COMPILED_PATTERNS.values()
         for p in compiled_pats
     )
+
+    if len(message) < 15 and not has_sdlc_keyword:
+        context = (
+            "[zie-framework] intent: unclear — "
+            "please clarify your request before proceeding"
+        )
+        print(json.dumps({"additionalContext": context}))
+        sys.exit(0)
+
     if not has_sdlc_keyword:
         sys.exit(0)
+
+    # ── New-intent scoring (≥2 threshold, structured hint format) ────────────
+    # Sprint/fix/chore: score signals; if ≥2 → emit structured hint + exit
+    # (existing intents keep their >= 1 threshold below)
+    NEW_INTENT_SIGNALS = {
+        "sprint": [
+            r"ทำเลย", r"\bimplement\b", r"\bbuild\b", r"สร้าง",
+            r"เพิ่ม.*feature", r"start.*coding",
+        ],
+        "fix": [
+            r"\bbug\b", r"\bbroken\b", r"\berror\b", r"ไม่.*work",
+            r"\bcrash\b", r"\bfail\b", r"แก้",
+        ],
+        "chore": [
+            r"\bupdate\b", r"\bbump\b", r"\brename\b", r"\bcleanup\b",
+            r"\brefactor\b", r"ลบ",
+        ],
+    }
+    NEW_INTENT_HINTS = {
+        "sprint": "confirm backlog→spec→plan before implementing",
+        "fix":    "invoke /fix or /hotfix track",
+        "chore":  "use /chore to track this maintenance task",
+    }
+    for intent_name, signals in NEW_INTENT_SIGNALS.items():
+        compiled_signals = [re.compile(p, re.IGNORECASE) for p in signals]
+        score = sum(1 for p in compiled_signals if p.search(message))
+        if score >= 2:
+            hint = NEW_INTENT_HINTS[intent_name]
+            context = f"[zie-framework] intent: {intent_name} — {hint}"
+            print(json.dumps({"additionalContext": context}))
+            if intent_name == "sprint":
+                try:
+                    sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
+                    sprint_flag.write_text("active")
+                except Exception:
+                    pass
+            sys.exit(0)
 
     # ── Intent detection (no ROADMAP needed) ─────────────────────────────────
     intent_cmd = None
