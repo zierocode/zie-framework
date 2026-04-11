@@ -17,6 +17,11 @@ Run a complete sprint cycle: spec+plan all items concurrently (no cap), implemen
 3. Read `zie-framework/ROADMAP.md` → check all lanes.
 4. Check current branch is `dev`.
 5. Verify no uncommitted changes (warn if found).
+6. Check `.zie/handoff.md` — if present, read it. Use its Goals, Key Decisions,
+   and Constraints as context brief for this sprint run. After the sprint
+   completes successfully (after retro), delete `.zie/handoff.md`.
+   If handoff.md is malformed (missing frontmatter) → warn and fall back to
+   manual prompt mode.
 
 ## Arguments
 

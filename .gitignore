@@ -7,3 +7,4 @@ zie-framework/evidence/
 .coverage.*
 .remember/
 .coverage
+.zie/

@@ -2,7 +2,7 @@
 from pathlib import Path
 
 SKILLS_DIR = Path(__file__).parents[2] / "skills"
-ALLOWED_HIGH = {"spec-design"}  # only skill justified at high
+ALLOWED_HIGH = {"spec-design", "brainstorm"}  # multi-phase skills justified at high
 
 
 def test_no_unexpected_high_effort_skills():

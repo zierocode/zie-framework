@@ -32,6 +32,15 @@
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/intent-sdlc.py\""
         }
       ]
+    },
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/design-tracker.py\"",
+          "background": true
+        }
+      ]
     }
   ],
   "ConfigChange": [
@@ -138,6 +147,10 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/compact-hint.py\""
+        },
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-capture.py\""
         },
         {
           "type": "command",
