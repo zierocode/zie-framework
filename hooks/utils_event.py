@@ -29,13 +29,17 @@ def get_cwd() -> Path:
     return Path(os.environ.get("CLAUDE_CWD", os.getcwd()))
 
 
-def sanitize_log_field(value: object) -> str:
-    """Strip ASCII control characters from a log field value.
+def sanitize_log_field(value: object, max_len: int = 10240) -> str:
+    """Strip ASCII control characters and enforce length cap on a log field value.
 
-    Converts value to str first, then replaces chars in range
-    0x00-0x1f and 0x7f with '?' to prevent log injection.
+    Converts value to str first, truncates to max_len bytes, then replaces
+    chars in range 0x00-0x1f and 0x7f with '?' to prevent log injection
+    and disk exhaustion from unbounded event-controlled input.
     """
-    return re.sub(r'[\x00-\x1f\x7f]', '?', str(value))
+    s = str(value)
+    if len(s) > max_len:
+        s = s[:max_len]
+    return re.sub(r'[\x00-\x1f\x7f]', '?', s)
 
 
 def log_hook_timing(
