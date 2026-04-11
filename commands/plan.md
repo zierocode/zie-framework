@@ -98,15 +98,16 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
 1. For each reviewer-approved plan:
    - **Auto-approve** — when plan-reviewer returns ✅ APPROVED, proceed automatically
      (no user confirmation required — reviewer verdict IS the gate):
-   - Add frontmatter to plan file:
+   - Add `spec:` field to plan frontmatter via Edit (still `approved: false`):
 
      ```yaml
-     ---
-     approved: true
-     approved_at: YYYY-MM-DD
-     backlog: backlog/<slug>.md
      spec: specs/<spec-filename>.md
-     ---
+     ```
+
+   - Run Bash to flip to approved (reviewer-gate blocks Write/Edit path):
+
+     ```bash
+     python3 hooks/approve.py zie-framework/plans/YYYY-MM-DD-<slug>.md
      ```
 
      **Atomically move** item in `zie-framework/ROADMAP.md` from Next → Ready:

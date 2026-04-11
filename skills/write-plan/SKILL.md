@@ -126,17 +126,3 @@ slots become available.
 
 Save plan to: `zie-framework/plans/YYYY-MM-DD-<feature-slug>.md`
 
-## Plan reviewer loop
-
-<!-- BLOCKING: do not return from this skill until reviewer returns ✅ APPROVED -->
-
-Invoke `Skill(zie-framework:plan-reviewer)` with:
-- Path to plan file
-- Path to spec file (`zie-framework/specs/*-<slug>-design.md`)
-- `context_bundle` (pass through if available)
-
-If ❌ Issues Found → fix ALL issues listed → re-invoke reviewer once (confirm pass).
-- Confirm pass ✅ → proceed
-- Confirm pass ❌ → surface to human: "Persistent plan issues after fix pass. Review manually."
-Max 2 total iterations. If 0 issues on initial scan → APPROVED immediately.
-

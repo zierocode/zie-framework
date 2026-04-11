@@ -134,15 +134,22 @@ When `$ARGUMENTS[1]` is `autonomous`:
    - If ❌ Issues Found → fix issues → re-invoke reviewer → repeat until ✅ APPROVED
    - Max 3 iterations → surface to human
 
-6. **Record approval** — once spec-reviewer returns ✅ APPROVED, prepend
-   frontmatter to the spec file:
+6. **Record approval** — once spec-reviewer returns ✅ APPROVED:
+
+   a. Prepend frontmatter with `approved: false` (gate requires this before approve.py):
 
    ```yaml
    ---
-   approved: true
-   approved_at: YYYY-MM-DD
+   approved: false
+   approved_at:
    backlog: backlog/<slug>.md
    ---
+   ```
+
+   b. Run Bash to flip to approved (the only path the reviewer-gate allows):
+
+   ```bash
+   python3 hooks/approve.py zie-framework/specs/YYYY-MM-DD-<slug>-design.md
    ```
 
 7. **Store spec approval in brain** — if `zie_memory_enabled=true`:
