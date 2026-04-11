@@ -28,6 +28,11 @@ claude plugin install zierocode/zie-framework
 | `/hotfix` | Emergency | Emergency fix track — ship without full pipeline |
 | `/spike` | Research | Time-boxed exploration in isolated sandbox |
 | `/audit` | Health | 9-dimension audit + external research → backlog |
+| `/next` | Planning | Rank backlog items by impact, age, dependencies — top 3 |
+| `/rescue` | Recovery | Pipeline diagnosis — stuck items + recovery actions |
+| `/health` | Observability | Hook health + config validation check |
+| `/guide` | Onboarding | Framework walkthrough + pipeline position |
+| `/brief` | Context | Display `.zie/handoff.md` session brief |
 
 ## Skills
 

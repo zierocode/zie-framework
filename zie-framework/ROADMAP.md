@@ -33,6 +33,8 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] sprint-a-b — Sprint A+B (10 items): framework-self-awareness (PROJECT.md staleness, playwright CVE guard, session-resume env injection), context-efficiency (3-tier compact-hint 70%/80%/90%, once-per-session flags), intent-intelligence (short-msg gate, idle-sprint gate, brainstorm patterns), brainstorming-skill (4-phase discovery + handoff.md), conversation-capture (design-tracker + stop-capture), /rescue, /health, session-continuity (.remember/now.md snippet), /next (backlog ranking), code-quality-gate (warn-only bandit/diff/coverage), sprint-reliability (.sprint-state + resume), adaptive-learning (session-learn pattern log + intent-sdlc threshold adjust) — 2501 unit tests — v1.23.0 2026-04-12
+
 - [x] context-token-reduction-hotfix — zie-release-mode agent (fresh-context release), sprint context_bundle pass-through (plan-reviewer), compact-hint two-level thresholds (80% soft / 90% hard), ADR-000-summary.md trim to 1559w — 2345 unit tests — v1.22.0 2026-04-06
 
 - [x] lean-autonomous-sprint — autonomy + lightweight retro: autonomous mode flag, clarity detection, interruption protocol, inline reviewers (spec/plan/impl), auto-fix protocol, light retro (ADR gate), sprint Phase 1 refactor (Skill calls not Agent), Phase 4 auto-run retro — 2345 unit tests — v1.21.0 2026-04-06

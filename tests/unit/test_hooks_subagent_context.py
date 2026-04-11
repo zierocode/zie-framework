@@ -356,12 +356,19 @@ class TestSubagentContextRoadmapCache:
 
     def test_uses_cache_over_disk(self, tmp_path):
         """Cache content takes priority over disk ROADMAP."""
+        import re as _re
+        import tempfile as _tempfile
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         # Disk: empty Now
         roadmap_path = zf / "ROADMAP.md"
         roadmap_path.write_text("## Now\n\n## Next\n")
         sid = "test-subagent-cache-unique-88z"
+        # Clear any stale session-context cache flag from a previous test run
+        _safe_project = _re.sub(r'[^a-zA-Z0-9]', '-', tmp_path.name)
+        _safe_sid = _re.sub(r'[^a-zA-Z0-9]', '-', sid)
+        _session_flag = Path(_tempfile.gettempdir()) / f"zie-{_safe_project}-session-context-{_safe_sid}"
+        _session_flag.unlink(missing_ok=True)
         # Cache: active feature (primed with same mtime as disk)
         write_roadmap_cache(sid, "## Now\n- [ ] cached-subagent-feature\n\n## Next\n", roadmap_path)
         event = {"agentType": "Explore", "session_id": sid}

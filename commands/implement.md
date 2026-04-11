@@ -63,13 +63,19 @@ Test level selection (print once before task loop, not per task):
 3. **Risk Classification** — set `risk_level = HIGH` or `LOW`:
    - HIGH: new function/class, changed behavior, external API call, file I/O, subprocess, non-test production code changed, or `<!-- review: required -->`
    - LOW: test-only, docs/config, rename/reformat, minor constant addition
-4. **Inline impl-review** (HIGH only): Check changed files in current context — no Agent spawn.
-   - Review changed files against task AC, project patterns, and `context_bundle` ADRs (if available)
-   - ✅ No issues → continue
-   - ❌ Issues found → auto-fix inline → `make test-unit`
-     - Pass → continue
-     - Fail after 1 retry → surface issue + interrupt (ask Zie)
-5. **→ LOW risk:** `make test-unit` + `[risk: LOW] Skipping impl-reviewer`.
+4. **impl-reviewer** (HIGH only): <!-- BLOCKING: do not mark task complete until all checks pass -->
+   Inline review — no Skill or Agent spawn. Check changed files against:
+   1. AC coverage — every acceptance criterion satisfied?
+   2. Tests exist for new behavior?
+   3. No over-engineering — implementation minimal for the AC?
+   4. No regressions — existing contracts or interfaces broken?
+   5. Code clarity — names clear, logic self-evident?
+   6. Security — hardcoded secrets, command injection, SQL injection?
+   7. Dead code — commented-out code or unreachable branches?
+   8. ADR compliance — contradicts any `context_bundle` ADR?
+   - ✅ All pass → continue
+   - ❌ Issues found → auto-fix inline → `make test-unit` → if pass continue; if fail after 1 retry → surface to Zie
+5. **→ LOW risk:** `make test-unit` + print `[risk: LOW] Skipping impl-reviewer`.
 6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ T{N} done — {remaining} remaining`.
    - Checkpoint every 3 tasks. If `zie_memory_enabled=true`: Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
 

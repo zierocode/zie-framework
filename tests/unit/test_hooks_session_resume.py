@@ -64,12 +64,12 @@ class TestSessionResumeHappyPath:
         assert any("Active:" in line for line in lines), \
             "Output must contain an Active: line"
 
-    def test_output_is_4_lines(self, tmp_path):
+    def test_output_has_at_least_4_lines(self, tmp_path):
         cwd = make_cwd(tmp_path, config={}, roadmap=SAMPLE_ROADMAP,
                        plans={"2026-03-22-my-feature.md": "# plan"})
         r = run_hook(tmp_cwd=cwd)
-        assert len(r.stdout.strip().splitlines()) == 4, \
-            "Output must always be exactly 4 lines (compressed format)"
+        assert len(r.stdout.strip().splitlines()) >= 4, \
+            "Output must always be at least 4 lines"
 
     def test_brain_enabled_when_config_says_so(self, tmp_path):
         cwd = make_cwd(tmp_path, config={"zie_memory_enabled": True}, roadmap=SAMPLE_ROADMAP)
@@ -78,10 +78,10 @@ class TestSessionResumeHappyPath:
 
 
 class TestSessionResumeGracefulDegradation:
-    def test_no_output_when_no_zf_dir(self, tmp_path):
+    def test_prints_init_nudge_when_no_zf_dir(self, tmp_path):
         r = run_hook(tmp_cwd=tmp_path)
-        assert r.stdout.strip() == ""
         assert r.returncode == 0
+        assert "/init" in r.stdout, "must print /init nudge when zie-framework/ absent"
 
     def test_no_active_feature_message_when_now_empty(self, tmp_path):
         roadmap = "## Now\n\n## Next\n- [ ] something\n"
@@ -286,12 +286,12 @@ class TestSessionResumeEnvFile:
 
 class TestSessionResumeDriftDetection:
     def test_drift_check_is_fire_and_forget(self, tmp_path):
-        """Drift check runs in background — hook exits 0 with exactly 4 output lines."""
+        """Drift check runs in background — hook exits 0."""
         cwd = make_cwd(tmp_path, config={"knowledge_hash": "deadbeef0000"},
                        roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
         assert r.returncode == 0
-        assert len(r.stdout.strip().splitlines()) == 4
+        assert len(r.stdout.strip().splitlines()) >= 4
 
     def test_silent_when_hash_matches(self, tmp_path):
         """No drift warning in stdout — drift check is now background-only."""
@@ -312,7 +312,7 @@ class TestSessionResumeDriftDetection:
         assert result.returncode == 0
 
     def test_output_line_count_unchanged_without_drift(self, tmp_path):
-        """Without drift, output remains exactly 4 lines."""
+        """Without drift, output has at least 4 lines."""
         REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         kh = os.path.join(REPO, "hooks", "knowledge-hash.py")
         result = subprocess.run([sys.executable, kh, "--root", str(tmp_path)],
@@ -321,7 +321,7 @@ class TestSessionResumeDriftDetection:
         cwd = make_cwd(tmp_path, config={"knowledge_hash": current_hash},
                        roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
-        assert len(r.stdout.strip().splitlines()) == 4
+        assert len(r.stdout.strip().splitlines()) >= 4
 
 
 class TestSessionResumeOuterGuard:

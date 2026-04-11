@@ -82,6 +82,11 @@ PATTERNS = {
         r"\bspike\b", r"\bexplore\b", r"\binvestigate\b", r"\bresearch\b",
         r"\bprototype\b", r"proof.*of.*concept", r"\bpoc\b", r"time.?box",
     ],
+    "brainstorm": [
+        r"\bimprove\b", r"what if", r"\bresearch\b", r"deep dive",
+        r"อยากให้มี", r"ควรจะ", r"น่าจะเพิ่ม", r"ปรับอะไรดี",
+        r"คิดว่าขาดอะไร", r"\bexplore\b",
+    ],
 }
 
 COMPILED_PATTERNS = {
@@ -103,6 +108,7 @@ SUGGESTIONS = {
     "hotfix":    "/hotfix",
     "chore":     "/chore",
     "spike":     "/spike",
+    "brainstorm": "invoke zie-framework:brainstorm skill",
 }
 
 # ── SDLC context constants ────────────────────────────────────────────────────
@@ -260,17 +266,45 @@ except Exception:
 try:
     session_id = event.get("session_id", "default")
 
-    # ── Early-exit guards ─────────────────────────────────────────────────────
-    if len(message) < 15:
-        sys.exit(0)
-
+    # ── Early-exit guard (short + zero SDLC keywords → unclear intent) ─────────
     has_sdlc_keyword = any(
         p.search(message)
         for compiled_pats in COMPILED_PATTERNS.values()
         for p in compiled_pats
     )
+
+    if len(message) < 15:
+        if not has_sdlc_keyword:
+            context = (
+                "[zie-framework] intent: unclear — "
+                "please clarify your request before proceeding"
+            )
+            print(json.dumps({"additionalContext": context}))
+        sys.exit(0)  # short messages always exit (ambiguous even with keyword)
+
     if not has_sdlc_keyword:
         sys.exit(0)
+
+    # ── New-intent signal tables (≥2 threshold, evaluated after roadmap read) ──
+    NEW_INTENT_SIGNALS = {
+        "sprint": [
+            r"ทำเลย", r"\bimplement\b", r"\bbuild\b", r"สร้าง",
+            r"เพิ่ม.*feature", r"start.*coding",
+        ],
+        "fix": [
+            r"\bbug\b", r"\bbroken\b", r"\berror\b", r"ไม่.*work",
+            r"\bcrash\b", r"\bfail\b", r"แก้",
+        ],
+        "chore": [
+            r"\bupdate\b", r"\bbump\b", r"\brename\b", r"\bcleanup\b",
+            r"\brefactor\b", r"ลบ",
+        ],
+    }
+    NEW_INTENT_HINTS = {
+        "sprint": "confirm backlog→spec→plan before implementing",
+        "fix":    "invoke /fix or /hotfix track",
+        "chore":  "use /chore to track this maintenance task",
+    }
 
     # ── Intent detection (no ROADMAP needed) ─────────────────────────────────
     intent_cmd = None
@@ -304,6 +338,25 @@ try:
     suggested_cmd = STAGE_COMMANDS.get(stage, "/status")
     test_status = get_test_status(cwd)
 
+    # ── New-intent scoring (≥2 threshold) ─────────────────────────────────────
+    # Sprint only fires when idle (no active Now lane item); fix/chore always fire.
+    for intent_name, signals in NEW_INTENT_SIGNALS.items():
+        if intent_name == "sprint" and active_task != "none":
+            continue  # user has planned work — they're already in the pipeline
+        compiled_signals = [re.compile(p, re.IGNORECASE) for p in signals]
+        score = sum(1 for p in compiled_signals if p.search(message))
+        if score >= 2:
+            hint = NEW_INTENT_HINTS[intent_name]
+            context = f"[zie-framework] intent: {intent_name} — {hint}"
+            print(json.dumps({"additionalContext": context}))
+            if intent_name == "sprint":
+                try:
+                    sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
+                    sprint_flag.write_text("active")
+                except Exception:
+                    pass
+            sys.exit(0)
+
     # ── Pipeline gate check ───────────────────────────────────────────────────
     gate_msg = None
     if best and best == "plan":
@@ -326,6 +379,24 @@ try:
     if gate_msg is None and no_track_msg is None and (not intent_cmd or best == "status"):
         guidance_msg = _positional_guidance(roadmap_content, cwd, message)
 
+    # ── Read pattern aggregate for personalized thresholds ───────────────────
+    _agg_path = project_tmp_path("pattern-aggregate", cwd.name)
+    _pattern_agg: dict = {}
+    try:
+        if _agg_path.exists():
+            _pattern_agg = json.loads(_agg_path.read_text())
+    except Exception:
+        pass  # Missing or corrupt aggregate — use defaults
+    _most_common_stage = _pattern_agg.get("most_common_stage", "")
+
+    # Suppress pipeline-position hint when user consistently works at implement stage
+    # (they know the pipeline; don't nag with "start with /spec" on every message)
+    _suppress_guidance = (
+        guidance_msg is not None
+        and _most_common_stage == "implement"
+        and best in ("implement", "status")
+    )
+
     # ── Build combined context ────────────────────────────────────────────────
     parts = []
     if gate_msg:
@@ -334,7 +405,7 @@ try:
         parts.append(no_track_msg)
     elif intent_cmd:
         parts.append(f"intent:{best} → {intent_cmd}")
-    if guidance_msg:
+    if guidance_msg and not _suppress_guidance:
         parts.append(guidance_msg)
     # State suffix: omit when idle + no active task + unambiguous intent (score >= 2)
     _best_score = scores.get(best, 0) if best else 0

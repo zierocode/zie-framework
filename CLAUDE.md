@@ -49,6 +49,11 @@ zie-framework/              # SDLC state (this repo uses itself)
 | `/status` | Show current SDLC state |
 | `/audit` | Project audit across 9 dimensions |
 | `/resync` | Rescan codebase + update knowledge docs |
+| `/next` | Rank backlog items by impact, age, and dependencies — recommend top 3 |
+| `/rescue` | Pipeline diagnosis — show stuck items + recovery actions |
+| `/health` | Hook health + config validation check |
+| `/guide` | On-demand framework walkthrough + pipeline position |
+| `/brief` | Display `.zie/handoff.md` session brief |
 
 ## Development Commands
 

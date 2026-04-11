@@ -1,7 +1,7 @@
 {
   "name": "zie-framework",
   "description": "Solo developer SDLC framework for Claude Code — spec-first, TDD, automated testing, brain-integrated",
-  "version": "1.22.0",
+  "version": "1.23.0",
   "author": {
     "name": "zie"
   },
