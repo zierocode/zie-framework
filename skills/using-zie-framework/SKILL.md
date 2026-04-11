@@ -2,6 +2,7 @@
 name: using-zie-framework
 description: Command map, workflow map, and anti-patterns for zie-framework. Read as static data by session-resume.py — NOT a callable skill.
 user-invocable: false
+argument-hint: ""
 ---
 
 # using-zie-framework — Framework Reference

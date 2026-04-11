@@ -159,10 +159,9 @@ try:
         stale = not is_mtime_fresh(git_commit_mtime, project_md_mtime)
         if stale:
             print("[zie-framework] knowledge: PROJECT.md outdated — run /resync to refresh")
-    except FileNotFoundError:
-        pass  # PROJECT.md absent — skip
-    except Exception:
-        pass  # git unavailable or other error — treat as fresh, skip warning
+    except Exception as _e:
+        if not isinstance(_e, FileNotFoundError):
+            print(f"[zie-framework] session-resume: staleness check skipped: {_e}", file=sys.stderr)
 
     # Load command map from SKILL.md (static data read, not callable skill)
     _HARDCODED_FALLBACK = (
@@ -214,8 +213,8 @@ try:
                 f"[zie-framework] backlog: {len(next_items)} item(s) pending"
                 f" — run /spec {next_items[0]} to start designing"
             )
-    except Exception:
-        pass
+    except Exception as _e:
+        print(f"[zie-framework] session-resume: backlog nudge skipped: {_e}", file=sys.stderr)
 
     # Drift detection — fire-and-forget background check
     try:
