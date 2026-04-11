@@ -10,6 +10,12 @@ model: haiku
 effort: low
 ---
 
+<!-- FAST PATH -->
+**Purpose:** Review an implementation plan for TDD structure, spec coverage, and task granularity.
+**When to use fast path:** Plan has ≤10 tasks and each task has explicit test steps.
+**Quick steps:** (1) Read plan + spec. (2) Check 10-item Phase 2 checklist. (3) Check Phase 3 context. (4) Output ✅ APPROVED or ❌ Issues Found.
+<!-- DETAIL: load only if fast path insufficient -->
+
 # plan-reviewer — Implementation Plan Review
 
 Subagent reviewer for implementation plans. Called by `write-plan` after

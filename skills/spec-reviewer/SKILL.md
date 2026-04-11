@@ -10,6 +10,12 @@ model: haiku
 effort: low
 ---
 
+<!-- FAST PATH -->
+**Purpose:** Review a design spec for completeness, YAGNI, and testability.
+**When to use fast path:** Spec is short (<40 lines) and problem/approach/components/testing sections are all present.
+**Quick steps:** (1) Read spec. (2) Check 9-item Phase 2 checklist. (3) Check 3-item Phase 3 context checks. (4) Output ✅ APPROVED or ❌ Issues Found.
+<!-- DETAIL: load only if fast path insufficient -->
+
 # spec-reviewer — Design Spec Review
 
 Subagent reviewer for design specs. Called by `spec-design` after writing the

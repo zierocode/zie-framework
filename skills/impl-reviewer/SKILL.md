@@ -10,6 +10,12 @@ model: haiku
 effort: low
 ---
 
+<!-- FAST PATH -->
+**Purpose:** Review completed task implementation against acceptance criteria.
+**When to use fast path:** Changed files are small and ACs are explicitly listed.
+**Quick steps:** (1) Read changed files + ACs. (2) Check 8-item Phase 2 checklist. (3) Output verdict.
+<!-- DETAIL: load only if fast path insufficient -->
+
 # impl-reviewer — Task Implementation Review
 
 Subagent reviewer for completed task implementations. Called by `zie-implement`

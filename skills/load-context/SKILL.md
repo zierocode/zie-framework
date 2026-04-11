@@ -10,6 +10,12 @@ model: haiku
 effort: low
 ---
 
+<!-- FAST PATH -->
+**Purpose:** Load ADR + project context bundle once per session for downstream reviewers.
+**When to use fast path:** context_bundle already provided → return it immediately.
+**Quick steps:** (1) If context_bundle provided → return it. (2) Else: cache check → disk fallback → return bundle.
+<!-- DETAIL: load only if fast path insufficient -->
+
 # load-context — Shared Context Bundle
 
 Load ADRs and project context once. Returns `context_bundle` for every
