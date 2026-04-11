@@ -33,6 +33,8 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] sprint-c-d — Sprint C+D (5 items): implement WIP=1 Now-lane guard, event field length caps (sanitize_log_field max_len=10240), reviewer-pass marker handshake (subagent-stop↔approve.py), effort routing ADR-063 (brainstorm+spec-design high→medium), parallel retro ops (ADR writes + ROADMAP update concurrent) — 2525 unit tests — v1.24.0 2026-04-12
+
 - [x] sprint-a-b — Sprint A+B (10 items): framework-self-awareness (PROJECT.md staleness, playwright CVE guard, session-resume env injection), context-efficiency (3-tier compact-hint 70%/80%/90%, once-per-session flags), intent-intelligence (short-msg gate, idle-sprint gate, brainstorm patterns), brainstorming-skill (4-phase discovery + handoff.md), conversation-capture (design-tracker + stop-capture), /rescue, /health, session-continuity (.remember/now.md snippet), /next (backlog ranking), code-quality-gate (warn-only bandit/diff/coverage), sprint-reliability (.sprint-state + resume), adaptive-learning (session-learn pattern log + intent-sdlc threshold adjust) — 2501 unit tests — v1.23.0 2026-04-12
 
 - [x] context-token-reduction-hotfix — zie-release-mode agent (fresh-context release), sprint context_bundle pass-through (plan-reviewer), compact-hint two-level thresholds (80% soft / 90% hard), ADR-000-summary.md trim to 1559w — 2345 unit tests — v1.22.0 2026-04-06

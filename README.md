@@ -40,6 +40,7 @@ Skills are invoked automatically by commands as subagents — not called directl
 
 | Skill | Purpose |
 | --- | --- |
+| `brainstorm` | Discovery skill — research context, synthesize opportunities, write handoff |
 | `spec-design` | Draft design spec from backlog item |
 | `spec-reviewer` | Review spec for completeness and correctness |
 | `write-plan` | Convert approved spec into implementation plan |
