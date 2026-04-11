@@ -26,6 +26,7 @@ HOOKS_IN_SCOPE = [
     "reviewer-gate",
     "design-tracker",
     "stop-capture",
+    "quality-gate",
 ]
 
 # Map hook name → keyword that would appear in a test ID covering that hook
