@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.25.0 — 2026-04-13
+
+### Added
+- **`make zie-implement`** — run /implement in fresh agent context, same pattern as `make zie-release`; sprint Phase 2 now uses this instead of non-existent `Skill(zie-implement)`
+- **Sprint "all means ALL" rule** — every item must appear in audit table; no silent drops; item consolidation requires explicit `[MERGED]` notice listing original items and reason
+
+### Fixed
+- **Sprint Phase 2 Skill call** — `Skill(zie-framework:zie-implement)` does not exist as a skill file; replaced with `make zie-implement` (agent mode via Bash)
+- **Self-approve via Write/Edit** — sprint Phase 1, spec-design autonomous mode, and spec.md `--draft-plan` were instructing direct `approved: true` writes blocked by reviewer-gate; all three now use `python3 hooks/approve.py`
+- **spec.md `--draft-plan`** — missing `Bash` in `allowed-tools` and missing plan-reviewer step before approval; both fixed
+- **Version bump bias toward patch** — release Step 1 now explicitly states minor bump is required when ANY new user-visible capability ships; patch only when ALL items are fix/refactor/chore/docs
+
+### Changed
+- ADR-000-summary trimmed to 1580 words (limit: 1600)
+- README: added missing `using-zie-framework` skill entry
+
 ## v1.24.0 — 2026-04-12
 
 ### Features

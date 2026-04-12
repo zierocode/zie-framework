@@ -76,7 +76,10 @@ ship: ## Run tests then prompt for /zie-release
 	$(MAKE) test || (echo "Tests failed — fix before shipping" && exit 1)
 	@echo "All tests passed. Run /zie-release for the full release gate."
 
-# ── Release ───────────────────────────────────────────────────────────────────
+# ── Implement / Release ───────────────────────────────────────────────────────
+zie-implement: ## Run /implement in a fresh agent context — processes Now lane item (usage: make zie-implement)
+	claude --agent zie-framework:zie-implement-mode
+
 zie-release: ## Run /release in a fresh agent context — avoids context overflow (usage: make zie-release)
 	claude --agent zie-framework:zie-release-mode
 

@@ -179,3 +179,59 @@ class TestSummaryOutput:
     def test_summary_shows_shipped_count(self):
         text = _text()
         assert "Shipped" in text, "summary must show how many items were shipped"
+
+
+class TestPhase2ImplementAgent:
+    def test_phase2_uses_zie_implement_make_target(self):
+        """Phase 2 must invoke make zie-implement (agent mode), not a non-existent Skill."""
+        t = _text()
+        phase2_idx = t.index("PHASE 2")
+        phase3_idx = t.index("PHASE 3")
+        phase2 = t[phase2_idx:phase3_idx]
+        assert "zie-implement" in phase2, \
+            "Sprint Phase 2 must call make zie-implement (agent mode via Bash)"
+
+    def test_phase2_no_skill_zie_implement(self):
+        """Phase 2 must NOT call Skill(zie-framework:zie-implement) — that skill does not exist."""
+        t = _text()
+        phase2_idx = t.index("PHASE 2")
+        phase3_idx = t.index("PHASE 3")
+        phase2 = t[phase2_idx:phase3_idx]
+        assert "Skill(zie-framework:zie-implement" not in phase2, \
+            "Sprint Phase 2 must not call non-existent Skill zie-implement — use make zie-implement"
+
+    def test_phase2_checks_roadmap_after_implement(self):
+        """Phase 2 must verify ROADMAP state after implement completes."""
+        t = _text()
+        phase2_idx = t.index("PHASE 2")
+        phase3_idx = t.index("PHASE 3")
+        phase2 = t[phase2_idx:phase3_idx]
+        assert "ROADMAP" in phase2, \
+            "Phase 2 must check ROADMAP.md after implement to confirm success"
+
+
+class TestAllItemsEnforcement:
+    def test_no_silent_drops(self):
+        text = _text()
+        assert "silent" in text.lower() or "No item may" in text or "must be included" in text, \
+            "must explicitly forbid silently dropping items from sprint"
+
+    def test_all_means_all_language(self):
+        text = _text()
+        assert "ALL" in text or "all" in text.lower(), \
+            "must state that all items means every item"
+
+    def test_consolidation_requires_declaration(self):
+        text = _text()
+        assert "MERGED" in text or "merged" in text.lower() or "consolid" in text.lower(), \
+            "item consolidation must be declared to user (not silent)"
+
+    def test_consolidation_explains_original_items(self):
+        text = _text()
+        assert "Original items" in text or "original item" in text.lower(), \
+            "merged backlog must reference original items by name"
+
+    def test_consolidation_conditions_listed(self):
+        text = _text()
+        assert "trivial" in text.lower() or "15 min" in text or "small" in text.lower(), \
+            "must define conditions under which consolidation is allowed"

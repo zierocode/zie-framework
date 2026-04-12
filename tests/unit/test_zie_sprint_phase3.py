@@ -11,11 +11,16 @@ def test_phase2_no_agent():
     assert "Agent(" not in phase2.group(0), "Phase 2 (implement) must not use Agent"
 
 
-def test_phase2_has_skill():
+def test_phase2_uses_make_zie_implement():
+    """Phase 2 must invoke make zie-implement (agent mode) — Skill(zie-implement) does not exist."""
     content = SPRINT_CMD.read_text()
     phase2 = re.search(r"^## PHASE 2.*?(?=^## PHASE |\Z)", content, re.MULTILINE | re.DOTALL)
     assert phase2, "Phase 2 not found"
-    assert "Skill(" in phase2.group(0) and "zie-implement" in phase2.group(0)
+    phase2_text = phase2.group(0)
+    assert "zie-implement" in phase2_text, \
+        "Phase 2 must reference zie-implement (make zie-implement agent invocation)"
+    assert "Skill(zie-framework:zie-implement" not in phase2_text, \
+        "Phase 2 must not call non-existent Skill zie-implement — use make zie-implement"
 
 
 def test_phase1_uses_skill_calls():

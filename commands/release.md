@@ -124,8 +124,13 @@ merging.
 ## All Gates Passed — Release
 
 <!-- model: sonnet reasoning: version suggestion compares commits against semver rules and requires judgment about breaking changes vs new features. -->
-1. **[Step 1/10] Suggest version bump** — scan `[x]` Now items + git log. Apply: major (breaking change), minor (new capability), patch (fix/docs/refactor). Display:
-   `Bumped to vX.Y.Z (CHANGE_TYPE). Send override if wrong. Override: /release --bump-to=X.Y.Z`
+1. **[Step 1/10] Suggest version bump** — scan `[x]` Now items + git log. Apply semver strictly:
+   - **major**: breaking change to API/config/command behavior
+   - **minor**: ANY new user-visible capability (new command, skill, flag, hook, template) — even one
+   - **patch**: ONLY when ALL items are fix/refactor/chore/docs with zero new user-facing surface
+
+   Default to **minor** whenever in doubt between minor and patch. Reset patch to 0 on minor bump.
+   Display: `Bumped to vX.Y.Z (CHANGE_TYPE: <reason>). Send override if wrong. Override: /release --bump-to=X.Y.Z`
 
 2. **Bump VERSION**: auto-accept suggestion or use `--bump-to=X.Y.Z` override. Write to `VERSION`.
 

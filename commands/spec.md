@@ -1,7 +1,7 @@
 ---
 description: Turn a backlog item into a written spec with Acceptance Criteria. Second stage of the SDLC pipeline.
 argument-hint: "[slug|\"idea\"] — backlog slug or inline idea string (e.g. zie-spec add-csv-export OR zie-spec \"add rate limiting\")"
-allowed-tools: Read, Write, Edit, Glob, Skill
+allowed-tools: Read, Write, Edit, Bash, Glob, Skill
 model: sonnet
 effort: medium
 ---
@@ -74,8 +74,14 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 
 4. **--draft-plan branch** (if `--draft-plan` present — remove flag from slug before processing):
 
-   After spec commit, auto-invoke `Skill(zie-framework:write-plan)` with slug:
-   - On plan APPROVED: write `approved: true` frontmatter, move ROADMAP Next → Ready, commit
+   After spec commit:
+   1. Auto-invoke `Skill(zie-framework:write-plan)` with slug → plan written with `approved: false`
+   2. Invoke `Skill(zie-framework:plan-reviewer)` inline with plan path + spec path
+   3. If ✅ APPROVED → run approve.py via Bash (reviewer-gate blocks Write/Edit — this is the only allowed path):
+      ```bash
+      python3 hooks/approve.py zie-framework/plans/YYYY-MM-DD-<slug>.md
+      ```
+      Move ROADMAP Next → Ready, commit
    - Combined handoff:
      ```text
      Spec approved ✓ → zie-framework/specs/YYYY-MM-DD-<slug>-design.md

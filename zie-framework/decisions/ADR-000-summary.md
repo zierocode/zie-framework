@@ -11,34 +11,34 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 
 | ADR | Title | Decision | Status |
 |-----|-------|----------|--------|
-| ADR-001 | Reviewer Skills as Dispatched Subagents | Dispatch spec/plan/impl reviewers as fresh subagents with isolated context and a binary verdict checklist; cap at 3 iterations. | Accepted |
-| ADR-002 | markdownlint Pre-commit Gate | Run markdownlint-cli2 via pre-commit on all staged .md files; MD013 line length = 120. | Accepted |
-| ADR-003 | Commands Are the Control Plane, Skills Are Execution | Commands are the exclusive pipeline stage transition control plane; skills execute within a single stage and must never auto-advance. | Accepted |
-| ADR-004 | Spec Approval State Tracked via Frontmatter | After spec-reviewer approves, prepend `approved: true` YAML frontmatter to spec file; `/plan` filters by this flag. | Accepted |
-| ADR-005 | Hybrid Release — SDLC Gates + Project-Defined Publish | Split release into SDLC layer (gates + version bump) and project layer (git ops + publishing). | Accepted |
+| ADR-001 | Reviewer Skills as Dispatched Subagents | Fresh subagents with binary verdict checklist; max 3 iterations. | Accepted |
+| ADR-002 | markdownlint Pre-commit Gate | markdownlint-cli2 on staged .md files; MD013 line length = 120. | Accepted |
+| ADR-003 | Commands Are the Control Plane, Skills Are Execution | Commands own pipeline transitions; skills execute within one stage, never auto-advance. | Accepted |
+| ADR-004 | Spec Approval State Tracked via Frontmatter | spec-reviewer approval → `approved: true` frontmatter; /plan filters by flag. | Accepted |
+| ADR-005 | Hybrid Release — SDLC Gates + Project-Defined Publish | Release: SDLC layer (gates + bump) + project layer (git ops + publish). | Accepted |
 | ADR-006 | Reviewer Context Bundles | Phase 1: load context bundle (ADRs, ROADMAP). Phase 2: checklist. Phase 3: cross-reference checks. | Accepted |
 | ADR-007 | research_profile as Audit Intel Layer | Phase 1 builds research_profile from manifests; all audit agents and WebSearch queries adapt from it. | Accepted |
 | ADR-008 | Shared Hook Utility Module (hooks/utils.py) | Introduce `hooks/utils.py` (stdlib-only) with `parse_roadmap_now()` and `project_tmp_path()`; imported via `sys.path.insert`. | Accepted |
-| ADR-009 | Hook __main__ Guard for Direct Unit Testing | Wrap hook execution in `if __name__ == "__main__":`; extract testable functions to module scope for direct pytest import. | Accepted |
-| ADR-010 | safe_write_tmp() Hard-Fails on Symlink Detection | `safe_write_tmp()` checks `path.is_symlink()` before writing; logs WARNING and returns without writing — never raises. | Accepted |
-| ADR-011 | find_matching_test() OSError Guards at Every Filesystem Call | Apply `try/except OSError` at every individual filesystem call in `find_matching_test()` to stay crash-proof. | Accepted |
+| ADR-009 | Hook __main__ Guard for Direct Unit Testing | `if __name__ == '__main__':` guard; module-scope functions for direct pytest import. | Accepted |
+| ADR-010 | safe_write_tmp() Hard-Fails on Symlink Detection | `safe_write_tmp()` checks `is_symlink()` before writing; logs WARNING, never raises. | Accepted |
+| ADR-011 | find_matching_test() OSError Guards at Every Filesystem Call | `try/except OSError` at each filesystem call in `find_matching_test()`. | Accepted |
 | ADR-012 | Tiered Model Routing — haiku / sonnet / opus | Three-tier routing: opus+high for zie-audit, sonnet+high/medium for design/plan/impl, haiku+low for checklist/reviewer tasks. | Accepted |
 | ADR-013 | Plugin-Bundled MCP Server for Zero-Setup Brain Integration | Ship `.claude-plugin/.mcp.json` to auto-register `zie-memory` MCP; degrades gracefully when env vars are absent. | Accepted |
 | ADR-014 | Async impl-reviewer Deferred-Check Polling | Spawn impl-reviewer async after REFACTOR; poll at next iteration; surface issues; max 2 iterations. | Accepted |
-| ADR-015 | Hook Test Helpers Must Clear Session-Injected Env Vars | Every `run_hook()` test helper must explicitly clear all session-injected env vars before applying test-specific overrides. | Accepted |
-| ADR-016 | debounce_ms=0 Means Disabled — Guard with `> 0` | Guard debounce block with `if debounce_ms > 0` to prevent APFS timestamp rounding from triggering spurious suppression. | Accepted |
+| ADR-015 | Hook Test Helpers Must Clear Session-Injected Env Vars | `run_hook()` helpers clear session env vars before test overrides. | Accepted |
+| ADR-016 | debounce_ms=0 Means Disabled — Guard with `> 0` | `if debounce_ms > 0` guard prevents APFS timestamp rounding spurious suppression. | Accepted |
 | ADR-017 | impl-reviewer Upgraded from haiku/low to sonnet/medium | Upgrade impl-reviewer to sonnet/medium for better reasoning; spec-reviewer and plan-reviewer remain on haiku. | Accepted |
 | ADR-018 | utils.py as Canonical Constants and Helpers Library | `utils.py` is the single source of truth for `BLOCKS`, `WARNS`, `SDLC_STAGES`, and `normalize_command`. | Accepted |
 | ADR-019 | load_config() Parses JSON Exclusively | `load_config()` uses `json.loads()` directly; eliminates silent INI-style fallback that was dropping config values. | Accepted |
 | ADR-020 | Async Stop Hooks for Non-Blocking Session End | `session-learn.py` and `session-cleanup.py` marked `"async": true`; `stop-guard.py` remains synchronous. | Accepted |
 | ADR-021 | zie-audit Cost Optimization | Replace 5 Opus agents with 3 Sonnet agents + synthesis; ~72% cost reduction; WebSearch 25 → 15. | Accepted |
-| ADR-022 | Effort Routing Strategy for Skills and Commands | Reserve `effort: high` for `spec-design` only; all other skills default to `medium` or `low`; `write-plan` corrected from high → medium. | Accepted |
+| ADR-022 | Effort Routing Strategy for Skills and Commands | `effort: high` for spec-design only; others use medium/low; write-plan high → medium. | Accepted |
 | ADR-023 | SDLC Artifact Archive Strategy | Introduce `zie-framework/archive/` with backlog/specs/plans subdirs; `make archive` moves Done-lane items post-release; excluded from reviewer context bundles. | Accepted |
 | ADR-024 | Git Status Session Cache | Hot-path hooks consult /tmp cache before git subprocesses. | Accepted |
-| ADR-025 | ADR Auto-Summarization via /zie-retro | When `/zie-retro` counts > 30 ADR files, generate `ADR-000-summary.md` compressing oldest ADRs into a table, then delete those individual files. | Accepted |
-| ADR-026 | ROADMAP Done Section Auto-Compaction | Add `compact_roadmap_done()` to utils.py; when Done entries > 20 with some older than 6 months, compact old entries into an archive summary line. | Accepted |
-| ADR-027 | Coverage Gate Lowered to 43% | Lower `--fail-under` from 50 to 43 to reflect honest pytest-only measurable coverage baseline without subprocess hooks. | Accepted |
-| ADR-028 | Plugin Marketplace as Decoupled Authority | Claude Code `settings.json` (extraKnownMarketplaces) is the single authority for plugin discovery; each plugin publishes independently with no cross-repo pinning. | Accepted |
+| ADR-025 | ADR Auto-Summarization via /zie-retro | /retro compresses oldest ADRs to ADR-000-summary.md table when count > 30. | Accepted |
+| ADR-026 | ROADMAP Done Section Auto-Compaction | `compact_roadmap_done()`: compact Done entries >20 and >6mo old into archive summary. | Accepted |
+| ADR-027 | Coverage Gate Lowered to 43% | `--fail-under` 50 → 43; reflects pytest-only baseline without subprocess hooks. | Accepted |
+| ADR-028 | Plugin Marketplace as Decoupled Authority | `settings.json` extraKnownMarketplaces is plugin discovery authority; no cross-repo pinning. | Accepted |
 | ADR-029 | General-Purpose Agents for Subagents | Spawn general-purpose agents with inline context; eliminates stale-cache failures. | Accepted |
 | ADR-030 | Model Routing — Haiku + Sonnet Escalation | Haiku default; judgment steps escalate to Sonnet via `<!-- model: sonnet -->`. | Accepted |
 | ADR-031 | ADR Session Cache | write_adr_cache/get_cached_adrs: cache ADR list per session to avoid redundant dir reads. | Accepted |
@@ -66,9 +66,14 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-053 | Self-Enforcement in Framework Not Memory | Fix bad patterns by updating framework spec/skills directly, not by writing zie-memory entries. | Accepted |
 | ADR-054 | Inline Reviewer Context Hop Elimination | Reviewer skills load context inline (Phase 1 inlined) instead of invoking reviewer-context as separate hop. | Accepted |
 | ADR-055 | Sprint Phase 2 Collapse | Sprint Phase 2 (plan) folded into Phase 1 parallel; spec+plan run as single concurrent wave. | Accepted |
-| ADR-056 | Pre-flight Guard Centralization | Canonical 3-step pre-flight extracted to command-conventions.md; 6 commands reference it by link instead of duplicating inline. | Accepted |
-| ADR-057 | Template Extraction Pattern | Large inline prompt blocks (>100 words) extracted to templates/ files; command retains one-line reference. | Accepted |
-| ADR-058 | Inline Reviewer Replaces Async Agent | impl-reviewer moved from async Agent spawn + polling to inline Skill(); gated on HIGH risk; auto-fix 1 retry then interrupt. | Accepted |
-| ADR-059 | Light Retro ADR Gate | Full ADR writing gated on `<!-- adr: required -->` in plan; absent → one-line summary only; ~80% retro overhead reduction. | Accepted |
+| ADR-056 | Pre-flight Guard Centralization | Canonical pre-flight in command-conventions.md; commands reference by link. | Accepted |
+| ADR-057 | Template Extraction Pattern | Prompt blocks >100 words extracted to templates/; command retains one-line reference. | Accepted |
+| ADR-058 | Inline Reviewer Replaces Async Agent | impl-reviewer: async Agent → inline Skill(); HIGH risk only; 1 auto-fix retry. | Accepted |
+| ADR-059 | Light Retro ADR Gate | `<!-- adr: required -->` gates full ADR write; absent → one-line summary only. | Accepted |
 | ADR-060 | Autonomous Sprint Mode | autonomous_mode=true: clarity scoring, inline reviewers, auto-fix, auto-retro; only 3 interrupt cases. | Accepted |
 | — | v1.22.0 | zie-release-mode agent (fresh-context via `make zie-release`), sprint context_bundle pass-through to plan-reviewer, compact-hint two-level thresholds (80% warn / 90% redirect). | Accepted |
+| ADR-061 | Context Efficiency Budget Table | Token budget table: hooks <500t, commands <2000t, agents <10000t; load-context once per session not per task. | Accepted |
+| ADR-062 | Once-Per-Session /tmp Flag Pattern | Once-per-session behavior via scoped `/tmp/zie-{project}/` flags; hooks write flag on first fire, check on subsequent calls. | Accepted |
+| ADR-063 | Effort Routing Strategy | Effort level routing: low (status/single-step), medium (multi-step incl. brainstorm+spec-design), high (sprint orchestrator only). | Accepted |
+| — | v1.23.0 | Sprint A+B: 3-tier compact-hint, brainstorm skill, conversation capture, /rescue /health /next, code-quality-gate, sprint-reliability, adaptive-learning. | Accepted |
+| — | v1.24.0 | Sprint C+D: WIP=1 implement guard, event field length caps, reviewer-pass marker, effort routing ADR-063, parallel retro ops. | Accepted |

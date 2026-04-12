@@ -40,6 +40,24 @@ Run a complete sprint cycle: spec+plan all items concurrently (no cap), implemen
 
 Flag handling is inline at each consuming step below.
 
+## "All" means ALL — No Silent Drops
+
+When the user says "do all of these", "ทำทั้งหมด", "sprint ทั้งหมด", or provides a list without exclusions:
+- **Every item in the list (or in Next+Ready) MUST be included.** No item may be silently dropped.
+- The sprint audit table MUST show every item. Missing items = error.
+
+**Item consolidation (allowed, but must be declared):**
+Small items CAN be merged into a single backlog entry when they: (a) share a single file/component, (b) each takes < 15 min, and (c) have no spec or plan yet. When merging:
+1. Create one combined backlog file covering all merged items.
+2. Print before the audit table:
+   ```
+   [MERGED] <slug-a> + <slug-b> → <combined-slug>
+   Reason: both touch <X> and are trivially small.
+   Original items: <slug-a> (<title>), <slug-b> (<title>)
+   ```
+3. The combined backlog `## Problem` must reference all original items by name.
+4. Never merge items with existing specs/plans, different domains, or HIGH/CRITICAL priority.
+
 ## Step 0: AUDIT — Build Sprint Plan
 
 1. **Read ROADMAP lanes**:
@@ -136,8 +154,8 @@ For each item in needs_spec (all launched concurrently — parallel Skill calls,
 1. `Skill(zie-framework:spec-design, '<slug> autonomous')` — writes spec, runs spec-reviewer inline, auto-approves
 2. After spec approved: `Skill(zie-framework:write-plan, '<slug>')` — writes plan
 3. Inline plan-reviewer: invoke `Skill(zie-framework:plan-reviewer, context_bundle=<context_bundle>)` in current context — no Agent spawn
-   - ✅ APPROVED → write `approved: true`, move ROADMAP Next → Ready automatically
-   - ❌ Issues Found → fix inline (1 pass) → re-check → auto-approve
+   - ✅ APPROVED → run `python3 hooks/approve.py <plan-file>` via Bash (reviewer-gate blocks Write/Edit — this is the ONLY allowed approval path), then move ROADMAP Next → Ready automatically
+   - ❌ Issues Found → fix inline (1 pass) → re-check → re-run approve.py on pass
    - Second failure → interrupt (Interruption Protocol case 2)
 
 No intermediate general-purpose Agent spawn. Skills run directly in sprint context.
@@ -173,10 +191,14 @@ Read Ready items from `roadmap_post_phase1` (ordered by priority: CRITICAL → H
 For each item in priority order:
 
 1. Move item from Ready → Now in ROADMAP
-2. Read `zie-framework/plans/*-<slug>.md` (only this file per item)
-3. Invoke: `Skill(zie-framework:zie-implement, <slug>, context_bundle=<context_bundle>)`
-4. Success: `[impl N/total] <slug> ✓ <commit>`
-5. Failure: `[impl N/total] <slug> ❌ <issue>` → halt sprint
+2. Run implement agent via Bash (same pattern as Phase 3 release — fresh context, agent mode):
+   ```bash
+   make zie-implement
+   ```
+   The agent reads the Now lane from ROADMAP, implements, commits, and exits.
+3. After Bash returns, check ROADMAP.md — Now item marked `[x]` and committed → success.
+   `[impl N/total] <slug> ✓ <commit>`
+4. Non-zero exit or Now lane still active: `[impl N/total] <slug> ❌ <issue>` → halt sprint
 
 After all impl complete: all items marked `[x]` in Now.
 TaskUpdate → Phase 2/4 complete

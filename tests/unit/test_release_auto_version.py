@@ -36,3 +36,29 @@ class TestReleaseAutoVersion:
         """VERSION file is still written."""
         text = cmd_text()
         assert "Bump VERSION" in text or "bump" in text.lower()
+
+
+class TestVersionBumpSemver:
+    def test_minor_bump_for_new_capability(self):
+        """Minor bump required when ANY new user-visible capability is shipped."""
+        text = cmd_text()
+        assert "minor" in text.lower(), \
+            "release must document minor bump rule"
+
+    def test_patch_only_for_internal_changes(self):
+        """Patch only when ALL items are fix/refactor/chore/docs."""
+        text = cmd_text()
+        assert "patch" in text.lower() and ("fix" in text.lower() or "refactor" in text.lower()), \
+            "release must define patch as fix/refactor/chore/docs only"
+
+    def test_minor_takes_priority_over_patch(self):
+        """Any single minor-worthy item → bump minor, not patch."""
+        text = cmd_text()
+        assert "ANY" in text or "any" in text.lower(), \
+            "must state that ANY new capability triggers minor bump"
+
+    def test_default_to_minor_when_in_doubt(self):
+        """When in doubt between minor and patch, default to minor."""
+        text = cmd_text()
+        assert "default" in text.lower() or "doubt" in text.lower(), \
+            "must specify default behaviour when minor vs patch is ambiguous"
