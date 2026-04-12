@@ -179,3 +179,30 @@ class TestSummaryOutput:
     def test_summary_shows_shipped_count(self):
         text = _text()
         assert "Shipped" in text, "summary must show how many items were shipped"
+
+
+class TestAllItemsEnforcement:
+    def test_no_silent_drops(self):
+        text = _text()
+        assert "silent" in text.lower() or "No item may" in text or "must be included" in text, \
+            "must explicitly forbid silently dropping items from sprint"
+
+    def test_all_means_all_language(self):
+        text = _text()
+        assert "ALL" in text or "all" in text.lower(), \
+            "must state that all items means every item"
+
+    def test_consolidation_requires_declaration(self):
+        text = _text()
+        assert "MERGED" in text or "merged" in text.lower() or "consolid" in text.lower(), \
+            "item consolidation must be declared to user (not silent)"
+
+    def test_consolidation_explains_original_items(self):
+        text = _text()
+        assert "Original items" in text or "original item" in text.lower(), \
+            "merged backlog must reference original items by name"
+
+    def test_consolidation_conditions_listed(self):
+        text = _text()
+        assert "trivial" in text.lower() or "15 min" in text or "small" in text.lower(), \
+            "must define conditions under which consolidation is allowed"

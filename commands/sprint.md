@@ -40,6 +40,24 @@ Run a complete sprint cycle: spec+plan all items concurrently (no cap), implemen
 
 Flag handling is inline at each consuming step below.
 
+## "All" means ALL — No Silent Drops
+
+When the user says "do all of these", "ทำทั้งหมด", "sprint ทั้งหมด", or provides a list without exclusions:
+- **Every item in the list (or in Next+Ready) MUST be included.** No item may be silently dropped.
+- The sprint audit table MUST show every item. Missing items = error.
+
+**Item consolidation (allowed, but must be declared):**
+Small items CAN be merged into a single backlog entry when they: (a) share a single file/component, (b) each takes < 15 min, and (c) have no spec or plan yet. When merging:
+1. Create one combined backlog file covering all merged items.
+2. Print before the audit table:
+   ```
+   [MERGED] <slug-a> + <slug-b> → <combined-slug>
+   Reason: both touch <X> and are trivially small.
+   Original items: <slug-a> (<title>), <slug-b> (<title>)
+   ```
+3. The combined backlog `## Problem` must reference all original items by name.
+4. Never merge items with existing specs/plans, different domains, or HIGH/CRITICAL priority.
+
 ## Step 0: AUDIT — Build Sprint Plan
 
 1. **Read ROADMAP lanes**:
