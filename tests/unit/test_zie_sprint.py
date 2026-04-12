@@ -181,6 +181,35 @@ class TestSummaryOutput:
         assert "Shipped" in text, "summary must show how many items were shipped"
 
 
+class TestPhase2ImplementAgent:
+    def test_phase2_uses_zie_implement_make_target(self):
+        """Phase 2 must invoke make zie-implement (agent mode), not a non-existent Skill."""
+        t = _text()
+        phase2_idx = t.index("PHASE 2")
+        phase3_idx = t.index("PHASE 3")
+        phase2 = t[phase2_idx:phase3_idx]
+        assert "zie-implement" in phase2, \
+            "Sprint Phase 2 must call make zie-implement (agent mode via Bash)"
+
+    def test_phase2_no_skill_zie_implement(self):
+        """Phase 2 must NOT call Skill(zie-framework:zie-implement) — that skill does not exist."""
+        t = _text()
+        phase2_idx = t.index("PHASE 2")
+        phase3_idx = t.index("PHASE 3")
+        phase2 = t[phase2_idx:phase3_idx]
+        assert "Skill(zie-framework:zie-implement" not in phase2, \
+            "Sprint Phase 2 must not call non-existent Skill zie-implement — use make zie-implement"
+
+    def test_phase2_checks_roadmap_after_implement(self):
+        """Phase 2 must verify ROADMAP state after implement completes."""
+        t = _text()
+        phase2_idx = t.index("PHASE 2")
+        phase3_idx = t.index("PHASE 3")
+        phase2 = t[phase2_idx:phase3_idx]
+        assert "ROADMAP" in phase2, \
+            "Phase 2 must check ROADMAP.md after implement to confirm success"
+
+
 class TestAllItemsEnforcement:
     def test_no_silent_drops(self):
         text = _text()

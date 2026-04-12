@@ -191,10 +191,14 @@ Read Ready items from `roadmap_post_phase1` (ordered by priority: CRITICAL → H
 For each item in priority order:
 
 1. Move item from Ready → Now in ROADMAP
-2. Read `zie-framework/plans/*-<slug>.md` (only this file per item)
-3. Invoke: `Skill(zie-framework:zie-implement, <slug>, context_bundle=<context_bundle>)`
-4. Success: `[impl N/total] <slug> ✓ <commit>`
-5. Failure: `[impl N/total] <slug> ❌ <issue>` → halt sprint
+2. Run implement agent via Bash (same pattern as Phase 3 release — fresh context, agent mode):
+   ```bash
+   make zie-implement
+   ```
+   The agent reads the Now lane from ROADMAP, implements, commits, and exits.
+3. After Bash returns, check ROADMAP.md — Now item marked `[x]` and committed → success.
+   `[impl N/total] <slug> ✓ <commit>`
+4. Non-zero exit or Now lane still active: `[impl N/total] <slug> ❌ <issue>` → halt sprint
 
 After all impl complete: all items marked `[x]` in Now.
 TaskUpdate → Phase 2/4 complete

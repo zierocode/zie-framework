@@ -61,3 +61,22 @@ def test_clean_removes_coverage_xml():
     result = _make("clean")
     assert "coverage.xml" in result.stdout, \
         "make clean must remove coverage.xml"
+
+
+def test_zie_implement_target_exists():
+    """make zie-implement must exist — sprint Phase 2 and implement docs reference it."""
+    result = _make("zie-implement")
+    assert result.returncode == 0, f"make zie-implement missing: {result.stderr}"
+
+
+def test_zie_implement_invokes_agent_mode():
+    """make zie-implement must run claude --agent zie-framework:zie-implement-mode."""
+    result = _make("zie-implement")
+    assert "zie-implement-mode" in result.stdout, \
+        "make zie-implement must invoke claude --agent zie-framework:zie-implement-mode"
+
+
+def test_zie_release_target_still_exists():
+    """Regression: make zie-release must still exist after adding zie-implement."""
+    result = _make("zie-release")
+    assert result.returncode == 0, f"make zie-release missing or broken: {result.stderr}"
