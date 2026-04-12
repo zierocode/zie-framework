@@ -67,6 +67,45 @@ class TestSpecDesignAutonomousApproval:
             "spec-design autonomous must not say 'write approved:true' — hook blocks it"
 
 
+class TestSpecCommandDraftPlanApproval:
+    """spec.md --draft-plan branch must use approve.py, not write approved:true directly."""
+
+    def _spec_cmd(self):
+        return (REPO / "commands" / "spec.md").read_text()
+
+    def test_spec_allowed_tools_has_bash(self):
+        """spec.md must include Bash in allowed-tools to run approve.py."""
+        text = self._spec_cmd()
+        fm_end = text.index("\n---", text.index("---") + 3)
+        frontmatter = text[:fm_end]
+        assert "Bash" in frontmatter, \
+            "spec.md must have Bash in allowed-tools (needed for approve.py in --draft-plan)"
+
+    def test_spec_draft_plan_uses_approve_py(self):
+        """--draft-plan branch must call approve.py, not write approved:true directly."""
+        text = self._spec_cmd()
+        draft_idx = text.index("--draft-plan branch")
+        draft_section = text[draft_idx:draft_idx + 800]
+        assert "approve.py" in draft_section, \
+            "spec --draft-plan branch must use approve.py to approve plan"
+
+    def test_spec_draft_plan_no_self_approve_write(self):
+        """--draft-plan branch must not say 'write approved:true'."""
+        text = self._spec_cmd()
+        draft_idx = text.index("--draft-plan branch")
+        draft_section = text[draft_idx:draft_idx + 800]
+        assert "write `approved: true`" not in draft_section, \
+            "spec --draft-plan must not instruct writing approved:true directly"
+
+    def test_spec_draft_plan_invokes_plan_reviewer(self):
+        """--draft-plan branch must run plan-reviewer before approving."""
+        text = self._spec_cmd()
+        draft_idx = text.index("--draft-plan branch")
+        draft_section = text[draft_idx:draft_idx + 800]
+        assert "plan-reviewer" in draft_section, \
+            "spec --draft-plan must invoke plan-reviewer before approve.py"
+
+
 class TestWritePlanApprovalGate:
     def test_write_plan_documents_approval_gate(self):
         """write-plan skill must document that reviewer-gate blocks direct approved:true writes."""
