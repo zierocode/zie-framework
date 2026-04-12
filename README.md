@@ -53,6 +53,7 @@ Skills are invoked automatically by commands as subagents — not called directl
 | `load-context` | Load shared ADR and project context bundle |
 | `zie-audit` | 9-dimension audit analysis (invoked by /audit) |
 | `docs-sync-check` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
+| `using-zie-framework` | Command map, workflow map, and anti-patterns guide for the framework |
 
 ## Pipeline
 
