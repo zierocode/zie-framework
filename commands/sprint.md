@@ -154,8 +154,8 @@ For each item in needs_spec (all launched concurrently — parallel Skill calls,
 1. `Skill(zie-framework:spec-design, '<slug> autonomous')` — writes spec, runs spec-reviewer inline, auto-approves
 2. After spec approved: `Skill(zie-framework:write-plan, '<slug>')` — writes plan
 3. Inline plan-reviewer: invoke `Skill(zie-framework:plan-reviewer, context_bundle=<context_bundle>)` in current context — no Agent spawn
-   - ✅ APPROVED → write `approved: true`, move ROADMAP Next → Ready automatically
-   - ❌ Issues Found → fix inline (1 pass) → re-check → auto-approve
+   - ✅ APPROVED → run `python3 hooks/approve.py <plan-file>` via Bash (reviewer-gate blocks Write/Edit — this is the ONLY allowed approval path), then move ROADMAP Next → Ready automatically
+   - ❌ Issues Found → fix inline (1 pass) → re-check → re-run approve.py on pass
    - Second failure → interrupt (Interruption Protocol case 2)
 
 No intermediate general-purpose Agent spawn. Skills run directly in sprint context.

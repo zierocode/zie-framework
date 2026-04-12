@@ -126,3 +126,17 @@ slots become available.
 
 Save plan to: `zie-framework/plans/YYYY-MM-DD-<feature-slug>.md`
 
+## Approval Gate — Caller Responsibility
+
+> **reviewer-gate hook blocks any Write/Edit that sets `approved: true`.**
+> This skill writes the plan with `approved: false` only. Approval is handled by the caller.
+
+The caller (e.g. `/plan` or `/sprint`) is responsible for:
+1. Running the reviewer skill after this skill finishes.
+2. Setting approval via Bash (the only allowed path — never via Write/Edit):
+   ```bash
+   python3 hooks/approve.py zie-framework/plans/YYYY-MM-DD-<slug>.md
+   ```
+
+Never attempt to write or edit `approved: true` into the file. The hook will block it.
+

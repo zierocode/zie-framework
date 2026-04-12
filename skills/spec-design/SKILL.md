@@ -74,8 +74,8 @@ When `$ARGUMENTS[1]` is `autonomous`:
 - Skip Steps 1, 2, 3 (clarifying questions, approaches proposal, user review loop)
 - Write spec directly from backlog content (Step 4) — treat all sections as accepted
 - Run spec-reviewer inline (Skill call in same context — no Agent spawn)
-- ✅ APPROVED → write `approved: true` frontmatter automatically (Step 6). No user gate.
-- ❌ Issues Found → fix inline (1 pass) → re-check once → auto-approve on pass
+- ✅ APPROVED → follow Step 6 exactly: write frontmatter with `approved: false` first, then run `python3 hooks/approve.py <spec-file>` via Bash (sets `approved: true`). Do NOT use Write/Edit tool to set the approved field — reviewer-gate blocks it.
+- ❌ Issues Found → fix inline (1 pass) → re-check once → re-run approve.py on pass
 - On second failure → surface to user (Interruption Protocol case 2)
 
 **Used by:** `/sprint` autonomous execution.
