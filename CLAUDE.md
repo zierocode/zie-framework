@@ -85,3 +85,11 @@ make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 fi
 - **Templates**: Reusable file templates in `templates/`
 - **Optional**: `playwright` (if `playwright_enabled: true`),
   `zie-memory` API (if `zie_memory_enabled: true`)
+
+## Non-Claude Model Compatibility
+
+- `model:` frontmatter in commands/agents is a Claude Code hint — non-Claude providers ignore it
+- `--agent` flag requires Claude Code CLI — use `/implement` directly on non-Claude providers
+- `effort:` frontmatter has no effect on non-Claude models
+- Safety hooks fall back to regex when Claude models are unavailable (ADR-066)
+- `make implement-local` runs `/implement` in current session without agent mode

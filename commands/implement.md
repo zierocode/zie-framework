@@ -14,7 +14,7 @@ effort: medium
 !`git status --short`
 
 0. **Pre-flight: Agent mode advisory** — if not running with `--agent zie-framework:zie-implement-mode`:
-   print `ℹ️ Tip: run inside \`claude --agent zie-framework:zie-implement-mode\` for best results.`
+   print `ℹ️ Tip: run inside \`claude --agent zie-framework:zie-implement-mode\` for best results. On non-Claude models, /implement works directly in the current session.`
    (advisory only — do not block, continue immediately)
 
 See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
