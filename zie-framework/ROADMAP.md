@@ -10,6 +10,8 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
+- [ ] sprint-phase2-resilience: Per-Item State + Compact in Phase 2 — [plan](plans/2026-04-13-sprint-phase2-resilience.md)
+
 ---
 
 ## Ready — Approved Plans
@@ -22,7 +24,6 @@
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
-
 
 ---
 
