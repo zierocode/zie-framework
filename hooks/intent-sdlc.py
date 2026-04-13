@@ -5,6 +5,7 @@ Merged replacement for intent-detect.py + sdlc-context.py.
 Reads ROADMAP.md once (via session cache) and produces a single
 additionalContext payload combining intent suggestion + SDLC state.
 """
+import hashlib
 import json
 import os
 import re
@@ -238,6 +239,39 @@ def get_test_status(cwd: Path) -> str:
         return "unknown"
 
 
+_DEDUP_TTL_SECS = 600  # 10-minute session window
+
+
+def _dedup_path(session_id: str, cwd: Path) -> Path:
+    """Return the per-session dedup cache file path.
+
+    Includes a short hash of the full cwd path so that different directories
+    with the same basename (e.g., pytest tmp dirs across test runs) don't share
+    a dedup file.
+    """
+    safe_sid = re.sub(r"[^a-zA-Z0-9_-]", "-", session_id)
+    cwd_hash = hashlib.md5(str(cwd).encode(), usedforsecurity=False).hexdigest()[:8]
+    return project_tmp_path(f"intent-dedup-{safe_sid}-{cwd_hash}", cwd.name)
+
+
+def _read_dedup(path: Path) -> str:
+    """Return last emitted context string, or '' on miss/expired/error."""
+    try:
+        if time.time() - path.stat().st_mtime > _DEDUP_TTL_SECS:
+            return ""  # expired — re-emit after TTL
+        return path.read_text()
+    except Exception:
+        return ""
+
+
+def _write_dedup(path: Path, context: str) -> None:
+    """Write current context to dedup cache (best-effort, never blocks)."""
+    try:
+        path.write_text(context)
+    except Exception:
+        pass
+
+
 # ── Outer guard ───────────────────────────────────────────────────────────────
 
 try:
@@ -279,6 +313,11 @@ try:
                 "[zie-framework] intent: unclear — "
                 "please clarify your request before proceeding"
             )
+            if session_id != "default":
+                _dp = _dedup_path(session_id, cwd)
+                if _read_dedup(_dp) == context:
+                    sys.exit(0)
+                _write_dedup(_dp, context)
             print(json.dumps({"additionalContext": context}))
         sys.exit(0)  # short messages always exit (ambiguous even with keyword)
 
@@ -348,7 +387,15 @@ try:
         if score >= 2:
             hint = NEW_INTENT_HINTS[intent_name]
             context = f"[zie-framework] intent: {intent_name} — {hint}"
-            print(json.dumps({"additionalContext": context}))
+            _should_emit = True
+            if session_id != "default":
+                _dp = _dedup_path(session_id, cwd)
+                if _read_dedup(_dp) == context:
+                    _should_emit = False
+                else:
+                    _write_dedup(_dp, context)
+            if _should_emit:
+                print(json.dumps({"additionalContext": context}))
             if intent_name == "sprint":
                 try:
                     sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
@@ -415,6 +462,13 @@ try:
             f"task:{active_task} | stage:{stage} | next:{suggested_cmd} | tests:{test_status}"
         )
     context = "[zie-framework] " + " | ".join(parts)
+
+    # ── Dedup: skip re-injection when context unchanged since last emission ──────
+    if session_id != "default":
+        _dp = _dedup_path(session_id, cwd)
+        if _read_dedup(_dp) == context:
+            sys.exit(0)
+        _write_dedup(_dp, context)
 
     print(json.dumps({"additionalContext": context}))
 
