@@ -13,6 +13,9 @@ REPO_ROOT = Path(__file__).parents[2]
 HOOKS_DIR = REPO_ROOT / "hooks"
 HOOK = HOOKS_DIR / "subagent-context.py"
 
+sys.path.insert(0, str(HOOKS_DIR))
+from utils_io import project_tmp_path, safe_project_name
+
 
 def _make_zf(tmp_path: Path, with_context: bool = True) -> None:
     zf = tmp_path / "zie-framework"
@@ -40,17 +43,16 @@ def _run_hook(tmp_path: Path, agent_type: str,
 
 
 def _cache_flag(tmp_path: Path, session_id: str = "test-session") -> Path:
+    """Return the session cache flag path for this project."""
     project = tmp_path.name
-    safe = project  # project name from tmp_path is already safe
-    safe_sid = session_id  # test-session is already safe
-    return Path(tempfile.gettempdir()) / f"zie-{safe}-session-context-{safe_sid}"
+    safe_sid = safe_project_name(session_id)
+    return project_tmp_path(f"session-context-{safe_sid}", project)
 
 
 def _hash_file(tmp_path: Path) -> Path:
     """Return the path to the content-hash cache file for this project."""
     project = tmp_path.name
-    # Use project_tmp_path convention: /tmp/zie-<project>-context-hash-<project>
-    return Path(tempfile.gettempdir()) / f"zie-{project}-context-hash-{project}"
+    return project_tmp_path(f"context-hash-{project}", project)
 
 
 def _cleanup(tmp_path: Path, session_id: str = "test-session"):
