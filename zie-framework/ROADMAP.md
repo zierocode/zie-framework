@@ -30,6 +30,8 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+- [ ] release-non-claude-fallback — Add non-Claude fallback to /release (advisory + make release-local), remove inline model: escalation comments, audit subagent-context env vars
+
 ---
 
 ## Done
