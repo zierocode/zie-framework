@@ -26,6 +26,7 @@ Run a complete sprint cycle: spec+plan all items concurrently (no cap), implemen
    - Parse JSON: `{phase, items, completed_phases, remaining_items, started_at}`
    - If found, ask: `"Incomplete sprint found (phase {phase}/4, {N} items remaining). Resume? (yes / restart)"`
    - `yes` → skip audit, jump to the phase stored in state, use remaining_items
+     - If phase=2: print `[resume] Phase 2 — skipping completed: <items \ remaining_items> | resuming from: <first of remaining_items>`
    - `restart` → delete `.sprint-state`, proceed with fresh sprint
    - If file is malformed → delete it, proceed fresh
 
@@ -198,6 +199,9 @@ For each item in priority order:
    The agent reads the Now lane from ROADMAP, implements, commits, and exits.
 3. After Bash returns, check ROADMAP.md — Now item marked `[x]` and committed → success.
    `[impl N/total] <slug> ✓ <commit>`
+   Update `.sprint-state`: `remaining_items` = previous `remaining_items` minus `<slug>`
+   (write immediately so resume can skip this item if context overflows before next item)
+   If this is not the last item: run `/compact` → print `[compact] context cleared after <slug>`
 4. Non-zero exit or Now lane still active: `[impl N/total] <slug> ❌ <issue>` → halt sprint
 
 After all impl complete: all items marked `[x]` in Now.

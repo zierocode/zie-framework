@@ -23,12 +23,13 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
-
 ---
 
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint-phase2-resilience — per-item .sprint-state updates (granular resume) + /compact between Phase 2 items (overflow prevention) — v1.27.0 2026-04-13
 
 - [x] sprint-efficiency-quality — 3 items: intent-sdlc session-level dedup cache (skip re-injection when context unchanged, file-based 600s TTL), quality-gate staged-files bandit (replace rglob[:20] with git diff --cached), implement conditional simplify step (Δ>50 triggers code-simplifier, else skipped) — v1.26.0 2026-04-13
 
