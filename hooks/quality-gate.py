@@ -79,18 +79,29 @@ try:
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
         pass  # git not available or timed out — skip
 
-    # ── Check 3: Security scan (bandit) ───────────────────────────────────
+    # ── Check 3: Security scan (bandit — staged files only) ───────────────
     try:
         if shutil.which("bandit"):
-            py_files = list(cwd.rglob("*.py"))
-            # Limit scan to a reasonable set; skip venv/node_modules
-            scan_files = [
-                str(f) for f in py_files
-                if not any(part in f.parts for part in ("venv", ".venv", "node_modules", "__pycache__"))
-            ][:20]  # cap at 20 files for speed
-            if scan_files:
+            result_diff = subprocess.run(
+                ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                cwd=str(cwd),
+            )
+            staged_py: list[str] = []
+            if result_diff.returncode == 0:
+                staged_py = [
+                    str(cwd / f)
+                    for f in result_diff.stdout.splitlines()
+                    if f.endswith(".py") and not any(
+                        part in Path(f).parts
+                        for part in ("venv", ".venv", "node_modules", "__pycache__")
+                    )
+                ]
+            if staged_py:
                 result = subprocess.run(
-                    ["bandit", "-q", "-ll", "-x", ".venv,venv"] + scan_files,
+                    ["bandit", "-q", "-ll", "-x", ".venv,venv"] + staged_py,
                     capture_output=True,
                     text=True,
                     timeout=30,
