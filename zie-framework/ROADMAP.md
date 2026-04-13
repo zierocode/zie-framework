@@ -19,6 +19,9 @@
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
 
+- [ ] intent-sdlc: Deduplicate Same-Context Injection Per Session — [plan](plans/2026-04-13-intent-sdlc-context-dedup.md)
+- [ ] quality-gate: Scope Bandit Scan to Staged Files Only — [plan](plans/2026-04-13-quality-gate-staged-files.md)
+- [ ] Wire Simplify Step Conditionally After GREEN Phase in /implement — [plan](plans/2026-04-13-simplify-post-green.md)
 
 ---
 
@@ -26,10 +29,6 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
-- [ ] intent-sdlc: Deduplicate Same-Context Injection Per Session — [backlog](backlog/intent-sdlc-context-dedup.md)
-- [ ] quality-gate: Scope Bandit Scan to Staged Files Only — [backlog](backlog/quality-gate-staged-files.md)
-- [ ] Wire Simplify Step Conditionally After GREEN Phase in /implement — [backlog](backlog/simplify-post-green.md)
-- [ ] CI/CD via GitHub Actions — [backlog](backlog/github-actions-ci.md)
 
 ---
 
