@@ -56,15 +56,22 @@ def test_zie_release_no_zie_not_ready():
         "zie-release.md must not contain ZIE-NOT-READY (obsolete gate)"
 
 
-def test_zie_release_delegates_to_make_release():
+def test_zie_release_does_not_call_make_release():
+    """v1.28.4: /release skill does git ops directly to avoid duplication."""
     content = (COMMANDS / "release.md").read_text()
-    assert "make release NEW=" in content
+    assert "make release NEW=" not in content, \
+        "/release must NOT call 'make release' (duplicates git ops)"
 
 
-def test_zie_release_no_direct_git_ops():
+def test_zie_release_does_git_ops_directly():
+    """v1.28.4: /release skill performs git ops directly."""
     content = (COMMANDS / "release.md").read_text()
-    assert "git merge dev" not in content
-    assert "git push origin main" not in content
+    assert "git merge dev" in content, \
+        "/release must merge dev → main directly"
+    assert "git push origin main" in content, \
+        "/release must push main directly"
+    assert "git tag -s" in content, \
+        "/release must create tag directly"
 
 
 def test_zie_init_has_makefile_local_creation():
