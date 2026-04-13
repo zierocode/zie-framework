@@ -11,22 +11,13 @@ effort: medium
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. Read `zie-framework/.config` → bind `has_frontend`, `playwright_enabled`
-   (reused by Gates 3–4; read once here, never again).
-3. Read `VERSION` → current version.
-4. Check current git branch → should be `dev`. Warn if not.
-5. Verify `VERSION` file exists and is non-empty:
+1. Check `zie-framework/` exists → else `/init`
+2. Read `zie-framework/.config` → `has_frontend`, `playwright_enabled`
+3. Read `VERSION` → current version
+4. Check branch → should be `dev`
+5. Verify VERSION non-empty: `cat VERSION` → empty/missing → STOP: "Run `make bump NEW=x.y.z` first"
 
-   ```bash
-   cat VERSION
-   ```
-
-   Empty or missing → **STOP**: "No VERSION file found. Run `make bump NEW=x.y.z` first."
-
-> **Non-Claude models:** If running on a non-Claude provider (e.g. minimax-m2.7:cloud),
-> invoke `/release` directly — do NOT use `make zie-release`. The `--agent` flag
-> is a Claude Code CLI feature unavailable on other providers.
+> **Non-Claude:** Use `/release` directly — NOT `make zie-release` (--agent unavailable)
 
 ## ลำดับการตรวจสอบ (ต้องผ่านทุกขั้น)
 
@@ -50,73 +41,29 @@ make test-fast
 
 ### ตรวจสอบ: Parallel Gates 2–4
 
-Upon Gate 1 success, immediately issue three Bash calls simultaneously (run_in_background=True):
+Gate 1 pass → spawn Gates 2, 3, 4 in parallel (`run_in_background=True`):
 
 **Gate 2/5 — Integration tests:**
-
 ```bash
-# [Gate 2/5] Integration tests — run_in_background=True
 make test-int
 ```
+Report: `[Gate 2/5] PASSED` | `[Gate 2/5] SKIPPED` | `[Gate 2/5] FAILED: <stderr>`
 
-Report: `[Gate 2/5] PASSED`, `[Gate 2/5] SKIPPED` (if no integration tests), or `[Gate 2/5] FAILED: <stderr>`.
+**Gate 3/5 — E2E tests (if playwright_enabled=true):** `make test-e2e`
+**Gate 4/5 — Visual check (if has_frontend=true AND playwright_enabled=true):** `make visual-check`
 
-**Gate 3/5 — E2E tests (conditional):**
-
-Check pre-bound `playwright_enabled` (from pre-flight Step 2).
-- If `playwright_enabled=false` → print `[Gate 3/5] SKIPPED` (no Bash call issued).
-- If `playwright_enabled=true`:
-
-  ```bash
-  # [Gate 3/5] E2E tests — run_in_background=True
-  make test-e2e
-  ```
-
-  Report: `[Gate 3/5] PASSED` or `[Gate 3/5] FAILED: <stderr>`.
-
-**Gate 4/5 — Visual check (conditional):**
-
-Check pre-bound `has_frontend` and `playwright_enabled` (from pre-flight Step 2).
-- If `has_frontend=false` OR `playwright_enabled=false` → print `[Gate 4/5] SKIPPED` (no Bash call issued).
-- If both true:
-
-  ```bash
-  # [Gate 4/5] Visual check — run_in_background=True
-  make visual-check
-  ```
-
-  Report: `[Gate 4/5] PASSED` or `[Gate 4/5] FAILED: <stderr>`.
+Each: PASSED | SKIPPED | FAILED: <stderr>
 
 ### Collect Parallel Gate Results
 
-Wait for all three Bash gate calls to complete. Collect results (do NOT stop at first failure):
+Wait for all three Bash calls. Collect all results:
+- All pass/skip → continue
+- Any fail → print all failures, STOP before version bump
 
-- If all three pass (or skip) → print "Gates 2, 3, 4 PASSED" → continue
-- If any fail → print all failures together, then STOP before version bump:
-  ```
-  [Gate 2/5] FAILED: integration tests failed
-  [Gate 3/5] FAILED: e2e tests timed out
-  ```
-- Also collect docs-sync-check result (Pre-Gate-1 Bash):
-  - `[docs-sync] PASSED` → print "Docs in sync"
-  - `[docs-sync] FAILED` → update stale docs now before version bump
-  - Bash call not available → print `[zie-framework] docs-sync-check unavailable — skipping` and continue. Manual check: `make docs-sync`
+Docs-sync: PASSED → "Docs in sync" | FAILED → update docs | unavailable → skip + `make docs-sync`
 
-Also run TODOs and secrets scan (Bash, parallel with gate agents):
-
-```bash
-grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
-```
-
-Any secrets detected → STOP immediately.
-
-### รวมผลลัพธ์ Quality Forks
-
-Print: `[Quality Forks] Collecting results`
-
-- Gates 2, 3, 4: all PASSED or SKIPPED → continue
-- Docs sync: stale docs updated if needed → continue
-- TODOs/secrets: no secrets detected → continue
+TODOs/secrets scan (parallel): `grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .`
+Secrets found → STOP immediately.
 
 ### ตรวจสอบ: Code diff ก่อน merge
 
@@ -150,21 +97,20 @@ merging.
 6. **Pre-flight: ตรวจสอบ uncommitted files**: run `git status --short`. Release commit should have only `VERSION`, `CHANGELOG.md`, `ROADMAP.md` (project files like `plugin.json` committed by `make release`). Implementation files found → STOP. Docs from this gate → include.
 
 7. **Commit release files**:
-
    ```bash
    git add VERSION CHANGELOG.md zie-framework/ROADMAP.md
    git commit -m "release: v<NEW_VERSION>"
    ```
 
-8. **Delegate publish to project**:
-
+8. **Publish release** (do NOT call `make release` — do git ops directly):
    ```bash
-   make release NEW=<version>
+   git checkout main && git merge dev --no-ff -m "release: v${NEW_VERSION}"
+   git tag -s v${NEW_VERSION} -m "release v${NEW_VERSION}"
+   git push origin main --tags
+   make _publish NEW=${NEW_VERSION}
+   git checkout dev && git merge main && git push origin dev
    ```
-
-   - Exit 0 → proceed.
-   - Non-zero → **STOP**. Surface make error. Print: "Release failed —
-     fix make release and re-run /release."
+   Fail → STOP: "Release failed — fix and re-run /release."
 
 9. **Store release in brain** (if `zie_memory_enabled=true`):
    - First READ: Call `mcp__plugin_zie-memory_zie-memory__recall`
@@ -177,7 +123,6 @@ merging.
 11. **Auto-run `/retro`**.
 
 12. Print:
-
     ```text
     Released v<NEW_VERSION>
 

@@ -18,6 +18,7 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+- [ ] context-loader-sprint — Auto-load zie-framework context at session start: hooks/zie-context-loader.py, session-start integration, intent-sdlc context injection, standard headers for agents/commands/skills [backlog](backlog/context-loader-sprint.md)
 - [ ] context-load-smart — Deduplicate context loading: universal load-context entry point, session cache with content hash, reviewer context_bundle passthrough, ROADMAP session cache
 - [ ] agent-mode-compat — Document non-Claude model limitations, add fallback invocation in /implement, make model: frontmatter optional, add make implement without --agent
 - [ ] check-fully-framework-compatibility-with-model-glm-5-1-cloud — Full compatibility audit: hooks, commands, skills, tests, Makefile vs glm-5.1:cloud [backlog](backlog/check-fully-framework-compatibility-with-model-glm-5-1-cloud.md)
@@ -28,6 +29,7 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] release-makefile-conflict-fix — Fix /release skill vs make release duplication (tag already exists error), add make _publish target, deprecate make release — v1.28.4 2026-04-14
 - [x] subagent-context-test-fix — Fix test flakiness from content-hash cache TTL, add clear_content_hash_cache() helper, add decisions/ADR-000-summary.md fixture — v1.28.2 2026-04-14
 - [x] fix-impl-reviewer-simplify — Reconnect impl-reviewer skill to /implement (replace inline checklist), fix broken code-simplifier → simplify reference, clean orphaned agent file — v1.28.2 2026-04-14
 - [x] review-loop-optimization — Fix max-iterations contradiction, unify sprint vs manual retry, remove speculative file-existence checks, pass context_bundle to avoid re-reads — v1.28.2 2026-04-14

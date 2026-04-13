@@ -104,17 +104,19 @@ class TestAuditModeAgent:
         assert fm.get("model", "").split("#")[0].strip() == "sonnet", \
             f"Expected model: sonnet, got: {fm.get('model')}"
 
-    def test_frontmatter_permission_mode(self):
+    def test_frontmatter_no_permission_mode_restriction(self):
+        """zie-audit-mode must NOT restrict permissionMode or tools — needs Agent tool for Phase 2 subagents."""
         fm, _ = parse_agent_file("zie-audit-mode.md")
-        assert fm.get("permissionMode") == "plan", \
-            f"Expected permissionMode: plan, got: {fm.get('permissionMode')}"
+        # permissionMode should be absent (removed in v1.28.4 to fix audit hang)
+        assert fm.get("permissionMode") is None, \
+            f"permissionMode should be absent (audit needs full tool access), got: {fm.get('permissionMode')}"
 
-    def test_frontmatter_tools_restricted(self):
+    def test_frontmatter_no_tools_restriction(self):
+        """zie-audit-mode must NOT restrict tools — needs Agent tool for Phase 2 subagents."""
         fm, _ = parse_agent_file("zie-audit-mode.md")
-        tools_val = fm.get("tools", "")
-        for expected in ["Read", "Grep", "Glob", "WebSearch"]:
-            assert expected in tools_val, \
-                f"Expected '{expected}' in tools list, got: {tools_val}"
+        # tools should be absent (removed in v1.28.4 to fix audit hang)
+        assert fm.get("tools") is None, \
+            f"tools should be absent (audit needs full tool access), got: {fm.get('tools')}"
 
     def test_frontmatter_tools_excludes_write(self):
         fm, _ = parse_agent_file("zie-audit-mode.md")
