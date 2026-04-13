@@ -87,6 +87,17 @@ def run_hook(event, tmp_cwd=None, env_overrides=None, session_id=None):
     )
 
 
+def clear_content_hash_cache(tmp_cwd):
+    """Clear content-hash cache file before tests to avoid TTL-based skip."""
+    if tmp_cwd:
+        import tempfile as _tempfile
+        import re as _re
+        project = tmp_cwd.name
+        safe_project = _re.sub(r'[^a-zA-Z0-9]', '-', project)
+        hash_file = Path(_tempfile.gettempdir()) / f"zie-context-hash-{safe_project}"
+        hash_file.unlink(missing_ok=True)
+
+
 def parse_context(r):
     """Assert stdout is non-empty JSON and return the additionalContext string."""
     assert r.stdout.strip() != "", f"Expected stdout, got empty. stderr={r.stderr}"
@@ -97,6 +108,7 @@ def parse_context(r):
 
 class TestSubagentContextHappyPath:
     def test_explore_agent_receives_context(self, tmp_path):
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
