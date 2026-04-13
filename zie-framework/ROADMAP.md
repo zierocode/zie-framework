@@ -23,6 +23,8 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+- [ ] GLM/Ollama Cloud Compatibility — [backlog](backlog/glm-ollama-compat.md)
+
 ---
 
 ## Done
