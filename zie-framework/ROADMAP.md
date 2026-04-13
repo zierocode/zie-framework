@@ -10,7 +10,9 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
----
+- [x] fix-impl-reviewer-simplify — Reconnect impl-reviewer skill to /implement (replace inline checklist), fix broken code-simplifier → simplify reference, clean orphaned agent file
+- [x] review-loop-optimization — Fix max-iterations contradiction, unify sprint vs manual retry, remove speculative file-existence checks, pass context_bundle to avoid re-reads
+- [x] compact-recovery — Compact verification in session-resume, sprint state enrichment (current_task + tdd_phase), PostCompact active-workflow guard, simplify compact-hint tiers
 
 ---
 
@@ -18,6 +20,9 @@
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
+
+- [ ] context-load-smart — Deduplicate context loading: universal load-context entry point, session cache with content hash, reviewer context_bundle passthrough, ROADMAP session cache
+- [ ] agent-mode-compat — Document non-Claude model limitations, add fallback invocation in /implement, make model: frontmatter optional, add make implement without --agent
 
 ---
 

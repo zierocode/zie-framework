@@ -99,3 +99,58 @@ class TestSprintStateCleanup:
         assert "malformed" in text.lower() or "corrupt" in text.lower(), (
             "sprint.md must describe how to handle malformed .sprint-state"
         )
+
+
+class TestSprintStateEnrichment:
+    """Verify sprint-state JSON includes current_task, tdd_phase, last_action fields."""
+
+    def test_current_task_in_state(self):
+        """Sprint state must include current_task field."""
+        assert "current_task" in _text(), \
+            "sprint.md must include current_task in .sprint-state JSON"
+
+    def test_tdd_phase_in_state(self):
+        """Sprint state must include tdd_phase field."""
+        assert "tdd_phase" in _text(), \
+            "sprint.md must include tdd_phase in .sprint-state JSON"
+
+    def test_last_action_in_state(self):
+        """Sprint state must include last_action field."""
+        assert "last_action" in _text(), \
+            "sprint.md must include last_action in .sprint-state JSON"
+
+    def test_impl_start_sets_current_task(self):
+        """impl-start must set current_task."""
+        assert "impl-start" in _text(), \
+            "sprint.md must set last_action to impl-start when implementation begins"
+
+    def test_impl_done_clears_current_task(self):
+        """impl-done must clear current_task."""
+        assert "impl-done" in _text(), \
+            "sprint.md must set last_action to impl-done when implementation completes"
+
+    def test_compact_after_action(self):
+        """Compact between items must set last_action to compact-after."""
+        assert "compact-after" in _text(), \
+            "sprint.md must set last_action to compact-after between items"
+
+    def test_release_start_action(self):
+        """Phase 3 must set last_action to release-start."""
+        assert "release-start" in _text(), \
+            "sprint.md must set last_action to release-start in Phase 3"
+
+
+class TestImplementTddPhase:
+    """Verify implement.md writes tdd_phase to .sprint-state."""
+
+    def test_tdd_phase_write_mentioned(self):
+        """implement.md must mention writing tdd_phase to .sprint-state."""
+        text = (REPO_ROOT / "commands" / "implement.md").read_text()
+        assert "tdd_phase" in text, \
+            "implement.md must reference tdd_phase for .sprint-state writes"
+
+    def test_sprint_state_referenced(self):
+        """implement.md must reference .sprint-state."""
+        text = (REPO_ROOT / "commands" / "implement.md").read_text()
+        assert ".sprint-state" in text, \
+            "implement.md must reference .sprint-state file"
