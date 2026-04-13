@@ -103,7 +103,9 @@ endif
 	$(MAKE) _bump-extra NEW=$(NEW)
 	@echo "Bumped to v$(NEW)"
 
-release: ## Publish release (usage: make release NEW=1.2.3)
+release: ## Publish release (usage: make release NEW=1.2.3) — DEPRECATED: use /release skill instead
+	@echo "[WARN] make release is DEPRECATED — use /release skill instead to avoid git op duplication"
+	@echo "[WARN] Continuing for backwards compatibility..."
 ifndef NEW
 	$(error NEW is required — usage: make release NEW=1.2.3)
 endif
@@ -123,6 +125,9 @@ endif
 	git merge main
 	git push origin dev
 	@echo "✓ released v$(NEW)"
+
+_publish: ## Publish release artifacts (override in Makefile.local) — called by /release skill after git ops
+	@echo "[zie-framework] No-op _publish — override in Makefile.local for custom publish logic"
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
 setup: ## Install git hooks + project deps (run once after cloning)

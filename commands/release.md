@@ -156,15 +156,28 @@ merging.
    git commit -m "release: v<NEW_VERSION>"
    ```
 
-8. **Delegate publish to project**:
+8. **Publish release** (do NOT call `make release` — do git ops directly):
 
    ```bash
-   make release NEW=<version>
+   # Merge dev → main
+   git checkout main
+   git merge dev --no-ff -m "release: v${NEW_VERSION}"
+   
+   # Create and push tag
+   git tag -s v${NEW_VERSION} -m "release v${NEW_VERSION}"
+   git push origin main --tags
+   
+   # Call publish only (not make release)
+   make _publish NEW=${NEW_VERSION}
+   
+   # Merge main → dev
+   git checkout dev
+   git merge main
+   git push origin dev
    ```
 
    - Exit 0 → proceed.
-   - Non-zero → **STOP**. Surface make error. Print: "Release failed —
-     fix make release and re-run /release."
+   - Non-zero → **STOP**. Surface error. Print: "Release failed — fix and re-run /release."
 
 9. **Store release in brain** (if `zie_memory_enabled=true`):
    - First READ: Call `mcp__plugin_zie-memory_zie-memory__recall`

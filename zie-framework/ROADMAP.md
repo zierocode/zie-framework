@@ -18,6 +18,7 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+- [ ] context-loader-sprint — Auto-load zie-framework context at session start: hooks/zie-context-loader.py, session-start integration, intent-sdlc context injection, standard headers for agents/commands/skills [backlog](backlog/context-loader-sprint.md)
 - [ ] context-load-smart — Deduplicate context loading: universal load-context entry point, session cache with content hash, reviewer context_bundle passthrough, ROADMAP session cache
 - [ ] agent-mode-compat — Document non-Claude model limitations, add fallback invocation in /implement, make model: frontmatter optional, add make implement without --agent
 - [ ] check-fully-framework-compatibility-with-model-glm-5-1-cloud — Full compatibility audit: hooks, commands, skills, tests, Makefile vs glm-5.1:cloud [backlog](backlog/check-fully-framework-compatibility-with-model-glm-5-1-cloud.md)
