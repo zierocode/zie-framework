@@ -71,11 +71,12 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-058 | Inline Reviewer Replaces Async Agent | impl-reviewer: async Agent → inline Skill(); HIGH risk only; 1 auto-fix retry. | Accepted |
 | ADR-059 | Light Retro ADR Gate | `<!-- adr: required -->` gates full ADR write; absent → one-line summary only. | Accepted |
 | ADR-060 | Autonomous Sprint Mode | autonomous_mode=true: clarity scoring, inline reviewers, auto-fix, auto-retro; only 3 interrupt cases. | Accepted |
-| — | v1.22.0 | zie-release-mode agent (fresh-context via `make zie-release`), sprint context_bundle pass-through to plan-reviewer, compact-hint two-level thresholds (80% warn / 90% redirect). | Accepted |
+| — | v1.22.0 | zie-release-mode agent (fresh-context), sprint context_bundle pass-through, compact-hint two-level thresholds (80%/90%). | Accepted |
 | ADR-061 | Context Efficiency Budget Table | Token budget table: hooks <500t, commands <2000t, agents <10000t; load-context once per session not per task. | Accepted |
 | ADR-062 | Once-Per-Session /tmp Flag Pattern | Once-per-session behavior via scoped `/tmp/zie-{project}/` flags; hooks write flag on first fire, check on subsequent calls. | Accepted |
-| ADR-063 | Effort Routing Strategy | Effort level routing: low (status/single-step), medium (multi-step incl. brainstorm+spec-design), high (sprint orchestrator only). | Accepted |
-| — | v1.23.0 | Sprint A+B: 3-tier compact-hint, brainstorm skill, conversation capture, /rescue /health /next, code-quality-gate, sprint-reliability, adaptive-learning. | Accepted |
-| — | v1.24.0 | Sprint C+D: WIP=1 implement guard, event field length caps, reviewer-pass marker, effort routing ADR-063, parallel retro ops. | Accepted |
+| ADR-063 | Effort Routing Strategy | Effort routing: low (status/single-step), medium (multi-step+brainstorm+spec-design), high (sprint only). | Accepted |
+| — | v1.23.0 | Sprint A+B: compact-hint tiers, brainstorm, /rescue /health /next, code-quality-gate, sprint-reliability, adaptive-learning. | Accepted |
+| — | v1.24.0 | Sprint C+D: WIP=1 guard, event field caps, reviewer-pass marker, effort routing ADR-063, parallel retro. | Accepted |
 | ADR-064 | Release Command Upgraded to Sonnet/Medium | `haiku/low` → `sonnet/medium`; prevents context-limit failures post-sprint. | Accepted |
-| — | v1.25.0 | Sprint fixes: all-items enforcement, approve.py upfront (3 cmds), make zie-implement, semver minor bias, ADR-064. | Accepted |
+| — | v1.25.0 | All-items enforcement, approve.py upfront, make zie-implement, semver minor bias, ADR-064. | Accepted |
+| ADR-066 | Non-Claude Model Compatibility | Env var model resolution + model-unavailable detection in safety_check_agent; regex fallback when subagent model unavailable. | Accepted |

@@ -12,6 +12,8 @@
 
 ---
 
+---
+
 ## Ready — Approved Plans
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
@@ -23,13 +25,13 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
-- [ ] GLM/Ollama Cloud Compatibility — [backlog](backlog/glm-ollama-compat.md)
-
 ---
 
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] GLM/Ollama Cloud Compatibility — env var model resolution + model-unavailable detection + tests + ADR-066 — v1.28.0 2026-04-13
 
 - [x] sprint-phase2-resilience — per-item .sprint-state updates (granular resume) + /compact between Phase 2 items (overflow prevention) — v1.27.0 2026-04-13
 
