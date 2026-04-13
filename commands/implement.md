@@ -64,7 +64,13 @@ Test level selection (print once before task loop, not per task):
    implementing; print `→ REFACTOR` before cleanup. Then invoke
    `Skill(zie-framework:tdd-loop)`. Follow it exactly.
    If tests already pass before writing any test → feature exists, skip task.
-   Skill exits after REFACTOR; continue to step 3.
+   Skill exits after REFACTOR; continue to step 2a.
+2a. **Simplify pass (conditional):**
+   1. Run `git diff --stat HEAD` → parse summary line (e.g. `3 files changed, 87 insertions(+), 12 deletions(-)`) → sum insertions + deletions = total Δ
+   2. Run `git diff --name-only HEAD` → collect recently modified files list
+   3. If total Δ > 50 → invoke `Skill(code-simplifier:code-simplifier)` on recently modified files list
+   4. If Δ ≤ 50 → print `[simplify] skipped (Δ{n} lines < 50 threshold)` and continue
+   5. After simplify (if run) → re-run `make test-fast` to confirm no regressions introduced
 3. **Risk Classification** — set `risk_level = HIGH` or `LOW`:
    - HIGH: new function/class, changed behavior, external API call, file I/O, subprocess, non-test production code changed, or `<!-- review: required -->`
    - LOW: test-only, docs/config, rename/reformat, minor constant addition

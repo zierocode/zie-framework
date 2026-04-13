@@ -10,7 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [ ] quality-gate: Scope Bandit Scan to Staged Files Only — [plan](plans/2026-04-13-quality-gate-staged-files.md)
+- [ ] Wire Simplify Step Conditionally After GREEN Phase in /implement — [plan](plans/2026-04-13-simplify-post-green.md)
 
 ---
 
@@ -18,8 +18,6 @@
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
-
-- [ ] Wire Simplify Step Conditionally After GREEN Phase in /implement — [plan](plans/2026-04-13-simplify-post-green.md)
 
 ---
 
