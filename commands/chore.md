@@ -2,6 +2,8 @@
 description: Chore track — maintenance tasks with no spec required
 argument-hint: "<description>"
 allowed-tools: Read, Edit, Write, Bash, Glob, Grep
+model: haiku
+effort: low
 ---
 
 # /chore — Chore Track

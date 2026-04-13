@@ -2,6 +2,8 @@
 description: Spike track — time-boxed exploration in an isolated sandbox directory
 argument-hint: "<slug>"
 allowed-tools: Read, Edit, Write, Bash, Glob, Grep, WebSearch, WebFetch
+model: sonnet
+effort: low
 ---
 
 # /spike — Spike Track
