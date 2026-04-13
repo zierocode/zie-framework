@@ -1,0 +1,144 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "Ollama" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "Ollama" [ref=e5]
+      - generic [ref=e6]:
+        - link "Models" [ref=e7] [cursor=pointer]:
+          - /url: /search
+        - link "Docs" [ref=e8] [cursor=pointer]:
+          - /url: /docs
+        - link "Pricing" [ref=e9] [cursor=pointer]:
+          - /url: /pricing
+      - generic [ref=e13]:
+        - img [ref=e15]
+        - textbox "Search models" [ref=e17]
+      - generic [ref=e18]:
+        - link "Sign in" [ref=e19] [cursor=pointer]:
+          - /url: /signin
+        - link "Download" [ref=e20] [cursor=pointer]:
+          - /url: /download
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - link "cogito-2.1" [ref=e27] [cursor=pointer]:
+        - /url: /library/cogito-2.1
+      - generic [ref=e28]:
+        - paragraph [ref=e30]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - generic [ref=e34]: 169.8K
+            - generic [ref=e35]: Downloads
+          - generic "Nov 21, 2025 8:18 PM UTC" [ref=e36]:
+            - img [ref=e37]
+            - generic [ref=e39]: Updated
+            - generic [ref=e40]: 4 months ago
+        - heading "The Cogito v2.1 LLMs are instruction tuned generative models. All models are released under MIT license for commercial use." [level=2] [ref=e42]
+        - generic [ref=e43]:
+          - generic [ref=e44]: cloud
+          - generic [ref=e45]: 671b
+    - generic [ref=e46]:
+      - generic [ref=e48]:
+        - generic [ref=e50]:
+          - button "CLI" [ref=e51] [cursor=pointer]
+          - button "cURL" [ref=e52] [cursor=pointer]
+          - button "Python" [ref=e53] [cursor=pointer]
+          - button "JavaScript" [ref=e54] [cursor=pointer]
+        - generic [ref=e55]:
+          - button "Copy" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+          - generic [ref=e61]: ollama run cogito-2.1
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - heading "Models" [level=2] [ref=e64]
+          - link "View all →" [ref=e65] [cursor=pointer]:
+            - /url: /library/cogito-2.1/tags
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - paragraph [ref=e69]: Name
+            - paragraph [ref=e70]: Size
+            - paragraph [ref=e71]: Context
+            - paragraph [ref=e72]: Input
+          - generic [ref=e73]:
+            - link "cogito-2.1:latest" [ref=e75] [cursor=pointer]:
+              - /url: /library/cogito-2.1:latest
+            - paragraph [ref=e76]: 1.3TB
+            - paragraph [ref=e77]: 160K
+            - paragraph [ref=e78]: Text
+          - generic [ref=e79]:
+            - generic [ref=e80]:
+              - link "cogito-2.1:671b" [ref=e81] [cursor=pointer]:
+                - /url: /library/cogito-2.1:671b
+              - generic [ref=e82]: latest
+            - paragraph [ref=e83]: 1.3TB
+            - paragraph [ref=e84]: 160K
+            - paragraph [ref=e85]: Text
+          - generic [ref=e86]:
+            - link "cogito-2.1:671b-cloud" [ref=e88] [cursor=pointer]:
+              - /url: /library/cogito-2.1:671b-cloud
+            - paragraph [ref=e89]: "-"
+            - paragraph [ref=e90]: 160K
+            - paragraph [ref=e91]: Text
+    - generic [ref=e92]:
+      - heading "Readme" [level=2] [ref=e94]
+      - generic [ref=e96]:
+        - paragraph [ref=e97]:
+          - img [ref=e98]
+        - blockquote [ref=e99]:
+          - paragraph [ref=e100]:
+            - text: cogito-2.1 models require
+            - link "Ollama v0.13.0" [ref=e101] [cursor=pointer]:
+              - /url: https://github.com/ollama/ollama/releases
+            - text: or later.
+        - paragraph [ref=e102]: The Cogito v2.1 LLMs are instruction tuned generative models. All models are released under MIT license for commercial use.
+        - list [ref=e103]:
+          - listitem [ref=e104]:
+            - paragraph [ref=e105]: "The best open-weight LLM by a US company: Cogito v2.1 671B"
+          - listitem [ref=e106]:
+            - paragraph [ref=e107]: On most industry benchmarks and our internal evals, the model performs competitively to frontier closed and open models, while being ahead of any other US open model.
+          - listitem [ref=e108]:
+            - paragraph [ref=e109]: This model uses significantly fewer tokens amongst any similar capability models, because it has better reasoning capabilities. It also has improvements across instruction following, coding, longer queries, multi-turn and creativity.
+          - listitem [ref=e110]:
+            - paragraph [ref=e111]: This model is trained in over 30 languages and supports a context length of 128k.
+        - heading "Models" [level=3] [ref=e112]
+        - paragraph [ref=e113]:
+          - strong [ref=e114]: 671B
+        - code [ref=e116]: ollama run cogito-2.1
+        - paragraph [ref=e117]:
+          - strong [ref=e118]: Ollama’s cloud
+        - code [ref=e120]: ollama run cogito-2.1:671b-cloud
+        - heading "Evaluation" [level=3] [ref=e121]
+        - paragraph [ref=e122]:
+          - strong [ref=e123]: "Note from Cogito:"
+        - paragraph [ref=e124]: While these benchmarks provide a useful signal, they do not fully capture real-world performance. That said, our models have been tested across multiple internal and external evaluations and consistently perform well.
+        - paragraph [ref=e125]: Ultimately, the best evals are the ones closest to the user’s needs.
+        - paragraph [ref=e126]:
+          - text: We are confident that our models will stand up to such real-world evaluations and deliver strong results in practice.
+          - img "benchmark1" [ref=e127]
+        - paragraph [ref=e128]:
+          - img "benchmark2" [ref=e129]
+        - paragraph [ref=e130]: Cogito v2.1 model has the lowest average tokens3 used with respect to reasoning models of similar capabilities.
+        - paragraph [ref=e131]:
+          - img "avgtokenusage" [ref=e132]
+  - contentinfo [ref=e133]:
+    - generic [ref=e135]:
+      - generic [ref=e136]: © 2026 Ollama
+      - generic [ref=e137]:
+        - link "Download" [ref=e138] [cursor=pointer]:
+          - /url: /download
+        - link "Blog" [ref=e139] [cursor=pointer]:
+          - /url: /blog
+        - link "Docs" [ref=e140] [cursor=pointer]:
+          - /url: https://docs.ollama.com
+        - link "GitHub" [ref=e141] [cursor=pointer]:
+          - /url: https://github.com/ollama/ollama
+        - link "Discord" [ref=e142] [cursor=pointer]:
+          - /url: https://discord.com/invite/ollama
+        - link "X (Twitter)" [ref=e143] [cursor=pointer]:
+          - /url: https://twitter.com/ollama
+        - link "Contact" [ref=e144] [cursor=pointer]:
+          - /url: mailto:hello@ollama.com
+        - link "Privacy" [ref=e145] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms" [ref=e146] [cursor=pointer]:
+          - /url: /terms

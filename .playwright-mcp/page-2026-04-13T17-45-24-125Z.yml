@@ -1,0 +1,217 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "Ollama" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "Ollama" [ref=e5]
+      - generic [ref=e6]:
+        - link "Models" [ref=e7] [cursor=pointer]:
+          - /url: /search
+        - link "Docs" [ref=e8] [cursor=pointer]:
+          - /url: /docs
+        - link "Pricing" [ref=e9] [cursor=pointer]:
+          - /url: /pricing
+      - generic [ref=e13]:
+        - img [ref=e15]
+        - textbox "Search models" [ref=e17]
+      - generic [ref=e18]:
+        - link "Sign in" [ref=e19] [cursor=pointer]:
+          - /url: /signin
+        - link "Download" [ref=e20] [cursor=pointer]:
+          - /url: /download
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - link "minimax-m2.7" [ref=e27] [cursor=pointer]:
+        - /url: /library/minimax-m2.7
+      - generic [ref=e28]:
+        - paragraph [ref=e30]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - generic [ref=e34]: 69.1K
+            - generic [ref=e35]: Downloads
+          - generic "Mar 18, 2026 6:05 PM UTC" [ref=e36]:
+            - img [ref=e37]
+            - generic [ref=e39]: Updated
+            - generic [ref=e40]: 3 weeks ago
+        - heading "MiniMax's M2-series model for coding, agentic workflows, and professional productivity." [level=2] [ref=e42]
+        - generic [ref=e43]:
+          - generic [ref=e44]: tools
+          - generic [ref=e45]: thinking
+          - generic [ref=e46]: cloud
+    - generic [ref=e47]:
+      - generic [ref=e49]:
+        - generic [ref=e51]:
+          - button "CLI" [ref=e52] [cursor=pointer]
+          - button "cURL" [ref=e53] [cursor=pointer]
+          - button "Python" [ref=e54] [cursor=pointer]
+          - button "JavaScript" [ref=e55] [cursor=pointer]
+        - generic [ref=e56]:
+          - button "Copy" [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+          - generic [ref=e62]: ollama run minimax-m2.7:cloud
+      - generic [ref=e63]:
+        - heading "Applications" [level=2] [ref=e64]
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - img "Claude Code" [ref=e69]
+              - generic [ref=e70]:
+                - generic [ref=e71]: Claude Code
+                - code [ref=e72]: ollama launch claude --model minimax-m2.7:cloud
+            - button "Copy" [ref=e73] [cursor=pointer]:
+              - img [ref=e74]
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - img "Codex" [ref=e78]
+              - generic [ref=e79]:
+                - generic [ref=e80]: Codex
+                - code [ref=e81]: ollama launch codex --model minimax-m2.7:cloud
+            - button "Copy" [ref=e82] [cursor=pointer]:
+              - img [ref=e83]
+          - generic [ref=e85]:
+            - generic [ref=e86]:
+              - img "OpenCode" [ref=e87]
+              - generic [ref=e88]:
+                - generic [ref=e89]: OpenCode
+                - code [ref=e90]: ollama launch opencode --model minimax-m2.7:cloud
+            - button "Copy" [ref=e91] [cursor=pointer]:
+              - img [ref=e92]
+          - generic [ref=e94]:
+            - generic [ref=e95]:
+              - img "OpenClaw" [ref=e96]
+              - generic [ref=e97]:
+                - generic [ref=e98]: OpenClaw
+                - code [ref=e99]: ollama launch openclaw --model minimax-m2.7:cloud
+            - button "Copy" [ref=e100] [cursor=pointer]:
+              - img [ref=e101]
+      - generic [ref=e103]:
+        - generic [ref=e104]:
+          - heading "Models" [level=2] [ref=e105]
+          - link "View all →" [ref=e106] [cursor=pointer]:
+            - /url: /library/minimax-m2.7/tags
+        - generic [ref=e108]:
+          - generic [ref=e109]:
+            - paragraph [ref=e110]: Name
+            - paragraph [ref=e111]: Size
+            - paragraph [ref=e112]: Context
+            - paragraph [ref=e113]: Input
+          - generic [ref=e114]:
+            - link "minimax-m2.7:cloud" [ref=e116] [cursor=pointer]:
+              - /url: /library/minimax-m2.7:cloud
+            - paragraph [ref=e117]: "-"
+            - paragraph [ref=e118]: 200K
+            - paragraph [ref=e119]: Text
+    - generic [ref=e120]:
+      - heading "Readme" [level=2] [ref=e122]
+      - generic [ref=e124]:
+        - blockquote [ref=e125]:
+          - paragraph [ref=e126]: Ollama’s cloud is officially licensed with MiniMax for commercial usage
+        - paragraph [ref=e127]:
+          - img "logo" [ref=e128]
+        - paragraph [ref=e129]: MiniMax M2.7 is the first model in the M2-series to deeply participate in its own evolution, capable of building complex agent harnesses and completing highly elaborate productivity tasks through Agent Teams, complex Skills, and dynamic tool search.
+        - heading "Highlights" [level=3] [ref=e130]
+        - list [ref=e131]:
+          - listitem [ref=e132]:
+            - paragraph [ref=e133]:
+              - strong [ref=e134]: Professional software engineering
+              - text: . M2.7 delivers outstanding performance in real-world engineering scenarios including end-to-end project delivery, log analysis and bug troubleshooting, code security, and machine learning. On SWE-Pro it scored 56.22%, matching GPT-5.3-Codex and nearly approaching Opus’s best level. On VIBE-Pro (55.6%) and Terminal Bench 2 (57.0%), it demonstrates deep understanding of complex engineering systems.
+          - listitem [ref=e135]:
+            - paragraph [ref=e136]:
+              - strong [ref=e137]: Professional work and complex environments
+              - text: . In the GDPval-AA evaluation across 45 models, M2.7 achieved an ELO score of 1495, the highest among open-source models. It handles complex editing in Excel, PPT, and Word with multi-round high-fidelity revisions, and maintains a 97% skill adherence rate across 40 complex skills (each exceeding 2,000 tokens). On Toolathon, M2.7 reached 46.3% accuracy, a global top-tier result.
+          - listitem [ref=e138]:
+            - paragraph [ref=e139]:
+              - strong [ref=e140]: Character consistency and entertainment
+              - text: . M2.7 possesses excellent character consistency and emotional intelligence. MiniMax has open-sourced OpenRoom, a Web GUI interaction system where conversation drives real-time visual feedback and scene interactions with characters proactively engaging their environment.
+        - paragraph [ref=e141]:
+          - img "benchmark overview" [ref=e142]
+        - heading "Benchmarks" [level=3] [ref=e143]
+        - paragraph [ref=e144]:
+          - strong [ref=e145]: Software Engineering
+        - paragraph [ref=e146]: M2.7 reaches the level of state-of-the-art models across real-world programming tasks spanning multiple languages and system-level comprehension.
+        - table [ref=e147]:
+          - rowgroup [ref=e148]:
+            - row "Benchmark M2.7 Notes" [ref=e149]:
+              - columnheader "Benchmark" [ref=e150]
+              - columnheader "M2.7" [ref=e151]
+              - columnheader "Notes" [ref=e152]
+          - rowgroup [ref=e153]:
+            - row "SWE-Pro 56.22% Matches GPT-5.3-Codex" [ref=e154]:
+              - cell "SWE-Pro" [ref=e155]
+              - cell "56.22%" [ref=e156]
+              - cell "Matches GPT-5.3-Codex" [ref=e157]
+            - row "VIBE-Pro 55.6% Nearly on par with Opus 4.6" [ref=e158]:
+              - cell "VIBE-Pro" [ref=e159]
+              - cell "55.6%" [ref=e160]
+              - cell "Nearly on par with Opus 4.6" [ref=e161]
+            - row "Terminal Bench 2 57.0% Deep system-level understanding" [ref=e162]:
+              - cell "Terminal Bench 2" [ref=e163]
+              - cell "57.0%" [ref=e164]
+              - cell "Deep system-level understanding" [ref=e165]
+            - row "SWE Multilingual 76.5 Multi-language engineering" [ref=e166]:
+              - cell "SWE Multilingual" [ref=e167]
+              - cell "76.5" [ref=e168]
+              - cell "Multi-language engineering" [ref=e169]
+            - row "Multi SWE Bench 52.7 Multi-repo tasks" [ref=e170]:
+              - cell "Multi SWE Bench" [ref=e171]
+              - cell "52.7" [ref=e172]
+              - cell "Multi-repo tasks" [ref=e173]
+            - row "NL2Repo 39.8 Natural language to repository" [ref=e174]:
+              - cell "NL2Repo" [ref=e175]
+              - cell "39.8" [ref=e176]
+              - cell "Natural language to repository" [ref=e177]
+        - paragraph [ref=e178]:
+          - strong [ref=e179]: Professional Work & Office
+        - table [ref=e180]:
+          - rowgroup [ref=e181]:
+            - row "Benchmark M2.7 Notes" [ref=e182]:
+              - columnheader "Benchmark" [ref=e183]
+              - columnheader "M2.7" [ref=e184]
+              - columnheader "Notes" [ref=e185]
+          - rowgroup [ref=e186]:
+            - row "GDPval-AA (ELO) 1495 Highest among open-source models" [ref=e187]:
+              - cell "GDPval-AA (ELO)" [ref=e188]
+              - cell "1495" [ref=e189]
+              - cell "Highest among open-source models" [ref=e190]
+            - row "Toolathon 46.3% Global top tier" [ref=e191]:
+              - cell "Toolathon" [ref=e192]
+              - cell "46.3%" [ref=e193]
+              - cell "Global top tier" [ref=e194]
+            - row "MM Claw 62.7% Close to Sonnet 4.6" [ref=e195]:
+              - cell "MM Claw" [ref=e196]
+              - cell "62.7%" [ref=e197]
+              - cell "Close to Sonnet 4.6" [ref=e198]
+            - row "Skill Adherence (40 skills) 97% Each skill >2,000 tokens" [ref=e199]:
+              - cell "Skill Adherence (40 skills)" [ref=e200]
+              - cell "97%" [ref=e201]
+              - cell "Each skill >2,000 tokens" [ref=e202]
+        - paragraph [ref=e203]:
+          - strong [ref=e204]: Machine Learning (MLE Bench Lite)
+        - paragraph [ref=e205]: In exploratory self-evolution tests across 22 ML competitions, M2.7 achieved an average medal rate of 66.6% across three 24-hour autonomous runs, second only to Opus 4.6 (75.7%) and GPT-5.4 (71.2%), tying with Gemini 3.1.
+        - heading "Reference" [level=3] [ref=e206]
+        - list [ref=e207]:
+          - listitem [ref=e208]:
+            - link "MiniMax M2.7 announcement" [ref=e209] [cursor=pointer]:
+              - /url: https://www.minimax.io/news/minimax-m27-en
+  - contentinfo [ref=e210]:
+    - generic [ref=e212]:
+      - generic [ref=e213]: © 2026 Ollama
+      - generic [ref=e214]:
+        - link "Download" [ref=e215] [cursor=pointer]:
+          - /url: /download
+        - link "Blog" [ref=e216] [cursor=pointer]:
+          - /url: /blog
+        - link "Docs" [ref=e217] [cursor=pointer]:
+          - /url: https://docs.ollama.com
+        - link "GitHub" [ref=e218] [cursor=pointer]:
+          - /url: https://github.com/ollama/ollama
+        - link "Discord" [ref=e219] [cursor=pointer]:
+          - /url: https://discord.com/invite/ollama
+        - link "X (Twitter)" [ref=e220] [cursor=pointer]:
+          - /url: https://twitter.com/ollama
+        - link "Contact" [ref=e221] [cursor=pointer]:
+          - /url: mailto:hello@ollama.com
+        - link "Privacy" [ref=e222] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms" [ref=e223] [cursor=pointer]:
+          - /url: /terms

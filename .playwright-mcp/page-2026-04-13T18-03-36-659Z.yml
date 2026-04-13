@@ -1,0 +1,159 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "Ollama" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "Ollama" [ref=e5]
+      - generic [ref=e6]:
+        - link "Models" [ref=e7] [cursor=pointer]:
+          - /url: /search
+        - link "Docs" [ref=e8] [cursor=pointer]:
+          - /url: /docs
+        - link "Pricing" [ref=e9] [cursor=pointer]:
+          - /url: /pricing
+      - generic [ref=e13]:
+        - img [ref=e15]
+        - textbox "Search models" [ref=e17]
+      - generic [ref=e18]:
+        - link "Sign in" [ref=e19] [cursor=pointer]:
+          - /url: /signin
+        - link "Download" [ref=e20] [cursor=pointer]:
+          - /url: /download
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - link "qwen3-next" [ref=e27] [cursor=pointer]:
+        - /url: /library/qwen3-next
+      - generic [ref=e28]:
+        - paragraph [ref=e30]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - generic [ref=e34]: 515.6K
+            - generic [ref=e35]: Downloads
+          - generic "Dec 9, 2025 12:41 AM UTC" [ref=e36]:
+            - img [ref=e37]
+            - generic [ref=e39]: Updated
+            - generic [ref=e40]: 4 months ago
+        - heading "The first installment in the Qwen3-Next series with strong performance in terms of both parameter efficiency and inference speed." [level=2] [ref=e42]
+        - generic [ref=e43]:
+          - generic [ref=e44]: tools
+          - generic [ref=e45]: thinking
+          - generic [ref=e46]: cloud
+          - generic [ref=e47]: 80b
+    - generic [ref=e48]:
+      - generic [ref=e50]:
+        - generic [ref=e52]:
+          - button "CLI" [ref=e53] [cursor=pointer]
+          - button "cURL" [ref=e54] [cursor=pointer]
+          - button "Python" [ref=e55] [cursor=pointer]
+          - button "JavaScript" [ref=e56] [cursor=pointer]
+        - generic [ref=e57]:
+          - button "Copy" [ref=e59] [cursor=pointer]:
+            - img [ref=e60]
+          - generic [ref=e63]: ollama run qwen3-next
+      - generic [ref=e64]:
+        - heading "Applications" [level=2] [ref=e65]
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - generic [ref=e69]:
+              - img "Claude Code" [ref=e70]
+              - generic [ref=e71]:
+                - generic [ref=e72]: Claude Code
+                - code [ref=e73]: ollama launch claude --model qwen3-next
+            - button "Copy" [ref=e74] [cursor=pointer]:
+              - img [ref=e75]
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - img "Codex" [ref=e79]
+              - generic [ref=e80]:
+                - generic [ref=e81]: Codex
+                - code [ref=e82]: ollama launch codex --model qwen3-next
+            - button "Copy" [ref=e83] [cursor=pointer]:
+              - img [ref=e84]
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - img "OpenCode" [ref=e88]
+              - generic [ref=e89]:
+                - generic [ref=e90]: OpenCode
+                - code [ref=e91]: ollama launch opencode --model qwen3-next
+            - button "Copy" [ref=e92] [cursor=pointer]:
+              - img [ref=e93]
+          - generic [ref=e95]:
+            - generic [ref=e96]:
+              - img "OpenClaw" [ref=e97]
+              - generic [ref=e98]:
+                - generic [ref=e99]: OpenClaw
+                - code [ref=e100]: ollama launch openclaw --model qwen3-next
+            - button "Copy" [ref=e101] [cursor=pointer]:
+              - img [ref=e102]
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - heading "Models" [level=2] [ref=e106]
+          - link "View all →" [ref=e107] [cursor=pointer]:
+            - /url: /library/qwen3-next/tags
+        - generic [ref=e109]:
+          - generic [ref=e110]:
+            - paragraph [ref=e111]: Name
+            - paragraph [ref=e112]: Size
+            - paragraph [ref=e113]: Context
+            - paragraph [ref=e114]: Input
+          - generic [ref=e115]:
+            - link "qwen3-next:latest" [ref=e117] [cursor=pointer]:
+              - /url: /library/qwen3-next:latest
+            - paragraph [ref=e118]: 50GB
+            - paragraph [ref=e119]: 256K
+            - paragraph [ref=e120]: Text
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - link "qwen3-next:80b" [ref=e123] [cursor=pointer]:
+                - /url: /library/qwen3-next:80b
+              - generic [ref=e124]: latest
+            - paragraph [ref=e125]: 50GB
+            - paragraph [ref=e126]: 256K
+            - paragraph [ref=e127]: Text
+          - generic [ref=e128]:
+            - link "qwen3-next:80b-cloud" [ref=e130] [cursor=pointer]:
+              - /url: /library/qwen3-next:80b-cloud
+            - paragraph [ref=e131]: "-"
+            - paragraph [ref=e132]: 256K
+            - paragraph [ref=e133]: Text
+    - generic [ref=e134]:
+      - heading "Readme" [level=2] [ref=e136]
+      - generic [ref=e138]:
+        - paragraph [ref=e139]:
+          - img "image.png" [ref=e140]
+        - paragraph [ref=e141]: "Qwen3-Next-80B-A3B is the first installment in the Qwen3-Next series and features the following key enhancements:"
+        - list [ref=e142]:
+          - listitem [ref=e143]:
+            - strong [ref=e144]: Hybrid Attention
+            - text: ": Replaces standard attention with the combination of Gated DeltaNet and Gated Attention, enabling efficient context modeling for ultra-long context length."
+          - listitem [ref=e145]:
+            - strong [ref=e146]: High-Sparsity Mixture-of-Experts (MoE)
+            - text: ": Achieves an extreme low activation ratio in MoE layers, drastically reducing FLOPs per token while preserving model capacity."
+          - listitem [ref=e147]:
+            - strong [ref=e148]: Stability Optimizations
+            - text: ": Includes techniques such as zero-centered and weight-decayed layernorm, and other stabilizing enhancements for robust pre-training and post-training."
+          - listitem [ref=e149]:
+            - strong [ref=e150]: Multi-Token Prediction (MTP)
+            - text: ": Boosts pretraining model performance and accelerates inference."
+  - contentinfo [ref=e151]:
+    - generic [ref=e153]:
+      - generic [ref=e154]: © 2026 Ollama
+      - generic [ref=e155]:
+        - link "Download" [ref=e156] [cursor=pointer]:
+          - /url: /download
+        - link "Blog" [ref=e157] [cursor=pointer]:
+          - /url: /blog
+        - link "Docs" [ref=e158] [cursor=pointer]:
+          - /url: https://docs.ollama.com
+        - link "GitHub" [ref=e159] [cursor=pointer]:
+          - /url: https://github.com/ollama/ollama
+        - link "Discord" [ref=e160] [cursor=pointer]:
+          - /url: https://discord.com/invite/ollama
+        - link "X (Twitter)" [ref=e161] [cursor=pointer]:
+          - /url: https://twitter.com/ollama
+        - link "Contact" [ref=e162] [cursor=pointer]:
+          - /url: mailto:hello@ollama.com
+        - link "Privacy" [ref=e163] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms" [ref=e164] [cursor=pointer]:
+          - /url: /terms

@@ -96,10 +96,23 @@ def clear_content_hash_cache(tmp_cwd):
     if tmp_cwd:
         import tempfile as _tempfile
         import re as _re
-        project = tmp_cwd.name
+        # tmp_path from pytest is like: /var/folders/.../pytest-of-zie/pytest-XXX/test_name-N
+        # We need to clear ALL possible cache files for this test run
+        project = tmp_cwd.name  # e.g., "test_explore_agent_receives_co0"
         safe_project = _re.sub(r'[^a-zA-Z0-9]', '-', project)
-        hash_file = Path(_tempfile.gettempdir()) / f"zie-context-hash-{safe_project}"
+        # Clear both hash cache and session context cache
+        # Format: zie-{project}-{name} per utils_io.py
+        hash_file = Path(_tempfile.gettempdir()) / f"zie-{safe_project}-context-hash"
         hash_file.unlink(missing_ok=True)
+        # Also clear any session context flags for this project
+        for f in Path(_tempfile.gettempdir()).glob(f"zie-{safe_project}-session-context-*"):
+            f.unlink()
+        # Aggressively clear ALL zie cache files from /tmp to avoid cross-test pollution
+        for f in Path(_tempfile.gettempdir()).glob("zie-*"):
+            try:
+                f.unlink()
+            except Exception:
+                pass
 
 
 def parse_context(r):
@@ -124,6 +137,7 @@ class TestSubagentContextHappyPath:
         assert "Task:" not in ctx
 
     def test_plan_agent_receives_context(self, tmp_path):
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Plan"}, tmp_cwd=cwd)
@@ -131,6 +145,7 @@ class TestSubagentContextHappyPath:
         assert "Active:" in ctx
 
     def test_feature_slug_derived_from_roadmap_now(self, tmp_path):
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
@@ -138,6 +153,7 @@ class TestSubagentContextHappyPath:
         assert "subagentstart-sdlc-context" in ctx
 
     def test_first_incomplete_task_extracted(self, tmp_path):
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Plan"}, tmp_cwd=cwd)
@@ -146,6 +162,7 @@ class TestSubagentContextHappyPath:
         assert "Step 1: Write failing tests (RED)" in ctx
 
     def test_adr_count_correct(self, tmp_path):
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
@@ -153,6 +170,7 @@ class TestSubagentContextHappyPath:
         assert "ADRs: 2" in ctx
 
     def test_all_tasks_complete_message(self, tmp_path):
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN_ALL_DONE,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Plan"}, tmp_cwd=cwd)
@@ -160,6 +178,7 @@ class TestSubagentContextHappyPath:
         assert "all tasks complete" in ctx
 
     def test_returns_valid_json(self, tmp_path):
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
@@ -168,6 +187,7 @@ class TestSubagentContextHappyPath:
         assert isinstance(parsed["additionalContext"], str)
 
     def test_exit_code_zero_on_success(self, tmp_path):
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
@@ -175,6 +195,7 @@ class TestSubagentContextHappyPath:
 
     def test_explore_agent_omits_task_field(self, tmp_path):
         """Explore agents must not include Task: in their context payload."""
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
@@ -183,6 +204,7 @@ class TestSubagentContextHappyPath:
 
     def test_explore_agent_has_active_and_adrs(self, tmp_path):
         """Explore agents must have Active: and ADRs: even without Task:."""
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Explore"}, tmp_cwd=cwd)
@@ -192,6 +214,7 @@ class TestSubagentContextHappyPath:
 
     def test_plan_agent_includes_task_field(self, tmp_path):
         """Plan agents read plan files and include Task: in context."""
+        clear_content_hash_cache(tmp_path)
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, plan=SAMPLE_PLAN,
                        context_md=SAMPLE_CONTEXT_MD)
         r = run_hook({"agentType": "Plan"}, tmp_cwd=cwd)

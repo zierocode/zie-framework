@@ -1,0 +1,145 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "Ollama" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "Ollama" [ref=e5]
+      - generic [ref=e6]:
+        - link "Models" [ref=e7] [cursor=pointer]:
+          - /url: /search
+        - link "Docs" [ref=e8] [cursor=pointer]:
+          - /url: /docs
+        - link "Pricing" [ref=e9] [cursor=pointer]:
+          - /url: /pricing
+      - generic [ref=e13]:
+        - img [ref=e15]
+        - textbox "Search models" [ref=e17]
+      - generic [ref=e18]:
+        - link "Sign in" [ref=e19] [cursor=pointer]:
+          - /url: /signin
+        - link "Download" [ref=e20] [cursor=pointer]:
+          - /url: /download
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - link "gemini-3-flash-preview" [ref=e27] [cursor=pointer]:
+        - /url: /library/gemini-3-flash-preview
+      - generic [ref=e28]:
+        - paragraph [ref=e30]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - generic [ref=e34]: 130.4K
+            - generic [ref=e35]: Downloads
+          - generic "Dec 20, 2025 8:44 PM UTC" [ref=e36]:
+            - img [ref=e37]
+            - generic [ref=e39]: Updated
+            - generic [ref=e40]: 3 months ago
+        - heading "Gemini 3 Flash offers frontier intelligence built for speed at a fraction of the cost." [level=2] [ref=e42]
+        - generic [ref=e43]:
+          - generic [ref=e44]: vision
+          - generic [ref=e45]: tools
+          - generic [ref=e46]: thinking
+          - generic [ref=e47]: cloud
+    - generic [ref=e48]:
+      - generic [ref=e50]:
+        - generic [ref=e52]:
+          - button "CLI" [ref=e53] [cursor=pointer]
+          - button "cURL" [ref=e54] [cursor=pointer]
+          - button "Python" [ref=e55] [cursor=pointer]
+          - button "JavaScript" [ref=e56] [cursor=pointer]
+        - generic [ref=e57]:
+          - button "Copy" [ref=e59] [cursor=pointer]:
+            - img [ref=e60]
+          - generic [ref=e63]: ollama run gemini-3-flash-preview
+      - generic [ref=e64]:
+        - heading "Applications" [level=2] [ref=e65]
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - generic [ref=e69]:
+              - img "Claude Code" [ref=e70]
+              - generic [ref=e71]:
+                - generic [ref=e72]: Claude Code
+                - code [ref=e73]: ollama launch claude --model gemini-3-flash-preview
+            - button "Copy" [ref=e74] [cursor=pointer]:
+              - img [ref=e75]
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - img "Codex" [ref=e79]
+              - generic [ref=e80]:
+                - generic [ref=e81]: Codex
+                - code [ref=e82]: ollama launch codex --model gemini-3-flash-preview
+            - button "Copy" [ref=e83] [cursor=pointer]:
+              - img [ref=e84]
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - img "OpenCode" [ref=e88]
+              - generic [ref=e89]:
+                - generic [ref=e90]: OpenCode
+                - code [ref=e91]: ollama launch opencode --model gemini-3-flash-preview
+            - button "Copy" [ref=e92] [cursor=pointer]:
+              - img [ref=e93]
+          - generic [ref=e95]:
+            - generic [ref=e96]:
+              - img "OpenClaw" [ref=e97]
+              - generic [ref=e98]:
+                - generic [ref=e99]: OpenClaw
+                - code [ref=e100]: ollama launch openclaw --model gemini-3-flash-preview
+            - button "Copy" [ref=e101] [cursor=pointer]:
+              - img [ref=e102]
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - heading "Models" [level=2] [ref=e106]
+          - link "View all →" [ref=e107] [cursor=pointer]:
+            - /url: /library/gemini-3-flash-preview/tags
+        - generic [ref=e109]:
+          - generic [ref=e110]:
+            - paragraph [ref=e111]: Name
+            - paragraph [ref=e112]: Size
+            - paragraph [ref=e113]: Context
+            - paragraph [ref=e114]: Input
+          - generic [ref=e115]:
+            - link "gemini-3-flash-preview:latest" [ref=e117] [cursor=pointer]:
+              - /url: /library/gemini-3-flash-preview:latest
+            - paragraph [ref=e118]: "-"
+            - paragraph [ref=e119]: 1M
+            - paragraph [ref=e120]: Text
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - link "gemini-3-flash-preview:cloud" [ref=e123] [cursor=pointer]:
+                - /url: /library/gemini-3-flash-preview:cloud
+              - generic [ref=e124]: latest
+            - paragraph [ref=e125]: "-"
+            - paragraph [ref=e126]: 1M
+            - paragraph [ref=e127]: Text, Image
+    - generic [ref=e128]:
+      - heading "Readme" [level=2] [ref=e130]
+      - generic [ref=e132]:
+        - paragraph [ref=e133]:
+          - img "image.png" [ref=e134]
+        - heading "Model" [level=3] [ref=e135]
+        - paragraph [ref=e136]: "Gemini 3 Flash Preview on Ollama’s cloud:"
+        - code [ref=e138]: ollama run gemini-3-flash-preview:cloud
+        - heading "Benchmarks" [level=3] [ref=e139]
+        - paragraph [ref=e140]: Gemini 3 Flash demonstrates that speed and scale don’t have to come at the cost of intelligence. It delivers frontier performance on PhD-level reasoning and knowledge benchmarks like GPQA Diamond (90.4%) and Humanity’s Last Exam (33.7% without tools), rivaling larger frontier models, and significantly outperforming even the best 2.5 model, Gemini 2.5 Pro, across a number of benchmarks. It also reaches state-of-the-art performance with an impressive score of 81.2% on MMMU Pro, comparable to Gemini 3 Pro.
+        - paragraph [ref=e141]
+  - contentinfo [ref=e142]:
+    - generic [ref=e144]:
+      - generic [ref=e145]: © 2026 Ollama
+      - generic [ref=e146]:
+        - link "Download" [ref=e147] [cursor=pointer]:
+          - /url: /download
+        - link "Blog" [ref=e148] [cursor=pointer]:
+          - /url: /blog
+        - link "Docs" [ref=e149] [cursor=pointer]:
+          - /url: https://docs.ollama.com
+        - link "GitHub" [ref=e150] [cursor=pointer]:
+          - /url: https://github.com/ollama/ollama
+        - link "Discord" [ref=e151] [cursor=pointer]:
+          - /url: https://discord.com/invite/ollama
+        - link "X (Twitter)" [ref=e152] [cursor=pointer]:
+          - /url: https://twitter.com/ollama
+        - link "Contact" [ref=e153] [cursor=pointer]:
+          - /url: mailto:hello@ollama.com
+        - link "Privacy" [ref=e154] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms" [ref=e155] [cursor=pointer]:
+          - /url: /terms

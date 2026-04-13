@@ -1,0 +1,150 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "Ollama" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "Ollama" [ref=e5]
+      - generic [ref=e6]:
+        - link "Models" [ref=e7] [cursor=pointer]:
+          - /url: /search
+        - link "Docs" [ref=e8] [cursor=pointer]:
+          - /url: /docs
+        - link "Pricing" [ref=e9] [cursor=pointer]:
+          - /url: /pricing
+      - generic [ref=e13]:
+        - img [ref=e15]
+        - textbox "Search models" [ref=e17]
+      - generic [ref=e18]:
+        - link "Sign in" [ref=e19] [cursor=pointer]:
+          - /url: /signin
+        - link "Download" [ref=e20] [cursor=pointer]:
+          - /url: /download
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - link "deepseek-v3.2" [ref=e27] [cursor=pointer]:
+        - /url: /library/deepseek-v3.2
+      - generic [ref=e28]:
+        - paragraph [ref=e30]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - generic [ref=e34]: 77.3K
+            - generic [ref=e35]: Downloads
+          - generic "Dec 19, 2025 6:09 PM UTC" [ref=e36]:
+            - img [ref=e37]
+            - generic [ref=e39]: Updated
+            - generic [ref=e40]: 3 months ago
+        - heading "DeepSeek-V3.2, a model that harmonizes high computational efficiency with superior reasoning and agent performance." [level=2] [ref=e42]
+        - generic [ref=e43]:
+          - generic [ref=e44]: tools
+          - generic [ref=e45]: thinking
+          - generic [ref=e46]: cloud
+    - generic [ref=e47]:
+      - generic [ref=e49]:
+        - generic [ref=e51]:
+          - button "CLI" [ref=e52] [cursor=pointer]
+          - button "cURL" [ref=e53] [cursor=pointer]
+          - button "Python" [ref=e54] [cursor=pointer]
+          - button "JavaScript" [ref=e55] [cursor=pointer]
+        - generic [ref=e56]:
+          - button "Copy" [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+          - generic [ref=e62]: ollama run deepseek-v3.2:cloud
+      - generic [ref=e63]:
+        - heading "Applications" [level=2] [ref=e64]
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - img "Claude Code" [ref=e69]
+              - generic [ref=e70]:
+                - generic [ref=e71]: Claude Code
+                - code [ref=e72]: ollama launch claude --model deepseek-v3.2:cloud
+            - button "Copy" [ref=e73] [cursor=pointer]:
+              - img [ref=e74]
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - img "Codex" [ref=e78]
+              - generic [ref=e79]:
+                - generic [ref=e80]: Codex
+                - code [ref=e81]: ollama launch codex --model deepseek-v3.2:cloud
+            - button "Copy" [ref=e82] [cursor=pointer]:
+              - img [ref=e83]
+          - generic [ref=e85]:
+            - generic [ref=e86]:
+              - img "OpenCode" [ref=e87]
+              - generic [ref=e88]:
+                - generic [ref=e89]: OpenCode
+                - code [ref=e90]: ollama launch opencode --model deepseek-v3.2:cloud
+            - button "Copy" [ref=e91] [cursor=pointer]:
+              - img [ref=e92]
+          - generic [ref=e94]:
+            - generic [ref=e95]:
+              - img "OpenClaw" [ref=e96]
+              - generic [ref=e97]:
+                - generic [ref=e98]: OpenClaw
+                - code [ref=e99]: ollama launch openclaw --model deepseek-v3.2:cloud
+            - button "Copy" [ref=e100] [cursor=pointer]:
+              - img [ref=e101]
+      - generic [ref=e103]:
+        - generic [ref=e104]:
+          - heading "Models" [level=2] [ref=e105]
+          - link "View all →" [ref=e106] [cursor=pointer]:
+            - /url: /library/deepseek-v3.2/tags
+        - generic [ref=e108]:
+          - generic [ref=e109]:
+            - paragraph [ref=e110]: Name
+            - paragraph [ref=e111]: Size
+            - paragraph [ref=e112]: Context
+            - paragraph [ref=e113]: Input
+          - generic [ref=e114]:
+            - link "deepseek-v3.2:cloud" [ref=e116] [cursor=pointer]:
+              - /url: /library/deepseek-v3.2:cloud
+            - paragraph [ref=e117]: "-"
+            - paragraph [ref=e118]: 160K
+            - paragraph [ref=e119]: Text
+    - generic [ref=e120]:
+      - heading "Readme" [level=2] [ref=e122]
+      - generic [ref=e124]:
+        - paragraph [ref=e125]:
+          - img [ref=e126]
+        - paragraph [ref=e127]:
+          - img "DeepSeek v3.2" [ref=e128]
+        - paragraph [ref=e129]: "DeepSeek-V3.2 is a model that harmonizes high computational efficiency with superior reasoning and agent performance. Our approach is built upon three key technical breakthroughs:"
+        - list [ref=e130]:
+          - listitem [ref=e131]:
+            - paragraph [ref=e132]:
+              - strong [ref=e133]: DeepSeek Sparse Attention (DSA)
+              - text: ": an efficient attention mechanism that substantially reduces computational complexity while preserving model performance, specifically optimized for long-context scenarios."
+          - listitem [ref=e134]:
+            - paragraph [ref=e135]:
+              - strong [ref=e136]: Scalable Reinforcement Learning Framework
+              - text: ": By implementing a robust RL protocol and scaling post-training compute, DeepSeek-V3.2 performs comparably to GPT-5."
+          - listitem [ref=e137]:
+            - paragraph [ref=e138]:
+              - strong [ref=e139]: Large-Scale Agentic Task Synthesis Pipeline
+              - text: ": To integrate reasoning into tool-use scenarios, [DeepSeek team] developed a novel synthesis pipeline that systematically generates training data at scale. This facilitates scalable agentic post-training, improving compliance and generalization in complex interactive environments."
+        - heading "Reference" [level=3] [ref=e140]
+        - paragraph [ref=e141]:
+          - 'link "DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models" [ref=e142] [cursor=pointer]':
+            - /url: https://arxiv.org/abs/2512.02556
+  - contentinfo [ref=e143]:
+    - generic [ref=e145]:
+      - generic [ref=e146]: © 2026 Ollama
+      - generic [ref=e147]:
+        - link "Download" [ref=e148] [cursor=pointer]:
+          - /url: /download
+        - link "Blog" [ref=e149] [cursor=pointer]:
+          - /url: /blog
+        - link "Docs" [ref=e150] [cursor=pointer]:
+          - /url: https://docs.ollama.com
+        - link "GitHub" [ref=e151] [cursor=pointer]:
+          - /url: https://github.com/ollama/ollama
+        - link "Discord" [ref=e152] [cursor=pointer]:
+          - /url: https://discord.com/invite/ollama
+        - link "X (Twitter)" [ref=e153] [cursor=pointer]:
+          - /url: https://twitter.com/ollama
+        - link "Contact" [ref=e154] [cursor=pointer]:
+          - /url: mailto:hello@ollama.com
+        - link "Privacy" [ref=e155] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms" [ref=e156] [cursor=pointer]:
+          - /url: /terms
