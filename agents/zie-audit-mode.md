@@ -1,7 +1,6 @@
 ---
 model: sonnet  # hint for Claude Code; ignored by non-Claude providers
-permissionMode: plan
-tools: [Read, Grep, Glob, WebSearch]
+# No permissionMode or tools restriction — audit needs full access for analysis + subagent spawns
 ---
 
 # zie-audit-mode — Read-Only Analysis Agent
