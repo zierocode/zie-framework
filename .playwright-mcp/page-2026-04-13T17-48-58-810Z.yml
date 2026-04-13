@@ -1,0 +1,171 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "Ollama" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "Ollama" [ref=e5]
+      - generic [ref=e6]:
+        - link "Models" [ref=e7] [cursor=pointer]:
+          - /url: /search
+        - link "Docs" [ref=e8] [cursor=pointer]:
+          - /url: /docs
+        - link "Pricing" [ref=e9] [cursor=pointer]:
+          - /url: /pricing
+      - generic [ref=e13]:
+        - img [ref=e15]
+        - textbox "Search models" [ref=e17]
+      - generic [ref=e18]:
+        - link "Sign in" [ref=e19] [cursor=pointer]:
+          - /url: /signin
+        - link "Download" [ref=e20] [cursor=pointer]:
+          - /url: /download
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - link "qwen3-coder-next" [ref=e27] [cursor=pointer]:
+        - /url: /library/qwen3-coder-next
+      - generic [ref=e28]:
+        - paragraph [ref=e30]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - generic [ref=e34]: 1M
+            - generic [ref=e35]: Downloads
+          - generic "Feb 6, 2026 5:23 AM UTC" [ref=e36]:
+            - img [ref=e37]
+            - generic [ref=e39]: Updated
+            - generic [ref=e40]: 2 months ago
+        - heading "Qwen3-Coder-Next is a coding-focused language model from Alibaba's Qwen team, optimized for agentic coding workflows and local development." [level=2] [ref=e42]
+        - generic [ref=e43]:
+          - generic [ref=e44]: tools
+          - generic [ref=e45]: cloud
+    - generic [ref=e46]:
+      - generic [ref=e48]:
+        - generic [ref=e50]:
+          - button "CLI" [ref=e51] [cursor=pointer]
+          - button "cURL" [ref=e52] [cursor=pointer]
+          - button "Python" [ref=e53] [cursor=pointer]
+          - button "JavaScript" [ref=e54] [cursor=pointer]
+        - generic [ref=e55]:
+          - button "Copy" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+          - generic [ref=e61]: ollama run qwen3-coder-next
+      - generic [ref=e62]:
+        - heading "Applications" [level=2] [ref=e63]
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - generic [ref=e67]:
+              - img "Claude Code" [ref=e68]
+              - generic [ref=e69]:
+                - generic [ref=e70]: Claude Code
+                - code [ref=e71]: ollama launch claude --model qwen3-coder-next
+            - button "Copy" [ref=e72] [cursor=pointer]:
+              - img [ref=e73]
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - img "Codex" [ref=e77]
+              - generic [ref=e78]:
+                - generic [ref=e79]: Codex
+                - code [ref=e80]: ollama launch codex --model qwen3-coder-next
+            - button "Copy" [ref=e81] [cursor=pointer]:
+              - img [ref=e82]
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - img "OpenCode" [ref=e86]
+              - generic [ref=e87]:
+                - generic [ref=e88]: OpenCode
+                - code [ref=e89]: ollama launch opencode --model qwen3-coder-next
+            - button "Copy" [ref=e90] [cursor=pointer]:
+              - img [ref=e91]
+          - generic [ref=e93]:
+            - generic [ref=e94]:
+              - img "OpenClaw" [ref=e95]
+              - generic [ref=e96]:
+                - generic [ref=e97]: OpenClaw
+                - code [ref=e98]: ollama launch openclaw --model qwen3-coder-next
+            - button "Copy" [ref=e99] [cursor=pointer]:
+              - img [ref=e100]
+      - generic [ref=e102]:
+        - generic [ref=e103]:
+          - heading "Models" [level=2] [ref=e104]
+          - link "View all →" [ref=e105] [cursor=pointer]:
+            - /url: /library/qwen3-coder-next/tags
+        - generic [ref=e107]:
+          - generic [ref=e108]:
+            - paragraph [ref=e109]: Name
+            - paragraph [ref=e110]: Size
+            - paragraph [ref=e111]: Context
+            - paragraph [ref=e112]: Input
+          - generic [ref=e113]:
+            - link "qwen3-coder-next:latest" [ref=e115] [cursor=pointer]:
+              - /url: /library/qwen3-coder-next:latest
+            - paragraph [ref=e116]: 52GB
+            - paragraph [ref=e117]: 256K
+            - paragraph [ref=e118]: Text
+          - generic [ref=e119]:
+            - link "qwen3-coder-next:cloud" [ref=e121] [cursor=pointer]:
+              - /url: /library/qwen3-coder-next:cloud
+            - paragraph [ref=e122]: "-"
+            - paragraph [ref=e123]: 256K
+            - paragraph [ref=e124]: Text
+          - generic [ref=e125]:
+            - link "qwen3-coder-next:q4_K_M" [ref=e127] [cursor=pointer]:
+              - /url: /library/qwen3-coder-next:q4_K_M
+            - paragraph [ref=e128]: 52GB
+            - paragraph [ref=e129]: 256K
+            - paragraph [ref=e130]: Text
+          - generic [ref=e131]:
+            - link "qwen3-coder-next:q8_0" [ref=e133] [cursor=pointer]:
+              - /url: /library/qwen3-coder-next:q8_0
+            - paragraph [ref=e134]: 85GB
+            - paragraph [ref=e135]: 256K
+            - paragraph [ref=e136]: Text
+    - generic [ref=e137]:
+      - heading "Readme" [level=2] [ref=e139]
+      - generic [ref=e141]:
+        - paragraph [ref=e142]:
+          - img [ref=e143]
+        - paragraph [ref=e144]: Built on top of Qwen3-Next-80B-A3B-Base, which adopts a novel architecture with hybrid attention and MoE, Qwen3-Coder-Next has been agentically trained at scale on large-scale executable task synthesis, environment interaction, and reinforcement learning, obtaining strong coding and agentic capabilities with significantly lower inference costs.
+        - paragraph [ref=e145]:
+          - img "image.png" [ref=e146]
+        - heading "Features" [level=3] [ref=e147]
+        - list [ref=e148]:
+          - listitem [ref=e149]:
+            - strong [ref=e150]: "Ultra-efficient inference:"
+            - text: 80B total parameters, 3B active per token. Runs on consumer hardware with quantization.
+          - listitem [ref=e151]:
+            - strong [ref=e152]: "256K native context:"
+            - text: Full repository-scale understanding without chunking or retrieval hacks.
+          - listitem [ref=e153]:
+            - strong [ref=e154]: "Agentic training:"
+            - text: Trained on 800K executable tasks with environment interaction and reinforcement learning—not just static code-text pairs.
+          - listitem [ref=e155]:
+            - strong [ref=e156]: "Tool calling:"
+            - text: Works with coding agents like Claude Code, Qwen Code, Cline, and OpenCode out of the box.
+          - listitem [ref=e157]:
+            - strong [ref=e158]: "Non-thinking mode only:"
+            - text: Fast responses without
+            - code [ref=e159]: <think></think>
+            - text: blocks.
+        - heading "Benchmarks" [level=3] [ref=e160]
+        - paragraph [ref=e161]
+  - contentinfo [ref=e162]:
+    - generic [ref=e164]:
+      - generic [ref=e165]: © 2026 Ollama
+      - generic [ref=e166]:
+        - link "Download" [ref=e167] [cursor=pointer]:
+          - /url: /download
+        - link "Blog" [ref=e168] [cursor=pointer]:
+          - /url: /blog
+        - link "Docs" [ref=e169] [cursor=pointer]:
+          - /url: https://docs.ollama.com
+        - link "GitHub" [ref=e170] [cursor=pointer]:
+          - /url: https://github.com/ollama/ollama
+        - link "Discord" [ref=e171] [cursor=pointer]:
+          - /url: https://discord.com/invite/ollama
+        - link "X (Twitter)" [ref=e172] [cursor=pointer]:
+          - /url: https://twitter.com/ollama
+        - link "Contact" [ref=e173] [cursor=pointer]:
+          - /url: mailto:hello@ollama.com
+        - link "Privacy" [ref=e174] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms" [ref=e175] [cursor=pointer]:
+          - /url: /terms

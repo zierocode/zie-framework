@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.28.2 — 2026-04-14
+
+### Fixed
+
+- **Test flakiness from cache TTL** — `test_hooks_subagent_context.py` now clears content-hash cache before each test to avoid TTL-based skip (600s TTL caused false negatives on repeated runs); added `clear_content_hash_cache()` helper and `decisions/ADR-000-summary.md` fixture
+
+## v1.28.1 — 2026-04-13
+
+### Added
+
+- **Non-Claude fallback for /release** — advisory message for non-Claude providers, `make release-local` target documented, inline `model:` comments removed from release.md + impl-reviewer/SKILL.md
+
+### Fixed
+
+- **Model routing tests** — updated model-routing-v2 tests to reflect non-Claude compatibility changes from ADR-066
+
 ## v1.28.0 — 2026-04-13
 
 ### Added

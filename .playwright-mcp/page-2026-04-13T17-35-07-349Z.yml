@@ -1,0 +1,555 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "Ollama" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "Ollama" [ref=e5]
+      - generic [ref=e6]:
+        - link "Models" [ref=e7] [cursor=pointer]:
+          - /url: /search
+        - link "Docs" [ref=e8] [cursor=pointer]:
+          - /url: /docs
+        - link "Pricing" [ref=e9] [cursor=pointer]:
+          - /url: /pricing
+      - generic [ref=e12]:
+        - img [ref=e14]
+        - textbox "Search models" [active] [ref=e16]
+      - generic [ref=e17]:
+        - link "Sign in" [ref=e18] [cursor=pointer]:
+          - /url: /signin
+        - link "Download" [ref=e19] [cursor=pointer]:
+          - /url: /download
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - group [ref=e24]:
+          - generic [ref=e25]:
+            - checkbox "Cloud" [checked] [ref=e26]
+            - generic [ref=e27] [cursor=pointer]: Cloud
+          - generic [ref=e28]:
+            - checkbox "Embedding" [ref=e29]
+            - generic [ref=e30] [cursor=pointer]: Embedding
+          - generic [ref=e31]:
+            - checkbox "Vision" [ref=e32]
+            - generic [ref=e33] [cursor=pointer]: Vision
+          - generic [ref=e34]:
+            - checkbox "Tools" [ref=e35]
+            - generic [ref=e36] [cursor=pointer]: Tools
+          - generic [ref=e37]:
+            - checkbox "Thinking" [ref=e38]
+            - generic [ref=e39] [cursor=pointer]: Thinking
+        - combobox [ref=e41] [cursor=pointer]:
+          - option "Popular" [selected]
+          - option "Newest"
+      - list [ref=e42]:
+        - listitem [ref=e43]:
+          - link "glm-5.1 GLM-5.1 is our next-generation flagship model for agentic engineering, with significantly stronger coding capabilities than its predecessor. It achieves state-of-the-art performance on SWE-Bench Pro and leads GLM-5 by a wide margin. tools thinking cloud 34.7K Pulls 1 Tag Updated 6 days ago" [ref=e44] [cursor=pointer]:
+            - /url: /library/glm-5.1
+            - generic "glm-5.1" [ref=e45]:
+              - heading "glm-5.1" [level=2] [ref=e46]
+              - paragraph [ref=e47]: GLM-5.1 is our next-generation flagship model for agentic engineering, with significantly stronger coding capabilities than its predecessor. It achieves state-of-the-art performance on SWE-Bench Pro and leads GLM-5 by a wide margin.
+            - generic [ref=e48]:
+              - generic [ref=e49]:
+                - generic [ref=e50]: tools
+                - generic [ref=e51]: thinking
+                - generic [ref=e52]: cloud
+              - paragraph [ref=e53]:
+                - generic [ref=e54]:
+                  - img [ref=e55]
+                  - generic [ref=e57]: 34.7K
+                  - generic [ref=e58]: Pulls
+                - generic [ref=e59]:
+                  - img [ref=e60]
+                  - generic [ref=e63]: "1"
+                  - generic [ref=e64]: Tag
+                - generic "Apr 7, 2026 3:00 PM UTC" [ref=e65]:
+                  - img [ref=e66]
+                  - generic [ref=e68]: Updated
+                  - generic [ref=e69]: 6 days ago
+        - listitem [ref=e70]:
+          - link "minimax-m2.7 MiniMax's M2-series model for coding, agentic workflows, and professional productivity. tools thinking cloud 69.1K Pulls 1 Tag Updated 3 weeks ago" [ref=e71] [cursor=pointer]:
+            - /url: /library/minimax-m2.7
+            - generic "minimax-m2.7" [ref=e72]:
+              - heading "minimax-m2.7" [level=2] [ref=e73]
+              - paragraph [ref=e74]: MiniMax's M2-series model for coding, agentic workflows, and professional productivity.
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - generic [ref=e77]: tools
+                - generic [ref=e78]: thinking
+                - generic [ref=e79]: cloud
+              - paragraph [ref=e80]:
+                - generic [ref=e81]:
+                  - img [ref=e82]
+                  - generic [ref=e84]: 69.1K
+                  - generic [ref=e85]: Pulls
+                - generic [ref=e86]:
+                  - img [ref=e87]
+                  - generic [ref=e90]: "1"
+                  - generic [ref=e91]: Tag
+                - generic "Mar 18, 2026 6:05 PM UTC" [ref=e92]:
+                  - img [ref=e93]
+                  - generic [ref=e95]: Updated
+                  - generic [ref=e96]: 3 weeks ago
+        - listitem [ref=e97]:
+          - link "gemma4 Gemma 4 models are designed to deliver frontier-level performance at each size. They are well-suited for reasoning, agentic workflows, coding, and multimodal understanding. vision tools thinking audio cloud e2b e4b 26b 31b 2.8M Pulls 17 Tags Updated 1 week ago" [ref=e98] [cursor=pointer]:
+            - /url: /library/gemma4
+            - generic "gemma4" [ref=e99]:
+              - heading "gemma4" [level=2] [ref=e100]
+              - paragraph [ref=e101]: Gemma 4 models are designed to deliver frontier-level performance at each size. They are well-suited for reasoning, agentic workflows, coding, and multimodal understanding.
+            - generic [ref=e102]:
+              - generic [ref=e103]:
+                - generic [ref=e104]: vision
+                - generic [ref=e105]: tools
+                - generic [ref=e106]: thinking
+                - generic [ref=e107]: audio
+                - generic [ref=e108]: cloud
+                - generic [ref=e109]: e2b
+                - generic [ref=e110]: e4b
+                - generic [ref=e111]: 26b
+                - generic [ref=e112]: 31b
+              - paragraph [ref=e113]:
+                - generic [ref=e114]:
+                  - img [ref=e115]
+                  - generic [ref=e117]: 2.8M
+                  - generic [ref=e118]: Pulls
+                - generic [ref=e119]:
+                  - img [ref=e120]
+                  - generic [ref=e123]: "17"
+                  - generic [ref=e124]: Tags
+                - generic "Apr 6, 2026 1:39 AM UTC" [ref=e125]:
+                  - img [ref=e126]
+                  - generic [ref=e128]: Updated
+                  - generic [ref=e129]: 1 week ago
+        - listitem [ref=e130]:
+          - link "qwen3.5 Qwen 3.5 is a family of open-source multimodal models that delivers exceptional utility and performance. vision tools thinking cloud 0.8b 2b 4b 9b 27b 35b 122b 6M Pulls 58 Tags Updated 1 week ago" [ref=e131] [cursor=pointer]:
+            - /url: /library/qwen3.5
+            - generic "qwen3.5" [ref=e132]:
+              - heading "qwen3.5" [level=2] [ref=e133]
+              - paragraph [ref=e134]: Qwen 3.5 is a family of open-source multimodal models that delivers exceptional utility and performance.
+            - generic [ref=e135]:
+              - generic [ref=e136]:
+                - generic [ref=e137]: vision
+                - generic [ref=e138]: tools
+                - generic [ref=e139]: thinking
+                - generic [ref=e140]: cloud
+                - generic [ref=e141]: 0.8b
+                - generic [ref=e142]: 2b
+                - generic [ref=e143]: 4b
+                - generic [ref=e144]: 9b
+                - generic [ref=e145]: 27b
+                - generic [ref=e146]: 35b
+                - generic [ref=e147]: 122b
+              - paragraph [ref=e148]:
+                - generic [ref=e149]:
+                  - img [ref=e150]
+                  - generic [ref=e152]: 6M
+                  - generic [ref=e153]: Pulls
+                - generic [ref=e154]:
+                  - img [ref=e155]
+                  - generic [ref=e158]: "58"
+                  - generic [ref=e159]: Tags
+                - generic "Apr 1, 2026 11:10 PM UTC" [ref=e160]:
+                  - img [ref=e161]
+                  - generic [ref=e163]: Updated
+                  - generic [ref=e164]: 1 week ago
+        - listitem [ref=e165]:
+          - link "qwen3-coder-next Qwen3-Coder-Next is a coding-focused language model from Alibaba's Qwen team, optimized for agentic coding workflows and local development. tools cloud 1M Pulls 4 Tags Updated 2 months ago" [ref=e166] [cursor=pointer]:
+            - /url: /library/qwen3-coder-next
+            - generic "qwen3-coder-next" [ref=e167]:
+              - heading "qwen3-coder-next" [level=2] [ref=e168]
+              - paragraph [ref=e169]: Qwen3-Coder-Next is a coding-focused language model from Alibaba's Qwen team, optimized for agentic coding workflows and local development.
+            - generic [ref=e170]:
+              - generic [ref=e171]:
+                - generic [ref=e172]: tools
+                - generic [ref=e173]: cloud
+              - paragraph [ref=e174]:
+                - generic [ref=e175]:
+                  - img [ref=e176]
+                  - generic [ref=e178]: 1M
+                  - generic [ref=e179]: Pulls
+                - generic [ref=e180]:
+                  - img [ref=e181]
+                  - generic [ref=e184]: "4"
+                  - generic [ref=e185]: Tags
+                - generic "Feb 6, 2026 5:23 AM UTC" [ref=e186]:
+                  - img [ref=e187]
+                  - generic [ref=e189]: Updated
+                  - generic [ref=e190]: 2 months ago
+        - listitem [ref=e191]:
+          - link "ministral-3 The Ministral 3 family is designed for edge deployment, capable of running on a wide range of hardware. vision tools cloud 3b 8b 14b 926.7K Pulls 16 Tags Updated 4 months ago" [ref=e192] [cursor=pointer]:
+            - /url: /library/ministral-3
+            - generic "ministral-3" [ref=e193]:
+              - heading "ministral-3" [level=2] [ref=e194]
+              - paragraph [ref=e195]: The Ministral 3 family is designed for edge deployment, capable of running on a wide range of hardware.
+            - generic [ref=e196]:
+              - generic [ref=e197]:
+                - generic [ref=e198]: vision
+                - generic [ref=e199]: tools
+                - generic [ref=e200]: cloud
+                - generic [ref=e201]: 3b
+                - generic [ref=e202]: 8b
+                - generic [ref=e203]: 14b
+              - paragraph [ref=e204]:
+                - generic [ref=e205]:
+                  - img [ref=e206]
+                  - generic [ref=e208]: 926.7K
+                  - generic [ref=e209]: Pulls
+                - generic [ref=e210]:
+                  - img [ref=e211]
+                  - generic [ref=e214]: "16"
+                  - generic [ref=e215]: Tags
+                - generic "Dec 13, 2025 1:59 AM UTC" [ref=e216]:
+                  - img [ref=e217]
+                  - generic [ref=e219]: Updated
+                  - generic [ref=e220]: 4 months ago
+        - listitem [ref=e221]:
+          - link "devstral-small-2 24B model that excels at using tools to explore codebases, editing multiple files and power software engineering agents. vision tools cloud 24b 770.7K Pulls 6 Tags Updated 4 months ago" [ref=e222] [cursor=pointer]:
+            - /url: /library/devstral-small-2
+            - generic "devstral-small-2" [ref=e223]:
+              - heading "devstral-small-2" [level=2] [ref=e224]
+              - paragraph [ref=e225]: 24B model that excels at using tools to explore codebases, editing multiple files and power software engineering agents.
+            - generic [ref=e226]:
+              - generic [ref=e227]:
+                - generic [ref=e228]: vision
+                - generic [ref=e229]: tools
+                - generic [ref=e230]: cloud
+                - generic [ref=e231]: 24b
+              - paragraph [ref=e232]:
+                - generic [ref=e233]:
+                  - img [ref=e234]
+                  - generic [ref=e236]: 770.7K
+                  - generic [ref=e237]: Pulls
+                - generic [ref=e238]:
+                  - img [ref=e239]
+                  - generic [ref=e242]: "6"
+                  - generic [ref=e243]: Tags
+                - generic "Dec 13, 2025 6:47 AM UTC" [ref=e244]:
+                  - img [ref=e245]
+                  - generic [ref=e247]: Updated
+                  - generic [ref=e248]: 4 months ago
+        - listitem [ref=e249]:
+          - link "nemotron-3-super NVIDIA Nemotron 3 Super is a 120B open MoE model activating just 12B parameters to deliver maximum compute efficiency and accuracy for complex multi-agent applications. tools thinking cloud 120b 225.6K Pulls 7 Tags Updated 1 month ago" [ref=e250] [cursor=pointer]:
+            - /url: /library/nemotron-3-super
+            - generic "nemotron-3-super" [ref=e251]:
+              - heading "nemotron-3-super" [level=2] [ref=e252]
+              - paragraph [ref=e253]: NVIDIA Nemotron 3 Super is a 120B open MoE model activating just 12B parameters to deliver maximum compute efficiency and accuracy for complex multi-agent applications.
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - generic [ref=e256]: tools
+                - generic [ref=e257]: thinking
+                - generic [ref=e258]: cloud
+                - generic [ref=e259]: 120b
+              - paragraph [ref=e260]:
+                - generic [ref=e261]:
+                  - img [ref=e262]
+                  - generic [ref=e264]: 225.6K
+                  - generic [ref=e265]: Pulls
+                - generic [ref=e266]:
+                  - img [ref=e267]
+                  - generic [ref=e270]: "7"
+                  - generic [ref=e271]: Tags
+                - generic "Mar 11, 2026 4:00 PM UTC" [ref=e272]:
+                  - img [ref=e273]
+                  - generic [ref=e275]: Updated
+                  - generic [ref=e276]: 1 month ago
+        - listitem [ref=e277]:
+          - link "qwen3-next The first installment in the Qwen3-Next series with strong performance in terms of both parameter efficiency and inference speed. tools thinking cloud 80b 515.6K Pulls 10 Tags Updated 4 months ago" [ref=e278] [cursor=pointer]:
+            - /url: /library/qwen3-next
+            - generic "qwen3-next" [ref=e279]:
+              - heading "qwen3-next" [level=2] [ref=e280]
+              - paragraph [ref=e281]: The first installment in the Qwen3-Next series with strong performance in terms of both parameter efficiency and inference speed.
+            - generic [ref=e282]:
+              - generic [ref=e283]:
+                - generic [ref=e284]: tools
+                - generic [ref=e285]: thinking
+                - generic [ref=e286]: cloud
+                - generic [ref=e287]: 80b
+              - paragraph [ref=e288]:
+                - generic [ref=e289]:
+                  - img [ref=e290]
+                  - generic [ref=e292]: 515.6K
+                  - generic [ref=e293]: Pulls
+                - generic [ref=e294]:
+                  - img [ref=e295]
+                  - generic [ref=e298]: "10"
+                  - generic [ref=e299]: Tags
+                - generic "Dec 9, 2025 12:41 AM UTC" [ref=e300]:
+                  - img [ref=e301]
+                  - generic [ref=e303]: Updated
+                  - generic [ref=e304]: 4 months ago
+        - listitem [ref=e305]:
+          - link "glm-5 A strong reasoning and agentic model from Z.ai with 744B total parameters (40B active), built for complex systems engineering and long-horizon tasks. tools thinking cloud 184.4K Pulls 1 Tag Updated 2 months ago" [ref=e306] [cursor=pointer]:
+            - /url: /library/glm-5
+            - generic "glm-5" [ref=e307]:
+              - heading "glm-5" [level=2] [ref=e308]
+              - paragraph [ref=e309]: A strong reasoning and agentic model from Z.ai with 744B total parameters (40B active), built for complex systems engineering and long-horizon tasks.
+            - generic [ref=e310]:
+              - generic [ref=e311]:
+                - generic [ref=e312]: tools
+                - generic [ref=e313]: thinking
+                - generic [ref=e314]: cloud
+              - paragraph [ref=e315]:
+                - generic [ref=e316]:
+                  - img [ref=e317]
+                  - generic [ref=e319]: 184.4K
+                  - generic [ref=e320]: Pulls
+                - generic [ref=e321]:
+                  - img [ref=e322]
+                  - generic [ref=e325]: "1"
+                  - generic [ref=e326]: Tag
+                - generic "Feb 11, 2026 6:43 PM UTC" [ref=e327]:
+                  - img [ref=e328]
+                  - generic [ref=e330]: Updated
+                  - generic [ref=e331]: 2 months ago
+        - listitem [ref=e332]:
+          - link "kimi-k2.5 Kimi K2.5 is an open-source, native multimodal agentic model that seamlessly integrates vision and language understanding with advanced agentic capabilities, instant and thinking modes, as well as conversational and agentic paradigms. vision tools thinking cloud 239.1K Pulls 1 Tag Updated 2 months ago" [ref=e333] [cursor=pointer]:
+            - /url: /library/kimi-k2.5
+            - generic "kimi-k2.5" [ref=e334]:
+              - heading "kimi-k2.5" [level=2] [ref=e335]
+              - paragraph [ref=e336]: Kimi K2.5 is an open-source, native multimodal agentic model that seamlessly integrates vision and language understanding with advanced agentic capabilities, instant and thinking modes, as well as conversational and agentic paradigms.
+            - generic [ref=e337]:
+              - generic [ref=e338]:
+                - generic [ref=e339]: vision
+                - generic [ref=e340]: tools
+                - generic [ref=e341]: thinking
+                - generic [ref=e342]: cloud
+              - paragraph [ref=e343]:
+                - generic [ref=e344]:
+                  - img [ref=e345]
+                  - generic [ref=e347]: 239.1K
+                  - generic [ref=e348]: Pulls
+                - generic [ref=e349]:
+                  - img [ref=e350]
+                  - generic [ref=e353]: "1"
+                  - generic [ref=e354]: Tag
+                - generic "Jan 27, 2026 7:29 AM UTC" [ref=e355]:
+                  - img [ref=e356]
+                  - generic [ref=e358]: Updated
+                  - generic [ref=e359]: 2 months ago
+        - listitem [ref=e360]:
+          - link "rnj-1 Rnj-1 is a family of 8B parameter open-weight, dense models trained from scratch by Essential AI, optimized for code and STEM with capabilities on par with SOTA open-weight models. tools cloud 8b 441.7K Pulls 6 Tags Updated 4 months ago" [ref=e361] [cursor=pointer]:
+            - /url: /library/rnj-1
+            - generic "rnj-1" [ref=e362]:
+              - heading "rnj-1" [level=2] [ref=e363]
+              - paragraph [ref=e364]: Rnj-1 is a family of 8B parameter open-weight, dense models trained from scratch by Essential AI, optimized for code and STEM with capabilities on par with SOTA open-weight models.
+            - generic [ref=e365]:
+              - generic [ref=e366]:
+                - generic [ref=e367]: tools
+                - generic [ref=e368]: cloud
+                - generic [ref=e369]: 8b
+              - paragraph [ref=e370]:
+                - generic [ref=e371]:
+                  - img [ref=e372]
+                  - generic [ref=e374]: 441.7K
+                  - generic [ref=e375]: Pulls
+                - generic [ref=e376]:
+                  - img [ref=e377]
+                  - generic [ref=e380]: "6"
+                  - generic [ref=e381]: Tags
+                - generic "Dec 12, 2025 11:44 PM UTC" [ref=e382]:
+                  - img [ref=e383]
+                  - generic [ref=e385]: Updated
+                  - generic [ref=e386]: 4 months ago
+        - listitem [ref=e387]:
+          - link "nemotron-3-nano Nemotron-3-Nano is a new Standard for Efficient, Open, and Intelligent Agentic Models, now updated with a 4B parameter count model. tools thinking cloud 4b 30b 386.2K Pulls 9 Tags Updated 4 weeks ago" [ref=e388] [cursor=pointer]:
+            - /url: /library/nemotron-3-nano
+            - generic "nemotron-3-nano" [ref=e389]:
+              - heading "nemotron-3-nano" [level=2] [ref=e390]
+              - paragraph [ref=e391]: Nemotron-3-Nano is a new Standard for Efficient, Open, and Intelligent Agentic Models, now updated with a 4B parameter count model.
+            - generic [ref=e392]:
+              - generic [ref=e393]:
+                - generic [ref=e394]: tools
+                - generic [ref=e395]: thinking
+                - generic [ref=e396]: cloud
+                - generic [ref=e397]: 4b
+                - generic [ref=e398]: 30b
+              - paragraph [ref=e399]:
+                - generic [ref=e400]:
+                  - img [ref=e401]
+                  - generic [ref=e403]: 386.2K
+                  - generic [ref=e404]: Pulls
+                - generic [ref=e405]:
+                  - img [ref=e406]
+                  - generic [ref=e409]: "9"
+                  - generic [ref=e410]: Tags
+                - generic "Mar 16, 2026 3:34 PM UTC" [ref=e411]:
+                  - img [ref=e412]
+                  - generic [ref=e414]: Updated
+                  - generic [ref=e415]: 4 weeks ago
+        - listitem [ref=e416]:
+          - link "minimax-m2.5 MiniMax-M2.5 is a state-of-the-art large language model designed for real-world productivity and coding tasks. tools thinking cloud 160.8K Pulls 1 Tag Updated 2 months ago" [ref=e417] [cursor=pointer]:
+            - /url: /library/minimax-m2.5
+            - generic "minimax-m2.5" [ref=e418]:
+              - heading "minimax-m2.5" [level=2] [ref=e419]
+              - paragraph [ref=e420]: MiniMax-M2.5 is a state-of-the-art large language model designed for real-world productivity and coding tasks.
+            - generic [ref=e421]:
+              - generic [ref=e422]:
+                - generic [ref=e423]: tools
+                - generic [ref=e424]: thinking
+                - generic [ref=e425]: cloud
+              - paragraph [ref=e426]:
+                - generic [ref=e427]:
+                  - img [ref=e428]
+                  - generic [ref=e430]: 160.8K
+                  - generic [ref=e431]: Pulls
+                - generic [ref=e432]:
+                  - img [ref=e433]
+                  - generic [ref=e436]: "1"
+                  - generic [ref=e437]: Tag
+                - generic "Feb 12, 2026 9:22 AM UTC" [ref=e438]:
+                  - img [ref=e439]
+                  - generic [ref=e441]: Updated
+                  - generic [ref=e442]: 2 months ago
+        - listitem [ref=e443]:
+          - link "devstral-2 123B model that excels at using tools to explore codebases, editing multiple files and power software engineering agents. tools cloud 123b 196.3K Pulls 6 Tags Updated 4 months ago" [ref=e444] [cursor=pointer]:
+            - /url: /library/devstral-2
+            - generic "devstral-2" [ref=e445]:
+              - heading "devstral-2" [level=2] [ref=e446]
+              - paragraph [ref=e447]: 123B model that excels at using tools to explore codebases, editing multiple files and power software engineering agents.
+            - generic [ref=e448]:
+              - generic [ref=e449]:
+                - generic [ref=e450]: tools
+                - generic [ref=e451]: cloud
+                - generic [ref=e452]: 123b
+              - paragraph [ref=e453]:
+                - generic [ref=e454]:
+                  - img [ref=e455]
+                  - generic [ref=e457]: 196.3K
+                  - generic [ref=e458]: Pulls
+                - generic [ref=e459]:
+                  - img [ref=e460]
+                  - generic [ref=e463]: "6"
+                  - generic [ref=e464]: Tags
+                - generic "Dec 12, 2025 1:21 AM UTC" [ref=e465]:
+                  - img [ref=e466]
+                  - generic [ref=e468]: Updated
+                  - generic [ref=e469]: 4 months ago
+        - listitem [ref=e470]:
+          - link "cogito-2.1 The Cogito v2.1 LLMs are instruction tuned generative models. All models are released under MIT license for commercial use. cloud 671b 169.8K Pulls 6 Tags Updated 4 months ago" [ref=e471] [cursor=pointer]:
+            - /url: /library/cogito-2.1
+            - generic "cogito-2.1" [ref=e472]:
+              - heading "cogito-2.1" [level=2] [ref=e473]
+              - paragraph [ref=e474]: The Cogito v2.1 LLMs are instruction tuned generative models. All models are released under MIT license for commercial use.
+            - generic [ref=e475]:
+              - generic [ref=e476]:
+                - generic [ref=e477]: cloud
+                - generic [ref=e478]: 671b
+              - paragraph [ref=e479]:
+                - generic [ref=e480]:
+                  - img [ref=e481]
+                  - generic [ref=e483]: 169.8K
+                  - generic [ref=e484]: Pulls
+                - generic [ref=e485]:
+                  - img [ref=e486]
+                  - generic [ref=e489]: "6"
+                  - generic [ref=e490]: Tags
+                - generic "Nov 21, 2025 8:18 PM UTC" [ref=e491]:
+                  - img [ref=e492]
+                  - generic [ref=e494]: Updated
+                  - generic [ref=e495]: 4 months ago
+        - listitem [ref=e496]:
+          - link "gemini-3-flash-preview Gemini 3 Flash offers frontier intelligence built for speed at a fraction of the cost. vision tools thinking cloud 130.4K Pulls 2 Tags Updated 3 months ago" [ref=e497] [cursor=pointer]:
+            - /url: /library/gemini-3-flash-preview
+            - generic "gemini-3-flash-preview" [ref=e498]:
+              - heading "gemini-3-flash-preview" [level=2] [ref=e499]
+              - paragraph [ref=e500]: Gemini 3 Flash offers frontier intelligence built for speed at a fraction of the cost.
+            - generic [ref=e501]:
+              - generic [ref=e502]:
+                - generic [ref=e503]: vision
+                - generic [ref=e504]: tools
+                - generic [ref=e505]: thinking
+                - generic [ref=e506]: cloud
+              - paragraph [ref=e507]:
+                - generic [ref=e508]:
+                  - img [ref=e509]
+                  - generic [ref=e511]: 130.4K
+                  - generic [ref=e512]: Pulls
+                - generic [ref=e513]:
+                  - img [ref=e514]
+                  - generic [ref=e517]: "2"
+                  - generic [ref=e518]: Tags
+                - generic "Dec 20, 2025 8:44 PM UTC" [ref=e519]:
+                  - img [ref=e520]
+                  - generic [ref=e522]: Updated
+                  - generic [ref=e523]: 3 months ago
+        - listitem [ref=e524]:
+          - link "glm-4.7 Advancing the Coding Capability tools thinking cloud 88.3K Pulls 1 Tag Updated 3 months ago" [ref=e525] [cursor=pointer]:
+            - /url: /library/glm-4.7
+            - generic "glm-4.7" [ref=e526]:
+              - heading "glm-4.7" [level=2] [ref=e527]
+              - paragraph [ref=e528]: Advancing the Coding Capability
+            - generic [ref=e529]:
+              - generic [ref=e530]:
+                - generic [ref=e531]: tools
+                - generic [ref=e532]: thinking
+                - generic [ref=e533]: cloud
+              - paragraph [ref=e534]:
+                - generic [ref=e535]:
+                  - img [ref=e536]
+                  - generic [ref=e538]: 88.3K
+                  - generic [ref=e539]: Pulls
+                - generic [ref=e540]:
+                  - img [ref=e541]
+                  - generic [ref=e544]: "1"
+                  - generic [ref=e545]: Tag
+                - generic "Dec 23, 2025 5:56 PM UTC" [ref=e546]:
+                  - img [ref=e547]
+                  - generic [ref=e549]: Updated
+                  - generic [ref=e550]: 3 months ago
+        - listitem [ref=e551]:
+          - link "deepseek-v3.2 DeepSeek-V3.2, a model that harmonizes high computational efficiency with superior reasoning and agent performance. tools thinking cloud 77.3K Pulls 1 Tag Updated 3 months ago" [ref=e552] [cursor=pointer]:
+            - /url: /library/deepseek-v3.2
+            - generic "deepseek-v3.2" [ref=e553]:
+              - heading "deepseek-v3.2" [level=2] [ref=e554]
+              - paragraph [ref=e555]: DeepSeek-V3.2, a model that harmonizes high computational efficiency with superior reasoning and agent performance.
+            - generic [ref=e556]:
+              - generic [ref=e557]:
+                - generic [ref=e558]: tools
+                - generic [ref=e559]: thinking
+                - generic [ref=e560]: cloud
+              - paragraph [ref=e561]:
+                - generic [ref=e562]:
+                  - img [ref=e563]
+                  - generic [ref=e565]: 77.3K
+                  - generic [ref=e566]: Pulls
+                - generic [ref=e567]:
+                  - img [ref=e568]
+                  - generic [ref=e571]: "1"
+                  - generic [ref=e572]: Tag
+                - generic "Dec 19, 2025 6:09 PM UTC" [ref=e573]:
+                  - img [ref=e574]
+                  - generic [ref=e576]: Updated
+                  - generic [ref=e577]: 3 months ago
+        - listitem [ref=e578]:
+          - link "minimax-m2 MiniMax M2 is a high-efficiency large language model built for coding and agentic workflows. tools thinking cloud 99.7K Pulls 1 Tag Updated 5 months ago" [ref=e579] [cursor=pointer]:
+            - /url: /library/minimax-m2
+            - generic "minimax-m2" [ref=e580]:
+              - heading "minimax-m2" [level=2] [ref=e581]
+              - paragraph [ref=e582]: MiniMax M2 is a high-efficiency large language model built for coding and agentic workflows.
+            - generic [ref=e583]:
+              - generic [ref=e584]:
+                - generic [ref=e585]: tools
+                - generic [ref=e586]: thinking
+                - generic [ref=e587]: cloud
+              - paragraph [ref=e588]:
+                - generic [ref=e589]:
+                  - img [ref=e590]
+                  - generic [ref=e592]: 99.7K
+                  - generic [ref=e593]: Pulls
+                - generic [ref=e594]:
+                  - img [ref=e595]
+                  - generic [ref=e598]: "1"
+                  - generic [ref=e599]: Tag
+                - generic "Oct 28, 2025 6:32 PM UTC" [ref=e600]:
+                  - img [ref=e601]
+                  - generic [ref=e603]: Updated
+                  - generic [ref=e604]: 5 months ago
+        - listitem
+  - contentinfo [ref=e605]:
+    - generic [ref=e606]:
+      - generic [ref=e607]: © 2026 Ollama
+      - generic [ref=e608]:
+        - link "Blog" [ref=e609] [cursor=pointer]:
+          - /url: /blog
+        - link "Contact" [ref=e610] [cursor=pointer]:
+          - /url: mailto:hello@ollama.com

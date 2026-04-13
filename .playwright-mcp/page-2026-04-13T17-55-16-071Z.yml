@@ -1,0 +1,201 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "Ollama" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "Ollama" [ref=e5]
+      - generic [ref=e6]:
+        - link "Models" [ref=e7] [cursor=pointer]:
+          - /url: /search
+        - link "Docs" [ref=e8] [cursor=pointer]:
+          - /url: /docs
+        - link "Pricing" [ref=e9] [cursor=pointer]:
+          - /url: /pricing
+      - generic [ref=e13]:
+        - img [ref=e15]
+        - textbox "Search models" [ref=e17]
+      - generic [ref=e18]:
+        - link "Sign in" [ref=e19] [cursor=pointer]:
+          - /url: /signin
+        - link "Download" [ref=e20] [cursor=pointer]:
+          - /url: /download
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - link "rnj-1" [ref=e27] [cursor=pointer]:
+        - /url: /library/rnj-1
+      - generic [ref=e28]:
+        - paragraph [ref=e30]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - generic [ref=e34]: 441.7K
+            - generic [ref=e35]: Downloads
+          - generic "Dec 12, 2025 11:44 PM UTC" [ref=e36]:
+            - img [ref=e37]
+            - generic [ref=e39]: Updated
+            - generic [ref=e40]: 4 months ago
+        - heading "Rnj-1 is a family of 8B parameter open-weight, dense models trained from scratch by Essential AI, optimized for code and STEM with capabilities on par with SOTA open-weight models." [level=2] [ref=e42]
+        - generic [ref=e43]:
+          - generic [ref=e44]: tools
+          - generic [ref=e45]: cloud
+          - generic [ref=e46]: 8b
+    - generic [ref=e47]:
+      - generic [ref=e49]:
+        - generic [ref=e51]:
+          - button "CLI" [ref=e52] [cursor=pointer]
+          - button "cURL" [ref=e53] [cursor=pointer]
+          - button "Python" [ref=e54] [cursor=pointer]
+          - button "JavaScript" [ref=e55] [cursor=pointer]
+        - generic [ref=e56]:
+          - button "Copy" [ref=e58] [cursor=pointer]:
+            - img [ref=e59]
+          - generic [ref=e62]: ollama run rnj-1
+      - generic [ref=e63]:
+        - heading "Applications" [level=2] [ref=e64]
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - img "Claude Code" [ref=e69]
+              - generic [ref=e70]:
+                - generic [ref=e71]: Claude Code
+                - code [ref=e72]: ollama launch claude --model rnj-1
+            - button "Copy" [ref=e73] [cursor=pointer]:
+              - img [ref=e74]
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - img "Codex" [ref=e78]
+              - generic [ref=e79]:
+                - generic [ref=e80]: Codex
+                - code [ref=e81]: ollama launch codex --model rnj-1
+            - button "Copy" [ref=e82] [cursor=pointer]:
+              - img [ref=e83]
+          - generic [ref=e85]:
+            - generic [ref=e86]:
+              - img "OpenCode" [ref=e87]
+              - generic [ref=e88]:
+                - generic [ref=e89]: OpenCode
+                - code [ref=e90]: ollama launch opencode --model rnj-1
+            - button "Copy" [ref=e91] [cursor=pointer]:
+              - img [ref=e92]
+          - generic [ref=e94]:
+            - generic [ref=e95]:
+              - img "OpenClaw" [ref=e96]
+              - generic [ref=e97]:
+                - generic [ref=e98]: OpenClaw
+                - code [ref=e99]: ollama launch openclaw --model rnj-1
+            - button "Copy" [ref=e100] [cursor=pointer]:
+              - img [ref=e101]
+      - generic [ref=e103]:
+        - generic [ref=e104]:
+          - heading "Models" [level=2] [ref=e105]
+          - link "View all →" [ref=e106] [cursor=pointer]:
+            - /url: /library/rnj-1/tags
+        - generic [ref=e108]:
+          - generic [ref=e109]:
+            - paragraph [ref=e110]: Name
+            - paragraph [ref=e111]: Size
+            - paragraph [ref=e112]: Context
+            - paragraph [ref=e113]: Input
+          - generic [ref=e114]:
+            - link "rnj-1:latest" [ref=e116] [cursor=pointer]:
+              - /url: /library/rnj-1:latest
+            - paragraph [ref=e117]: 5.1GB
+            - paragraph [ref=e118]: 32K
+            - paragraph [ref=e119]: Text
+          - generic [ref=e120]:
+            - generic [ref=e121]:
+              - link "rnj-1:8b" [ref=e122] [cursor=pointer]:
+                - /url: /library/rnj-1:8b
+              - generic [ref=e123]: latest
+            - paragraph [ref=e124]: 5.1GB
+            - paragraph [ref=e125]: 32K
+            - paragraph [ref=e126]: Text
+          - generic [ref=e127]:
+            - link "rnj-1:8b-cloud" [ref=e129] [cursor=pointer]:
+              - /url: /library/rnj-1:8b-cloud
+            - paragraph [ref=e130]: "-"
+            - paragraph [ref=e131]: 32K
+            - paragraph [ref=e132]: Text
+    - generic [ref=e133]:
+      - heading "Readme" [level=2] [ref=e135]
+      - generic [ref=e137]:
+        - paragraph [ref=e138]:
+          - img [ref=e139]
+        - blockquote [ref=e140]:
+          - paragraph [ref=e141]:
+            - text: This model requires
+            - link "Ollama 0.13.3" [ref=e142] [cursor=pointer]:
+              - /url: https://github.com/ollama/ollama/releases/tag/v0.13.3-rc0
+            - text: or later.
+        - paragraph [ref=e143]: Rnj-1 is a family of 8B parameter open-weight, dense models trained from scratch by Essential AI, optimized for code and STEM with capabilities on par with SOTA open-weight models. These models perform well across a range of programming languages and boast strong agentic capabilities (e.g., inside agentic frameworks like mini-SWE-agent), while also excelling at tool-calling. They additionally exhibit strong capabilities in math and science. Herein, rnj-1 refers to the base model, while rnj-1-instruct refers to the post-trained instruction tuned model.
+        - paragraph [ref=e144]:
+          - img "image.png" [ref=e145]
+        - heading "Highlights of abilities" [level=3] [ref=e146]
+        - list [ref=e147]:
+          - listitem [ref=e148]:
+            - strong [ref=e149]: "Code generation:"
+            - text: Both
+            - code [ref=e150]: rnj-1-instruct
+            - text: and
+            - code [ref=e151]: rnj-1
+            - text: demonstrate strong code generation abilities as measured on tasks like HumanEval+, MBPP+, BigCodeBench, and LiveCodeBench v6. Both models compete with the strongest open weight models, sometimes outperforming even larger models such as GPT OSS 20B. We measured code comprehension abilities using the task of predicting inputs given outputs and vice-versa, Crux-IO. We find our models outperform comparable baselines. For multi-lingual code generation capabilities across programming languages we measure MultiPL-E on 6 languages (C++, TypeScript, Java, JavaScript, Shell, PHP) and we find performance close to the strongest model.
+          - listitem [ref=e152]:
+            - strong [ref=e153]: "Agentic and Tool Use:"
+            - code [ref=e154]: rnj-1-instruct
+            - text: dominates the pack on agentic coding, one of our target abilities. SWE-bench performance is indicative of the model’s ability to tackle everyday software engineering tasks. The model is an order of magnitude stronger than comparably sized models on SWE-bench and approaches the capabilities available in much larger models. It scores
+            - code [ref=e155]: 20.8%
+            - text: on SWE-bench Verified in bash-only mode, which is higher than Gemini 2.0 flash and Qwen2.5-Coder 32B Instruct under the same agentic framework (
+            - link "leaderboard" [ref=e156] [cursor=pointer]:
+              - /url: https://www.swebench.com/bash-only.html
+            - text: ).
+            - text: There is a surge of interest in developing models’ abilities to write performant code.
+            - code [ref=e157]: rnj-1-instruct
+            - text: is able to use a profiler to iteratively improve the performance of the code it writes. For instance, on
+            - link "Enamel" [ref=e158] [cursor=pointer]:
+              - /url: https://github.com/q-rz/enamel/tree/main
+            - text: ", which measures abilities to write efficient solutions to algorithmic problems, the model outperforms all other models under the same setting."
+            - text: Furthermore,
+            - code [ref=e159]: rnj-1-instruct
+            - text: surpasses comparable models in tool use performance as measured by the Berkeley Functional Calling Leaderboard (BFCL).
+          - listitem [ref=e160]:
+            - strong [ref=e161]: Code Infilling
+            - text: ": Having specifically been trained on FIM-ed pre-training data,"
+            - code [ref=e162]: rnj-1
+            - text: exhibits strong infilling abilities, which have been further enhanced during post-training. The base model
+            - code [ref=e163]: rnj-1
+            - text: scores highly on HE-FIM-Python (avg) at 82.49% and
+            - code [ref=e164]: rnj-1-instruct
+            - text: achieves 86.21%.
+          - listitem [ref=e165]:
+            - strong [ref=e166]: "Mathematical Problem Solving:"
+            - code [ref=e167]: rnj-1-instruct
+            - text: shows strong mathematical abilities across several levels of difficulty from elementary math (GSM8k), high school and undergraduate math (Minerva-MATH), and competition math (AIME ‘24 and ‘25). On harder subjects, it outcompetes or is on par with the strongest model in the pack.
+          - listitem [ref=e168]:
+            - strong [ref=e169]: "Scientific Reasoning:"
+            - code [ref=e170]: rnj-1-instruct
+            - text: exhibits long-context reasoning abilities that are needed to solve hard science and technical questions in GPQA-Diamond and SuperGPQA.
+        - heading "Reference" [level=3] [ref=e171]
+        - paragraph [ref=e172]:
+          - link "rnj-1 blog post" [ref=e173] [cursor=pointer]:
+            - /url: https://www.essential.ai/research/rnj-1
+  - contentinfo [ref=e174]:
+    - generic [ref=e176]:
+      - generic [ref=e177]: © 2026 Ollama
+      - generic [ref=e178]:
+        - link "Download" [ref=e179] [cursor=pointer]:
+          - /url: /download
+        - link "Blog" [ref=e180] [cursor=pointer]:
+          - /url: /blog
+        - link "Docs" [ref=e181] [cursor=pointer]:
+          - /url: https://docs.ollama.com
+        - link "GitHub" [ref=e182] [cursor=pointer]:
+          - /url: https://github.com/ollama/ollama
+        - link "Discord" [ref=e183] [cursor=pointer]:
+          - /url: https://discord.com/invite/ollama
+        - link "X (Twitter)" [ref=e184] [cursor=pointer]:
+          - /url: https://twitter.com/ollama
+        - link "Contact" [ref=e185] [cursor=pointer]:
+          - /url: mailto:hello@ollama.com
+        - link "Privacy" [ref=e186] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms" [ref=e187] [cursor=pointer]:
+          - /url: /terms
