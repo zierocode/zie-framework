@@ -43,7 +43,7 @@ Returns: `adrs_content`, `context_content`.
 
 Read the changed files and check each item:
 
-<!-- model: sonnet escalation note: Routine checks (AC coverage, test exists, security scanning) run on haiku. If this review detects new patterns, security concerns, or architectural changes that conflict with existing ADRs, flag for human review or escalate to sonnet reasoning. -->
+<!-- NOTE: escalate to a reasoning-capable model if available. -->
 
 1. **AC coverage** — Does the implementation satisfy every acceptance criterion?
 2. **Tests exist** — Are there tests for the new behavior?

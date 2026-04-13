@@ -84,6 +84,10 @@ implement-local: ## Run /implement in current session (no --agent, works on non-
 	@echo "[zie-framework] Running /implement in current session (no agent mode)"
 	@echo "[zie-framework] On Claude Code, prefer: make zie-implement"
 
+release-local: ## Run /release directly in current session (non-Claude fallback)
+	@echo "[zie-framework] Use: /release"
+	@echo "[zie-framework] Do NOT use 'make zie-release' on non-Claude providers."
+
 zie-release: ## Run /release in a fresh agent context — avoids context overflow (usage: make zie-release)
 	claude --agent zie-framework:zie-release-mode
 

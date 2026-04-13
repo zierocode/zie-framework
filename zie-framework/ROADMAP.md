@@ -21,8 +21,7 @@
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
 
-- [ ] context-load-smart — Deduplicate context loading: universal load-context entry point, session cache with content hash, reviewer context_bundle passthrough, ROADMAP session cache
-- [ ] agent-mode-compat — Document non-Claude model limitations, add fallback invocation in /implement, make model: frontmatter optional, add make implement without --agent
+- [ ] release-non-claude-fallback — Add non-Claude fallback to /release (advisory + make release-local), remove inline model: escalation comments, audit subagent-context env vars
 
 ---
 
@@ -30,7 +29,8 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
-- [ ] release-non-claude-fallback — Add non-Claude fallback to /release (advisory + make release-local), remove inline model: escalation comments, audit subagent-context env vars
+- [ ] context-load-smart — Deduplicate context loading: universal load-context entry point, session cache with content hash, reviewer context_bundle passthrough, ROADMAP session cache
+- [ ] agent-mode-compat — Document non-Claude model limitations, add fallback invocation in /implement, make model: frontmatter optional, add make implement without --agent
 
 ---
 
