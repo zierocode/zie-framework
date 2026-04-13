@@ -22,7 +22,7 @@ EXPECTED = {
     "commands/plan.md":      ("sonnet", "low"),
     "commands/implement.md": ("sonnet", "medium"),
     "commands/fix.md":       ("sonnet", "low"),
-    "commands/release.md":   ("haiku",  "low"),
+    "commands/release.md":   ("sonnet", "medium"),
     "commands/retro.md":     ("sonnet", "low"),
     "commands/init.md":      ("haiku",  "medium"),
     "commands/resync.md":    ("haiku",  "medium"),
@@ -151,7 +151,6 @@ class TestHaikuFiles:
     EXPECTED_HAIKU = [
         "commands/status.md",
         "commands/backlog.md",
-        "commands/release.md",
         "skills/spec-reviewer/SKILL.md",
         "skills/plan-reviewer/SKILL.md",
         "skills/impl-reviewer/SKILL.md",
