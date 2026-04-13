@@ -41,6 +41,7 @@ Tasks without `depends_on` run in parallel (max 4 concurrent). Tasks with `<!-- 
 
 ## Context Bundle
 
+<!-- context: ROADMAP already injected by session-resume/subagent-context hook; re-read only if Now lane may have changed -->
 <!-- context-load: adrs + project context -->
 
 Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`

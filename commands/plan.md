@@ -67,6 +67,8 @@ For each resolved slug (whether from args or from no-args selection):
 
 ## โหลด context bundle (ครั้งเดียวต่อ session)
 
+<!-- context: ROADMAP already injected by session-resume/subagent-context hook; re-read only if Now lane may have changed -->
+
 <!-- context-load: adrs + project context -->
 
 Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`

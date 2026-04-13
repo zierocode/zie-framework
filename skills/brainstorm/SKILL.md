@@ -20,6 +20,13 @@ Runs 4 phases in sequence. Generic — works with any project.
 
 ---
 
+## Context Bundle
+
+<!-- context-load: adrs + project context -->
+
+Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`.
+Use `context_bundle` in place of direct ADR/context.md reads below.
+
 ## Phase 1 — Read Project Knowledge (not source files)
 
 1. Discover knowledge artifacts generically:
@@ -31,7 +38,7 @@ Runs 4 phases in sequence. Generic — works with any project.
 2. Detect tech stack: language, framework, test runner — used to scope Phase 2.
 3. If `zie-framework/` dir present (zie-framework project):
    - Read `zie-framework/ROADMAP.md`
-   - Read `zie-framework/decisions/ADR-000-summary.md`
+   - Use `context_bundle` for ADR summary and project context (already loaded above)
    - List `zie-framework/backlog/` items
 4. Freshness check: compare `PROJECT.md` mtime vs latest commit mtime using
    `is_mtime_fresh(max_mtime=git_commit_mtime, written_at=project_md_mtime)`.
@@ -43,7 +50,7 @@ Runs 4 phases in sequence. Generic — works with any project.
 
 ## Phase 2 — Research (≤6 queries, scoped to project)
 
-1. Read `zie-framework/decisions/ADR-000-summary.md` first — skip topics already
+1. Check `context_bundle` for ADR decisions — skip topics already
    decided in ADRs.
 2. Derive search topics from Phase 1 gaps, **scoped to detected tech stack**.
    - E.g. "Python SDLC automation best practices" not "SDLC best practices"

@@ -125,6 +125,8 @@ Small items CAN be merged into a single backlog entry when they: (a) share a sin
 
 ## Load Context Bundle (Once Per Sprint)
 
+<!-- context: ROADMAP already injected by session-resume/subagent-context hook; re-read only if Now lane may have changed -->
+
 Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
 (reads `decisions/*.md` ADRs + `project/context.md`).
 

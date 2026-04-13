@@ -34,6 +34,12 @@ an error for a missing second argument.
 
 ## เตรียม context
 
+If `context_bundle` is provided (passed from /spec or /sprint):
+- Use it directly for ADR summary and project context — skip redundant reads.
+
+If `context_bundle` is absent:
+- Invoke `Skill(zie-framework:load-context)` to load ADR summary + project context.
+
 If `zie_memory_enabled=true`:
 
 - Call `mcp__plugin_zie-memory_zie-memory__recall` with `project=<project> domain=<feature-area> tags=[spec, design] limit=10`
