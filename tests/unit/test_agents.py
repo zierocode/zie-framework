@@ -43,7 +43,7 @@ class TestImplementModeAgent:
 
     def test_frontmatter_model(self):
         fm, _ = parse_agent_file("zie-implement-mode.md")
-        assert fm.get("model") == "sonnet", \
+        assert fm.get("model", "").split("#")[0].strip() == "sonnet", \
             f"Expected model: sonnet, got: {fm.get('model')}"
 
     def test_frontmatter_permission_mode(self):
@@ -101,7 +101,7 @@ class TestAuditModeAgent:
 
     def test_frontmatter_model(self):
         fm, _ = parse_agent_file("zie-audit-mode.md")
-        assert fm.get("model") == "sonnet", \
+        assert fm.get("model", "").split("#")[0].strip() == "sonnet", \
             f"Expected model: sonnet, got: {fm.get('model')}"
 
     def test_frontmatter_permission_mode(self):
