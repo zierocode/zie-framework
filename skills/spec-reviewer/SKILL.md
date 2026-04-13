@@ -5,7 +5,7 @@ user-invocable: false
 context: fork
 agent: Explore
 allowed-tools: Read, Grep, Glob
-argument-hint: "context_bundle=<context_bundle>"
+argument-hint: ""
 model: haiku
 effort: low
 ---
