@@ -16,9 +16,9 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-003 | Commands Are the Control Plane, Skills Are Execution | Commands own pipeline transitions; skills execute within one stage, never auto-advance. | Accepted |
 | ADR-004 | Spec Approval State Tracked via Frontmatter | spec-reviewer approval → `approved: true` frontmatter; /plan filters by flag. | Accepted |
 | ADR-005 | Hybrid Release — SDLC Gates + Project-Defined Publish | Release: SDLC layer (gates + bump) + project layer (git ops + publish). | Accepted |
-| ADR-006 | Reviewer Context Bundles | Phase 1: load context bundle (ADRs, ROADMAP). Phase 2: checklist. Phase 3: cross-reference checks. | Accepted |
-| ADR-007 | research_profile as Audit Intel Layer | Phase 1 builds research_profile from manifests; all audit agents and WebSearch queries adapt from it. | Accepted |
-| ADR-008 | Shared Hook Utility Module (hooks/utils.py) | Introduce `hooks/utils.py` (stdlib-only) with `parse_roadmap_now()` and `project_tmp_path()`; imported via `sys.path.insert`. | Accepted |
+| ADR-006 | Reviewer Context Bundles | 3-phase: load context bundle → checklist → cross-reference. | Accepted |
+| ADR-007 | research_profile as Audit Intel Layer | Build research_profile from manifests; all audit agents + WebSearch adapt from it. | Accepted |
+| ADR-008 | Shared Hook Utility Module (hooks/utils.py) | `hooks/utils.py` stdlib-only; exports parse_roadmap_now() + project_tmp_path(). | Accepted |
 | ADR-009 | Hook __main__ Guard for Direct Unit Testing | `if __name__ == '__main__':` guard; module-scope functions for direct pytest import. | Accepted |
 | ADR-010 | safe_write_tmp() Hard-Fails on Symlink Detection | `safe_write_tmp()` checks `is_symlink()` before writing; logs WARNING, never raises. | Accepted |
 | ADR-011 | find_matching_test() OSError Guards at Every Filesystem Call | `try/except OSError` at each filesystem call in `find_matching_test()`. | Accepted |
@@ -27,13 +27,13 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-014 | Async impl-reviewer Deferred-Check Polling | Spawn impl-reviewer async after REFACTOR; poll at next iteration; surface issues; max 2 iterations. | Accepted |
 | ADR-015 | Hook Test Helpers Must Clear Session-Injected Env Vars | `run_hook()` helpers clear session env vars before test overrides. | Accepted |
 | ADR-016 | debounce_ms=0 Means Disabled — Guard with `> 0` | `if debounce_ms > 0` guard prevents APFS timestamp rounding spurious suppression. | Accepted |
-| ADR-017 | impl-reviewer Upgraded from haiku/low to sonnet/medium | Upgrade impl-reviewer to sonnet/medium for better reasoning; spec-reviewer and plan-reviewer remain on haiku. | Accepted |
+| ADR-017 | impl-reviewer Upgraded from haiku/low to sonnet/medium | impl-reviewer → sonnet/medium; spec-reviewer and plan-reviewer remain haiku. | Accepted |
 | ADR-018 | utils.py as Canonical Constants and Helpers Library | `utils.py` is the single source of truth for `BLOCKS`, `WARNS`, `SDLC_STAGES`, and `normalize_command`. | Accepted |
-| ADR-019 | load_config() Parses JSON Exclusively | `load_config()` uses `json.loads()` directly; eliminates silent INI-style fallback that was dropping config values. | Accepted |
+| ADR-019 | load_config() Parses JSON Exclusively | `load_config()` uses json.loads() only; eliminates silent INI fallback dropping config values. | Accepted |
 | ADR-020 | Async Stop Hooks for Non-Blocking Session End | `session-learn.py` and `session-cleanup.py` marked `"async": true`; `stop-guard.py` remains synchronous. | Accepted |
 | ADR-021 | zie-audit Cost Optimization | Replace 5 Opus agents with 3 Sonnet agents + synthesis; ~72% cost reduction; WebSearch 25 → 15. | Accepted |
 | ADR-022 | Effort Routing Strategy for Skills and Commands | `effort: high` for spec-design only; others use medium/low; write-plan high → medium. | Accepted |
-| ADR-023 | SDLC Artifact Archive Strategy | Introduce `zie-framework/archive/` with backlog/specs/plans subdirs; `make archive` moves Done-lane items post-release; excluded from reviewer context bundles. | Accepted |
+| ADR-023 | SDLC Artifact Archive Strategy | `archive/` with backlog/specs/plans; `make archive` moves Done-lane items; excluded from reviewer bundles. | Accepted |
 | ADR-024 | Git Status Session Cache | Hot-path hooks consult /tmp cache before git subprocesses. | Accepted |
 | ADR-025 | ADR Auto-Summarization via /zie-retro | /retro compresses oldest ADRs to ADR-000-summary.md table when count > 30. | Accepted |
 | ADR-026 | ROADMAP Done Section Auto-Compaction | `compact_roadmap_done()`: compact Done entries >20 and >6mo old into archive summary. | Accepted |
@@ -77,3 +77,5 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-063 | Effort Routing Strategy | Effort level routing: low (status/single-step), medium (multi-step incl. brainstorm+spec-design), high (sprint orchestrator only). | Accepted |
 | — | v1.23.0 | Sprint A+B: 3-tier compact-hint, brainstorm skill, conversation capture, /rescue /health /next, code-quality-gate, sprint-reliability, adaptive-learning. | Accepted |
 | — | v1.24.0 | Sprint C+D: WIP=1 implement guard, event field length caps, reviewer-pass marker, effort routing ADR-063, parallel retro ops. | Accepted |
+| ADR-064 | Release Command Upgraded to Sonnet/Medium | `haiku/low` → `sonnet/medium`; prevents context-limit failures post-sprint. | Accepted |
+| — | v1.25.0 | Sprint fixes: all-items enforcement, approve.py upfront (3 cmds), make zie-implement, semver minor bias, ADR-064. | Accepted |

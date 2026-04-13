@@ -9,7 +9,7 @@ def read(rel: str) -> str:
 
 
 class TestZieReleaseModel:
-    def test_zie_release_uses_haiku(self):
+    def test_zie_release_uses_sonnet(self):
         import re
 
         import yaml
@@ -17,7 +17,7 @@ class TestZieReleaseModel:
         match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
         assert match
         fm = yaml.safe_load(match.group(1))
-        assert fm.get("model") == "haiku", "zie-release.md must use haiku"
+        assert fm.get("model") == "sonnet", "zie-release.md must use sonnet (ADR-064: avoids context-limit failures in long sessions)"
 
     def test_version_suggestion_has_sonnet_annotation(self):
         text = read("commands/release.md")

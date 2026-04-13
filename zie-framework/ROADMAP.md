@@ -10,15 +10,12 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-
-
 ---
 
 ## Ready — Approved Plans
 
 <!-- Approved implementation plans. Ready to build, waiting for WIP slot. -->
 <!-- Order: Critical → High → Medium → Low -->
-
 
 ---
 
@@ -32,6 +29,10 @@
 ## Done
 
 <!-- Completed items. Never delete — this is history. -->
+
+- [x] sprint-efficiency-quality — 3 items: intent-sdlc session-level dedup cache (skip re-injection when context unchanged, file-based 600s TTL), quality-gate staged-files bandit (replace rglob[:20] with git diff --cached), implement conditional simplify step (Δ>50 triggers code-simplifier, else skipped) — v1.26.0 2026-04-13
+
+- [x] v1.25.0-fixes — Post-sprint hotfixes: all-items enforcement in /sprint (no silent drops, consolidation rules), semver minor bias fix, approve.py upfront pattern (3 commands), Skill(zie-implement) → make zie-implement, release→sonnet/medium ADR-064 — 2535 unit tests — v1.25.0 2026-04-13
 
 - [x] sprint-c-d — Sprint C+D (5 items): implement WIP=1 Now-lane guard, event field length caps (sanitize_log_field max_len=10240), reviewer-pass marker handshake (subagent-stop↔approve.py), effort routing ADR-063 (brainstorm+spec-design high→medium), parallel retro ops (ADR writes + ROADMAP update concurrent) — 2525 unit tests — v1.24.0 2026-04-12
 
