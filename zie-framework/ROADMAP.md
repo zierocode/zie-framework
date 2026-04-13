@@ -10,9 +10,7 @@
 
 <!-- Current feature in progress. One at a time (WIP=1). -->
 
-- [x] fix-impl-reviewer-simplify — Reconnect impl-reviewer skill to /implement (replace inline checklist), fix broken code-simplifier → simplify reference, clean orphaned agent file
-- [x] review-loop-optimization — Fix max-iterations contradiction, unify sprint vs manual retry, remove speculative file-existence checks, pass context_bundle to avoid re-reads
-- [x] compact-recovery — Compact verification in session-resume, sprint state enrichment (current_task + tdd_phase), PostCompact active-workflow guard, simplify compact-hint tiers
+<!-- -->
 
 ---
 
@@ -30,6 +28,10 @@
 
 <!-- Completed items. Never delete — this is history. -->
 
+- [x] subagent-context-test-fix — Fix test flakiness from content-hash cache TTL, add clear_content_hash_cache() helper, add decisions/ADR-000-summary.md fixture — v1.28.2 2026-04-14
+- [x] fix-impl-reviewer-simplify — Reconnect impl-reviewer skill to /implement (replace inline checklist), fix broken code-simplifier → simplify reference, clean orphaned agent file — v1.28.2 2026-04-14
+- [x] review-loop-optimization — Fix max-iterations contradiction, unify sprint vs manual retry, remove speculative file-existence checks, pass context_bundle to avoid re-reads — v1.28.2 2026-04-14
+- [x] compact-recovery — Compact verification in session-resume, sprint state enrichment (current_task + tdd_phase), PostCompact active-workflow guard, simplify compact-hint tiers — v1.28.2 2026-04-14
 - [x] release-non-claude-fallback — Add non-Claude advisory to /release, make release-local target, remove inline model: comments from release.md + impl-reviewer/SKILL.md, update model-routing-v2 tests — v1.28.1 2026-04-13
 - [x] GLM/Ollama Cloud Compatibility — env var model resolution + model-unavailable detection + tests + ADR-066 — v1.28.0 2026-04-13
 - [x] sprint-phase2-resilience — per-item .sprint-state updates (granular resume) + /compact between Phase 2 items (overflow prevention) — v1.27.0 2026-04-13
