@@ -83,6 +83,10 @@ Test level selection (print once before task loop, not per task):
 5. **→ LOW risk:** `make test-unit` + print `[risk: LOW] Skipping impl-reviewer`.
 6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ T{N} done — {remaining} remaining`.
    - Checkpoint every 3 tasks. If `zie_memory_enabled=true`: Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
+7. **Per-task checkpoint commit** — after marking task complete:
+   `git add -A && git commit -m "feat(<slug>): T{N} {description}"`
+   This ensures progress is saved even if context overflows before all tasks complete.
+   If commit fails (e.g., nothing to commit), skip silently — the task may have been docs-only or already committed.
 
 ## When All Tasks Complete
 
