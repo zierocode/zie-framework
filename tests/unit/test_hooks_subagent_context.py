@@ -55,6 +55,7 @@ def make_cwd(tmp_path, roadmap=None, plan=None, context_md=None):
     zf = tmp_path / "zie-framework"
     (zf / "plans").mkdir(parents=True)
     (zf / "project").mkdir(parents=True)
+    (zf / "decisions").mkdir(parents=True)
 
     if roadmap is not None:
         (zf / "ROADMAP.md").write_text(roadmap)
@@ -64,6 +65,9 @@ def make_cwd(tmp_path, roadmap=None, plan=None, context_md=None):
 
     if context_md is not None:
         (zf / "project" / "context.md").write_text(context_md)
+
+    # Create ADR-000-summary.md for content-hash cache computation
+    (zf / "decisions" / "ADR-000-summary.md").write_text("## ADR-000\n\nSummary.\n")
 
     return tmp_path
 
