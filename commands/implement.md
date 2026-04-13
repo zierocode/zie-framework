@@ -14,7 +14,7 @@ effort: medium
 !`git status --short`
 
 0. **Pre-flight: Agent mode advisory** — if not running with `--agent zie-framework:zie-implement-mode`:
-   print `ℹ️ Tip: run inside \`claude --agent zie-framework:zie-implement-mode\` for best results.`
+   print `ℹ️ Tip: run inside \`claude --agent zie-framework:zie-implement-mode\` for best results. On non-Claude models, /implement works directly in the current session.`
    (advisory only — do not block, continue immediately)
 
 See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
@@ -41,6 +41,7 @@ Tasks without `depends_on` run in parallel (max 4 concurrent). Tasks with `<!-- 
 
 ## Context Bundle
 
+<!-- context: ROADMAP already injected by session-resume/subagent-context hook; re-read only if Now lane may have changed -->
 <!-- context-load: adrs + project context -->
 
 Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
@@ -64,31 +65,29 @@ Test level selection (print once before task loop, not per task):
    implementing; print `→ REFACTOR` before cleanup. Then invoke
    `Skill(zie-framework:tdd-loop)`. Follow it exactly.
    If tests already pass before writing any test → feature exists, skip task.
+   After each TDD phase print, write current phase to `zie-framework/.sprint-state`:
+   update `tdd_phase` field to "RED"/"GREEN"/"REFACTOR" (skip silently if file absent).
    Skill exits after REFACTOR; continue to step 2a.
 2a. **Simplify pass (conditional):**
    1. Run `git diff --stat HEAD` → parse summary line (e.g. `3 files changed, 87 insertions(+), 12 deletions(-)`) → sum insertions + deletions = total Δ
    2. Run `git diff --name-only HEAD` → collect recently modified files list
-   3. If total Δ > 50 → invoke `Skill(code-simplifier:code-simplifier)` on recently modified files list
+   3. If total Δ > 50 → invoke `Skill(simplify)` on recently modified files list
    4. If Δ ≤ 50 → print `[simplify] skipped (Δ{n} lines < 50 threshold)` and continue
    5. After simplify (if run) → re-run `make test-fast` to confirm no regressions introduced
 3. **Risk Classification** — set `risk_level = HIGH` or `LOW`:
    - HIGH: new function/class, changed behavior, external API call, file I/O, subprocess, non-test production code changed, or `<!-- review: required -->`
    - LOW: test-only, docs/config, rename/reformat, minor constant addition
 4. **impl-reviewer** (HIGH only): <!-- BLOCKING: do not mark task complete until all checks pass -->
-   Inline review — no Skill or Agent spawn. Check changed files against:
-   1. AC coverage — every acceptance criterion satisfied?
-   2. Tests exist for new behavior?
-   3. No over-engineering — implementation minimal for the AC?
-   4. No regressions — existing contracts or interfaces broken?
-   5. Code clarity — names clear, logic self-evident?
-   6. Security — hardcoded secrets, command injection, SQL injection?
-   7. Dead code — commented-out code or unreachable branches?
-   8. ADR compliance — contradicts any `context_bundle` ADR?
-   - ✅ All pass → continue
-   - ❌ Issues found → auto-fix inline → `make test-unit` → if pass continue; if fail after 1 retry → surface to Zie
+   Invoke `Skill(zie-framework:impl-reviewer)` with `context_bundle`.
+   - ✅ APPROVED → continue
+   - ❌ Issues Found → auto-fix inline → `make test-unit` → if pass continue; if fail after 1 retry → surface to Zie
 5. **→ LOW risk:** `make test-unit` + print `[risk: LOW] Skipping impl-reviewer`.
 6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ T{N} done — {remaining} remaining`.
    - Checkpoint every 3 tasks. If `zie_memory_enabled=true`: Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
+7. **Per-task checkpoint commit** — after marking task complete:
+   `git add -A && git commit -m "feat(<slug>): T{N} {description}"`
+   This ensures progress is saved even if context overflows before all tasks complete.
+   If commit fails (e.g., nothing to commit), skip silently — the task may have been docs-only or already committed.
 
 ## When All Tasks Complete
 

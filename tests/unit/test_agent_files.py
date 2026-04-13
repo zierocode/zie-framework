@@ -100,10 +100,10 @@ class TestZieImplementCommand:
         assert "interrupt" in t or "surface" in t, \
             "zie-implement must interrupt when auto-fix fails"
 
-    def test_no_inline_impl_reviewer_skill(self):
+    def test_impl_reviewer_invoked_as_skill(self):
         text = self._read_command()
-        assert "Skill(zie-framework:impl-reviewer)" not in text, \
-            "zie-implement must not call impl-reviewer as a Skill"
+        assert "Skill(zie-framework:impl-reviewer)" in text, \
+            "zie-implement must invoke impl-reviewer via Skill(zie-framework:impl-reviewer)"
 
 
 class TestComponentsDocAgents:

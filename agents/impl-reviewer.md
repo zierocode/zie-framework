@@ -6,8 +6,8 @@ allowed-tools: Read, Glob, Grep, Bash
 
 # impl-reviewer agent
 
-Invoke `Skill(zie-framework:impl-reviewer)` with the task description, Acceptance
-Criteria, and list of files changed provided by the caller.
+Invoke `Skill(zie-framework:impl-reviewer)` with `context_bundle`, task description,
+Acceptance Criteria, and list of files changed provided by the caller.
 
 ## Bash tool scope
 

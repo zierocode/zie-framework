@@ -24,6 +24,10 @@ effort: medium
 
    Empty or missing → **STOP**: "No VERSION file found. Run `make bump NEW=x.y.z` first."
 
+> **Non-Claude models:** If running on a non-Claude provider (e.g. minimax-m2.7:cloud),
+> invoke `/release` directly — do NOT use `make zie-release`. The `--agent` flag
+> is a Claude Code CLI feature unavailable on other providers.
+
 ## ลำดับการตรวจสอบ (ต้องผ่านทุกขั้น)
 
 ### Pre-Gate-1: Docs Sync (background)
@@ -123,7 +127,7 @@ merging.
 
 ## All Gates Passed — Release
 
-<!-- model: sonnet reasoning: version suggestion compares commits against semver rules and requires judgment about breaking changes vs new features. -->
+<!-- NOTE: version suggestion requires judgment about breaking changes. -->
 1. **[Step 1/10] Suggest version bump** — scan `[x]` Now items + git log. Apply semver strictly:
    - **major**: breaking change to API/config/command behavior
    - **minor**: ANY new user-visible capability (new command, skill, flag, hook, template) — even one
@@ -140,7 +144,7 @@ merging.
 
 4. **Cleanup shipped SDLC artifacts** — delete `backlog/<slug>.md`, `specs/*-<slug>-design.md`, `plans/*-<slug>.md` for each shipped slug. Stage deletions in release commit. (ADRs permanent — never cleaned.)
 
-<!-- model: sonnet reasoning: narrative rewrite of commit messages into human-readable feature/fix groups requires editorial judgment and understanding of change impact. -->
+<!-- NOTE: narrative rewrite produces human-readable commit history. -->
 5. **Draft CHANGELOG entry**: run `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline --no-merges`. Rewrite into Features/Fixed/Changed groups. Present for approve/edit. On `yes` → append to `CHANGELOG.md`; on `edit` → apply changes → write.
 
 6. **Pre-flight: ตรวจสอบ uncommitted files**: run `git status --short`. Release commit should have only `VERSION`, `CHANGELOG.md`, `ROADMAP.md` (project files like `plugin.json` committed by `make release`). Implementation files found → STOP. Docs from this gate → include.

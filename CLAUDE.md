@@ -1,5 +1,4 @@
 # zie-framework
-
 Solo developer SDLC framework plugin for Claude Code.
 
 <!-- STABLE: do not move below dynamic section -->
@@ -25,6 +24,7 @@ zie-framework/              # SDLC state (this repo uses itself)
 - **Hook safety** — hooks must NEVER crash or block Claude when optional tools
   are missing
 - **Test runner**: pytest
+- **Non-Claude models**: `model:`/`effort:` frontmatter ignored; `--agent` unavailable → use `/implement` directly (ADR-066)
 
 ## Hook Reference Docs
 - Hook Output Convention · Hook Error Handling Convention · Hook Context Hints → `zie-framework/project/hook-conventions.md`
@@ -83,5 +83,5 @@ make archive-prune    # Prune archive/ files older than 90 days (guard: ≥20 fi
 - **Commands**: Markdown files in `commands/` (slash commands)
 - **Skills**: Markdown files in `skills/` (invoked via Skill tool)
 - **Templates**: Reusable file templates in `templates/`
-- **Optional**: `playwright` (if `playwright_enabled: true`),
-  `zie-memory` API (if `zie_memory_enabled: true`)
+- **Optional**: `playwright`/`zie-memory` (gated by config flags)
+

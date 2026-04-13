@@ -5,7 +5,7 @@ user-invocable: false
 context: fork
 agent: general-purpose
 allowed-tools: Read, Grep, Glob, Bash
-argument-hint: ""
+argument-hint: "context_bundle=<context_bundle>"
 model: haiku
 effort: low
 ---
@@ -25,6 +25,7 @@ after each REFACTOR phase. Returns a structured verdict.
 
 Caller must provide:
 
+- **context_bundle** (optional, preferred) — ADR + project context bundle passed from `/implement`. If provided, skip Phase 1 disk reads (fast path).
 - Task description and Acceptance Criteria (from plan)
 - List of files changed in this task
 
@@ -42,7 +43,7 @@ Returns: `adrs_content`, `context_content`.
 
 Read the changed files and check each item:
 
-<!-- model: sonnet escalation note: Routine checks (AC coverage, test exists, security scanning) run on haiku. If this review detects new patterns, security concerns, or architectural changes that conflict with existing ADRs, flag for human review or escalate to sonnet reasoning. -->
+<!-- NOTE: escalate to a reasoning-capable model if available. -->
 
 1. **AC coverage** — Does the implementation satisfy every acceptance criterion?
 2. **Tests exist** — Are there tests for the new behavior?

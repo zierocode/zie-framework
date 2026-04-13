@@ -1,5 +1,5 @@
 ---
-model: sonnet
+model: sonnet  # hint for Claude Code; ignored by non-Claude providers
 permissionMode: plan
 tools: [Read, Grep, Glob, WebSearch]
 ---

@@ -21,6 +21,13 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 | --- | --- | --- |
 | `--draft-plan` | After spec is approved, auto-invoke `write-plan` and move plan to Ready if approved. Skips manual `/plan` step. | off |
 
+## Context Bundle
+
+<!-- context-load: adrs + project context -->
+
+Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`.
+Pass `context_bundle` to spec-design and spec-reviewer invocations.
+
 ## Steps
 
 1. **Detect input mode:**
@@ -35,7 +42,7 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
      spec? Enter number." → slug mode.
 
 2. **Slug mode** (existing flow): pass backlog file content to
-   `Skill(zie-framework:spec-design)` with `zie_memory_enabled` from
+   `Skill(zie-framework:spec-design)` with `context_bundle` and `zie_memory_enabled` from
    .config. Skill calls `mcp__plugin_zie-memory_zie-memory__recall` for context when brain is enabled.
    Spec saved to `zie-framework/specs/YYYY-MM-DD-<slug>-design.md`
    with `approved: true` in frontmatter once reviewed.
@@ -56,7 +63,7 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
      Example: `"add rate limiting to API"` → `add-rate-limiting-to-api`
    - Check slug collision: if `zie-framework/specs/*-<slug>-design.md`
      already exists → append `-2`, `-3`, etc.
-   - Pass idea string directly to `Skill(zie-framework:spec-design)` as
+   - Pass idea string directly to `Skill(zie-framework:spec-design)` with `context_bundle` as
      context (idea string becomes the problem statement — no backlog file
      needed).
    - spec-design asks clarifying questions, proposes approaches, writes

@@ -114,10 +114,10 @@ This is advisory only — does not block APPROVED verdict.
 
 ## Max Iterations Reached
 
-If plan-reviewer has been invoked 3 times and issues persist, output:
+If plan-reviewer has been invoked 2 times and issues persist, output:
 
 ```text
-⚠️ Max review iterations reached (3). Persistent issues:
+⚠️ Max review iterations reached (2). Persistent issues:
 
 <list remaining issues>
 

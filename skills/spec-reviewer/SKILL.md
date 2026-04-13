@@ -84,10 +84,10 @@ Fix these and re-submit for review.
 
 ## Max Iterations Reached
 
-If spec-reviewer has been invoked 3 times and issues persist, output:
+If spec-reviewer has been invoked 2 times and issues persist, output:
 
 ```text
-⚠️ Max review iterations reached (3). Persistent issues:
+⚠️ Max review iterations reached (2). Persistent issues:
 
 <list remaining issues>
 

@@ -1,5 +1,5 @@
 ---
-model: haiku
+model: haiku  # hint for Claude Code; ignored by non-Claude providers
 permissionMode: acceptEdits
 tools: all
 ---

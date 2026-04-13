@@ -21,7 +21,7 @@ backlog: backlog/simplify-post-green.md
 1. GREEN confirmed (all tests pass)
 2. Run `git diff --stat HEAD` → read the summary line at the bottom, e.g. `3 files changed, 87 insertions(+), 12 deletions(-)` → sum insertions + deletions = total Δ
 3. Run `git diff --name-only HEAD` → collect the list of modified files (these are the "recently modified files" for the simplifier)
-4. If total Δ > 50 → invoke `Skill(code-simplifier:code-simplifier)` passing the list of recently modified files from step 3
+4. If total Δ > 50 → invoke `Skill(simplify)` passing the list of recently modified files from step 3
 5. If Δ ≤ 50 → print `[simplify] skipped (Δ{n} lines < 50 threshold)` and continue
 6. Re-run `make test-fast` after simplify pass to confirm no regressions
 7. Continue to impl-reviewer
@@ -29,6 +29,6 @@ backlog: backlog/simplify-post-green.md
 **Acceptance Criteria:**
 - AC1: REFACTOR phase in implement.md includes a conditional simplify step after GREEN
 - AC2: Step is skipped when total line delta ≤ 50 (with printed reason)
-- AC3: Step invokes `Skill(code-simplifier:code-simplifier)` when threshold exceeded
+- AC3: Step invokes `Skill(simplify)` when threshold exceeded
 - AC4: Tests re-run after simplify to catch regressions
 - AC5: Simplify step clearly documented with threshold rationale in the command

@@ -21,3 +21,13 @@ zie-framework runs within Claude Code, which supports model tier routing (opus/s
 - **Positive:** No changes to `evaluate()` control flow — leverages existing except clause
 - **Negative:** Substring matching for error detection is brittle across CLI versions — but regex fallback provides safety net
 - **Negative:** Effort routing has no effect on non-Claude models — this is accepted as a known limitation
+
+## Agent Mode Limitation
+
+The `--agent` flag (`claude --agent zie-framework:zie-implement-mode`) is a Claude Code CLI feature.
+On non-Claude providers, use `/implement` directly in the current session — it works identically
+but without a fresh context window. `make implement-local` provides a convenience target that
+prints guidance about this distinction.
+
+`model:` frontmatter in agent files (implement-mode, audit-mode, release-mode) is a hint for
+Claude Code model routing and is silently ignored by non-Claude providers.
