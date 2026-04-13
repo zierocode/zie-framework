@@ -55,10 +55,14 @@ def _hash_file(tmp_path: Path) -> Path:
     return project_tmp_path(f"context-hash-{project}", project)
 
 
-def _cleanup(tmp_path: Path, session_id: str = "test-session"):
-    """Remove cache flag and hash file after a test."""
-    _cache_flag(tmp_path, session_id).unlink(missing_ok=True)
-    _hash_file(tmp_path).unlink(missing_ok=True)
+def _cleanup(tmp_path: Path) -> None:
+    """Remove ALL cache flags and hash files for this project."""
+    project = tmp_path.name
+    safe = safe_project_name(project)
+    prefix = f"zie-{safe}-"
+    tmp = Path(tempfile.gettempdir())
+    for f in tmp.glob(f"{prefix}*"):
+        f.unlink(missing_ok=True)
 
 
 class TestContentHashCache:
