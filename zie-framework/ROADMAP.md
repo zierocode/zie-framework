@@ -26,6 +26,10 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+- [ ] intent-sdlc: Deduplicate Same-Context Injection Per Session — [backlog](backlog/intent-sdlc-context-dedup.md)
+- [ ] quality-gate: Scope Bandit Scan to Staged Files Only — [backlog](backlog/quality-gate-staged-files.md)
+- [ ] Wire Simplify Step Conditionally After GREEN Phase in /implement — [backlog](backlog/simplify-post-green.md)
+- [ ] CI/CD via GitHub Actions — [backlog](backlog/github-actions-ci.md)
 
 ---
 
