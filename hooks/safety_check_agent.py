@@ -31,6 +31,12 @@ _AGENT_EXTRA_BLOCKS = [
 ]
 _COMPILED_AGENT_BLOCKS = COMPILED_BLOCKS + _AGENT_EXTRA_BLOCKS
 
+_MODEL_UNAVAILABLE_SUBSTRINGS = [
+    "issue with the selected model",
+    "may not exist or you may not have access",
+    "run --model to pick",
+]
+
 
 def parse_agent_response(text: str) -> str:
     """Extract ALLOW or BLOCK from agent response text. BLOCK takes precedence."""
@@ -83,12 +89,18 @@ def invoke_subagent(command: str, timeout: int = 30) -> str:
         f"<command>\n{safe_command}\n</command>\n\n"
         "Reply with exactly one word: ALLOW (if safe) or BLOCK (if dangerous)."
     )
+    _model = os.environ.get("ANTHROPIC_DEFAULT_HAIKU_MODEL", "claude-haiku-4-5-20251001")
     result = subprocess.run(
-        ["claude", "--print", "--model", "claude-haiku-4-5-20251001", prompt],
+        ["claude", "--print", "--model", _model, prompt],
         capture_output=True,
         text=True,
         timeout=timeout,
     )
+    # Detect model-unavailable: check returncode + stdout/stderr for error indicators
+    if result.returncode != 0:
+        combined = (result.stdout + result.stderr).lower()
+        if any(s in combined for s in _MODEL_UNAVAILABLE_SUBSTRINGS):
+            raise RuntimeError("model unavailable — falling back to regex")
     return result.stdout.strip()
 
 

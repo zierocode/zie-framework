@@ -1,6 +1,14 @@
 # Changelog
 
-## v1.25.0 — 2026-04-13
+## v1.28.0 — 2026-04-13
+
+### Added
+- **Non-Claude model compatibility** — safety_check_agent now reads `ANTHROPIC_DEFAULT_HAIKU_MODEL` env var for model resolution; detects model-unavailable CLI errors and falls back to regex evaluation (fixes critical security gap under Ollama Cloud)
+
+### Fixed
+- **Security: all commands defaulting to ALLOW** — when Claude CLI returns a model-unavailable error, parse_agent_response() no longer defaults to ALLOW; evaluate() now catches RuntimeError and falls back to _regex_evaluate()
+
+## v1.27.0 — 2026-04-13
 
 ### Added
 - **`make zie-implement`** — run /implement in fresh agent context, same pattern as `make zie-release`; sprint Phase 2 now uses this instead of non-existent `Skill(zie-implement)`
