@@ -156,7 +156,7 @@ For each item in needs_spec (all launched concurrently — parallel Skill calls,
 2. After spec approved: `Skill(zie-framework:write-plan, '<slug>')` — writes plan
 3. Inline plan-reviewer: invoke `Skill(zie-framework:plan-reviewer, context_bundle=<context_bundle>)` in current context — no Agent spawn
    - ✅ APPROVED → run `python3 hooks/approve.py <plan-file>` via Bash (reviewer-gate blocks Write/Edit — this is the ONLY allowed approval path), then move ROADMAP Next → Ready automatically
-   - ❌ Issues Found → fix inline (1 pass) → re-check → re-run approve.py on pass
+   - ❌ Issues Found → fix inline (1 pass, then re-check once) → re-run approve.py on pass
    - Second failure → interrupt (Interruption Protocol case 2)
 
 No intermediate general-purpose Agent spawn. Skills run directly in sprint context.
@@ -177,7 +177,7 @@ Wait for all Phase 1 agents → collect results.
 
 After Phase 1 (+ any retries): reload ROADMAP → bind as `roadmap_post_phase1`.
 TaskUpdate → Phase 1/4 complete
-Write `zie-framework/.sprint-state` → `{"phase": 2, "items": <all_slugs>, "completed_phases": [1], "remaining_items": <ready_slugs>, "started_at": <iso_ts>}`
+Write `zie-framework/.sprint-state` → `{"phase": 2, "items": <all_slugs>, "completed_phases": [1], "remaining_items": <ready_slugs>, "current_task": "", "tdd_phase": "", "last_action": "spec-done", "started_at": <iso_ts>}`
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 1/4 — 3 phases remaining`
 
@@ -192,6 +192,7 @@ Read Ready items from `roadmap_post_phase1` (ordered by priority: CRITICAL → H
 For each item in priority order:
 
 1. Move item from Ready → Now in ROADMAP
+   Update `.sprint-state`: `current_task = <slug>`, `tdd_phase = ""`, `last_action = "impl-start"`
 2. Run implement agent via Bash (same pattern as Phase 3 release — fresh context, agent mode):
    ```bash
    make zie-implement
@@ -199,14 +200,15 @@ For each item in priority order:
    The agent reads the Now lane from ROADMAP, implements, commits, and exits.
 3. After Bash returns, check ROADMAP.md — Now item marked `[x]` and committed → success.
    `[impl N/total] <slug> ✓ <commit>`
-   Update `.sprint-state`: `remaining_items` = previous `remaining_items` minus `<slug>`
+   Update `.sprint-state`: `remaining_items` = previous `remaining_items` minus `<slug>`, `current_task = ""`, `last_action = "impl-done:<slug>"`
    (write immediately so resume can skip this item if context overflows before next item)
    If this is not the last item: run `/compact` → print `[compact] context cleared after <slug>`
+   Update `.sprint-state`: `last_action = "compact-after:<slug>"`
 4. Non-zero exit or Now lane still active: `[impl N/total] <slug> ❌ <issue>` → halt sprint
 
 After all impl complete: all items marked `[x]` in Now.
 TaskUpdate → Phase 2/4 complete
-Write `zie-framework/.sprint-state` → `{"phase": 3, "items": <all_slugs>, "completed_phases": [1, 2], "remaining_items": [], "started_at": <iso_ts>}`
+Write `zie-framework/.sprint-state` → `{"phase": 3, "items": <all_slugs>, "completed_phases": [1, 2], "remaining_items": [], "current_task": "release", "tdd_phase": "", "last_action": "release-start", "started_at": <iso_ts>}`
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 2/4 — 2 phases remaining`
 
@@ -230,7 +232,7 @@ zie-release --bump-to=<version_override>
 
 Print: `"Phase 4: Batch release..."`
 TaskUpdate → Phase 3/4 complete
-Write `zie-framework/.sprint-state` → `{"phase": 4, "items": <all_slugs>, "completed_phases": [1, 2, 3], "remaining_items": [], "started_at": <iso_ts>}`
+Write `zie-framework/.sprint-state` → `{"phase": 4, "items": <all_slugs>, "completed_phases": [1, 2, 3], "remaining_items": [], "current_task": "", "tdd_phase": "", "last_action": "release-done", "started_at": <iso_ts>}`
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 3/4 — 1 phase remaining`
 

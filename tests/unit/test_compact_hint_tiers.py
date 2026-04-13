@@ -1,4 +1,4 @@
-"""Tests for 3-tier context window health in hooks/compact-hint.py (Sprint B)."""
+"""Tests for 2-tier context window health in hooks/compact-hint.py."""
 import json
 import os
 import re
@@ -38,76 +38,49 @@ def run_hook(tmp_path: Path, current: int, maximum: int = 1000,
     )
 
 
-class TestSoftTier70:
-    """70% tier: soft hint fires at ≥70%, once per session."""
+class TestAdvisoryTier75:
+    """75% advisory tier: gentle hint fires at ≥75%, once per session."""
 
     def _clean(self, tmp_path: Path, session_id: str = "test-tiers") -> None:
-        for name in ("compact-tier-70", "compact-tier-80", "compact-tier-90"):
+        for name in ("compact-tier-advisory", "compact-tier-mandatory"):
             _flag(tmp_path.name, f"{name}-{session_id}").unlink(missing_ok=True)
 
-    def test_fires_at_70_pct(self, tmp_path):
+    def test_fires_at_75_pct(self, tmp_path):
         self._clean(tmp_path)
-        r = run_hook(tmp_path, current=700, maximum=1000, session_id="tier70-a")
+        r = run_hook(tmp_path, current=750, maximum=1000, session_id="tier75-a")
         assert r.returncode == 0
-        assert "70%" in r.stdout, f"Expected 70% hint in stdout: {r.stdout!r}"
+        assert "75%" in r.stdout, f"Expected 75% hint in stdout: {r.stdout!r}"
         assert "compact" in r.stdout.lower()
-        self._clean(tmp_path, "tier70-a")
+        self._clean(tmp_path, "tier75-a")
 
-    def test_no_output_at_69_pct(self, tmp_path):
+    def test_no_output_at_74_pct(self, tmp_path):
         self._clean(tmp_path)
-        r = run_hook(tmp_path, current=690, maximum=1000, session_id="tier70-b")
+        r = run_hook(tmp_path, current=740, maximum=1000, session_id="tier75-b")
         assert r.returncode == 0
-        assert "69%" not in r.stdout
-        assert "70%" not in r.stdout
-        self._clean(tmp_path, "tier70-b")
+        assert "74%" not in r.stdout
+        assert "75%" not in r.stdout
+        assert r.stdout.strip() == ""
+        self._clean(tmp_path, "tier75-b")
 
     def test_fires_only_once_per_session(self, tmp_path):
-        sid = "tier70-once"
+        sid = "tier75-once"
         self._clean(tmp_path, sid)
-        r1 = run_hook(tmp_path, current=700, session_id=sid)
-        r2 = run_hook(tmp_path, current=720, session_id=sid)
-        assert "70%" in r1.stdout or "72%" in r1.stdout
-        # Second run same session: tier already fired, should not fire again at same tier
-        assert "tier already fired" not in r2.stdout  # implementation detail
-        # At minimum: first run produced output, second run must not double-nag
-        # (either silent or different tier message)
+        r1 = run_hook(tmp_path, current=750, session_id=sid)
+        r2 = run_hook(tmp_path, current=780, session_id=sid)
+        assert "75%" in r1.stdout or "78%" in r1.stdout
+        # Second run same session: advisory tier already fired, should not nag again
         assert r1.returncode == 0
         assert r2.returncode == 0
+        # Second run should be silent at the advisory level (mandatory still fires at 90%+)
+        assert "75%" not in r2.stdout or "78%" not in r2.stdout or "consider" not in r2.stdout.lower()
         self._clean(tmp_path, sid)
 
 
-class TestMidTier80:
-    """80% tier: recommendation fires at ≥80% (existing behavior preserved)."""
+class TestMandatoryTier90:
+    """90% mandatory tier: hard warning (existing behavior preserved)."""
 
     def _clean(self, tmp_path: Path, sid: str) -> None:
-        for name in ("compact-tier-70", "compact-tier-80", "compact-tier-90"):
-            _flag(tmp_path.name, f"{name}-{sid}").unlink(missing_ok=True)
-
-    def test_fires_at_80_pct(self, tmp_path):
-        sid = "tier80-a"
-        self._clean(tmp_path, sid)
-        r = run_hook(tmp_path, current=800, session_id=sid)
-        assert r.returncode == 0
-        assert "80%" in r.stdout
-        self._clean(tmp_path, sid)
-
-    def test_does_not_fire_80_tier_at_79_pct(self, tmp_path):
-        sid = "tier80-b"
-        self._clean(tmp_path, sid)
-        r = run_hook(tmp_path, current=790, session_id=sid)
-        assert r.returncode == 0
-        # 79% is above soft tier (70%) but below mid tier (80%)
-        # Should fire soft hint, but NOT the 80% "approaching limit" message
-        assert "approaching limit" not in r.stdout
-        assert "make zie-release" not in r.stdout
-        self._clean(tmp_path, sid)
-
-
-class TestHardTier90:
-    """90% tier: hard warning (existing behavior preserved)."""
-
-    def _clean(self, tmp_path: Path, sid: str) -> None:
-        for name in ("compact-tier-70", "compact-tier-80", "compact-tier-90"):
+        for name in ("compact-tier-advisory", "compact-tier-mandatory"):
             _flag(tmp_path.name, f"{name}-{sid}").unlink(missing_ok=True)
 
     def test_fires_at_90_pct(self, tmp_path):
@@ -116,4 +89,13 @@ class TestHardTier90:
         r = run_hook(tmp_path, current=900, session_id=sid)
         assert r.returncode == 0
         assert "90%" in r.stdout or "Context at 9" in r.stdout
+        self._clean(tmp_path, sid)
+
+    def test_mandatory_message_suggests_fresh_session(self, tmp_path):
+        sid = "tier90-msg"
+        self._clean(tmp_path, sid)
+        r = run_hook(tmp_path, current=920, session_id=sid)
+        assert r.returncode == 0
+        # Mandatory tier message should mention starting fresh
+        assert "fresh session" in r.stdout.lower() or "new session" in r.stdout.lower()
         self._clean(tmp_path, sid)

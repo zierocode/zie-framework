@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Stop hook — three-tier context window health monitor.
+"""Stop hook — two-tier context window health monitor.
 
 Tiers (each fires once per session):
-  70% soft_threshold   → gentle hint: "consider compacting soon"
-  80% compact_hint_threshold → recommend: "compact now, save WIP"
-  90% compact_hard_threshold → hard warning: "start fresh session"
+  75% advisory_threshold  → gentle hint: "consider /compact soon"
+  90% mandatory_threshold → hard warning: "start fresh session"
 
 Uses session-scoped flags to avoid repeated nagging within a session.
 Always exits 0 (ADR-003).
@@ -36,9 +35,8 @@ try:
     cwd = get_cwd()
     config = load_config(cwd)
 
-    soft_threshold = config.get("compact_soft_threshold", 0.70)
-    threshold = config.get("compact_hint_threshold", 0.80)
-    hard_threshold = config.get("compact_hard_threshold", 0.90)
+    advisory_threshold = config.get("compact_advisory_threshold", 0.75)
+    mandatory_threshold = config.get("compact_mandatory_threshold", 0.90)
 
     context_window = event.get("context_window")
     if not isinstance(context_window, dict):
@@ -68,29 +66,21 @@ try:
         except Exception as _e:
             print(f"[zie-framework] compact-hint: flag write failed: {_e}", file=sys.stderr)
 
-    if pct >= hard_threshold:
-        if not _tier_fired("90"):
+    if pct >= mandatory_threshold:
+        if not _tier_fired("mandatory"):
             print(
                 f"[zie-framework] Context at {pct_int}% \u2014 too full for heavy commands."
                 " Start a fresh session instead: run `make zie-release` in a new terminal"
                 " for release, or open a new Claude window for other commands."
             )
-            _mark_tier("90")
-    elif pct >= threshold:
-        if not _tier_fired("80"):
-            print(
-                f"[zie-framework] Context at {pct_int}%"
-                " \u2014 approaching limit. Use `make zie-release` for release"
-                " or start a new session before running heavy commands."
-            )
-            _mark_tier("80")
-    elif pct >= soft_threshold:
-        if not _tier_fired("70"):
+            _mark_tier("mandatory")
+    elif pct >= advisory_threshold:
+        if not _tier_fired("advisory"):
             print(
                 f"[zie-framework] Context at {pct_int}%"
                 " \u2014 consider /compact soon to stay efficient."
             )
-            _mark_tier("70")
+            _mark_tier("advisory")
 
 except Exception as e:
     print(f"[zie-framework] compact-hint: {e}", file=sys.stderr)

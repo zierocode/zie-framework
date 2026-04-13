@@ -94,15 +94,10 @@ class TestImplReviewerAgent:
 
 
 class TestCallerUpdates:
-    def test_zie_implement_uses_inline_review(self):
+    def test_zie_implement_uses_skill_reviewer(self):
         text = (Path(__file__).parents[2] / "commands" / "implement.md").read_text()
-        assert "inline" in text.lower() and "review" in text.lower(), \
-            "zie-implement.md must describe inline review for HIGH-risk tasks"
-
-    def test_zie_implement_no_inline_skill(self):
-        text = (Path(__file__).parents[2] / "commands" / "implement.md").read_text()
-        assert "Skill(zie-framework:impl-reviewer)" not in text, \
-            "zie-implement.md must not call impl-reviewer as a Skill"
+        assert "Skill(zie-framework:impl-reviewer)" in text, \
+            "zie-implement.md must invoke impl-reviewer via Skill for HIGH-risk tasks"
 
 
 class TestComponentsRegistry:

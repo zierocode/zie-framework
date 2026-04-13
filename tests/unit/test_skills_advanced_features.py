@@ -75,7 +75,6 @@ class TestArgumentHintFrontmatter:
     NO_ARG_SKILLS = [
         "spec-reviewer",
         "plan-reviewer",
-        "impl-reviewer",
         "debug",
         "tdd-loop",
         "test-pyramid",

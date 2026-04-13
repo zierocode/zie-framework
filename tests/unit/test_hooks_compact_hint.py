@@ -16,7 +16,7 @@ def _clean_tier_flags(cwd_path: Path, session_id: str = "nosid") -> None:
     safe_project = re.sub(r'[^a-zA-Z0-9]', '-', cwd_path.name)
     safe_sid = re.sub(r'[^a-zA-Z0-9]', '-', session_id) if session_id else "nosid"
     tmp = Path(tempfile.gettempdir())
-    for tier in ("70", "80", "90"):
+    for tier in ("advisory", "mandatory"):
         flag = tmp / f"zie-{safe_project}-compact-tier-{tier}-{safe_sid}"
         flag.unlink(missing_ok=True)
 
@@ -49,30 +49,30 @@ def make_cwd(tmp_path):
     return tmp_path
 
 
-class TestHintPrinted:
-    def test_hint_printed_when_above_threshold(self, tmp_path):
-        """80% threshold (default); event at 85% → hint appears in stdout."""
-        cwd = make_cwd(tmp_path)
-        event = {"context_window": {"current_tokens": 850, "max_tokens": 1000}}
-        r = run_hook(cwd, event=event)
-        assert r.returncode == 0
-        assert "[zie-framework] Context at 85%" in r.stdout
-        assert "make zie-release" in r.stdout
-
-    def test_hint_printed_at_exactly_threshold(self, tmp_path):
-        """Boundary: event at exactly 80% → hint printed (>= not >)."""
+class TestAdvisoryHint:
+    def test_advisory_hint_at_80_pct(self, tmp_path):
+        """80% — above advisory threshold (75%) → advisory hint appears."""
         cwd = make_cwd(tmp_path)
         event = {"context_window": {"current_tokens": 800, "max_tokens": 1000}}
         r = run_hook(cwd, event=event)
         assert r.returncode == 0
         assert "[zie-framework] Context at 80%" in r.stdout
+        assert "compact" in r.stdout.lower()
+
+    def test_advisory_hint_at_exactly_threshold(self, tmp_path):
+        """Boundary: event at exactly 75% → advisory hint printed (>= not >)."""
+        cwd = make_cwd(tmp_path)
+        event = {"context_window": {"current_tokens": 750, "max_tokens": 1000}}
+        r = run_hook(cwd, event=event)
+        assert r.returncode == 0
+        assert "[zie-framework] Context at 75%" in r.stdout
 
 
 class TestNoHint:
-    def test_no_hint_when_below_soft_threshold(self, tmp_path):
-        """Event at 65% — below all thresholds (soft=70%) → no stdout output."""
+    def test_no_hint_when_below_advisory_threshold(self, tmp_path):
+        """Event at 70% — below advisory threshold (75%) → no stdout output."""
         cwd = make_cwd(tmp_path)
-        event = {"context_window": {"current_tokens": 650, "max_tokens": 1000}}
+        event = {"context_window": {"current_tokens": 700, "max_tokens": 1000}}
         r = run_hook(cwd, event=event)
         assert r.returncode == 0
         assert r.stdout.strip() == ""
@@ -106,18 +106,18 @@ class TestNoHint:
 
 
 class TestThresholdConfig:
-    def test_threshold_configurable(self, tmp_path):
-        """compact_hint_threshold=0.9, soft_threshold=0.9 → no hint at 85%, hint at 91%."""
+    def test_advisory_and_mandatory_thresholds_configurable(self, tmp_path):
+        """Both thresholds configurable via .config."""
         cwd = make_cwd(tmp_path)
-        config = {"compact_hint_threshold": 0.9, "compact_soft_threshold": 0.9}
+        config = {"compact_advisory_threshold": 0.90, "compact_mandatory_threshold": 0.95}
 
-        # 85% — below custom thresholds → no hint
+        # 85% — below custom advisory (90%) → no hint
         event_85 = {"context_window": {"current_tokens": 850, "max_tokens": 1000}}
         r85 = run_hook(cwd, event=event_85, config=config)
         assert r85.returncode == 0
         assert r85.stdout.strip() == ""
 
-        # 91% — above custom threshold → hint
+        # 91% — above custom advisory (90%) → advisory hint
         event_91 = {"context_window": {"current_tokens": 910, "max_tokens": 1000}}
         r91 = run_hook(cwd, event=event_91, config=config)
         assert r91.returncode == 0

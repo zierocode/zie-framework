@@ -5,7 +5,7 @@ user-invocable: false
 context: fork
 agent: general-purpose
 allowed-tools: Read, Grep, Glob, Bash
-argument-hint: ""
+argument-hint: "context_bundle=<context_bundle>"
 model: haiku
 effort: low
 ---
@@ -25,6 +25,7 @@ after each REFACTOR phase. Returns a structured verdict.
 
 Caller must provide:
 
+- **context_bundle** (optional, preferred) — ADR + project context bundle passed from `/implement`. If provided, skip Phase 1 disk reads (fast path).
 - Task description and Acceptance Criteria (from plan)
 - List of files changed in this task
 

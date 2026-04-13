@@ -7,7 +7,7 @@ IMPLEMENT_MD = REPO_ROOT / "commands" / "implement.md"
 
 def test_simplify_step_present():
     text = IMPLEMENT_MD.read_text()
-    assert "code-simplifier" in text
+    assert "Skill(simplify)" in text
     assert "simplify" in text.lower()
 
 

@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_config import load_config
-from utils_io import project_tmp_path, safe_write_tmp
+from utils_io import project_tmp_path, safe_write_tmp, persistent_project_path, safe_write_persistent
 from utils_roadmap import (
     get_cached_git_status,
     parse_roadmap_section_content,
@@ -106,14 +106,23 @@ if hook_event_name == "PreCompact":
     except Exception as e:
         print(f"[zie-framework] sdlc-compact: snapshot write failed: {e}", file=sys.stderr)
 
-elif hook_event_name == "PostCompact":
-    # --- Read snapshot; fall back to live ROADMAP on any failure ---
-    snapshot = None
+    # --- Also persist to CLAUDE_PLUGIN_DATA for cross-session survival ---
     try:
-        if snap_path.exists():
-            snapshot = json.loads(snap_path.read_text())
+        persist_path = persistent_project_path("compact-snapshot", project_name)
+        safe_write_persistent(persist_path, json.dumps(snapshot))
     except Exception as e:
-        print(f"[zie-framework] sdlc-compact: snapshot read failed: {e}", file=sys.stderr)
+        print(f"[zie-framework] sdlc-compact: persistent snapshot write failed: {e}", file=sys.stderr)
+
+elif hook_event_name == "PostCompact":
+    # --- Read snapshot; try /tmp then persistent then live ROADMAP ---
+    snapshot = None
+    for _read_path in (snap_path, persistent_project_path("compact-snapshot", project_name)):
+        try:
+            if _read_path.exists():
+                snapshot = json.loads(_read_path.read_text())
+                break
+        except Exception:
+            continue
 
     if snapshot is None:
         # Fallback: read live ROADMAP (via session cache)
@@ -150,6 +159,30 @@ elif hook_event_name == "PostCompact":
             lines.append("Changed files (since last commit):")
             for f in snapshot["changed_files"]:
                 lines.append(f"  - {f}")
+
+        # --- Sprint active guard: inject SPRINT ACTIVE directive if .sprint-state exists ---
+        try:
+            sprint_state_path = zf / ".sprint-state"
+            if sprint_state_path.exists():
+                state = json.loads(sprint_state_path.read_text())
+                phase = state.get("phase", "?")
+                remaining = state.get("remaining_items", [])
+                current_task = state.get("current_task", "")
+                tdd = state.get("tdd_phase", "")
+                last_action = state.get("last_action", "")
+                sprint_line = f"SPRINT ACTIVE — Phase {phase}/4"
+                if current_task:
+                    sprint_line += f", current task: {current_task}"
+                if tdd:
+                    sprint_line += f", TDD phase: {tdd}"
+                if remaining:
+                    sprint_line += f", {len(remaining)} items remaining"
+                if last_action:
+                    sprint_line += f", last: {last_action}"
+                lines.append(sprint_line)
+        except Exception as e:
+            print(f"[zie-framework] sdlc-compact: sprint-state guard failed: {e}", file=sys.stderr)
+
         context = "\n".join(lines)
         print(json.dumps({"additionalContext": context}))
     except Exception as e:
