@@ -26,6 +26,28 @@ zie-framework/              # SDLC state (this repo uses itself)
 - **Test runner**: pytest
 - **Non-Claude models**: `model:`/`effort:` frontmatter ignored; `--agent` unavailable → use `/implement` directly (ADR-066)
 
+## Non-Claude Model Compatibility
+
+Running on `glm-5.1:cloud`, Ollama, or other non-Claude providers:
+
+| Feature | Claude Code | Non-Claude |
+|---------|-------------|------------|
+| `model:` frontmatter | Used for model routing (ADR-012) | Ignored — runs on provider's default model |
+| `effort:` frontmatter | Routes to haiku/sonnet/opus | Ignored — no effect |
+| `--agent` flag | Available (`claude --agent`) | Unavailable — use Skill() directly |
+| Safety hooks | Claude models | Regex fallback when Claude unavailable (ADR-066) |
+
+**Fallback pattern:**
+```bash
+# Claude Code: use agent mode
+claude --agent zie-framework:zie-implement-mode
+
+# Non-Claude: run /implement directly in current session
+/implement
+```
+
+See ADR-066 for full details.
+
 ## Hook Reference Docs
 - Hook Output Convention · Hook Error Handling Convention · Hook Context Hints → `zie-framework/project/hook-conventions.md`
 - Hook Configuration Keys → `zie-framework/project/config-reference.md`

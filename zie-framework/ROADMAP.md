@@ -26,6 +26,13 @@
 
 **Mega Sprint: 14 Phases — Lean + Efficient + Autonomous zie-framework**
 
+### Context Loading (Latest)
+- [x] context-loader-sprint — Auto-load zie-framework context at session start: hooks/zie_context_loader.py, session-resume.py integration, session cache with mtime-gate — 2026-04-14
+- [x] context-load-smart — Deduplicate context loading: load-context skill (already exists), subagent-context content-hash cache, reviewer context_bundle passthrough, ROADMAP cache docs — 2026-04-14
+
+### Non-Claude Compatibility
+- [x] agent-mode-compat — Document non-Claude limitations (model:/effort: frontmatter, --agent flag), add implement-local Makefile target, update ADR-066 — 2026-04-14
+
 ### Autonomous Features (NEW)
 - [x] auto-learn — Pattern extraction from sessions, session memory JSON, pending_learn marker
 - [x] auto-decide — Proactive suggestions on test failure/spec complete (max 3/session, 5min cooldown)
@@ -43,10 +50,7 @@
 - [x] pre-computed-version — Version computed at sprint start
 - [x] combined-nudge-checks — Single git log pass for all nudge checks
 
-### Existing Backlog
-- [ ] context-loader-sprint — Auto-load zie-framework context at session start: hooks/zie-context-loader.py, session-start integration, intent-sdlc context injection, standard headers for agents/commands/skills [backlog](backlog/context-loader-sprint.md)
-- [ ] context-load-smart — Deduplicate context loading: universal load-context entry point, session cache with content hash, reviewer context_bundle passthrough, ROADMAP session cache
-- [ ] agent-mode-compat — Document non-Claude model limitations, add fallback invocation in /implement, make model: frontmatter optional, add make implement without --agent
+<!-- -->
 
 ---
 
