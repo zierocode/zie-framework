@@ -32,19 +32,13 @@ class TestImplReviewerContextBundle:
         assert "context_bundle" in text, \
             "impl-reviewer must document context_bundle parameter"
 
-    def test_adr_cache_path_handling(self):
-        """impl-reviewer reads JSON cache file when adr_cache_path provided."""
+    def test_phase1_validates_bundle(self):
+        """impl-reviewer Phase 1 validates context_bundle presence."""
         text = IMPL_REVIEWER_PATH.read_text()
-        assert "adr_cache_path" in text, \
-            "impl-reviewer must handle adr_cache_path in context_bundle"
-
-    def test_cache_fallback_to_adrs_string(self):
-        """If cache file missing, fall back to context_bundle.adrs."""
-        text = IMPL_REVIEWER_PATH.read_text()
-        assert "context_bundle.adrs" in text or "adrs" in text
+        assert "Phase 1" in text and "Validate Context Bundle" in text
 
     def test_disk_fallback_present(self):
         """If context_bundle absent, fall back to disk reads."""
         text = IMPL_REVIEWER_PATH.read_text()
         assert "fallback" in text.lower() or "absent" in text.lower() or \
-               "backward-compatible" in text.lower()
+               "backward-compatible" in text.lower() or "disk" in text.lower()

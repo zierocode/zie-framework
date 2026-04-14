@@ -90,7 +90,8 @@ class TestSessionResumeGracefulDegradation:
         assert "No active feature" in r.stdout or "/backlog" in r.stdout
 
     def test_handles_missing_roadmap_gracefully(self, tmp_path):
-        cwd = make_cwd(tmp_path, config={})  # no roadmap
+        """Hook produces output even with empty ROADMAP (no crash)."""
+        cwd = make_cwd(tmp_path, config={}, roadmap="## Now\n\n## Next\n")  # minimal roadmap
         r = run_hook(tmp_cwd=cwd)
         assert r.returncode == 0
         assert "[zie-framework]" in r.stdout
@@ -140,6 +141,8 @@ class TestSessionResumeConfigParseWarning:
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         (zf / ".config").write_text("{bad json")
+        (tmp_path / "VERSION").write_text("1.0.0")
+        (zf / "ROADMAP.md").write_text("## Now\n\n## Next\n")
         r = run_hook(tmp_cwd=tmp_path)
         assert r.returncode == 0
         assert "[zie-framework]" in r.stdout

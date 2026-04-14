@@ -88,7 +88,7 @@ def test_group_b_hooks_no_bare_utils_import():
 
 
 def test_group_c_hooks_no_bare_utils_import():
-    group_c = ["stop-guard.py", "task-completed-gate.py", "auto-test.py"]
+    group_c = ["stop-handler.py", "task-completed-gate.py", "auto-test.py"]
     hooks_dir = Path(REPO_ROOT) / "hooks"
     violations = []
     for name in group_c:

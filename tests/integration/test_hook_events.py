@@ -231,19 +231,19 @@ class TestFailureContextHook:
 
 
 # ---------------------------------------------------------------------------
-# Stop — stop-guard.py
+# Stop — stop-handler.py
 # ---------------------------------------------------------------------------
 
 @pytest.mark.integration
 class TestStopGuardHook:
     def test_exits_zero_with_stop_event(self):
-        result = run_hook("stop-guard.py", "stop_event.json")
+        result = run_hook("stop-handler.py", "stop_event.json")
         assert_clean_exit(result)
 
     def test_exits_zero_when_stop_hook_active(self):
         # Infinite-loop guard: stop_hook_active == true → must exit immediately
         payload = json.dumps({"event": "Stop", "stop_reason": "end_turn", "stop_hook_active": True})
-        hook_path = HOOKS_DIR / "stop-guard.py"
+        hook_path = HOOKS_DIR / "stop-handler.py"
         env = os.environ.copy()
         env["CLAUDE_CWD"] = str(REPO_ROOT)
         result = subprocess.run(
@@ -257,7 +257,7 @@ class TestStopGuardHook:
         assert "Traceback" not in result.stderr
 
     def test_produces_no_traceback(self):
-        result = run_hook("stop-guard.py", "stop_event.json")
+        result = run_hook("stop-handler.py", "stop_event.json")
         assert "Traceback" not in result.stderr
 
 

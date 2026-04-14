@@ -6,6 +6,7 @@ on stdout directly.
 """
 import json
 import os
+import re
 import stat
 import subprocess
 import sys
@@ -39,15 +40,41 @@ def _make_zf(tmp_path: Path, *, version="1.0.0", project_type="lib",
         roadmap = "## Now\n\n## Next\n\n## Backlog\n"
     (zf / "ROADMAP.md").write_text(roadmap)
 
+    # commands/ directory at PROJECT ROOT for context loader
+    commands_dir = tmp_path / "commands"
+    commands_dir.mkdir(exist_ok=True)
+    for cmd in ("backlog", "spec", "plan", "implement", "release", "retro",
+                "sprint", "fix", "chore", "hotfix", "status", "audit",
+                "resync", "init", "guide"):
+        (commands_dir / f"{cmd}.md").write_text(f"# /{cmd}")
+
+    # skills/ directory at PROJECT ROOT
+    skills_dir = tmp_path / "skills" / "using-zie-framework"
+    skills_dir.mkdir(parents=True, exist_ok=True)
+    (skills_dir / "SKILL.md").write_text("# using-zie-framework")
+
     return zf
 
 
-def _run_hook(tmp_path: Path) -> subprocess.CompletedProcess:
+def _clean_session_cache(session_id: str) -> None:
+    """Clean session cache directories between tests."""
+    import shutil
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+    cache_dir = Path("/tmp") / f"zie-{safe_id}"
+    if cache_dir.exists():
+        shutil.rmtree(cache_dir)
+
+
+def _run_hook(tmp_path: Path, session_id: str = "test-session-resume") -> subprocess.CompletedProcess:
     """Run session-resume.py with CLAUDE_CWD pointing at tmp_path."""
+    # Clean cache before test to prevent stale data
+    _clean_session_cache(session_id)
+
     env = os.environ.copy()
     env["CLAUDE_CWD"] = str(tmp_path)
+    env["CLAUDE_SESSION_ID"] = session_id
     # Provide valid JSON on stdin (SessionStart event shape)
-    stdin_data = json.dumps({"session_id": "test-session"})
+    stdin_data = json.dumps({"session_id": session_id})
     return subprocess.run(
         [sys.executable, str(HOOK)],
         input=stdin_data,
@@ -348,7 +375,7 @@ class TestCommandListOutput:
         _make_zf(tmp_path)
         # Provide SKILL.md so guard logic runs (not hardcoded fallback)
         skill_dir = tmp_path / "skills" / "using-zie-framework"
-        skill_dir.mkdir(parents=True)
+        skill_dir.mkdir(parents=True, exist_ok=True)
         (skill_dir / "SKILL.md").write_text(
             "## Command Map\n\n- `/spec` — design\n- `/health` — health dashboard\n"
         )

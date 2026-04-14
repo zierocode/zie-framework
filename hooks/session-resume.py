@@ -15,6 +15,7 @@ from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
 from utils_config import load_config, CACHE_TTLS
 from utils_cache import get_cache_manager  # noqa: E402
 from utils_roadmap import parse_roadmap_now, is_mtime_fresh, parse_roadmap_section, parse_roadmap_section_content
+from zie_context_loader import get_cached_context  # noqa: E402
 
 # Minimum safe Playwright version — derived from CVE-2025-59288.
 # CVE-2025-59288: arbitrary code execution via malicious CDP response.
@@ -198,49 +199,8 @@ try:
         "/guide /status /audit /retro /release /resync /init"
     )
     try:
-        skill_path = cwd / "skills" / "using-zie-framework" / "SKILL.md"
-        commands_dir = cwd / "commands"
-        guarded = ["/health", "/rescue", "/next"]
-
-        # Cache key includes SKILL.md mtime for automatic invalidation
-        skill_mtime = skill_path.stat().st_mtime if skill_path.exists() else 0
-        cache_key = f"command_map:{skill_mtime}"
-
-        def _parse_commands():
-            """Parse command map from SKILL.md (called on cache miss)."""
-            if not skill_path.exists():
-                return None
-            skill_text = skill_path.read_text()
-            in_cmd_map = False
-            cmd_names = []
-            for line in skill_text.splitlines():
-                if "## Command Map" in line:
-                    in_cmd_map = True
-                    continue
-                if line.startswith("##") and in_cmd_map:
-                    break
-                if in_cmd_map and line.strip().startswith("- `/"):
-                    m = re.search(r'`(/[a-z]+)`', line)
-                    if m:
-                        cmd_names.append(m.group(1))
-            if not cmd_names:
-                return None
-            # Apply guards for commands not yet shipped
-            final_cmds = []
-            for cmd in cmd_names:
-                slug = cmd.lstrip("/")
-                if cmd in guarded and not (commands_dir / f"{slug}.md").exists():
-                    continue
-                final_cmds.append(cmd)
-            return "[zie-framework] framework: commands — " + " ".join(final_cmds)
-
-        # Use cache with TTL (command map changes only on releases)
-        command_map_ttl = CACHE_TTLS.get("command_map", 1800)
-        cmd_line = cache.get_or_compute(
-            cache_key, session_id, _parse_commands, command_map_ttl
-        )
-        if cmd_line is None:
-            cmd_line = _HARDCODED_FALLBACK
+        context = get_cached_context(cwd)
+        cmd_line = f"[zie-framework] framework: commands — {' '.join(c['name'] for c in context['commands'])}"
     except Exception:
         cmd_line = _HARDCODED_FALLBACK
 
@@ -289,8 +249,8 @@ try:
                         for pattern in data.get("patterns", []):
                             if pattern.get("auto_apply", False):
                                 patterns.append(pattern)
-                    except Exception:
-                        pass
+                    except Exception as _e:
+                        print(f"[zie-framework] session-resume: pattern load failed: {_e}", file=sys.stderr)
             return patterns
 
         def _filter_auto_apply_patterns(patterns):
@@ -378,8 +338,8 @@ try:
         if pending_marker.exists():
             try:
                 pending_marker.unlink()
-            except Exception:
-                pass
+            except Exception as _e:
+                print(f"[zie-framework] session-resume: pending marker cleanup failed: {_e}", file=sys.stderr)
 
     except Exception as _e:
         print(f"[zie-framework] session-resume: auto-improve skipped: {_e}", file=sys.stderr)

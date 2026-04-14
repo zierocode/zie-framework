@@ -397,8 +397,13 @@ class TestSubagentContextRoadmapCache:
         """Cache content takes priority over disk ROADMAP."""
         import re as _re
         import tempfile as _tempfile
+        import time as _time
         zf = tmp_path / "zie-framework"
         zf.mkdir()
+        # Create .zie/cache directory at PROJECT ROOT (where get_cache_manager expects it)
+        # CLAUDE_CWD points to tmp_path (project root), not inside zie-framework/
+        cache_dir = tmp_path / ".zie" / "cache"
+        cache_dir.mkdir(parents=True, exist_ok=True)
         # Disk: empty Now
         roadmap_path = zf / "ROADMAP.md"
         roadmap_path.write_text("## Now\n\n## Next\n")
@@ -408,8 +413,20 @@ class TestSubagentContextRoadmapCache:
         _safe_sid = _re.sub(r'[^a-zA-Z0-9]', '-', sid)
         _session_flag = Path(_tempfile.gettempdir()) / f"zie-{_safe_project}-session-context-{_safe_sid}"
         _session_flag.unlink(missing_ok=True)
-        # Cache: active feature (primed with same mtime as disk)
-        write_roadmap_cache(sid, "## Now\n- [ ] cached-subagent-feature\n\n## Next\n", roadmap_path)
+        # Also clear content hash cache to prevent early exit
+        _content_hash_flag = Path(_tempfile.gettempdir()) / f"zie-{_safe_project}-content-hash-{_safe_sid}"
+        _content_hash_flag.unlink(missing_ok=True)
+        # Write to unified session cache (matches get_cache_manager format)
+        cache_file = cache_dir / "session-cache.json"
+        now = _time.time()
+        cache_data = {
+            f"session:{sid}:roadmap": {
+                "value": "## Now\n- [ ] cached-subagent-feature\n\n## Next\n",
+                "expires_at": now + 600,
+                "created_at": now
+            }
+        }
+        cache_file.write_text(json.dumps(cache_data))
         event = {"agentType": "Explore", "session_id": sid}
         env = {**os.environ, "CLAUDE_CWD": str(tmp_path), "ZIE_MEMORY_API_KEY": ""}
         hook = os.path.join(REPO_ROOT, "hooks", "subagent-context.py")

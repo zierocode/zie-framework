@@ -12,23 +12,15 @@ def _read(rel: str) -> str:
     return (REPO_ROOT / rel).read_text()
 
 
-def test_load_context_reads_summary_first():
-    """load-context must load ADR-000-summary.md and fall back to full load if missing."""
+def test_load_context_has_context_bundle_fast_path():
+    """load-context must return immediately if context_bundle provided."""
     text = _read("skills/load-context/SKILL.md")
-    assert "ADR-000-summary.md" in text, (
-        "skills/load-context/SKILL.md must reference ADR-000-summary.md"
+    assert "context_bundle" in text, (
+        "skills/load-context/SKILL.md must reference context_bundle"
     )
-    # Summary load must appear before the wildcard fallback
-    assert text.index("ADR-000-summary.md") < text.index("ADR-*.md"), (
-        "ADR-000-summary.md load must appear before ADR-*.md wildcard fallback in load-context"
-    )
-
-
-def test_load_context_fallback_documented():
-    """load-context must document fallback when ADR-000-summary.md is missing."""
-    text = _read("skills/load-context/SKILL.md")
-    assert "missing" in text.lower() or "fall back" in text.lower() or "fallback" in text.lower(), (
-        "skills/load-context/SKILL.md must document fallback when ADR-000-summary.md is absent"
+    # Fast path: return immediately when bundle provided
+    assert "return" in text.lower() or "skip" in text.lower(), (
+        "skills/load-context/SKILL.md must document fast-path return"
     )
 
 

@@ -1,4 +1,4 @@
-"""Unit tests for hooks/stop-pipeline-guard.py (Area 3 — Intent Intelligence)."""
+"""Unit tests for hooks/stop-handler.py — sprint intent guard (merged v1.29.0)."""
 import json
 import os
 import re
@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
-HOOK = REPO_ROOT / "hooks" / "stop-pipeline-guard.py"
+HOOK = REPO_ROOT / "hooks" / "stop-handler.py"
 
 
 def _flag(project: str, name: str) -> Path:
@@ -19,9 +19,19 @@ def _flag(project: str, name: str) -> Path:
     return Path(tempfile.gettempdir()) / f"zie-{safe}-{name}"
 
 
+def _clean_nudge_cache(session_id: str) -> None:
+    """Clean nudge-check cache for a session."""
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+    cache_dir = Path(tempfile.gettempdir()) / f"zie-{safe_id}"
+    if cache_dir.exists():
+        import shutil
+        shutil.rmtree(cache_dir)
+
+
 def _run(tmp_path: Path) -> subprocess.CompletedProcess:
     env = os.environ.copy()
     env["CLAUDE_CWD"] = str(tmp_path)
+    env["CLAUDE_SESSION_ID"] = "test-session"
     event = json.dumps({"session_id": "test-session", "stop_reason": "end_turn"})
     return subprocess.run(
         [sys.executable, str(HOOK)],
@@ -62,6 +72,7 @@ class TestStopPipelineGuard:
         zf = _make_zf(tmp_path)
         flag = _flag(tmp_path.name, "intent-sprint-flag")
         flag.write_text("active")
+        _clean_nudge_cache("test-session")
         r = _run(tmp_path)
         assert r.returncode == 0
         assert "sprint intent" in r.stdout.lower() or "sprint intent" in r.stderr.lower(), (
@@ -74,6 +85,7 @@ class TestStopPipelineGuard:
         _approved_spec(zf)
         flag = _flag(tmp_path.name, "intent-sprint-flag")
         flag.write_text("active")
+        _clean_nudge_cache("test-session")
         r = _run(tmp_path)
         assert r.returncode == 0
         # With approved artifacts, no warning emitted
@@ -86,6 +98,7 @@ class TestStopPipelineGuard:
         _approved_plan(zf)
         flag = _flag(tmp_path.name, "intent-sprint-flag")
         flag.write_text("active")
+        _clean_nudge_cache("test-session")
         r = _run(tmp_path)
         assert r.returncode == 0
         output = r.stdout + r.stderr
@@ -96,6 +109,7 @@ class TestStopPipelineGuard:
         _make_zf(tmp_path)
         flag = _flag(tmp_path.name, "intent-sprint-flag")
         flag.write_text("active")
+        _clean_nudge_cache("test-session")
         _run(tmp_path)
         assert not flag.exists(), "sprint flag must be deleted after guard runs"
 
