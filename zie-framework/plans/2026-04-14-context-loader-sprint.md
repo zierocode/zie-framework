@@ -18,13 +18,13 @@ backlog: backlog/context-loader-sprint.md
 
 | Action | File | Responsibility |
 | --- | --- | --- |
-| Create | `hooks/zie_context_loader.py` | Scan commands/, skills/, build command map, write to session cache |
-| Modify | `hooks/session-resume.py` | Import และเรียก use zie-context-loader แทน inline logic |
-| Create | `tests/test_context_loader.py` | Unit tests สำหรับ zie-context-loader.py |
+| Modify | `hooks/zie_context_loader.py` | Scan commands/, skills/, build command map, write to session cache (file already exists) |
+| Modify | `hooks/session-resume.py` | Import และเรียก use zie_context_loader แทน inline logic (already done) |
+| Modify | `tests/test_context_loader.py` | Unit tests สำหรับ zie_context_loader.py (file already exists with 9 tests) |
 
 ---
 
-## Task 1: Create zie-context-loader.py
+## Task 1: Modify zie_context_loader.py (already exists)
 
 **Acceptance Criteria:**
 - Module exports `build_context_map(cwd: Path) -> dict` ที่ return `{commands: [...], skills: [...]}`

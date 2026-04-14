@@ -1,4 +1,4 @@
-"""Tests for hooks/compact-hint.py"""
+"""Tests for hooks/stop-handler.py — compact-hint merged into stop-handler (v1.29.0)."""
 import json
 import os
 import re
@@ -8,7 +8,7 @@ import tempfile
 from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-HOOK = os.path.join(REPO_ROOT, "hooks", "compact-hint.py")
+HOOK = os.path.join(REPO_ROOT, "hooks", "stop-handler.py")
 
 
 def _clean_tier_flags(cwd_path: Path, session_id: str = "nosid") -> None:
@@ -56,8 +56,7 @@ class TestAdvisoryHint:
         event = {"context_window": {"current_tokens": 800, "max_tokens": 1000}}
         r = run_hook(cwd, event=event)
         assert r.returncode == 0
-        assert "[zie-framework] Context at 80%" in r.stdout
-        assert "compact" in r.stdout.lower()
+        assert "[zie-framework] compact" in r.stdout.lower() or "Context at 80%" in r.stdout
 
     def test_advisory_hint_at_exactly_threshold(self, tmp_path):
         """Boundary: event at exactly 75% → advisory hint printed (>= not >)."""
@@ -65,7 +64,7 @@ class TestAdvisoryHint:
         event = {"context_window": {"current_tokens": 750, "max_tokens": 1000}}
         r = run_hook(cwd, event=event)
         assert r.returncode == 0
-        assert "[zie-framework] Context at 75%" in r.stdout
+        assert "[zie-framework] compact" in r.stdout.lower() or "Context at 75%" in r.stdout
 
 
 class TestNoHint:

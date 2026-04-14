@@ -86,12 +86,14 @@ class TestAsyncStopHooks:
         )
 
     def test_stop_guard_is_not_async(self):
+        """stop-guard merged into stop-handler.py (v1.29.0 stop-handler-merge)."""
         data = self._load()
         hooks = self._stop_hooks(data)
-        stop_guard = [h for h in hooks if "stop-guard.py" in h.get("command", "")]
-        assert stop_guard, "stop-guard.py not found in Stop hooks"
-        assert stop_guard[0].get("async") is not True, (
-            "stop-guard.py must NOT be async (it may return a decision)"
+        stop_handler = [h for h in hooks if "stop-handler.py" in h.get("command", "")]
+        assert stop_handler, "stop-handler.py not found in Stop hooks"
+        # stop-handler must NOT be async (it may return nudges/decisions)
+        assert stop_handler[0].get("async") is not True, (
+            "stop-handler.py must NOT be async (it may return nudges/decisions)"
         )
 
     def test_notification_log_not_async(self):

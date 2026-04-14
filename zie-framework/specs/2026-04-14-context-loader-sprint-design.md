@@ -10,12 +10,12 @@ backlog: backlog/context-loader-sprint.md
 
 **Approach:** SessionStart hook โหลด context bundle ครั้งเดียวแล้ว cache ทั้ง session, inject เป็น additionalContext ให้ Claude รู้ command/skill structure ตั้งแต่เริ่ม
 
-**Components:**
-- Create: `hooks/zie-context-loader.py` — standalone module; exports `build_context_map(cwd: Path) -> dict` with keys: `commands: [{name, file, path}]`, `skills: [{name, path}]`; scans commands/*.md, skills/*/SKILL.md; wrapped in `try/except` with `sys.exit(0)` on failure (hook safety pattern per ADR-009)
-- Modify: `hooks/session-resume.py` — extract existing inline command map logic (lines 201-245) to `zie-context-loader.py`, then import and call it
-- Reuse: `.zie/cache/session-cache.json` — existing unified cache location (via utils_cache.py)
-- Reuse: `hooks/utils_cache.py` — `get_cache_manager(cwd).get_or_compute(key, session_id, fn, ttl)` with cache key format `session:{session_id}:command_map:{skill_mtime}` for mtime-gate (ADR-045)
-- Reuse: `hooks/intent-sdlc.py` — reads command map from session cache (no modification needed)
+**Components:** (Implementation complete — documenting existing implementation)
+- `hooks/zie_context_loader.py` (exists) — standalone module; exports `build_context_map(cwd: Path) -> dict` with keys: `commands: [{name, file, path}]`, `skills: [{name, path}]`; scans commands/*.md, skills/*/SKILL.md; wrapped in `try/except` with `sys.exit(0)` on failure (hook safety pattern per ADR-009)
+- `hooks/session-resume.py` (exists) — imports `get_cached_context()` from zie_context_loader.py; inline command map logic extracted (lines 201-245 removed)
+- `.zie/cache/session-cache.json` — existing unified cache location (via utils_cache.py)
+- `hooks/utils_cache.py` — `get_cache_manager(cwd).get_or_compute(key, session_id, fn, ttl)` with cache key format `session:{session_id}:command_map:{skill_mtime}` for mtime-gate (ADR-045)
+- `hooks/intent-sdlc.py` — reads command map from session cache (no modification needed)
 
 **Acceptance Criteria:**
 - Context loads in <2s at session start (measured by hook timing log)
@@ -24,10 +24,10 @@ backlog: backlog/context-loader-sprint.md
 - Context injected in session-resume output for all sessions (verified by stdout check)
 
 **Data Flow:**
-1. SessionStart → hooks/session-resume.py calls build_context_map() from zie-context-loader.py
-2. zie-context-loader.py scans commands/*.md, skills/*/SKILL.md
+1. SessionStart → hooks/session-resume.py (SessionStart hook) calls `get_cached_context()` from zie_context_loader.py
+2. zie_context_loader.py scans commands/*.md, skills/*/SKILL.md
 3. Extract from each file: name (from filename/slug), type (command/skill), path; for skills at `skills/<skill-name>/SKILL.md`, extract `<skill-name>` from parent directory name
-4. Build context.md with command map table + skill list
+4. Build context map dict with commands + skills lists
 5. Compute cache key: `session:{session_id}:command_map:{skill_mtime}` (includes session_id + SKILL.md mtime for automatic invalidation per ADR-045)
 6. Write to `.zie/cache/session-cache.json` via utils_cache.get_or_compute(key, session_id, fn, ttl=1800)
 7. Inject as additionalContext ใน session-resume → Claude รู้ framework structure ตั้งแต่เริ่ม
