@@ -4,7 +4,7 @@ description: Verify CLAUDE.md and README.md are in sync with actual commands/ski
 user-invocable: false
 context: fork
 allowed-tools: Read, Glob
-argument-hint: ""
+argument-hint: "[changed_files]"
 model: haiku
 effort: low
 ---
@@ -27,7 +27,17 @@ parallel fork.
 
 If empty or unparseable: run full check across all commands/skills/hooks.
 
-## Steps
+## Execution
+
+Run the Python script:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/run.py"
+```
+
+Pass `$ARGUMENTS` as the first command-line argument if provided.
+
+## Steps (for reference)
 
 1. **Read CLAUDE.md** (project root) — extract lines mentioning `commands/`,
    `skills/`, `hooks/`. If missing → note in details, set `claude_md_stale: false`.
@@ -73,6 +83,18 @@ If empty or unparseable: run full check across all commands/skills/hooks.
   "details": "CLAUDE.md in sync | README.md in sync | PROJECT.md in sync"
 }
 ```
+
+## Interpretation
+
+| Field | Meaning |
+| --- | --- |
+| `claude_md_stale` | true if CLAUDE.md doesn't mention commands/skills/hooks directories |
+| `readme_stale` | true if README.md commands table doesn't match disk |
+| `project_md_stale` | true if PROJECT.md tables don't match disk |
+| `missing_from_docs` | Items on disk but not documented in README.md |
+| `extra_in_docs` | Items documented but not on disk (deleted?) |
+| `missing_from_project_md` | Items on disk but not in PROJECT.md tables |
+| `extra_in_project_md` | Items in PROJECT.md but not on disk |
 
 Set `claude_md_stale: true` if `missing_from_docs` or `extra_in_docs` has entries
 relating to CLAUDE.md; `readme_stale: true` for README.md entries.
