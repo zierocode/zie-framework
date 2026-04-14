@@ -18,27 +18,30 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
-### Week 1: Quick Wins
-- [ ] unified-context-cache — Centralize ROADMAP/ADR caching: hooks/utils_cache.py, session-cache.json, 6 consumers updated [backlog](backlog/unified-context-cache.md)
-- [ ] content-hash-ttl-increase — Increase TTL 600s → 1800s, add session-id salt [backlog](backlog/content-hash-ttl-increase.md)
-- [ ] test-lookup-caching — Cache test→source mapping in .zie/cache/test-cache.json [backlog](backlog/test-lookup-caching.md)
+<!-- -->
 
-### Week 2: Core Efficiency
-- [ ] sprint-context-passthrough — Phase 1→2→3 bundle: .zie/sprint-context.json, eliminate redundant disk reads [backlog](backlog/sprint-context-passthrough.md)
-- [ ] intent-pattern-single-pass — 65 regex checks → 1, single combined regex with named groups [backlog](backlog/intent-pattern-single-pass.md)
-- [ ] command-map-pre-load — Cache command map in plugin-state.json, invalidate on SKILL.md change [backlog](backlog/command-map-pre-load.md)
+---
 
-### Week 3: Debt Cleanup
-- [ ] reviewer-context-enforcement — Make context_bundle required, remove disk fallback from 3 reviewer skills [backlog](backlog/reviewer-context-enforcement.md)
-- [ ] stop-handler-merge — Consolidate 3 Stop hooks → 1: hooks/stop-handler.py [backlog](backlog/stop-handler-merge.md)
-- [ ] pre-computed-version — Compute version at sprint start, store in .zie/sprint-state.json [backlog](backlog/pre-computed-version.md)
-- [ ] combined-nudge-checks — Single git log pass, distribute to all nudge checks [backlog](backlog/combined-nudge-checks.md)
+## Done — v1.29.0 (2026-04-14)
 
-### Autonomous Features
-- [ ] auto-inject — Auto-load context at session start, present summary + "Continue?" [backlog](backlog/auto-inject.md)
-- [ ] auto-learn — Auto-extract patterns at session end, write session memory [backlog](backlog/auto-learn.md)
-- [ ] auto-decide — Auto-suggest next actions during session, never force [backlog](backlog/auto-decide.md)
-- [ ] auto-improve — Auto-apply high-confidence patterns (>0.95), propose ADRs [backlog](backlog/auto-improve.md)
+**Mega Sprint: 14 Phases — Lean + Efficient + Autonomous zie-framework**
+
+### Autonomous Features (NEW)
+- [x] auto-learn — Pattern extraction from sessions, session memory JSON, pending_learn marker
+- [x] auto-decide — Proactive suggestions on test failure/spec complete (max 3/session, 5min cooldown)
+- [x] auto-improve — Auto-apply high-confidence patterns (≥0.95) to MEMORY.md at session start
+
+### Core Efficiency
+- [x] unified-context-cache — Centralize ROADMAP/ADR caching with session-scoped TTL
+- [x] content-hash-ttl-increase — TTL 600s → 1800s with session-id salt
+- [x] test-lookup-caching — Cache test→source mapping in .zie/cache/test-cache.json
+- [x] sprint-context-passthrough — Phase bundle eliminates redundant disk reads
+- [x] intent-pattern-single-pass — 65 regex checks → 1 combined regex
+- [x] command-map-pre-load — Cache command map, invalidate on SKILL.md change
+- [x] reviewer-context-enforcement — context_bundle required for reviewers
+- [x] stop-handler-merge — Consolidated 3 Stop hooks → 1
+- [x] pre-computed-version — Version computed at sprint start
+- [x] combined-nudge-checks — Single git log pass for all nudge checks
 
 ### Existing Backlog
 - [ ] context-loader-sprint — Auto-load zie-framework context at session start: hooks/zie-context-loader.py, session-start integration, intent-sdlc context injection, standard headers for agents/commands/skills [backlog](backlog/context-loader-sprint.md)
