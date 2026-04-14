@@ -81,3 +81,4 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | — | v1.25.0 | All-items enforcement, approve.py upfront, make zie-implement, semver minor bias, ADR-064. | Accepted |
 | ADR-066 | Non-Claude Model Compatibility | Env var model resolution + model-unavailable detection in safety_check_agent; regex fallback when subagent model unavailable. | Accepted |
 | ADR-067 | Release Skill Git Ops Direct | `/release` performs git ops directly (not via `make release`); `make _publish` hook for project publish logic. | Accepted |
+| — | v1.29.0 | Mega sprint: auto-learn/decide/improve (14 phases), unified-context-cache, light-retro ADR gate, WIP=1 sequential impl. | Accepted |
