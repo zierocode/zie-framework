@@ -25,14 +25,14 @@ after each REFACTOR phase. Returns a structured verdict.
 
 Caller must provide:
 
-- **context_bundle** (optional, preferred) — ADR + project context bundle passed from `/implement`. If provided, skip Phase 1 disk reads (fast path).
+- **context_bundle** (required) — ADR + project context bundle passed from `/implement`. If missing, output validation error.
 - Task description and Acceptance Criteria (from plan)
 - List of files changed in this task
 
-## Phase 1 — Load Context Bundle (inline)
+## Phase 1 — Validate Context Bundle (inline)
 
-- **Fast-path:** if context_bundle provided by caller → `adrs_content = context_bundle.adrs` · `context_content = context_bundle.context` · skip disk reads.
-- **Disk fallback:** read from disk — `get_cached_adrs(session_id, "zie-framework/decisions/")` → `adrs_content`; cache miss → read `decisions/ADR-000-summary.md` → `adrs_content`; if missing → fall back: read all `decisions/*.md`; `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")` → `adr_cache_path`. Read `project/context.md` → `context_content`.
+- **Required:** context_bundle must be provided by caller → `adrs_content = context_bundle.adrs` · `context_content = context_bundle.context`
+- **Validation error if missing:** Output `❌ Issues Found: context_bundle required — pass from zie-implement skill (do not read from disk)`
 
 Also read each file listed in the caller's "files changed" input (note "FILE NOT FOUND"
 if any are missing).

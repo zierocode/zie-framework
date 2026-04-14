@@ -80,3 +80,4 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-064 | Release Command Upgraded to Sonnet/Medium | `haiku/low` → `sonnet/medium`; prevents context-limit failures post-sprint. | Accepted |
 | — | v1.25.0 | All-items enforcement, approve.py upfront, make zie-implement, semver minor bias, ADR-064. | Accepted |
 | ADR-066 | Non-Claude Model Compatibility | Env var model resolution + model-unavailable detection in safety_check_agent; regex fallback when subagent model unavailable. | Accepted |
+| ADR-067 | Release Skill Git Ops Direct | `/release` performs git ops directly (not via `make release`); `make _publish` hook for project publish logic. | Accepted |

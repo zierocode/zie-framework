@@ -18,10 +18,35 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+<!-- -->
+
+---
+
+## Done — v1.29.0 (2026-04-14)
+
+**Mega Sprint: 14 Phases — Lean + Efficient + Autonomous zie-framework**
+
+### Autonomous Features (NEW)
+- [x] auto-learn — Pattern extraction from sessions, session memory JSON, pending_learn marker
+- [x] auto-decide — Proactive suggestions on test failure/spec complete (max 3/session, 5min cooldown)
+- [x] auto-improve — Auto-apply high-confidence patterns (≥0.95) to MEMORY.md at session start
+
+### Core Efficiency
+- [x] unified-context-cache — Centralize ROADMAP/ADR caching with session-scoped TTL
+- [x] content-hash-ttl-increase — TTL 600s → 1800s with session-id salt
+- [x] test-lookup-caching — Cache test→source mapping in .zie/cache/test-cache.json
+- [x] sprint-context-passthrough — Phase bundle eliminates redundant disk reads
+- [x] intent-pattern-single-pass — 65 regex checks → 1 combined regex
+- [x] command-map-pre-load — Cache command map, invalidate on SKILL.md change
+- [x] reviewer-context-enforcement — context_bundle required for reviewers
+- [x] stop-handler-merge — Consolidated 3 Stop hooks → 1
+- [x] pre-computed-version — Version computed at sprint start
+- [x] combined-nudge-checks — Single git log pass for all nudge checks
+
+### Existing Backlog
 - [ ] context-loader-sprint — Auto-load zie-framework context at session start: hooks/zie-context-loader.py, session-start integration, intent-sdlc context injection, standard headers for agents/commands/skills [backlog](backlog/context-loader-sprint.md)
 - [ ] context-load-smart — Deduplicate context loading: universal load-context entry point, session cache with content hash, reviewer context_bundle passthrough, ROADMAP session cache
 - [ ] agent-mode-compat — Document non-Claude model limitations, add fallback invocation in /implement, make model: frontmatter optional, add make implement without --agent
-- [ ] check-fully-framework-compatibility-with-model-glm-5-1-cloud — Full compatibility audit: hooks, commands, skills, tests, Makefile vs glm-5.1:cloud [backlog](backlog/check-fully-framework-compatibility-with-model-glm-5-1-cloud.md)
 
 ---
 

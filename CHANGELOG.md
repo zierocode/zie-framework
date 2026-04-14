@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.29.0 — 2026-04-14
+
+### Added
+
+- **Mega Sprint: 14 Phases — Lean + Efficient + Autonomous zie-framework**
+- **auto-learn**: Pattern extraction from sessions, session memory JSON in `zie-framework/memory/`, `pending_learn.txt` marker for next session
+- **auto-decide**: Proactive suggestions via PostToolUse hook (test failure → `/fix`, spec complete → `/plan`, plan complete → `/implement`); frequency cap: max 3/session, 5min cooldown
+- **auto-improve**: Auto-apply high-confidence patterns (≥0.95) to `MEMORY.md` at session start; WIP context injection from previous session
+- **unified-context-cache**: Centralize ROADMAP/ADR caching with session-scoped TTL in `hooks/utils_cache.py`
+- **content-hash-ttl-increase**: TTL increased 600s → 1800s with session-id salt for cache invalidation
+- **test-lookup-caching**: Cache test→source mapping in `.zie/cache/test-cache.json`
+- **sprint-context-passthrough**: Phase 1→2→3 context bundle eliminates redundant disk reads
+- **intent-pattern-single-pass**: 65 regex checks → 1 combined regex with named groups
+- **command-map-pre-load**: Cache command map in `plugin-state.json`, invalidate on `SKILL.md` change
+- **reviewer-context-enforcement**: `context_bundle` required for all reviewer skills
+- **stop-handler-merge**: Consolidated 3 Stop hooks → 1 (`hooks/stop-handler.py`)
+- **pre-computed-version**: Version computed at sprint start, stored in `.zie/sprint-state.json`
+- **combined-nudge-checks**: Single git log pass for all nudge checks
+
+### Tests
+
+- 34 new unit tests for auto-* features (`test_post_tool_use.py`, `test_session_stop.py`, `test_session_resume_auto_improve.py`)
+- All 14 phases shipped with passing tests
+
 ## v1.28.2 — 2026-04-14
 
 ### Fixed

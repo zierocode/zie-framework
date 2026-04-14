@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """SessionStart hook — inject current SDLC state for instant session orientation."""
+import json
 import os
 import re
 import subprocess
@@ -11,8 +12,9 @@ _hook_start = _time.monotonic()
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
-from utils_config import load_config
-from utils_roadmap import parse_roadmap_now, is_mtime_fresh, parse_roadmap_section
+from utils_config import load_config, CACHE_TTLS
+from utils_cache import get_cache_manager  # noqa: E402
+from utils_roadmap import parse_roadmap_now, is_mtime_fresh, parse_roadmap_section, parse_roadmap_section_content
 
 # Minimum safe Playwright version — derived from CVE-2025-59288.
 # CVE-2025-59288: arbitrary code execution via malicious CDP response.
@@ -85,8 +87,15 @@ try:
     # Playwright version safety check (CVE-2025-59288)
     _check_playwright_version(config)
 
+    # Read ROADMAP via unified cache (session-scoped)
+    session_id = os.environ.get("CLAUDE_SESSION_ID", "default")
     roadmap_file = zf / "ROADMAP.md"
-    now_items = parse_roadmap_now(roadmap_file)
+    cache = get_cache_manager(cwd)
+    roadmap_ttl = CACHE_TTLS.get("roadmap", 600)
+    roadmap_content = cache.get_or_compute(
+        "roadmap", session_id, lambda: roadmap_file.read_text(), roadmap_ttl
+    )
+    now_items = parse_roadmap_section_content(roadmap_content, "now") if roadmap_content else []
 
     # Read VERSION
     version = "?"
@@ -182,7 +191,7 @@ try:
         if not isinstance(_e, FileNotFoundError):
             print(f"[zie-framework] session-resume: staleness check skipped: {_e}", file=sys.stderr)
 
-    # Load command map from SKILL.md (static data read, not callable skill)
+    # Load command map from unified cache (invalidate on SKILL.md mtime change)
     _HARDCODED_FALLBACK = (
         "[zie-framework] framework: commands — "
         "/backlog /spec /plan /implement /sprint /fix /chore /hotfix "
@@ -190,32 +199,47 @@ try:
     )
     try:
         skill_path = cwd / "skills" / "using-zie-framework" / "SKILL.md"
-        skill_text = skill_path.read_text()
-        # Extract command list lines from ## Command Map section
-        in_cmd_map = False
-        cmd_names = []
-        for line in skill_text.splitlines():
-            if "## Command Map" in line:
-                in_cmd_map = True
-                continue
-            if line.startswith("##") and in_cmd_map:
-                break
-            if in_cmd_map and line.strip().startswith("- `/"):
-                m = re.search(r'`(/[a-z]+)`', line)
-                if m:
-                    cmd_names.append(m.group(1))
-        if cmd_names:
-            # Apply conditional guards for commands not yet shipped
-            guarded = ["/health", "/rescue", "/next"]
-            commands_dir = cwd / "commands"
+        commands_dir = cwd / "commands"
+        guarded = ["/health", "/rescue", "/next"]
+
+        # Cache key includes SKILL.md mtime for automatic invalidation
+        skill_mtime = skill_path.stat().st_mtime if skill_path.exists() else 0
+        cache_key = f"command_map:{skill_mtime}"
+
+        def _parse_commands():
+            """Parse command map from SKILL.md (called on cache miss)."""
+            if not skill_path.exists():
+                return None
+            skill_text = skill_path.read_text()
+            in_cmd_map = False
+            cmd_names = []
+            for line in skill_text.splitlines():
+                if "## Command Map" in line:
+                    in_cmd_map = True
+                    continue
+                if line.startswith("##") and in_cmd_map:
+                    break
+                if in_cmd_map and line.strip().startswith("- `/"):
+                    m = re.search(r'`(/[a-z]+)`', line)
+                    if m:
+                        cmd_names.append(m.group(1))
+            if not cmd_names:
+                return None
+            # Apply guards for commands not yet shipped
             final_cmds = []
             for cmd in cmd_names:
                 slug = cmd.lstrip("/")
                 if cmd in guarded and not (commands_dir / f"{slug}.md").exists():
                     continue
                 final_cmds.append(cmd)
-            cmd_line = "[zie-framework] framework: commands — " + " ".join(final_cmds)
-        else:
+            return "[zie-framework] framework: commands — " + " ".join(final_cmds)
+
+        # Use cache with TTL (command map changes only on releases)
+        command_map_ttl = CACHE_TTLS.get("command_map", 1800)
+        cmd_line = cache.get_or_compute(
+            cache_key, session_id, _parse_commands, command_map_ttl
+        )
+        if cmd_line is None:
             cmd_line = _HARDCODED_FALLBACK
     except Exception:
         cmd_line = _HARDCODED_FALLBACK
@@ -249,6 +273,116 @@ try:
         )
     except Exception as e:
         print(f"[zie-framework] session-resume: drift check failed: {e}", file=sys.stderr)
+
+    # ── Auto-Improve: Load and auto-apply high-confidence patterns ────────────
+    try:
+        from utils_io import atomic_write
+
+        def _load_pending_patterns():
+            """Load pending patterns from session memory files."""
+            memory_dir = zf / "memory"
+            patterns = []
+            if memory_dir.exists():
+                for f in memory_dir.glob("session-*.json"):
+                    try:
+                        data = json.loads(f.read_text())
+                        for pattern in data.get("patterns", []):
+                            if pattern.get("auto_apply", False):
+                                patterns.append(pattern)
+                    except Exception:
+                        pass
+            return patterns
+
+        def _filter_auto_apply_patterns(patterns):
+            """Filter patterns eligible for auto-apply."""
+            _AUTO_APPLY_CATEGORIES = {"workflow", "decision"}
+            _AUTO_APPLY_THRESHOLD = 0.95
+            eligible = []
+            for p in patterns:
+                confidence = p.get("confidence", 0)
+                category = p.get("category", "")
+                if confidence >= _AUTO_APPLY_THRESHOLD and category in _AUTO_APPLY_CATEGORIES:
+                    eligible.append(p)
+            return eligible
+
+        def _apply_pattern_to_memory(pattern, memory_path):
+            """Apply a pattern to MEMORY.md."""
+            if not memory_path.exists():
+                return False
+            content = memory_path.read_text()
+            if pattern["description"] in content:
+                return True
+            patterns_section = re.search(r'^## Patterns\s*$', content, re.MULTILINE)
+            if patterns_section:
+                insert_pos = patterns_section.end()
+                pattern_entry = f"\n- [{pattern['category'].upper()}] {pattern['description']} (confidence: {pattern['confidence']})\n"
+                new_content = content[:insert_pos] + pattern_entry + content[insert_pos:]
+            else:
+                references_section = re.search(r'^## References\s*$', content, re.MULTILINE)
+                if references_section:
+                    insert_pos = references_section.start()
+                    new_content = content[:insert_pos] + f"\n## Patterns\n\n- [{pattern['category'].upper()}] {pattern['description']} (confidence: {pattern['confidence']})\n\n" + content[insert_pos:]
+                else:
+                    new_content = content + f"\n\n## Patterns\n\n- [{pattern['category'].upper()}] {pattern['description']} (confidence: {pattern['confidence']})\n"
+            try:
+                atomic_write(memory_path, new_content)
+                return True
+            except Exception:
+                return False
+
+        def _load_pending_learn_marker():
+            """Load pending_learn.txt marker from previous session."""
+            marker = zf / "pending_learn.txt"
+            if not marker.exists():
+                return None
+            try:
+                lines = marker.read_text().strip().splitlines()
+                data = {}
+                for line in lines:
+                    if '=' in line:
+                        key, value = line.split('=', 1)
+                        data[key.strip()] = value.strip()
+                return data
+            except Exception:
+                return None
+
+        # Load pending learn marker
+        pending_data = _load_pending_learn_marker()
+
+        # Load and filter patterns
+        patterns = _load_pending_patterns()
+        eligible_patterns = _filter_auto_apply_patterns(patterns)
+
+        # Auto-apply eligible patterns
+        applied = []
+        memory_path = zf / "memory" / "MEMORY.md"
+        for pattern in eligible_patterns:
+            if _apply_pattern_to_memory(pattern, memory_path):
+                applied.append(pattern)
+
+        # Build auto-improve context injection
+        if applied or (pending_data and pending_data.get("wip")):
+            auto_improve_lines = ["## Auto-Improve Session Resume"]
+            if pending_data and pending_data.get("wip"):
+                auto_improve_lines.append(f"\n**WIP from last session:** {pending_data['wip'][:100]}")
+            if applied:
+                auto_improve_lines.append(f"\n**Auto-applied {len(applied)} high-confidence pattern(s):**")
+                for p in applied[:3]:
+                    auto_improve_lines.append(f"- [{p['category']}] {p['description']}")
+
+            # Output via additionalContext for SessionStart
+            print(json.dumps({"additionalContext": "\n".join(auto_improve_lines)}))
+
+        # Clean up pending marker after processing
+        pending_marker = zf / "pending_learn.txt"
+        if pending_marker.exists():
+            try:
+                pending_marker.unlink()
+            except Exception:
+                pass
+
+    except Exception as _e:
+        print(f"[zie-framework] session-resume: auto-improve skipped: {_e}", file=sys.stderr)
 
 except Exception:
     sys.exit(0)

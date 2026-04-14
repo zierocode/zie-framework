@@ -88,6 +88,26 @@
           "background": true
         }
       ]
+    },
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/post-tool-use.py\"",
+          "background": true
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/post-tool-use.py\"",
+          "background": true
+        }
+      ]
     }
   ],
   "PreToolUse": [
@@ -142,19 +162,16 @@
       "hooks": [
         {
           "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-guard.py\""
-        },
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-pipeline-guard.py\""
-        },
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/compact-hint.py\""
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-handler.py\""
         },
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-capture.py\""
+        },
+        {
+          "type": "command",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-stop.py\"",
+          "background": true
         },
         {
           "type": "command",

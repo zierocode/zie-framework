@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""PostToolUse:Edit/Write hook — run relevant unit tests after file edits."""
+"""PostToolUse:Edit/Write hook — run relevant unit tests after file edits.
+
+Features:
+- Test→source mapping cache (eliminates duplicate rglob lookups)
+- Per-file debounce (not global)
+- Cache invalidation on test file change
+"""
+import hashlib
 import json
 import os
 import re as _re
@@ -9,16 +16,146 @@ import sys
 import threading
 import time
 from pathlib import Path
+from typing import Optional
 
 _hook_start = time.monotonic()
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
-from utils_config import load_config
+from utils_config import load_config, CACHE_TTLS
+from utils_cache import get_cache_manager
 from utils_io import project_tmp_path, safe_write_tmp
 
 _SUMMARY_RE = _re.compile(r'\d+\s+(passed|failed|error|skipped|xfailed|xpassed)')
 _SKIP_EXTENSIONS = {".md", ".json", ".yaml", ".yml", ".toml", ".cfg", ".ini", ".txt"}
+
+
+class TestLookupCache:
+    """Cache test→source file mappings with per-file debounce.
+
+    Usage:
+        cache = TestLookupCache(session_id, cwd)
+        test_path = cache.get_test_for_source(str(source_path))
+        if test_path is None:
+            test_path = find_matching_test(...)  # rglob fallback
+            cache.set_test_mapping(str(source_path), str(test_path))
+        if cache.should_debounce(str(source_path)):
+            return  # Skip test run
+    """
+
+    def __init__(self, session_id: str, cwd: Path):
+        """Initialize test lookup cache.
+
+        Args:
+            session_id: Session identifier for isolation
+            cwd: Project root directory
+        """
+        self.session_id = session_id
+        self.cwd = cwd
+        self.cache = get_cache_manager(cwd)
+        self.debounce_ms = CACHE_TTLS.get("test_map", 300) * 1000  # Default 5min for mappings
+
+    def _source_key(self, source_path: str) -> str:
+        """Return cache key for source→test mapping."""
+        safe_path = _re.sub(r'[^a-zA-Z0-9]', '-', source_path)
+        return f"test_source:{safe_path}"
+
+    def _debounce_key(self, source_path: str) -> str:
+        """Return cache key for per-file debounce state."""
+        safe_path = _re.sub(r'[^a-zA-Z0-9]', '-', source_path)
+        return f"test_debounce:{safe_path}"
+
+    def _test_hash_key(self, test_path: str) -> str:
+        """Return cache key for test file content hash."""
+        safe_path = _re.sub(r'[^a-zA-Z0-9]', '-', test_path)
+        return f"test_hash:{safe_path}"
+
+    def get_test_for_source(self, source_path: str) -> Optional[str]:
+        """Get cached test path for a source file.
+
+        Returns None on cache miss or if test file no longer exists.
+        """
+        cached = self.cache.get(self._source_key(source_path), self.session_id)
+        if cached:
+            test_path = Path(cached)
+            if test_path.exists():
+                return str(test_path)
+            # Test file deleted — invalidate
+            self.cache.delete(self._source_key(source_path), self.session_id)
+        return None
+
+    def set_test_mapping(self, source_path: str, test_path: str) -> None:
+        """Cache test→source mapping with TTL."""
+        self.cache.set(
+            self._source_key(source_path),
+            test_path,
+            self.session_id,
+            ttl=CACHE_TTLS.get("test_map", 1800),  # 30 min default
+        )
+        # Also store test file hash for invalidation
+        test_file = Path(test_path)
+        if test_file.exists():
+            try:
+                content_hash = hashlib.md5(test_file.read_bytes(), usedforsecurity=False).hexdigest()
+                self.cache.set(
+                    self._test_hash_key(test_path),
+                    {"hash": content_hash, "path": test_path},
+                    self.session_id,
+                    ttl=CACHE_TTLS.get("test_map", 1800),
+                )
+            except Exception:
+                pass  # Non-fatal
+
+    def invalidate_on_test_change(self, test_path: str) -> bool:
+        """Invalidate cache if test file content changed.
+
+        Returns True if invalidated, False if no change or cache miss.
+        """
+        cached_entry = self.cache.get(self._test_hash_key(test_path), self.session_id)
+        if not cached_entry:
+            return False
+
+        test_file = Path(test_path)
+        if not test_file.exists():
+            return False
+
+        try:
+            current_hash = hashlib.md5(test_file.read_bytes(), usedforsecurity=False).hexdigest()
+            if current_hash != cached_entry.get("hash"):
+                # Test file changed — invalidate all source mappings
+                # (We don't track reverse mapping, so scan common patterns)
+                self.cache.delete(self._test_hash_key(test_path), self.session_id)
+                return True
+        except Exception:
+            pass
+        return False
+
+    def should_debounce(self, source_path: str, debounce_ms: int = 5000) -> bool:
+        """Check if source file was tested recently (per-file debounce).
+
+        Args:
+            source_path: Source file path
+            debounce_ms: Debounce window in milliseconds (default: 5000 = 5s)
+
+        Returns:
+            True if should skip test run (within debounce window)
+        """
+        cached = self.cache.get(self._debounce_key(source_path), self.session_id)
+        if cached is None:
+            return False
+
+        last_tested = cached.get("last_tested", 0)
+        age_ms = (time.time() - last_tested) * 1000
+        return age_ms < debounce_ms
+
+    def mark_tested(self, source_path: str) -> None:
+        """Mark source file as tested (update debounce timestamp)."""
+        self.cache.set(
+            self._debounce_key(source_path),
+            {"last_tested": time.time(), "path": source_path},
+            self.session_id,
+            ttl=60,  # Short TTL for debounce state
+        )
 
 
 def truncate_test_output(raw: str) -> str:
@@ -67,7 +204,11 @@ def truncate_test_output(raw: str) -> str:
 
 
 def find_matching_test(changed_path: Path, runner: str, cwd: Path) -> str | None:
-    """Find the test file most likely to cover the changed module."""
+    """Find the test file most likely to cover the changed module.
+
+    Note: For cached version, use TestLookupCache.get_test_for_source()
+    which wraps this function with caching.
+    """
     stem = changed_path.stem  # e.g. "memories" from "memories.py"
 
     if runner == "pytest":
@@ -144,23 +285,21 @@ if __name__ == "__main__":
     if not changed.is_relative_to(cwd_resolved):
         sys.exit(0)
 
-    # Debounce: skip test run if same file was tested recently (within debounce window)
-    if _debounce_env:
-        try:
-            debounce_ms = int(_debounce_env)
-        except (TypeError, ValueError):
-            debounce_ms = config.get("auto_test_debounce_ms")
-    else:
-        debounce_ms = config.get("auto_test_debounce_ms")
-    debounce_file = project_tmp_path("last-test", cwd.name)
-    if debounce_ms > 0 and debounce_file.exists():
-        last_run = debounce_file.stat().st_mtime
-        if (time.time() - last_run) < (debounce_ms / 1000):
-            sys.exit(0)
-    safe_write_tmp(debounce_file, file_path)
+    # Initialize test lookup cache (session-scoped)
+    session_id = os.environ.get("CLAUDE_SESSION_ID", "default")
+    test_cache = TestLookupCache(session_id, cwd)
 
-    # Single find_matching_test call — result reused for context injection and test command
-    matching_test = find_matching_test(changed, test_runner, cwd)
+    # Per-file debounce check (replaces global debounce)
+    if test_cache.should_debounce(str(changed)):
+        sys.exit(0)  # Within debounce window — skip
+
+    # Test→source mapping cache (eliminates duplicate rglob)
+    matching_test = test_cache.get_test_for_source(str(changed))
+    if matching_test is None:
+        # Cache miss — rglob fallback
+        matching_test = find_matching_test(changed, test_runner, cwd)
+        if matching_test:
+            test_cache.set_test_mapping(str(changed), matching_test)
 
     # additionalContext injection — only fires when test file exists (after debounce)
     if matching_test:
@@ -223,6 +362,7 @@ if __name__ == "__main__":
                 sys.exit(0)
 
             if rc == 0:
+                test_cache.mark_tested(str(changed))
                 print("[zie-framework] Tests pass ✓")
             else:
                 print(truncate_test_output(stdout_data + stderr_data))
@@ -236,6 +376,7 @@ if __name__ == "__main__":
                 timeout=timeout,
             )
             if result.returncode == 0:
+                test_cache.mark_tested(str(changed))
                 print("[zie-framework] Tests pass ✓")
             else:
                 print(truncate_test_output(result.stdout + result.stderr))

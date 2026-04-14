@@ -27,11 +27,12 @@ Caller must provide:
 
 - Path to spec file (`zie-framework/specs/YYYY-MM-DD-<slug>-design.md`)
 - Backlog item context (problem statement + motivation)
+- **context_bundle** (required) — ADR + project context bundle from caller
 
-## Phase 1 — Load Context Bundle (inline)
+## Phase 1 — Validate Context Bundle (inline)
 
-- **Fast-path:** if context_bundle provided by caller → `adrs_content = context_bundle.adrs` · `context_content = context_bundle.context` · skip disk reads.
-- **Disk fallback:** read from disk — `get_cached_adrs(session_id, "zie-framework/decisions/")` → `adrs_content`; cache miss → read `decisions/ADR-000-summary.md` → `adrs_content`; if missing → fall back: read all `decisions/*.md`; `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`. Read `project/context.md` → `context_content`.
+- **Required:** context_bundle must be provided by caller → `adrs_content = context_bundle.adrs` · `context_content = context_bundle.context`
+- **Validation error if missing:** Output `❌ Issues Found: context_bundle required — pass from spec-design skill (do not read from disk)`
 
 Returns: `adrs_content`, `context_content`.
 

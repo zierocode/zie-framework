@@ -24,6 +24,16 @@ CONFIG_DEFAULTS: dict = {
     "zie_memory_enabled": False,
 }
 
+# Cache TTLs in seconds for unified-context-cache
+CACHE_TTLS = {
+    "roadmap": 600,       # 10 min
+    "adrs": 3600,         # 1 hour
+    "project_md": 300,    # 5 min
+    "command_map": 1800,  # 30 min
+    "test_map": 300,      # 5 min
+    "content_hash": 1800, # 30 min (increased from 600s)
+}
+
 
 def validate_config(config: dict) -> dict:
     """Fill all CONFIG_SCHEMA keys with typed defaults.
