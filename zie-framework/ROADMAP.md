@@ -18,7 +18,15 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
-<!-- -->
+- [ ] audit-hardcoded-test-paths — [backlog](backlog/audit-hardcoded-test-paths.md)
+- [ ] audit-error-path-coverage — [backlog](backlog/audit-error-path-coverage.md)
+- [ ] audit-version-sync — [backlog](backlog/audit-version-sync.md)
+- [ ] audit-prompt-injection-hardening — [backlog](backlog/audit-prompt-injection-hardening.md)
+- [ ] audit-error-handling-cleanup — [backlog](backlog/audit-error-handling-cleanup.md)
+- [ ] audit-uncached-config-reads — [backlog](backlog/audit-uncached-config-reads.md)
+- [ ] audit-stale-docs-refresh — [backlog](backlog/audit-stale-docs-refresh.md)
+- [ ] audit-test-quality-fixes — [backlog](backlog/audit-test-quality-fixes.md)
+- [ ] audit-quick-wins — [backlog](backlog/audit-quick-wins.md)
 
 ---
 
