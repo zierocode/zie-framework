@@ -89,7 +89,30 @@ Small items CAN be merged into a single backlog entry when they: (a) share a sin
    - Build dependency graph
    - Items with dependencies → mark for serialization in PLAN/IMPL phases
 
-5. **Print sprint audit table**:
+5. **Compute suggested version** (pre-computed at sprint start):
+
+   ```python
+   import subprocess
+   result = subprocess.run(
+       ["git", "log", "--oneline", "--grep=^release:"],
+       capture_output=True, text=True, cwd=str(cwd)
+   )
+   releases = result.stdout.strip().split("\n") if result.stdout.strip() else []
+   last_version = "1.0.0"
+   if releases:
+       import re
+       m = re.search(r"v?(\d+\.\d+\.\d+)", releases[0])
+       if m:
+           last_version = m.group(1)
+   # Bump patch
+   parts = list(map(int, last_version.split(".")))
+   parts[2] += 1
+   suggested_version = ".".join(map(str, parts))
+   ```
+
+   Store in `.zie/sprint-state.json`: `"suggested_version": "<version>"`
+
+6. **Print sprint audit table**:
 
    ```
    SPRINT AUDIT
@@ -98,6 +121,7 @@ Small items CAN be merged into a single backlog entry when they: (a) share a sin
    Needs Plan:  <count> items
    Ready to Impl: <count> items
    Dependencies: <count> edges (if any)
+   Suggested version: v<suggested_version>
 
    [item1] backlog ✓ | spec — | plan — | impl —
    [item2] backlog ✓ | spec ✓ | plan — | impl —
@@ -105,15 +129,15 @@ Small items CAN be merged into a single backlog entry when they: (a) share a sin
    ...
    ```
 
-6. **--dry-run branch**: if `--dry-run` present → print audit table and stop. Say "Run without --dry-run to execute."
+7. **--dry-run branch**: if `--dry-run` present → print audit table and stop. Say "Run without --dry-run to execute."
 
-7. **User confirmation**:
+8. **User confirmation**:
 
    ```
    Sprint ready. Process:
    - Phase 1: Spec <N> items (parallel, with inline retry on partial failure)
    - Phase 2: Impl <N> items (sequential, WIP=1)
-   - Phase 3: Release v<suggested-version>
+   - Phase 3: Release v<suggested-version> (pre-computed)
    - Phase 4: Retro
 
    Start sprint? (yes / edit / cancel)
@@ -178,6 +202,23 @@ Wait for all Phase 1 agents → collect results.
   progress bar prints). If retry also fails → print error, halt sprint.
 
 After Phase 1 (+ any retries): reload ROADMAP → bind as `roadmap_post_phase1`.
+
+**Write sprint context bundle** (Phase 1→2→3 passthrough):
+```python
+import json
+from pathlib import Path
+
+sprint_context = {
+    "specs": {...},    # Spec content for each item (keyed by slug)
+    "plans": {...},    # Plan content for each item (keyed by slug)
+    "roadmap": roadmap_post_phase1,
+    "context_bundle": context_bundle,  # From load-context skill
+}
+bundle_path = cwd / ".zie" / "sprint-context.json"
+bundle_path.parent.mkdir(parents=True, exist_ok=True)
+bundle_path.write_text(json.dumps(sprint_context))
+```
+
 TaskUpdate → Phase 1/4 complete
 Write `zie-framework/.sprint-state` → `{"phase": 2, "items": <all_slugs>, "completed_phases": [1], "remaining_items": <ready_slugs>, "current_task": "", "tdd_phase": "", "last_action": "spec-done", "started_at": <iso_ts>}`
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
@@ -188,6 +229,17 @@ Print ETA: `Phase 1/4 — 3 phases remaining`
 ## PHASE 2: IMPLEMENT (Sequential, WIP=1)
 
 TaskCreate subject="Phase 2/4 — Implement"
+
+**Read sprint context bundle** (Phase 1→2 passthrough):
+```python
+import json
+bundle_path = cwd / ".zie" / "sprint-context.json"
+if bundle_path.exists():
+    sprint_context = json.loads(bundle_path.read_text())
+    # Use specs/plans from bundle — no disk re-read
+else:
+    sprint_context = {}  # Fallback: read from disk (resume case)
+```
 
 Read Ready items from `roadmap_post_phase1` (ordered by priority: CRITICAL → HIGH → MEDIUM → LOW). Re-read ROADMAP only if a mutation occurred after Phase 1.
 
@@ -200,6 +252,7 @@ For each item in priority order:
    make zie-implement
    ```
    The agent reads the Now lane from ROADMAP, implements, commits, and exits.
+   **Context passthrough:** Pass `sprint_context["plans"].get(<slug>)` to implement agent if available.
 3. After Bash returns, check ROADMAP.md — Now item marked `[x]` and committed → success.
    `[impl N/total] <slug> ✓ <commit>`
    Update `.sprint-state`: `remaining_items` = previous `remaining_items` minus `<slug>`, `current_task = ""`, `last_action = "impl-done:<slug>"`
@@ -210,7 +263,7 @@ For each item in priority order:
 
 After all impl complete: all items marked `[x]` in Now.
 TaskUpdate → Phase 2/4 complete
-Write `zie-framework/.sprint-state` → `{"phase": 3, "items": <all_slugs>, "completed_phases": [1, 2], "remaining_items": [], "current_task": "release", "tdd_phase": "", "last_action": "release-start", "started_at": <iso_ts>}`
+Write `zie-framework/.sprint-state` → `{"phase": 3, "items": <all_slugs>, "completed_phases": [1, 2], "remaining_items": [], "current_task": "release", "tdd_phase": "", "last_action": "release-start", "suggested_version": "<version>", "started_at": <iso_ts>}`
 Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
 Print ETA: `Phase 2/4 — 2 phases remaining`
 
@@ -220,17 +273,41 @@ Print ETA: `Phase 2/4 — 2 phases remaining`
 
 TaskCreate subject="Phase 3/4 — Release"
 
+**Read sprint context bundle** (Phase 1→2→3 passthrough):
+```python
+import json
+bundle_path = cwd / ".zie" / "sprint-context.json"
+if bundle_path.exists():
+    sprint_context = json.loads(bundle_path.read_text())
+    # Use specs/plans from bundle for release notes
+else:
+    sprint_context = {}  # Fallback: read from disk
+```
+
+**Read pre-computed version** from sprint state:
+```python
+import json
+state_path = cwd / ".zie" / "sprint-state.json"
+if state_path.exists():
+    state = json.loads(state_path.read_text())
+    version = state.get("suggested_version", "auto")
+else:
+    version = "auto"  # Fallback: compute at release time
+```
+
 Invoke `/release`:
 
 ```bash
-zie-release
+zie-release --bump-to=<version>
 ```
 
-With version override if provided:
+With version override if provided (overrides pre-computed):
 
 ```bash
 zie-release --bump-to=<version_override>
 ```
+
+**Context passthrough:** Pass `sprint_context["specs"]` and `sprint_context["plans"]` to release for generating release notes from approved content.
 
 Print: `"Phase 4: Batch release..."`
 TaskUpdate → Phase 3/4 complete

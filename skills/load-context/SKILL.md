@@ -26,30 +26,27 @@ downstream reviewer call in the session.
 **Fast-path:** If `context_bundle` is provided as an argument to this skill
 invocation → return `context_bundle` immediately. Skip all steps below.
 
-**Step 0: Cache check**
-- Call `get_cached_adrs(session_id, "zie-framework/decisions/")`.
-  - Cache hit → `adrs_content` ← returned value; skip Step 1.
-  - Cache miss → proceed to Step 1.
+**Step 0: Load unified cache**
+- Import `get_cache_manager` from `hooks/utils_cache.py`.
+- Call `cache = get_cache_manager(cwd)` where `cwd` is project root.
+- Call `adrs_content = cache.get_or_compute("adrs", session_id, compute_fn, ttl=3600)` where:
+  ```python
+  def compute_fn():
+      decisions_dir = cwd / "zie-framework" / "decisions"
+      adr_files = sorted(decisions_dir.glob("*.md"))
+      contents = [f.read_text() for f in adr_files if f.exists()]
+      return "\n\n".join(contents) if contents else ""
+  ```
 
-**Step 1: ADRs (disk fallback — cache miss only)**
-- Read `zie-framework/decisions/ADR-000-summary.md` → `adrs_content`.
-- If `ADR-000-summary.md` missing → fall back: read all `decisions/ADR-*.md`;
-  emit `[zie-framework] ADR summary missing — using full load` to stderr.
-
-**Step 2: Cache write**
-- Call `write_adr_cache(session_id, adrs_content, "zie-framework/decisions/")`:
-  - Returns `(True, adr_cache_path)` → save path
-  - Returns `(False, None)` → set `adr_cache_path = None`
-
-**Step 3: Design context**
+**Step 1: Design context**
 - Read `zie-framework/project/context.md` →
   `context_content` (empty string if file missing).
+  - Use `cache.get_or_compute("project_md", session_id, compute_fn, ttl=300)` for caching.
 
-**Step 4: Assemble bundle**
+**Step 2: Assemble bundle**
 - Build and return:
   ```
   context_bundle = {
-    adr_cache_path: <path or None>,
     adrs: adrs_content,
     context: context_content
   }

@@ -6,8 +6,8 @@ which handles all agent types explicitly with a conservative default for unknown
 
 Session cache: first inject per session writes a flag; subsequent SubagentStart
 events for the same project skip inject to avoid redundant context.
-Content-hash cache: SHA-256 of (ADR summary + project context) with 600s TTL.
-If content unchanged and TTL not expired, skip re-injection even across sessions.
+Content-hash cache: SHA-256 of (ADR summary + project context) with 1800s TTL.
+Uses unified CacheManager with session-id salt for cross-session dedup.
 """
 import hashlib
 import json
@@ -19,7 +19,9 @@ import time
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_io import atomic_write, project_tmp_path
-from utils_roadmap import parse_roadmap_section_content, read_roadmap_cached
+from utils_config import CACHE_TTLS
+from utils_cache import get_cache_manager, get_content_hash_cached
+from utils_roadmap import parse_roadmap_section_content
 
 # Per-agent context budget table (supersedes ADR-046 Explore/Plan guard).
 # Value: True = inject context; False = skip inject entirely.
@@ -34,30 +36,8 @@ AGENT_BUDGETS = {
 }
 _DEFAULT_INJECT = False  # conservative default: don't inject unknown agent types
 
-# Content-hash cache TTL in seconds
-_CONTENT_HASH_TTL = 600
-
-
-# ── Helper ────────────────────────────────────────────────────────────────────────
-
-def _compute_content_hash(cwd):
-    """Compute SHA-256 hash of ADR summary + project context content.
-
-    Returns hex digest string, or empty string if neither file exists.
-    """
-    hasher = hashlib.sha256()
-    found = False
-    for path in (
-        cwd / "zie-framework" / "decisions" / "ADR-000-summary.md",
-        cwd / "zie-framework" / "project" / "context.md",
-    ):
-        try:
-            if path.exists():
-                hasher.update(path.read_bytes())
-                found = True
-        except Exception:
-            continue
-    return hasher.hexdigest() if found else ""
+# Content-hash TTL is now defined in CACHE_TTLS (1800s = 30 min)
+# Uses get_content_hash_cached from utils_cache for unified caching
 
 
 # ── Outer guard ───────────────────────────────────────────────────────────────
@@ -84,27 +64,14 @@ if not _should_inject:
     sys.exit(0)
 
 # ── Content-hash cache check ────────────────────────────────────────────────────
-# If ADR summary + project context unchanged since last injection (within 600s TTL),
+# If ADR summary + project context unchanged since last injection (within 1800s TTL),
 # skip re-injection even across different sessions.
+# Uses unified CacheManager with session-id salt for cross-session dedup.
 
 session_id = event.get("session_id", "")
 project = cwd.name
 
-content_hash = _compute_content_hash(cwd)
-if content_hash:
-    hash_file = project_tmp_path(f"context-hash-{project}", project)
-    if hash_file.exists():
-        try:
-            stored = hash_file.read_text().splitlines()
-            if len(stored) >= 2:
-                stored_hash = stored[0]
-                stored_time = float(stored[1])
-                if stored_hash == content_hash and (time.time() - stored_time) < _CONTENT_HASH_TTL:
-                    # Content unchanged and TTL valid — skip injection
-                    sys.exit(0)
-        except Exception:
-            # Corrupt hash file — re-inject
-            pass
+content_hash = get_content_hash_cached(cwd, session_id)
 
 # ── Session cache check ────────────────────────────────────────────────────────
 # Cache is session-scoped: key on session_id so a new session always injects.
@@ -129,10 +96,15 @@ feature_slug = "none"
 active_task = "unknown"
 adr_count = "unknown"
 
-# Read ROADMAP Now lane (via session cache)
+# Read ROADMAP Now lane (via unified cache)
 try:
-    roadmap_content = read_roadmap_cached(cwd / "zie-framework" / "ROADMAP.md", session_id)
-    now_items = parse_roadmap_section_content(roadmap_content, "now")
+    cache = get_cache_manager(cwd)
+    roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
+    roadmap_ttl = CACHE_TTLS.get("roadmap", 600)
+    roadmap_content = cache.get_or_compute(
+        "roadmap", session_id, lambda: roadmap_path.read_text(), roadmap_ttl
+    )
+    now_items = parse_roadmap_section_content(roadmap_content, "now") if roadmap_content else []
     if now_items:
         raw = now_items[0]
         slug = raw.lower()
@@ -211,10 +183,5 @@ if cache_flag is not None:
         print(f"[zie-framework] subagent-context: cache write failed: {e}", file=sys.stderr)
         # Non-fatal — next subagent will just inject again
 
-# Write content-hash cache for cross-session dedup
-if content_hash:
-    try:
-        hash_file = project_tmp_path(f"context-hash-{project}", project)
-        atomic_write(hash_file, f"{content_hash}\n{time.time()}")
-    except Exception as e:
-        print(f"[zie-framework] subagent-context: hash cache write failed: {e}", file=sys.stderr)
+# Content-hash cache is now handled by unified CacheManager (get_or_compute)
+# No separate hash file write needed — cache persists automatically via _save()

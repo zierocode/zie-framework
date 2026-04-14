@@ -16,85 +16,90 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_io import project_tmp_path
-from utils_roadmap import is_track_active, parse_roadmap_section_content, read_roadmap_cached
+from utils_config import CACHE_TTLS
+from utils_cache import get_cache_manager
+from utils_roadmap import is_track_active, parse_roadmap_section_content
 
 # ── Intent detection constants ────────────────────────────────────────────────
+# Single combined regex with named groups for one-pass intent detection.
+# Each group name is the intent category; match extracts intent directly.
 
-PATTERNS = {
-    "init": [
-        r"\binit\b", r"เริ่มต้น.*project", r"ตั้งค่า.*project",
-        r"setup.*project", r"bootstrap",
-    ],
-    "backlog": [
-        r"อยากทำ", r"อยากได้", r"อยากเพิ่ม", r"อยากสร้าง",
-        r"\bidea\b", r"\bfeature\b", r"new feature", r"เพิ่ม.*feature",
-        r"สร้าง.*ใหม่", r"want to (build|add|create|make)",
-        r"ต้องการ", r"would like to", r"\bbacklog\b", r"capture.*idea",
-    ],
-    "spec": [
-        r"\bspec\b", r"design.*doc", r"write.*spec", r"spec.*feature",
-        r"เขียน.*spec", r"ออกแบบ", r"design.*feature",
-    ],
-    "plan": [
-        r"\bplan\b", r"วางแผน", r"อยากวางแผน", r"เลือก.*backlog",
-        r"หยิบ.*backlog", r"plan.*feature", r"ready.*to.*plan",
-        r"zie.?plan",
-    ],
-    "implement": [
-        r"implement", r"ทำ.*ต่อ", r"continue", r"resume",
-        r"สร้าง.*feature", r"next task", r"task.*ต่อ",
-        r"code.*this", r"let.*s.*build", r"start.*coding",
-    ],
-    "fix": [
-        r"\bbug\b", r"พัง", r"\berror\b", r"\bfix\b",
-        r"ไม่ทำงาน", r"\bcrash\b", r"exception", r"traceback",
-        r"ล้มเหลว", r"broken", r"doesn.*t work", r"not working",
-        r"failed", r"failure",
-    ],
-    "release": [
-        r"\brelease\b", r"\bdeploy\b", r"\bpublish\b",
-        r"merge.*main", r"go.*live", r"launch", r"ready.*to.*release",
-        r"ปล่อย", r"deploy.*now",
-    ],
-    "retro": [
-        r"\bretro\b", r"retrospective", r"สรุป.*session", r"ทบทวน",
-        r"review.*session", r"what.*did.*we", r"what.*we.*learned",
-        r"what.*worked",
-    ],
-    "sprint": [
-        r"\bsprint\b", r"zie.?sprint",
-        r"clear.*backlog", r"เคลียร์.*backlog",
-        r"ship.*all", r"ทำ.*ทั้งหมด",
-        r"batch.*release", r"full.*pipeline",
-    ],
-    "status": [
-        r"\bstatus\b", r"ทำอะไรอยู่", r"where.*am.*i", r"progress",
-        r"what.*next", r"ต่อไปทำ", r"ถัดไป", r"สถานะ",
-    ],
-    "hotfix": [
-        r"\bhotfix\b", r"emergency", r"prod.*down", r"urgent.*fix",
-        r"critical.*fix", r"cannot wait", r"on.*fire", r"production.*issue",
-    ],
-    "chore": [
-        r"\bchore\b", r"bump.*version", r"update.*docs", r"housekeeping",
-        r"maintenance", r"cleanup", r"tidy.*up",
-    ],
-    "spike": [
-        r"\bspike\b", r"\bexplore\b", r"\binvestigate\b", r"\bresearch\b",
-        r"\bprototype\b", r"proof.*of.*concept", r"\bpoc\b", r"time.?box",
-    ],
-    "brainstorm": [
-        r"\bimprove\b", r"what if", r"\bresearch\b", r"deep dive",
-        r"อยากให้มี", r"ควรจะ", r"น่าจะเพิ่ม", r"ปรับอะไรดี",
-        r"คิดว่าขาดอะไร", r"\bexplore\b",
-    ],
-}
+INTENT_PATTERN = re.compile(r"""
+    (?P<init>
+        \binit\b | เริ่มต้น.*project | ตั้งค่า.*project | setup.*project | bootstrap
+    )
+    |
+    (?P<backlog>
+        อยากทำ | อยากได้ | อยากเพิ่ม | อยากสร้าง | \bidea\b | \bfeature\b |
+        new\ feature | เพิ่ม.*feature | สร้าง.*ใหม่ |
+        want\ to\ (build|add|create|make) | ต้องการ | would\ like\ to |
+        \bbacklog\b | capture.*idea
+    )
+    |
+    (?P<spec>
+        \bspec\b | design.*doc | write.*spec | spec.*feature |
+        เขียน.*spec | ออกแบบ | design.*feature
+    )
+    |
+    (?P<plan>
+        \bplan\b | วางแผน | อยากวางแผน | เลือก.*backlog |
+        หยิบ.*backlog | plan.*feature | ready.*to.*plan | zie.?plan
+    )
+    |
+    (?P<implement>
+        implement | ทำ.*ต่อ | continue | resume | สร้าง.*feature |
+        next\ task | task.*ต่อ | code.*this | let.*s.*build | start.*coding
+    )
+    |
+    (?P<fix>
+        \bbug\b | พัง | \berror\b | \bfix\b | ไม่ทำงาน | \bcrash\b |
+        exception | traceback | ล้มเหลว | broken | doesn.*t\ work |
+        not\ working | failed | failure
+    )
+    |
+    (?P<release>
+        \brelease\b | \bdeploy\b | \bpublish\b | merge.*main |
+        go.*live | launch | ready.*to.*release | ปล่อย | deploy.*now
+    )
+    |
+    (?P<retro>
+        \bretro\b | retrospective | สรุป.*session | ทบทวน |
+        review.*session | what.*did.*we | what.*we.*learned | what.*worked
+    )
+    |
+    (?P<sprint>
+        \bsprint\b | zie.?sprint | clear.*backlog | เคลียร์.*backlog |
+        ship.*all | ทำ.*ทั้งหมด | batch.*release | full.*pipeline
+    )
+    |
+    (?P<status>
+        \bstatus\b | ทำอะไรอยู่ | where.*am.*i | progress |
+        what.*next | ต่อไปทำ | ถัดไป | สถานะ
+    )
+    |
+    (?P<hotfix>
+        \bhotfix\b | emergency | prod.*down | urgent.*fix |
+        critical.*fix | cannot\ wait | on.*fire | production.*issue
+    )
+    |
+    (?P<chore>
+        \bchore\b | bump.*version | update.*docs | housekeeping |
+        maintenance | cleanup | tidy.*up
+    )
+    |
+    (?P<spike>
+        \bspike\b | \bexplore\b | \binvestigate\b | \bresearch\b |
+        \bprototype\b | proof.*of.*concept | \bpoc\b | time.?box
+    )
+    |
+    (?P<brainstorm>
+        \bimprove\b | what\ if | \bresearch\b | deep\ dive |
+        อยากให้มี | ควรจะ | น่าจะเพิ่ม | ปรับอะไรดี |
+        คิดว่าขาดอะไร | \bexplore\b
+    )
+""", re.IGNORECASE | re.VERBOSE)
 
-COMPILED_PATTERNS = {
-    cat: [re.compile(p, re.IGNORECASE) for p in pats]
-    for cat, pats in PATTERNS.items()
-}
-
+# Suggestion mapping for intent → command
 SUGGESTIONS = {
     "init":      "/init",
     "backlog":   "/backlog",
@@ -110,6 +115,27 @@ SUGGESTIONS = {
     "chore":     "/chore",
     "spike":     "/spike",
     "brainstorm": "invoke zie-framework:brainstorm skill",
+}
+
+# Pre-compiled new-intent signals for sprint/fix/chore detection
+NEW_INTENT_REGEXES = {
+    "sprint": [re.compile(p, re.IGNORECASE) for p in [
+        r"ทำเลย", r"\bimplement\b", r"\bbuild\b", r"สร้าง",
+        r"เพิ่ม.*feature", r"start.*coding",
+    ]],
+    "fix": [re.compile(p, re.IGNORECASE) for p in [
+        r"\bbug\b", r"\bbroken\b", r"\berror\b", r"ไม่.*work",
+        r"\bcrash\b", r"\bfail\b", r"แก้",
+    ]],
+    "chore": [re.compile(p, re.IGNORECASE) for p in [
+        r"\bupdate\b", r"\bbump\b", r"\brename\b", r"\bcleanup\b",
+        r"\brefactor\b", r"ลบ",
+    ]],
+}
+NEW_INTENT_HINTS = {
+    "sprint": "confirm backlog→spec→plan before implementing",
+    "fix":    "invoke /fix or /hotfix track",
+    "chore":  "use /chore to track this maintenance task",
 }
 
 # ── SDLC context constants ────────────────────────────────────────────────────
@@ -301,11 +327,9 @@ try:
     session_id = event.get("session_id", "default")
 
     # ── Early-exit guard (short + zero SDLC keywords → unclear intent) ─────────
-    has_sdlc_keyword = any(
-        p.search(message)
-        for compiled_pats in COMPILED_PATTERNS.values()
-        for p in compiled_pats
-    )
+    # Single-pass regex match for all 13 intent categories
+    intent_match = INTENT_PATTERN.search(message)
+    has_sdlc_keyword = intent_match is not None
 
     if len(message) < 15:
         if not has_sdlc_keyword:
@@ -325,47 +349,34 @@ try:
         sys.exit(0)
 
     # ── New-intent signal tables (≥2 threshold, evaluated after roadmap read) ──
-    NEW_INTENT_SIGNALS = {
-        "sprint": [
-            r"ทำเลย", r"\bimplement\b", r"\bbuild\b", r"สร้าง",
-            r"เพิ่ม.*feature", r"start.*coding",
-        ],
-        "fix": [
-            r"\bbug\b", r"\bbroken\b", r"\berror\b", r"ไม่.*work",
-            r"\bcrash\b", r"\bfail\b", r"แก้",
-        ],
-        "chore": [
-            r"\bupdate\b", r"\bbump\b", r"\brename\b", r"\bcleanup\b",
-            r"\brefactor\b", r"ลบ",
-        ],
-    }
     NEW_INTENT_HINTS = {
         "sprint": "confirm backlog→spec→plan before implementing",
         "fix":    "invoke /fix or /hotfix track",
         "chore":  "use /chore to track this maintenance task",
     }
 
-    # ── Intent detection (no ROADMAP needed) ─────────────────────────────────
+    # ── Intent detection (single-pass regex with named groups) ─────────────────
     intent_cmd = None
     best = None
     scores = {}
-    for category, compiled_pats in COMPILED_PATTERNS.items():
-        score = sum(1 for p in compiled_pats if p.search(message))
-        if score > 0:
-            scores[category] = score
-
-    if scores:
-        best = max(scores, key=scores.get)
-        if scores[best] >= 1:
+    if intent_match:
+        # Extract the matched group name (intent category)
+        best = intent_match.lastgroup
+        if best:
+            scores[best] = 1  # Single-pass match = score 1
             if best == "init" and (cwd / "zie-framework" / ".config").exists():
                 pass  # already initialized — suppress init suggestion
             else:
                 intent_cmd = SUGGESTIONS[best]
 
-    # ── SDLC context (session-cached — single disk read per 30s TTL) ──────────
+    # ── SDLC context (unified cache — session-scoped with TTL) ──────────
     roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
-    roadmap_content = read_roadmap_cached(roadmap_path, session_id)
-    now_items = parse_roadmap_section_content(roadmap_content, "now")
+    cache = get_cache_manager(cwd)
+    roadmap_ttl = CACHE_TTLS.get("roadmap", 600)
+    roadmap_content = cache.get_or_compute(
+        "roadmap", session_id, lambda: roadmap_path.read_text(), roadmap_ttl
+    )
+    now_items = parse_roadmap_section_content(roadmap_content, "now") if roadmap_content else []
     if now_items:
         raw_task = now_items[0]
         active_task = raw_task[:80]
@@ -379,11 +390,10 @@ try:
 
     # ── New-intent scoring (≥2 threshold) ─────────────────────────────────────
     # Sprint only fires when idle (no active Now lane item); fix/chore always fire.
-    for intent_name, signals in NEW_INTENT_SIGNALS.items():
+    for intent_name, compiled_regexes in NEW_INTENT_REGEXES.items():
         if intent_name == "sprint" and active_task != "none":
             continue  # user has planned work — they're already in the pipeline
-        compiled_signals = [re.compile(p, re.IGNORECASE) for p in signals]
-        score = sum(1 for p in compiled_signals if p.search(message))
+        score = sum(1 for p in compiled_regexes if p.search(message))
         if score >= 2:
             hint = NEW_INTENT_HINTS[intent_name]
             context = f"[zie-framework] intent: {intent_name} — {hint}"
