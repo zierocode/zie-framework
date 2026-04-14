@@ -18,13 +18,30 @@ def _flag(project: str, name: str) -> Path:
     return Path(tempfile.gettempdir()) / f"zie-{safe}-{name}"
 
 
+def _clean_nudge_cache(session_id: str) -> None:
+    """Clean nudge-check cache for a session."""
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+    cache_dir = Path(tempfile.gettempdir()) / f"zie-{safe_id}"
+    if cache_dir.exists():
+        for cache_file in cache_dir.glob("git-*.cache"):
+            cache_file.unlink(missing_ok=True)
+        cache_dir.rmdir()  # Remove dir if empty
+
+
 def run_hook(tmp_path: Path, current: int, maximum: int = 1000,
              session_id: str = "test-tiers") -> subprocess.CompletedProcess:
     env = os.environ.copy()
     env["CLAUDE_CWD"] = str(tmp_path)
+    env["CLAUDE_SESSION_ID"] = session_id
     # Setup zie-framework dir so config loads
     zf = tmp_path / "zie-framework"
     zf.mkdir(exist_ok=True)
+    # Create .config with threshold settings
+    config = {
+        "compact_advisory_threshold": 0.75,
+        "compact_mandatory_threshold": 0.90,
+    }
+    (zf / ".config").write_text(json.dumps(config))
     event = {
         "session_id": session_id,
         "context_window": {"current_tokens": current, "max_tokens": maximum},
@@ -44,9 +61,10 @@ class TestAdvisoryTier75:
     def _clean(self, tmp_path: Path, session_id: str = "test-tiers") -> None:
         for name in ("compact-tier-advisory", "compact-tier-mandatory"):
             _flag(tmp_path.name, f"{name}-{session_id}").unlink(missing_ok=True)
+        _clean_nudge_cache(session_id)
 
     def test_fires_at_75_pct(self, tmp_path):
-        self._clean(tmp_path)
+        self._clean(tmp_path, "tier75-a")
         r = run_hook(tmp_path, current=750, maximum=1000, session_id="tier75-a")
         assert r.returncode == 0
         assert "Context at 75%" in r.stdout, f"Expected 75% hint in stdout: {r.stdout!r}"
@@ -54,7 +72,7 @@ class TestAdvisoryTier75:
         self._clean(tmp_path, "tier75-a")
 
     def test_no_output_at_74_pct(self, tmp_path):
-        self._clean(tmp_path)
+        self._clean(tmp_path, "tier75-b")
         r = run_hook(tmp_path, current=740, maximum=1000, session_id="tier75-b")
         assert r.returncode == 0
         assert "74%" not in r.stdout
@@ -82,6 +100,7 @@ class TestMandatoryTier90:
     def _clean(self, tmp_path: Path, sid: str) -> None:
         for name in ("compact-tier-advisory", "compact-tier-mandatory"):
             _flag(tmp_path.name, f"{name}-{sid}").unlink(missing_ok=True)
+        _clean_nudge_cache(sid)
 
     def test_fires_at_90_pct(self, tmp_path):
         sid = "tier90-a"

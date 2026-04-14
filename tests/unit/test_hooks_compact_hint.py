@@ -147,7 +147,8 @@ class TestAlwaysExitsZero:
 
 
 class TestHooksJsonRegistration:
-    def test_compact_hint_registered_in_hooks_json(self):
+    def test_stop_handler_registered_in_hooks_json(self):
+        """stop-handler.py (merged compact-hint v1.29.0) must be first Stop hook."""
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         data = json.loads(hooks_json.read_text())
         stop_entries = data.get("hooks", {}).get("Stop", [])
@@ -157,6 +158,8 @@ class TestHooksJsonRegistration:
             for h in entry.get("hooks", [])
             if h.get("type") == "command"
         ]
-        assert any("compact-hint.py" in cmd for cmd in commands), (
-            "hooks/hooks.json Stop event must reference compact-hint.py"
+        # stop-handler.py must be first (fires before stop-capture, session-learn, etc.)
+        assert len(commands) > 0, "Stop event must have at least one hook"
+        assert "stop-handler.py" in commands[0], (
+            "stop-handler.py must be the first Stop hook; got: " + commands[0]
         )

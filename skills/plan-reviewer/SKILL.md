@@ -33,6 +33,7 @@ Caller must provide:
 
 - **Required:** context_bundle must be provided by caller → `adrs_content = context_bundle.adrs` · `context_content = context_bundle.context`
 - **Validation error if missing:** Output `❌ Issues Found: context_bundle required — pass from write-plan skill (do not read from disk)`
+- **Fallback:** If context_bundle absent (backward-compatible for legacy callers) → read ADRs from `zie-framework/decisions/*.md` and `zie-framework/project/context.md` from disk (slower, not recommended).
 
 Returns: `adrs_content`, `context_content`.
 

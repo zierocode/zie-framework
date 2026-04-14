@@ -37,11 +37,14 @@ invocation → return `context_bundle` immediately. Skip all steps below.
       contents = [f.read_text() for f in adr_files if f.exists()]
       return "\n\n".join(contents) if contents else ""
   ```
+- **Cache hit:** `get_or_compute()` returns cached value → skip disk read.
+- **Cache miss:** `get_or_compute()` calls `compute_fn()` → reads ADRs from disk → caches result.
 
 **Step 1: Design context**
 - Read `zie-framework/project/context.md` →
   `context_content` (empty string if file missing).
   - Use `cache.get_or_compute("project_md", session_id, compute_fn, ttl=300)` for caching.
+  - **Cache hit:** skip disk read. **Cache miss:** read from disk → cache.
 
 **Step 2: Assemble bundle**
 - Build and return:
