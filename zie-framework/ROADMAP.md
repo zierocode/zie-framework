@@ -22,16 +22,17 @@
 
 ---
 
-## Done — v1.29.0 (2026-04-14)
+## Done — v1.30.0 (2026-04-14)
 
-**Mega Sprint: 14 Phases — Lean + Efficient + Autonomous zie-framework**
+**Sprint: Context Loading + Non-Claude Compatibility**
 
-### Context Loading (Latest)
 - [x] context-loader-sprint — Auto-load zie-framework context at session start: hooks/zie_context_loader.py, session-resume.py integration, session cache with mtime-gate — 2026-04-14
 - [x] context-load-smart — Deduplicate context loading: load-context skill (already exists), subagent-context content-hash cache, reviewer context_bundle passthrough, ROADMAP cache docs — 2026-04-14
-
-### Non-Claude Compatibility
 - [x] agent-mode-compat — Document non-Claude limitations (model:/effort: frontmatter, --agent flag), add implement-local Makefile target, update ADR-066 — 2026-04-14
+
+---
+
+## Done — v1.29.0 (2026-04-14)
 
 ### Autonomous Features (NEW)
 - [x] auto-learn — Pattern extraction from sessions, session memory JSON, pending_learn marker
