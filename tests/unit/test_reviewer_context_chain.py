@@ -1,7 +1,7 @@
-"""Structural tests for lean-reviewer-context-chain-depth.
+"""Structural tests for context-bundle reviewer pattern.
 
-Reviewers must inline their context load (fast-path + disk-fallback) rather than
-calling Skill(reviewer-context), reducing hop depth from 3-4 to 1-2.
+Reviewers receive context via context_bundle from caller (not disk reads).
+Phase 1 validates bundle presence and documents fallback behavior.
 """
 from pathlib import Path
 
@@ -16,16 +16,15 @@ import pytest
 
 
 @pytest.mark.parametrize("skill", ["spec-reviewer", "plan-reviewer", "impl-reviewer"])
-def test_reviewer_disk_fallback_summary_before_wildcard(skill):
-    """Reviewer Phase 1 disk fallback must load ADR-000-summary.md before any wildcard load."""
+def test_reviewer_requires_context_bundle(skill):
+    """Reviewer Phase 1 must require context_bundle from caller."""
     text = _read(f"skills/{skill}/SKILL.md")
-    assert "ADR-000-summary.md" in text, (
-        f"skills/{skill}/SKILL.md must reference ADR-000-summary.md"
+    assert "context_bundle" in text, (
+        f"skills/{skill}/SKILL.md must reference context_bundle"
     )
-    adr_summary_pos = text.index("ADR-000-summary.md")
-    wildcard_pos = text.index("decisions/*.md") if "decisions/*.md" in text else len(text)
-    assert adr_summary_pos < wildcard_pos, (
-        f"skills/{skill}/SKILL.md: ADR-000-summary.md must appear before decisions/*.md wildcard"
+    # Verify Phase 1 has validation
+    assert "Phase 1" in text and "Validate Context Bundle" in text, (
+        f"skills/{skill}/SKILL.md missing Phase 1 context bundle validation"
     )
 
 
@@ -101,33 +100,24 @@ def _extract_phase1(skill_path: str) -> str:
 
 
 def test_spec_reviewer_phase1_structure():
-    """Phase 1 must have Fast-path, Disk fallback, Returns in order."""
+    """Phase 1 must have context_bundle validation with Returns statement."""
     phase1 = _extract_phase1("skills/spec-reviewer/SKILL.md")
-    assert "**Fast-path:**" in phase1, "spec-reviewer Phase 1 missing Fast-path bullet"
-    assert "**Disk fallback:**" in phase1, "spec-reviewer Phase 1 missing Disk fallback bullet"
+    assert "context_bundle" in phase1, "spec-reviewer Phase 1 missing context_bundle reference"
     assert "Returns:" in phase1, "spec-reviewer Phase 1 missing Returns line"
-    assert phase1.find("Fast-path") < phase1.find("Disk fallback") < phase1.find("Returns"), \
-        "spec-reviewer Phase 1 bullets out of order"
 
 
 def test_plan_reviewer_phase1_structure():
-    """Phase 1 must have Fast-path, Disk fallback, Returns in order."""
+    """Phase 1 must have context_bundle validation with Returns statement."""
     phase1 = _extract_phase1("skills/plan-reviewer/SKILL.md")
-    assert "**Fast-path:**" in phase1, "plan-reviewer Phase 1 missing Fast-path bullet"
-    assert "**Disk fallback:**" in phase1, "plan-reviewer Phase 1 missing Disk fallback bullet"
+    assert "context_bundle" in phase1, "plan-reviewer Phase 1 missing context_bundle reference"
     assert "Returns:" in phase1, "plan-reviewer Phase 1 missing Returns line"
-    assert phase1.find("Fast-path") < phase1.find("Disk fallback") < phase1.find("Returns"), \
-        "plan-reviewer Phase 1 bullets out of order"
 
 
 def test_impl_reviewer_phase1_structure():
-    """Phase 1 must have Fast-path, Disk fallback, Returns in order."""
+    """Phase 1 must have context_bundle validation with Returns statement."""
     phase1 = _extract_phase1("skills/impl-reviewer/SKILL.md")
-    assert "**Fast-path:**" in phase1, "impl-reviewer Phase 1 missing Fast-path bullet"
-    assert "**Disk fallback:**" in phase1, "impl-reviewer Phase 1 missing Disk fallback bullet"
+    assert "context_bundle" in phase1, "impl-reviewer Phase 1 missing context_bundle reference"
     assert "Returns:" in phase1, "impl-reviewer Phase 1 missing Returns line"
-    assert phase1.find("Fast-path") < phase1.find("Disk fallback") < phase1.find("Returns"), \
-        "impl-reviewer Phase 1 bullets out of order"
 
 
 def test_project_md_no_reviewer_context_row():

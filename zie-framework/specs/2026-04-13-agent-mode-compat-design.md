@@ -1,8 +1,8 @@
 ---
-status: approved
-approved_by: autonomous-sprint
-approved_at: 2026-04-13
-clarity: 5
+approved: true
+backlog: backlog/agent-mode-compat.md
+approved_at: 2026-04-14
+
 ---
 
 # agent-mode-compat — Non-Claude Model Compatibility

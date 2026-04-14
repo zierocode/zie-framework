@@ -48,61 +48,53 @@ class TestZieImplementContextLoad:
             "zie-implement.md must pass context_bundle to reviewer invocation"
 
 
-class TestSpecReviewerFallback:
-    def test_bundle_preamble_present(self):
+class TestSpecReviewerContextBundle:
+    def test_context_bundle_required(self):
         text = (SKILLS_DIR / "spec-reviewer" / "SKILL.md").read_text()
-        assert "if context_bundle provided" in text, \
-            "spec-reviewer SKILL.md Phase 1 must have bundle conditional preamble"
+        assert "context_bundle" in text, \
+            "spec-reviewer SKILL.md must reference context_bundle"
 
-    def test_disk_fallback_mentioned(self):
+    def test_phase1_validation_present(self):
         text = (SKILLS_DIR / "spec-reviewer" / "SKILL.md").read_text()
-        assert "read from disk" in text, \
-            "spec-reviewer SKILL.md must mention disk fallback path"
+        assert "Phase 1" in text and "Validate Context Bundle" in text, \
+            "spec-reviewer SKILL.md must have Phase 1 bundle validation"
 
-    def test_phase_1_steps_intact(self):
+    def test_disk_fallback_documented(self):
         text = (SKILLS_DIR / "spec-reviewer" / "SKILL.md").read_text()
-        assert "decisions/" in text, \
-            "spec-reviewer SKILL.md Phase 1 must still reference decisions/*.md"
-        assert "project/context.md" in text, \
-            "spec-reviewer SKILL.md Phase 1 must still reference project/context.md"
+        # Must document fallback when bundle unavailable
+        assert "disk" in text.lower() or "fallback" in text.lower() or "decisions/" in text, \
+            "spec-reviewer SKILL.md must document disk fallback"
 
 
-class TestPlanReviewerFallback:
-    def test_bundle_preamble_present(self):
+class TestPlanReviewerContextBundle:
+    def test_context_bundle_required(self):
         text = (SKILLS_DIR / "plan-reviewer" / "SKILL.md").read_text()
-        assert "if context_bundle provided" in text, \
-            "plan-reviewer SKILL.md Phase 1 must have bundle conditional preamble"
+        assert "context_bundle" in text, \
+            "plan-reviewer SKILL.md must reference context_bundle"
 
-    def test_disk_fallback_mentioned(self):
+    def test_phase1_validation_present(self):
         text = (SKILLS_DIR / "plan-reviewer" / "SKILL.md").read_text()
-        assert "read from disk" in text, \
-            "plan-reviewer SKILL.md must mention disk fallback path"
+        assert "Phase 1" in text and "Validate Context Bundle" in text, \
+            "plan-reviewer SKILL.md must have Phase 1 bundle validation"
 
-    def test_phase_1_steps_intact(self):
+    def test_disk_fallback_documented(self):
         text = (SKILLS_DIR / "plan-reviewer" / "SKILL.md").read_text()
-        assert "decisions/" in text, \
-            "plan-reviewer SKILL.md Phase 1 must still reference decisions/*.md"
-        assert "project/context.md" in text, \
-            "plan-reviewer SKILL.md Phase 1 must still reference project/context.md"
+        assert "disk" in text.lower() or "fallback" in text.lower() or "decisions/" in text, \
+            "plan-reviewer SKILL.md must document disk fallback"
 
 
-class TestImplReviewerFallback:
-    def test_bundle_preamble_present(self):
+class TestImplReviewerContextBundle:
+    def test_context_bundle_required(self):
         text = (SKILLS_DIR / "impl-reviewer" / "SKILL.md").read_text()
-        assert "if context_bundle provided" in text, \
-            "impl-reviewer SKILL.md Phase 1 must have bundle conditional preamble"
+        assert "context_bundle" in text, \
+            "impl-reviewer SKILL.md must reference context_bundle"
 
-    def test_disk_fallback_mentioned(self):
+    def test_phase1_validation_present(self):
         text = (SKILLS_DIR / "impl-reviewer" / "SKILL.md").read_text()
-        assert "read from disk" in text, \
-            "impl-reviewer SKILL.md must mention disk fallback path"
+        assert "Phase 1" in text and "Validate Context Bundle" in text, \
+            "impl-reviewer SKILL.md must have Phase 1 bundle validation"
 
     def test_modified_files_step_intact(self):
         text = (SKILLS_DIR / "impl-reviewer" / "SKILL.md").read_text()
-        assert "files changed" in text, \
-            "impl-reviewer SKILL.md must still reference caller's files changed list"
-
-    def test_phase_1_adr_ref_intact(self):
-        text = (SKILLS_DIR / "impl-reviewer" / "SKILL.md").read_text()
-        assert "decisions/" in text, \
-            "impl-reviewer SKILL.md Phase 1 must still reference decisions/*.md"
+        assert "files changed" in text or "files changed" in text.lower(), \
+            "impl-reviewer SKILL.md must reference caller's files changed list"

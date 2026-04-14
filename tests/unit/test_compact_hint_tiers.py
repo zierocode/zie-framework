@@ -1,4 +1,4 @@
-"""Tests for 2-tier context window health in hooks/compact-hint.py."""
+"""Tests for 2-tier context window health in hooks/stop-handler.py (compact-hint merged v1.29.0)."""
 import json
 import os
 import re
@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
-HOOK = REPO_ROOT / "hooks" / "compact-hint.py"
+HOOK = REPO_ROOT / "hooks" / "stop-handler.py"
 
 
 def _flag(project: str, name: str) -> Path:
@@ -49,7 +49,7 @@ class TestAdvisoryTier75:
         self._clean(tmp_path)
         r = run_hook(tmp_path, current=750, maximum=1000, session_id="tier75-a")
         assert r.returncode == 0
-        assert "75%" in r.stdout, f"Expected 75% hint in stdout: {r.stdout!r}"
+        assert "Context at 75%" in r.stdout, f"Expected 75% hint in stdout: {r.stdout!r}"
         assert "compact" in r.stdout.lower()
         self._clean(tmp_path, "tier75-a")
 
@@ -67,12 +67,12 @@ class TestAdvisoryTier75:
         self._clean(tmp_path, sid)
         r1 = run_hook(tmp_path, current=750, session_id=sid)
         r2 = run_hook(tmp_path, current=780, session_id=sid)
-        assert "75%" in r1.stdout or "78%" in r1.stdout
+        assert "Context at 75%" in r1.stdout or "Context at 78%" in r1.stdout
         # Second run same session: advisory tier already fired, should not nag again
         assert r1.returncode == 0
         assert r2.returncode == 0
         # Second run should be silent at the advisory level (mandatory still fires at 90%+)
-        assert "75%" not in r2.stdout or "78%" not in r2.stdout or "consider" not in r2.stdout.lower()
+        assert "Context at 75%" not in r2.stdout and "Context at 78%" not in r2.stdout
         self._clean(tmp_path, sid)
 
 
@@ -96,6 +96,6 @@ class TestMandatoryTier90:
         self._clean(tmp_path, sid)
         r = run_hook(tmp_path, current=920, session_id=sid)
         assert r.returncode == 0
-        # Mandatory tier message should mention starting fresh
-        assert "fresh session" in r.stdout.lower() or "new session" in r.stdout.lower()
+        # Mandatory tier message should mention fresh session
+        assert "fresh session" in r.stdout.lower()
         self._clean(tmp_path, sid)
