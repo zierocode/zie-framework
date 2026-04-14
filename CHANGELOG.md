@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.30.0 — 2026-04-14
+
+### Added
+
+- **context-loader-sprint**: Session-scoped command map cache via `zie_context_loader.py`, integrated into `session-resume.py` with session cache and mtime-gate invalidation
+- **context-load-smart**: Deduplicate context loading across skills — `load-context` skill owns cache logic, reviewers use `context_bundle` passthrough, ROADMAP cache hints
+- **agent-mode-compat**: Document non-Claude limitations (`model:`/`effort:` frontmatter ignored, `--agent` flag unavailable), add `/implement` direct fallback pattern (ADR-066)
+
+### Fixed
+
+- **Test suite cache alignment**: Unified all cache tests to use `CacheManager` instead of file-based caching — removed `test_subagent_context_hash_cache.py`, updated `test_hooks_subagent_context.py`, `test_hooks_auto_test.py`, `test_reviewer_skill_adr_cache.py`
+- **Hook path references**: Updated `test_nudges_stop_guard.py` and `test_hook_events.py` to reference `stop-handler.py` (renamed from `stop-guard.py`)
+- **session-resume exception handling**: Added stderr logging for pattern load and pending marker cleanup exceptions (no bare `except: pass`)
+
+### Tests
+
+- 2556 tests passing (1 skipped)
+- Integration tests: 59 passed, 1 skipped
+
 ## v1.29.0 — 2026-04-14
 
 ### Added
