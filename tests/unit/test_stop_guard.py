@@ -330,8 +330,8 @@ class TestSourceInvariants:
 # ---------------------------------------------------------------------------
 
 class TestHooksJsonRegistration:
-    def test_stop_guard_registered_first_in_stop_hooks(self):
-        """stop-guard.py must be the first command in the Stop hooks list."""
+    def test_stop_handler_registered_first_in_stop_hooks(self):
+        """stop-handler.py must be the first command in the Stop hooks list (merged v1.29.0)."""
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         data = json.loads(hooks_json.read_text())
         stop_hooks = data["hooks"]["Stop"]
@@ -341,8 +341,8 @@ class TestHooksJsonRegistration:
                 all_commands.append(hook.get("command", ""))
         assert all_commands, "Stop hooks list must not be empty"
         first_cmd = all_commands[0]
-        assert "stop-guard.py" in first_cmd, (
-            f"stop-guard.py must be the first Stop hook; got: {first_cmd}"
+        assert "stop-handler.py" in first_cmd, (
+            f"stop-handler.py must be the first Stop hook; got: {first_cmd}"
         )
 
     def test_session_learn_still_registered(self):
@@ -365,7 +365,7 @@ class TestHooksJsonRegistration:
                 all_commands.append(hook.get("command", ""))
         assert any("session-cleanup.py" in c for c in all_commands)
 
-    def test_stop_guard_before_session_learn(self):
+    def test_stop_handler_before_session_learn(self):
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         data = json.loads(hooks_json.read_text())
         stop_hooks = data["hooks"]["Stop"]
@@ -373,9 +373,9 @@ class TestHooksJsonRegistration:
         for group in stop_hooks:
             for hook in group.get("hooks", []):
                 all_commands.append(hook.get("command", ""))
-        guard_idx = next(i for i, c in enumerate(all_commands) if "stop-guard.py" in c)
+        handler_idx = next(i for i, c in enumerate(all_commands) if "stop-handler.py" in c)
         learn_idx = next(i for i, c in enumerate(all_commands) if "session-learn.py" in c)
-        assert guard_idx < learn_idx, "stop-guard.py must appear before session-learn.py"
+        assert handler_idx < learn_idx, "stop-handler.py must appear before session-learn.py"
 
 
 # ---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-"""Regression tests for module-level COMPILED_PATTERNS in intent-sdlc.py."""
+"""Regression tests for module-level pattern compilation in intent-sdlc.py."""
 import ast
 from pathlib import Path
 
@@ -29,41 +29,42 @@ def _has_compile_inside_function(tree: ast.Module) -> bool:
 
 
 def test_hotfix_pattern_in_patterns():
-    """PATTERNS must include 'hotfix' category."""
+    """NEW_INTENT_REGEXES must include 'hotfix' or intent-sdlc must handle hotfix."""
     text = HOOK_PATH.read_text()
-    assert '"hotfix"' in text or "'hotfix'" in text, (
-        "intent-sdlc.py PATTERNS must include 'hotfix' category"
+    # hotfix is handled via INTENT_PATTERN regex with ?P<hotfix> named group
+    assert "?P<hotfix>" in text or '"hotfix"' in text, (
+        "intent-sdlc.py must include 'hotfix' pattern"
     )
 
 
 def test_chore_pattern_in_patterns():
-    """PATTERNS must include 'chore' category."""
+    """NEW_INTENT_REGEXES must include 'chore' category."""
     text = HOOK_PATH.read_text()
-    assert '"chore"' in text or "'chore'" in text, (
-        "intent-sdlc.py PATTERNS must include 'chore' category"
+    assert '"chore"' in text or "'chore'" in text or "?P<chore>" in text, (
+        "intent-sdlc.py must include 'chore' pattern"
     )
 
 
 def test_spike_pattern_in_patterns():
-    """PATTERNS must include 'spike' category."""
+    """INTENT_PATTERN must include 'spike' category."""
     text = HOOK_PATH.read_text()
-    assert '"spike"' in text or "'spike'" in text, (
-        "intent-sdlc.py PATTERNS must include 'spike' category"
+    assert "?P<spike>" in text, (
+        "intent-sdlc.py INTENT_PATTERN must include 'spike' named group"
     )
 
 
-def test_compiled_patterns_at_module_level():
-    """COMPILED_PATTERNS must be a module-level assignment."""
+def test_new_intent_regexes_at_module_level():
+    """NEW_INTENT_REGEXES must be a module-level assignment."""
     source = HOOK_PATH.read_text()
     tree = ast.parse(source)
     module_names = _get_module_level_names(tree)
-    assert "COMPILED_PATTERNS" in module_names, (
-        "COMPILED_PATTERNS must be defined at module level, not inside a function"
+    assert "NEW_INTENT_REGEXES" in module_names, (
+        "NEW_INTENT_REGEXES must be defined at module level, not inside a function"
     )
 
 
 def test_no_re_compile_inside_functions():
-    """re.compile must not be called inside any function."""
+    """re.compile must not be called inside any function (patterns compiled at module level)."""
     source = HOOK_PATH.read_text()
     tree = ast.parse(source)
     assert not _has_compile_inside_function(tree), (

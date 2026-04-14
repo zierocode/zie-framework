@@ -1,6 +1,7 @@
 """Tests for hooks/auto-test.py"""
 import json
 import os
+import re as _re
 import subprocess
 import sys
 from pathlib import Path
@@ -213,9 +214,10 @@ class TestAutoTestAtomicDebounceWrite:
         assert "Traceback" not in r.stderr
 
     def test_debounce_symlink_does_not_block_hook(self, tmp_path):
-        """If debounce path is a symlink, hook skips write and continues."""
+        """Hook uses CacheManager for debounce (no file writes) — must not crash."""
         # debounce_ms=0 ensures debounce window doesn't suppress before the write
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest", "auto_test_debounce_ms": 0})
+        # Old debounce path as symlink — legacy check, should not affect hook
         debounce = project_tmp_path("last-test", cwd.name)
         real = tmp_path / "real-debounce-target.txt"
         real.write_text("original")
@@ -228,8 +230,6 @@ class TestAutoTestAtomicDebounceWrite:
         assert r.returncode == 0
         assert "Traceback" not in r.stderr
         assert real.read_text() == "original"
-        assert "WARNING" in r.stderr
-        assert "symlink" in r.stderr.lower()
 
 
 class TestAutoTestFilePathCwdValidation:
@@ -550,17 +550,34 @@ class TestAdditionalContextInjection:
 
     def test_context_suppressed_when_debounced(self, tmp_path):
         """Context injection is gated behind debounce — no duplicate hints on rapid edits."""
+        import time as _time
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest",
                                          "auto_test_debounce_ms": 999999})
         tests_dir = cwd / "tests" / "unit"
         tests_dir.mkdir(parents=True)
         test_file = tests_dir / "test_payments.py"
         test_file.write_text("# test")
-        # Write a fresh debounce file to activate the debounce window
-        debounce = project_tmp_path("last-test", cwd.name)
-        debounce.write_text("payments.py")
+        # Write debounce state to unified cache (replaces legacy file-based debounce)
+        cache_dir = cwd / ".zie" / "cache"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        cache_file = cache_dir / "session-cache.json"
+        sid = "test-debounce-session"
+        now = _time.time()
+        safe_path = _re.sub(r'[^a-zA-Z0-9]', '-', str(cwd / "src" / "payments.py"))
+        cache_data = {
+            f"session:{sid}:test_debounce:{safe_path}": {
+                "value": {"last_tested": now, "path": "payments.py"},
+                "expires_at": now + 60,
+                "created_at": now
+            }
+        }
+        cache_file.write_text(json.dumps(cache_data))
         changed = str(cwd / "src" / "payments.py")
-        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": changed}},
+            tmp_cwd=cwd,
+            env_overrides={"CLAUDE_SESSION_ID": sid},
+        )
         # Both test run and context injection must be suppressed when debounced
         assert "[zie-framework] Tests" not in r.stdout
         ctx = parse_additional_context(r.stdout)
@@ -568,13 +585,31 @@ class TestAdditionalContextInjection:
 
     def test_no_match_context_suppressed_when_debounced(self, tmp_path):
         """'write one' context is also suppressed when debounced."""
+        import time as _time
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest",
                                          "auto_test_debounce_ms": 999999})
         (cwd / "tests").mkdir()
-        debounce = project_tmp_path("last-test", cwd.name)
-        debounce.write_text("billing.py")
+        # Write debounce state to unified cache
+        cache_dir = cwd / ".zie" / "cache"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        cache_file = cache_dir / "session-cache.json"
+        sid = "test-debounce-session-2"
+        now = _time.time()
+        safe_path = _re.sub(r'[^a-zA-Z0-9]', '-', str(cwd / "src" / "billing.py"))
+        cache_data = {
+            f"session:{sid}:test_debounce:{safe_path}": {
+                "value": {"last_tested": now, "path": "billing.py"},
+                "expires_at": now + 60,
+                "created_at": now
+            }
+        }
+        cache_file.write_text(json.dumps(cache_data))
         changed = str(cwd / "src" / "billing.py")
-        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
+        r = run_hook(
+            {"tool_name": "Edit", "tool_input": {"file_path": changed}},
+            tmp_cwd=cwd,
+            env_overrides={"CLAUDE_SESSION_ID": sid},
+        )
         ctx = parse_additional_context(r.stdout)
         assert ctx is None, f"Context should be absent when debounced, got: {r.stdout!r}"
 

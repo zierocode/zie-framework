@@ -249,8 +249,8 @@ try:
                         for pattern in data.get("patterns", []):
                             if pattern.get("auto_apply", False):
                                 patterns.append(pattern)
-                    except Exception:
-                        pass
+                    except Exception as _e:
+                        print(f"[zie-framework] session-resume: pattern load failed: {_e}", file=sys.stderr)
             return patterns
 
         def _filter_auto_apply_patterns(patterns):
@@ -338,8 +338,8 @@ try:
         if pending_marker.exists():
             try:
                 pending_marker.unlink()
-            except Exception:
-                pass
+            except Exception as _e:
+                print(f"[zie-framework] session-resume: pending marker cleanup failed: {_e}", file=sys.stderr)
 
     except Exception as _e:
         print(f"[zie-framework] session-resume: auto-improve skipped: {_e}", file=sys.stderr)

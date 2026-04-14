@@ -34,19 +34,19 @@ def test_impl_reviewer_requires_context_bundle():
 
 
 def test_load_context_owns_cache_logic():
-    """load-context skill owns ADR cache logic (get_cached_adrs/write_adr_cache)."""
+    """load-context skill owns ADR cache logic (unified CacheManager)."""
     text = _skill_text("load-context")
-    assert "get_cached_adrs" in text or "load_adrs" in text, \
-        "load-context must reference ADR loading"
-    assert "write_adr_cache" in text or "cache" in text.lower(), \
-        "load-context must reference cache writing"
+    assert "get_cache_manager" in text or "get_or_compute" in text, \
+        "load-context must reference unified cache API"
+    assert "cache" in text.lower(), \
+        "load-context must reference caching"
 
 
 def test_load_context_has_cache_miss_fallback():
     text = _skill_text("load-context")
-    assert "Cache miss" in text or "cache miss" in text
+    assert "Cache miss" in text or "cache miss" in text or "Cache miss:" in text
 
 
 def test_load_context_has_cache_hit_skip():
     text = _skill_text("load-context")
-    assert "Cache hit" in text or "cache hit" in text
+    assert "Cache hit" in text or "cache hit" in text or "Cache hit:" in text

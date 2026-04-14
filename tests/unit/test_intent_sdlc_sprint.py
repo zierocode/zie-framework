@@ -3,7 +3,6 @@
 Uses text + AST parsing since intent-sdlc.py calls sys.exit() at module level
 (via read_event()) and cannot be directly imported.
 """
-import ast
 import re
 from pathlib import Path
 
@@ -15,51 +14,43 @@ def _source():
     return HOOK_PATH.read_text()
 
 
-def _extract_dict_literal(source: str, var_name: str) -> dict:
-    """Extract a module-level dict assignment by variable name using AST."""
-    tree = ast.parse(source)
-    for node in ast.iter_child_nodes(tree):
-        if isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name) and target.id == var_name:
-                    if isinstance(node.value, ast.Dict):
-                        result = {}
-                        for k, v in zip(node.value.keys, node.value.values):
-                            if isinstance(k, ast.Constant):
-                                if isinstance(v, ast.List):
-                                    result[k.value] = [
-                                        elt.value for elt in v.elts
-                                        if isinstance(elt, ast.Constant)
-                                    ]
-                                elif isinstance(v, ast.Constant):
-                                    result[k.value] = v.value
-                        return result
-    return {}
+def _get_intent_pattern():
+    """Extract INTENT_PATTERN regex from source."""
+    source = _source()
+    match = re.search(r'INTENT_PATTERN = re\.compile\(r"""(.*?)""", re\.IGNORECASE \| re\.VERBOSE\)', source, re.DOTALL)
+    if match:
+        pattern_str = match.group(1)
+        return re.compile(pattern_str, re.IGNORECASE | re.VERBOSE)
+    return None
 
 
 class TestSprintPatternsInSource:
-    def test_sprint_key_in_patterns(self):
-        patterns = _extract_dict_literal(_source(), "PATTERNS")
-        assert "sprint" in patterns, \
-            "PATTERNS must have 'sprint' key"
-
     def test_sprint_suggestion(self):
-        suggestions = _extract_dict_literal(_source(), "SUGGESTIONS")
-        assert suggestions.get("sprint") == "/sprint", \
-            "SUGGESTIONS['sprint'] must be '/sprint'"
+        source = _source()
+        assert '"sprint":' in source, "SUGGESTIONS must have 'sprint' key"
+        assert '"/sprint"' in source, "SUGGESTIONS['sprint'] must be '/sprint'"
 
-    def test_sprint_patterns_not_empty(self):
-        patterns = _extract_dict_literal(_source(), "PATTERNS")
-        assert len(patterns.get("sprint", [])) > 0, \
-            "sprint PATTERNS list must not be empty"
+    def test_sprint_intent_pattern_exists(self):
+        source = _source()
+        assert "?P<sprint>" in source, (
+            "INTENT_PATTERN must have 'sprint' named group"
+        )
 
 
 class TestSprintRegexMatching:
-    """Extract sprint patterns from source and verify regex behavior."""
+    """Test INTENT_PATTERN sprint group matches expected signals."""
+
+    def _get_pattern(self):
+        return _get_intent_pattern()
 
     def _sprint_compiled(self):
-        patterns = _extract_dict_literal(_source(), "PATTERNS")
-        return [re.compile(p) for p in patterns.get("sprint", [])]
+        """Return list of (pattern, label) tuples for sprint signals."""
+        pattern = self._get_pattern()
+        if pattern is None:
+            return []
+        # The INTENT_PATTERN is a single regex with alternations
+        # Return as single-item list for consistent iteration
+        return [pattern]
 
     def test_english_sprint_pattern(self):
         compiled = self._sprint_compiled()

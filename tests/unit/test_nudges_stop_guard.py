@@ -7,7 +7,7 @@ import uuid
 from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-HOOK = os.path.join(REPO_ROOT, "hooks", "stop-guard.py")
+HOOK = os.path.join(REPO_ROOT, "hooks", "stop-handler.py")
 
 
 def run_hook(event: dict, cwd: str, env_overrides: dict = None):

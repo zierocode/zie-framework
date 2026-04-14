@@ -32,7 +32,7 @@ IMPL_PATTERNS = [
 ]
 
 
-def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, session_id):
+def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, session_id, event=None):
     """Run all nudge checks in a single pass with shared git log output."""
     import datetime as _dt
 
@@ -169,7 +169,8 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
 
     # Nudge 5: Context window health (from compact-hint)
     try:
-        event = read_event()
+        if event is None:
+            event = read_event()
         context_window = event.get("context_window") if event else None
         if isinstance(context_window, dict):
             current = context_window.get("current_tokens")
@@ -250,12 +251,12 @@ try:
         if result.returncode != 0:
             # Not a git repo — still run nudges
             if not session_id:
-                _run_combined_nudges(cwd, config, subprocess_timeout, "", session_id)
+                _run_combined_nudges(cwd, config, subprocess_timeout, "", session_id, event)
             else:
                 _nudge_cached_early = get_cached_git_status(session_id, "nudge-check", ttl=1800)
                 if _nudge_cached_early is None:
                     write_git_status_cache(session_id, "nudge-check", "1")
-                    _run_combined_nudges(cwd, config, subprocess_timeout, "", session_id)
+                    _run_combined_nudges(cwd, config, subprocess_timeout, "", session_id, event)
             sys.exit(0)
         status_output = result.stdout
         write_git_status_cache(session_id, "status", status_output)
@@ -283,12 +284,12 @@ try:
 
     # Run combined nudges (session-scoped TTL gate — 30 min)
     if not session_id:
-        _run_combined_nudges(cwd, config, subprocess_timeout, status_output, session_id)
+        _run_combined_nudges(cwd, config, subprocess_timeout, status_output, session_id, event)
     else:
         _nudge_cached = get_cached_git_status(session_id, "nudge-check", ttl=1800)
         if _nudge_cached is None:
             write_git_status_cache(session_id, "nudge-check", "1")
-            _run_combined_nudges(cwd, config, subprocess_timeout, status_output, session_id)
+            _run_combined_nudges(cwd, config, subprocess_timeout, status_output, session_id, event)
     sys.exit(0)
 
 except Exception as e:
