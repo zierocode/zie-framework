@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_safety import BLOCKS, COMPILED_BLOCKS, normalize_command
+from utils_safety import BLOCKS, COMPILED_BLOCKS, COMPILED_INJECTION_BLOCKS, normalize_command
 from utils_event import get_cwd, read_event
 from utils_config import load_config
 
@@ -29,7 +29,7 @@ _AGENT_EXTRA_BLOCKS = [
     (_re.compile(r"wget\s+.*\|\s*bash\b", _re.IGNORECASE), "wget pipe to bash blocked — potential code injection"),
     (_re.compile(r"wget\s+.*\|\s*sh\b", _re.IGNORECASE), "wget pipe to sh blocked — potential code injection"),
 ]
-_COMPILED_AGENT_BLOCKS = COMPILED_BLOCKS + _AGENT_EXTRA_BLOCKS
+_COMPILED_AGENT_BLOCKS = COMPILED_BLOCKS + _AGENT_EXTRA_BLOCKS + COMPILED_INJECTION_BLOCKS
 
 _MODEL_UNAVAILABLE_SUBSTRINGS = [
     "issue with the selected model",
@@ -46,7 +46,7 @@ def parse_agent_response(text: str) -> str:
         return "BLOCK"
     if has_allow:
         return "ALLOW"
-    return "ALLOW"  # default: allow on ambiguity
+    return "BLOCK"  # default: block on ambiguity (ADR-003 hardened)
 
 
 def _regex_evaluate(command: str) -> int:
@@ -64,6 +64,11 @@ def _check_claude_cli_exists() -> bool:
     return shutil.which("claude") is not None
 
 
+def _escape_for_xml(text: str) -> str:
+    """Escape XML special characters to prevent prompt injection via command content."""
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
 def invoke_subagent(command: str, timeout: int = 30) -> str:
     """Call claude CLI to evaluate the command. Returns agent response text."""
     if not _check_claude_cli_exists():
@@ -76,10 +81,8 @@ def invoke_subagent(command: str, timeout: int = 30) -> str:
 
     if len(command) > MAX_CMD_CHARS:
         command = command[:MAX_CMD_CHARS] + "\n[... truncated]"
-    # XML-delimit command content to prevent prompt injection via shell command strings
-    # Escape both opening and closing tags symmetrically; also strip Unicode direction overrides
-    safe_command = command.replace("<command>", "<\\/command-tag>")
-    safe_command = safe_command.replace("</command>", "<\\/command>")
+    # Full XML entity escaping prevents </command> injection structurally
+    safe_command = _escape_for_xml(command)
     # Strip Unicode bidirectional override characters (common prompt injection vector)
     for char in ("\u202a", "\u202b", "\u202c", "\u202d", "\u202e", "\u2066", "\u2067", "\u2068", "\u2069"):
         safe_command = safe_command.replace(char, "")
@@ -106,6 +109,13 @@ def invoke_subagent(command: str, timeout: int = 30) -> str:
 
 def evaluate(command: str, mode: str, timeout: int = 30) -> int:
     """Evaluate command via agent with regex fallback. Returns 0 (allow) or 2 (block)."""
+    # Injection-pattern pre-check: block before reaching the agent
+    normalized = normalize_command(command)
+    for pattern, message in COMPILED_INJECTION_BLOCKS:
+        if pattern.search(normalized):
+            print(f"[zie-framework] BLOCKED: {message}", file=sys.stderr)
+            return 2
+
     # Check if claude CLI exists first - if not, skip agent mode entirely
     if not _check_claude_cli_exists():
         print(
