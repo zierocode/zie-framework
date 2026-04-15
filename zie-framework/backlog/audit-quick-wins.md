@@ -21,9 +21,9 @@ Batch of independent XS-S fixes:
 3. **session-stop symlink validation** — Check symlink target is within memory directory
 4. **stop-handler git log caching** — Cache `git log --all -p` result with TTL
 5. **session-resume mtime** — Replace subprocess git log with `.git/refs/heads/<branch>` mtime for staleness check
-6. **Unify stage keywords** — Consolidate STAGE_KEYWORDS, _STAGE_KEYWORDS, and SDLC_STAGES into utils_roadmap
+6. **Extract derive_stage() to utils_roadmap** — Duplicated in intent-sdlc, session-stop, session-learn (~60 lines). Move to shared utility.
 7. **Consolidate atomic write** — Merge safe_write_tmp/safe_write_persistent into parameterized function
-8. **Single pending_learn owner** — Decide session-learn vs session-stop ownership
+8. **Single pending_learn owner** — session-stop writes to project-local path, session-learn writes to plugin-data path, but session-resume only reads project-local. Remove the orphaned write in session-learn.py
 9. **config-drift read_event** — Replace manual stdin parse with utils_event.read_event()
 10. **Fix ADR-012 reference** — Update CLAUDE.md to reference ADR-022/ADR-063 instead of non-existent ADR-012
 11. **README zie-release-mode** — Add missing agent to Agent Modes table

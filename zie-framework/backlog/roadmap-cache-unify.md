@@ -2,21 +2,21 @@
 tags: [chore]
 ---
 
-# Consolidate ROADMAP Caching
+# Consolidate Caching: Unify ROADMAP Cache + Adopt CacheManager Everywhere
 
 ## Problem
 
-Two independent caching systems exist for ROADMAP.md content:
-1. `CacheManager` in `utils_cache.py` — TTL-based, used by session-resume, intent-sdlc, subagent-context
-2. `read_roadmap_cached()` in `utils_roadmap.py` — mtime-based, used by sdlc-compact, failure-context
+Three overlapping caching issues found in lean audit:
 
-They never share entries. Additionally, 4 hooks read ROADMAP directly from disk bypassing both caches: wip-checkpoint, stop-handler, session-stop, session-learn.
+1. **Dual ROADMAP cache**: `CacheManager` (TTL-based) and `read_roadmap_cached()` (mtime-based) never share entries. 4 hooks (wip-checkpoint, stop-handler, session-stop, session-learn) bypass both caches entirely and read from disk directly. On a typical session, ROADMAP is physically read 5+ times.
 
-On a typical session, ROADMAP is physically read 5+ times despite caching. On Stop events, 3 separate hooks read it independently.
+2. **Subagent-context uncached reads**: `subagent-context.py` reads `project/context.md` directly from disk for ADR counting, despite `read_project_context_unified()` and `read_adrs_unified()` being available in `utils_cache.py`. It also globs+stats plan files without caching.
+
+3. **ROADMAP Now parsed 5+ times per session**: session-resume, intent-sdlc, subagent-context, failure-context, and sdlc-compact all independently parse the same "Now" section. The "Active: {feature}" string appears 2-5 times, wasting 200-500 tokens.
 
 ## Motivation
 
-Consolidating to a single CacheManager eliminates redundant disk I/O and removes confusion about which cache to use. The TTL-based CacheManager is already the standard — migrating all hooks to use it is straightforward.
+Consolidating to a single CacheManager eliminates redundant disk I/O, removes confusion about which cache to use, and reduces token waste from duplicate context injection. The TTL-based CacheManager is already the standard — migrating all hooks to use it is straightforward.
 
 ## Rough Scope
 
@@ -26,7 +26,13 @@ Consolidating to a single CacheManager eliminates redundant disk I/O and removes
 - Remove `read_roadmap_cached()` from utils_roadmap.py (dead code after migration)
 - Increase ROADMAP TTL from 600s to 1800s (file rarely changes mid-session)
 - Pass `roadmap_content` to `is_track_active()` instead of re-reading
+- Replace direct `context_file.read_text()` in subagent-context with `read_project_context_unified()`
+- Replace ADR regex counting in subagent-context with `read_adrs_unified()` from CacheManager
+- Cache plan file glob results (short TTL)
+- Create session-scoped "Now item" singleton: first hook writes to cache, subsequent hooks read from cache instead of parsing ROADMAP again
+- Invalidate Now-item cache on Write/Edit to ROADMAP.md
 
 **Out:**
-- Changing CacheManager architecture (separate item: cache-systems-consolidate)
-- Changing ROADMAP format
+- Changing CacheManager JSON format
+- Changing hook output format
+- Removing Now item context from any hook (each hook still outputs its own formatted line)
