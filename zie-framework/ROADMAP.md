@@ -19,6 +19,8 @@
 <!-- Ready to start. Ordered by priority. -->
 
 - [ ] status-roadmap-content — [backlog](backlog/status-roadmap-content.md)
+- [ ] skill-manual-revise — [backlog](backlog/skill-manual-revise.md)
+- [ ] skill-manual-auto-inject — [backlog](backlog/skill-manual-auto-inject.md)
 - [ ] audit-hardcoded-test-paths — [backlog](backlog/audit-hardcoded-test-paths.md)
 - [ ] audit-error-path-coverage — [backlog](backlog/audit-error-path-coverage.md)
 - [ ] audit-version-sync — [backlog](backlog/audit-version-sync.md)
