@@ -13,7 +13,7 @@
 - [x] audit-error-path-coverage — [spec](specs/2026-04-15-audit-error-path-coverage-design.md) [plan](plans/2026-04-15-audit-error-path-coverage.md)
 - [x] audit-prompt-injection-hardening — [spec](specs/2026-04-15-audit-prompt-injection-hardening-design.md) [plan](plans/2026-04-15-audit-prompt-injection-hardening.md)
 - [x] audit-error-handling-cleanup — [spec](specs/2026-04-15-audit-error-handling-cleanup-design.md) [plan](plans/2026-04-15-audit-error-handling-cleanup.md)
-- [ ] audit-quick-wins-batch — [spec](specs/2026-04-15-audit-quick-wins-batch-design.md) [plan](plans/2026-04-15-audit-quick-wins-batch.md) ← merged quick-wins+hardcoded-test-paths+stale-docs-refresh+test-quality-fixes+version-sync
+- [x] audit-quick-wins-batch — [spec](specs/2026-04-15-audit-quick-wins-batch-design.md) [plan](plans/2026-04-15-audit-quick-wins-batch.md)
 
 ---
 
