@@ -375,6 +375,49 @@ def read_project_context_unified(
     return cache.get_or_compute("project_md", session_id, _read, ttl)
 
 
+def get_playwright_version_cached(
+    session_id: str,
+    cwd: Path,
+    ttl: int = 600,
+) -> str:
+    """Get Playwright version string, cached per session.
+
+    Caches the result of `playwright --version` for the session TTL.
+    On subprocess failure (not installed, timeout), returns empty string
+    without creating a cache entry — so the next call retries.
+
+    Args:
+        session_id: Session identifier
+        cwd: Project root (for cache directory resolution)
+        ttl: Cache TTL in seconds (default: 600)
+
+    Returns:
+        Version string (e.g. "1.55.1") or empty string on failure
+    """
+    import subprocess
+
+    def _get_version() -> str:
+        try:
+            result = subprocess.run(
+                ["playwright", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            raw = result.stdout.strip()
+            parts = raw.split()
+            return parts[-1] if parts else ""
+        except (FileNotFoundError, OSError, subprocess.TimeoutExpired):
+            return ""
+
+    cache = get_cache_manager(cwd)
+    version = cache.get_or_compute("playwright_version", session_id, _get_version, ttl)
+    # Don't cache empty results — allow retry on next call
+    if version == "":
+        cache.delete("playwright_version", session_id)
+    return version
+
+
 def get_content_hash_cached(
     cwd: Path,
     session_id: str,

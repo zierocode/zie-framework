@@ -9,6 +9,7 @@
 ## Now — Active Sprint
 
 - [x] command-compress-batch — [spec](specs/2026-04-15-command-compress-batch-design.md) [plan](plans/2026-04-15-command-compress-batch.md)
+- [x] playwright-version-cache — [spec](specs/2026-04-15-playwright-version-cache-design.md) [plan](plans/2026-04-15-playwright-version-cache.md)
 
 ---
 

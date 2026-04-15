@@ -13,7 +13,7 @@ _hook_start = _time.monotonic()
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
 from utils_config import load_config, CACHE_TTLS
-from utils_cache import get_cache_manager  # noqa: E402
+from utils_cache import get_cache_manager, get_playwright_version_cached  # noqa: E402
 from utils_roadmap import parse_roadmap_now, is_mtime_fresh, parse_roadmap_section, parse_roadmap_section_content
 from zie_context_loader import get_cached_context  # noqa: E402
 from utils_skill_inject import inject_skill_context
@@ -25,51 +25,48 @@ from utils_skill_inject import inject_skill_context
 PLAYWRIGHT_MIN_VERSION = (1, 55, 1)
 
 
-def _check_playwright_version(config: dict) -> None:
-    """Warn and disable playwright_enabled if installed version is below minimum safe."""
+def _check_playwright_version(config: dict, session_id: str, cwd: Path) -> None:
+    """Warn and disable playwright_enabled if installed version is below minimum safe.
+
+    Uses cached version lookup via get_playwright_version_cached() to avoid
+    running `playwright --version` subprocess on every hook invocation within
+    the same session.
+    """
     if not config.get("playwright_enabled"):
         return
 
-    raw = ""
-    try:
-        result = subprocess.run(
-            ["playwright", "--version"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-        )
-        raw = result.stdout.strip()
-        parts = raw.split()
-        version_str = parts[-1] if parts else ""
-        version_tuple = tuple(int(x) for x in version_str.split(".") if x)
-        if not version_tuple:
-            raise ValueError("empty version")
-        if version_tuple < PLAYWRIGHT_MIN_VERSION:
-            min_str = ".".join(str(x) for x in PLAYWRIGHT_MIN_VERSION)
-            print(
-                f"[zf] WARNING: Playwright {version_str} is below minimum safe"
-                f" version {min_str} (CVE-2025-59288). playwright_enabled disabled for this"
-                f" session. Run: playwright self-update",
-                file=sys.stderr,
-            )
-            config["playwright_enabled"] = False
-    except (FileNotFoundError, OSError):
+    version_str = get_playwright_version_cached(session_id, cwd)
+
+    if not version_str:
+        # Empty string means playwright not installed or subprocess failed
         print(
             "[zf] WARNING: playwright not found."
             " playwright_enabled disabled for this session.",
             file=sys.stderr,
         )
         config["playwright_enabled"] = False
+        return
+
+    try:
+        version_tuple = tuple(int(x) for x in version_str.split(".") if x)
+        if not version_tuple:
+            raise ValueError("empty version")
     except ValueError:
         print(
-            f"[zf] session-resume: could not parse playwright version from: \"{raw}\"",
+            f"[zf] session-resume: could not parse playwright version from: \"{version_str}\"",
             file=sys.stderr,
         )
-    except Exception as e:
+        return
+
+    if version_tuple < PLAYWRIGHT_MIN_VERSION:
+        min_str = ".".join(str(x) for x in PLAYWRIGHT_MIN_VERSION)
         print(
-            f"[zf] session-resume: playwright version check failed: {e}",
+            f"[zf] WARNING: Playwright {version_str} is below minimum safe"
+            f" version {min_str} (CVE-2025-59288). playwright_enabled disabled for this"
+            f" session. Run: playwright self-update",
             file=sys.stderr,
         )
+        config["playwright_enabled"] = False
 
 
 # Outer guard — any unhandled exception exits 0 (never blocks Claude)
@@ -86,11 +83,11 @@ try:
     # Read config
     config = load_config(cwd)
 
-    # Playwright version safety check (CVE-2025-59288)
-    _check_playwright_version(config)
-
     # Read ROADMAP via unified cache (session-scoped)
     session_id = os.environ.get("CLAUDE_SESSION_ID", "default")
+
+    # Playwright version safety check (CVE-2025-59288) — uses cached version
+    _check_playwright_version(config, session_id, cwd)
     roadmap_file = zf / "ROADMAP.md"
     cache = get_cache_manager(cwd)
     roadmap_ttl = CACHE_TTLS.get("roadmap", 600)

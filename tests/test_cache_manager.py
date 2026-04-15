@@ -11,7 +11,7 @@ from unittest.mock import patch
 import pytest
 
 # Import after sys.path setup in conftest
-from hooks.utils_cache import CacheManager, get_cache_manager, _cache_manager
+from hooks.utils_cache import CacheManager, get_cache_manager, get_playwright_version_cached, _cache_manager
 
 
 @pytest.fixture
@@ -333,4 +333,65 @@ class TestGetContentHashCached:
 
         # No files created
         result = get_content_hash_cached(cache_dir, "test_session")
+        assert result == ""
+
+
+# ── Playwright version cache tests ────────────────────────────────────────────
+
+
+class TestPlaywrightVersionCache:
+    """Tests for get_playwright_version_cached() in utils_cache.py."""
+
+    def test_cache_miss_calls_subprocess(self, cache_dir, monkeypatch):
+        """On cache miss, subprocess is called and result is cached."""
+        monkeypatch.setattr("hooks.utils_cache._cache_manager", None)
+        monkeypatch.setattr(
+            "subprocess.run",
+            lambda *a, **kw: type("R", (), {"stdout": "1.55.1\n"})(),
+        )
+        result = get_playwright_version_cached("sess1", cache_dir)
+        assert result == "1.55.1"
+
+    def test_cache_hit_skips_subprocess(self, cache_dir, monkeypatch):
+        """On cache hit, subprocess is not called."""
+        monkeypatch.setattr("hooks.utils_cache._cache_manager", None)
+        call_count = {"n": 0}
+
+        def fake_run(*a, **kw):
+            call_count["n"] += 1
+            return type("R", (), {"stdout": "1.55.1\n"})()
+
+        monkeypatch.setattr("subprocess.run", fake_run)
+
+        # First call: cache miss, subprocess called
+        r1 = get_playwright_version_cached("sess2", cache_dir)
+        assert r1 == "1.55.1"
+        assert call_count["n"] == 1
+
+        # Reset manager to simulate same session (cache on disk)
+        monkeypatch.setattr("hooks.utils_cache._cache_manager", None)
+        result2 = get_playwright_version_cached("sess2", cache_dir)
+        assert result2 == "1.55.1"
+        # Subprocess should not have been called again
+        assert call_count["n"] == 1
+
+    def test_subprocess_failure_returns_empty(self, cache_dir, monkeypatch):
+        """FileNotFoundError should return empty string, no cache entry."""
+        monkeypatch.setattr("hooks.utils_cache._cache_manager", None)
+        monkeypatch.setattr(
+            "subprocess.run",
+            lambda *a, **kw: (_ for _ in ()).throw(FileNotFoundError()),
+        )
+        result = get_playwright_version_cached("sess3", cache_dir)
+        assert result == ""
+
+    def test_subprocess_timeout_returns_empty(self, cache_dir, monkeypatch):
+        """Timeout should return empty string, no cache entry."""
+        import subprocess as sp
+        monkeypatch.setattr("hooks.utils_cache._cache_manager", None)
+        monkeypatch.setattr(
+            "subprocess.run",
+            lambda *a, **kw: (_ for _ in ()).throw(sp.TimeoutExpired(cmd="playwright", timeout=5)),
+        )
+        result = get_playwright_version_cached("sess4", cache_dir)
         assert result == ""
