@@ -8,28 +8,28 @@
 
 ## Now — Active Sprint
 
-<!-- -->
+- [ ] Remove GitHub CI — [spec](specs/2026-04-15-remove-github-ci-design.md) [plan](plans/2026-04-15-remove-github-ci.md)
 
 ---
 
 ## Ready — Approved Plans
 
 <!-- Items with approved spec + plan, awaiting implementation. -->
+- [ ] Remove GitHub CI — [spec](specs/2026-04-15-remove-github-ci-design.md) [plan](plans/2026-04-15-remove-github-ci.md)
+- [ ] Optimize Review Loop Token Waste — [spec](specs/2026-04-15-optimize-review-loop-token-waste-design.md) [plan](plans/2026-04-15-optimize-review-loop-token-waste.md)
+- [ ] Parallel Pipeline Stages — [spec](specs/2026-04-15-parallel-pipeline-stages-design.md) [plan](plans/2026-04-15-parallel-pipeline-stages.md)
 
 ---
 
 ## Next — Prioritized Backlog
 
 <!-- Items awaiting spec. Ordered by priority. -->
-- [ ] Remove GitHub CI — [backlog](backlog/remove-github-ci.md)
-- [ ] Optimize Review Loop Token Waste — [backlog](backlog/optimize-review-loop-token-waste.md)
-- [ ] Deeper Thinking in Backlog Spec Plan — [backlog](backlog/deeper-thinking-backlog-spec-plan.md)
-- [ ] Parallel Pipeline Stages — [backlog](backlog/parallel-pipeline-stages.md)
 
 ---
 
 ## Done — v1.31.0 (2026-04-15)
 
+- [x] Deeper Thinking in Backlog Spec Plan — Complementary depth prompts for backlog, spec, plan, and reviewers
 - [x] command-compress-batch — Compress sprint, status, retro, release commands
 - [x] playwright-version-cache — Cache playwright version, skip redundant subprocess
 - [x] audit-error-path-coverage — Error-path unit tests for all hooks (ADR-003)
