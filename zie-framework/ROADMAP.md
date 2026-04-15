@@ -8,16 +8,13 @@
 
 ## Now — Active Sprint
 
-- [ ] Remove GitHub CI — [spec](specs/2026-04-15-remove-github-ci-design.md) [plan](plans/2026-04-15-remove-github-ci.md)
+<!-- No active items. -->
 
 ---
 
 ## Ready — Approved Plans
 
 <!-- Items with approved spec + plan, awaiting implementation. -->
-- [ ] Remove GitHub CI — [spec](specs/2026-04-15-remove-github-ci-design.md) [plan](plans/2026-04-15-remove-github-ci.md)
-- [ ] Optimize Review Loop Token Waste — [spec](specs/2026-04-15-optimize-review-loop-token-waste-design.md) [plan](plans/2026-04-15-optimize-review-loop-token-waste.md)
-- [ ] Parallel Pipeline Stages — [spec](specs/2026-04-15-parallel-pipeline-stages-design.md) [plan](plans/2026-04-15-parallel-pipeline-stages.md)
 
 ---
 
@@ -29,6 +26,9 @@
 
 ## Done — v1.31.0 (2026-04-15)
 
+- [x] Optimize Review Loop Token Waste — ADR keyword filter, inline verification, scoped Grep/Glob
+- [x] Parallel Pipeline Stages — Concurrency cap, single-item fast path, keywords_per_item
+- [x] Remove GitHub CI — Delete .github/ CI workflows and tests
 - [x] Deeper Thinking in Backlog Spec Plan — Complementary depth prompts for backlog, spec, plan, and reviewers
 - [x] command-compress-batch — Compress sprint, status, retro, release commands
 - [x] playwright-version-cache — Cache playwright version, skip redundant subprocess
