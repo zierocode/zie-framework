@@ -30,6 +30,12 @@
 
 ---
 
+## Done — v1.30.1 (2026-04-15)
+
+- [x] py39-compat-union-type — Fix Python 3.9 compatibility: add `from __future__ import annotations` to hooks using `X | None` union syntax, fix broken import path in zie_context_loader — 2026-04-15
+
+---
+
 ## Done — v1.30.0 (2026-04-14)
 
 **Sprint: Context Loading + Non-Claude Compatibility**

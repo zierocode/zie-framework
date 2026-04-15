@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Hook event I/O and session utilities for zie-framework hooks."""
+from __future__ import annotations
 import json
 import os
 import re

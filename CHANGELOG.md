@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.30.1 — 2026-04-15
+
+### Fixed
+
+- **Python 3.9 compatibility**: Added `from __future__ import annotations` to `utils_event.py`, `utils_roadmap.py`, and `auto-test.py` — fixes `TypeError: unsupported operand type(s) for |: 'type' and 'NoneType'` crash on Python 3.9 that broke all hooks at session start
+- **Import path fix**: Changed `from hooks.utils_cache` to `from utils_cache` in `zie_context_loader.py` — resolved `No module named 'hooks'` warning that prevented context caching
+
 ## v1.30.0 — 2026-04-14
 
 ### Added
