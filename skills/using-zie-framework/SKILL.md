@@ -9,24 +9,24 @@ argument-hint: ""
 
 ## Command Map
 
-- `/backlog` — capture a new idea
+- `/backlog` — capture new idea
 - `/spec` — design a backlog item
-- `/plan` — plan implementation from approved spec
-- `/implement` — TDD implementation (agent mode required)
-- `/sprint` — full pipeline in one go (backlog→spec→plan→implement→release→retro)
-- `/fix` — debug and fix failing tests or broken features
-- `/chore` — maintenance task, no spec needed
+- `/plan` — plan from approved spec
+- `/implement` — TDD implementation (agent mode)
+- `/sprint` — full pipeline: backlog→spec→plan→implement→release→retro
+- `/fix` — debug & fix failing tests/features
+- `/chore` — maintenance, no spec needed
 - `/hotfix` — emergency fix, ship fast
-- `/status` — show current SDLC state
+- `/status` — current SDLC state
 - `/audit` — project audit
 - `/retro` — post-release retrospective
-- `/release` — merge dev→main, version bump
+- `/release` — merge dev→main, bump version
 - `/resync` — refresh project knowledge
-- `/init` — bootstrap zie-framework in a new project
-- `/guide` — full framework walkthrough + recommended next actions
-- `/health` — framework health dashboard
-- `/rescue` — pipeline state diagnosis + recovery path
-- `/next` — backlog prioritization + recommended next item
+- `/init` — bootstrap in a new project
+- `/guide` — walkthrough + next actions
+- `/health` — hook health dashboard
+- `/rescue` — diagnose stuck pipeline + recovery
+- `/next` — prioritize backlog + next item
 
 ## Workflow Map
 

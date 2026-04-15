@@ -18,68 +18,53 @@ effort: low
 
 # impl-reviewer — Task Implementation Review
 
-Subagent reviewer for completed task implementations. Called by `zie-implement`
-after each REFACTOR phase. Returns a structured verdict.
+Subagent reviewer for completed task implementations. Called by `zie-implement` after each REFACTOR phase. Returns structured verdict.
 
 ## Input Expected
 
-Caller must provide:
-
-- **context_bundle** (required) — ADR + project context bundle passed from `/implement`. If missing, output validation error.
-- Task description and Acceptance Criteria (from plan)
-- List of files changed in this task
+| Field | Required | Description |
+| --- | --- | --- |
+| context_bundle | yes | ADR + project context from `/implement`. Missing → validation error. |
+| Task description + ACs | yes | From plan |
+| Files changed list | yes | Changed in this task |
 
 ## Phase 1 — Validate Context Bundle (inline)
 
-- **Required:** context_bundle must be provided by caller → `adrs_content = context_bundle.adrs` · `context_content = context_bundle.context`
-- **Validation error if missing:** Output `❌ Issues Found: context_bundle required — pass from zie-implement skill (do not read from disk)`
+- Required: `context_bundle` from caller → `adrs_content = context_bundle.adrs` · `context_content = context_bundle.context`
+- Missing → `❌ Issues Found: context_bundle required — pass from zie-implement skill (do not read from disk)`
 
-Also read each file listed in the caller's "files changed" input (note "FILE NOT FOUND"
-if any are missing).
+Read each file in "files changed" (note "FILE NOT FOUND" if missing).
 
 Returns: `adrs_content`, `context_content`.
 
 ## Phase 2 — Review Checklist
 
-Read the changed files and check each item:
-
-<!-- NOTE: escalate to a reasoning-capable model if available. -->
-
-1. **AC coverage** — Does the implementation satisfy every acceptance criterion?
-2. **Tests exist** — Are there tests for the new behavior?
-3. **Tests pass** — Did `make test-unit` exit 0? (Caller confirms — reviewer
-   checks logic)
-4. **No over-engineering** — Is the implementation minimal for the AC? Flag
-   speculative code.
-5. **No regressions** — Do any changes break existing contracts or interfaces?
-6. **Code clarity** — Are names clear? Is logic self-evident? Flag anything
-   that will confuse future readers.
-7. **Security** — Any hardcoded secrets, command injection, or SQL injection?
-8. **Dead code** — Any commented-out code or unreachable branches?
+1. **AC coverage** — Implementation satisfies every acceptance criterion?
+2. **Tests exist** — Tests for the new behavior?
+3. **Tests pass** — `make test-unit` exit 0? (Caller confirms — reviewer checks logic)
+4. **No over-engineering** — Minimal for the AC? Flag speculative code.
+5. **No regressions** — Changes break existing contracts or interfaces?
+6. **Code clarity** — Names clear? Logic self-evident? Flag confusing parts.
+7. **Security** — Hardcoded secrets, command injection, SQL injection?
+8. **Dead code** — Commented-out code or unreachable branches?
 
 ## Phase 3 — Context Checks
 
-1. **File existence** — flag any file in the changed-files list that is
-   missing (may indicate incomplete implementation).
-2. **ADR compliance** — flag any implementation detail that contradicts a
-   loaded ADR. If no ADRs → skip.
-3. **Pattern match** — flag if implementation diverges from patterns in the
-   read files. Surface for Zie to accept or reject — reviewer notes, does
-   not decide.
+1. **File existence** — flag missing files in changed-files list (incomplete implementation).
+2. **ADR compliance** — flag contradictions with loaded ADRs. No ADRs → skip.
+3. **Pattern match** — flag divergence from patterns in read files. Surface for Zie to accept/reject — reviewer notes, doesn't decide.
 
-Surface Phase 3 issues in the same `❌ Issues Found` block as Phase 2 issues.
+Phase 3 issues merge into the same `❌ Issues Found` block as Phase 2.
 
 ## Output Format
 
-If all checks pass:
-
-```text
+All pass:
+```
 ✅ APPROVED
 ```
 
-If issues found:
-
-```text
+Issues found:
+```
 ❌ Issues Found
 
 1. [File:line] <specific issue and what to fix>
@@ -90,13 +75,10 @@ Fix these, re-run make test-unit, and re-invoke impl-reviewer.
 
 ## Max Iterations Reached
 
-If impl-reviewer has been invoked 2 times and issues persist, output:
-
-```text
+2 invocations with persistent issues → output:
+```
 ⚠️ Max review iterations reached (2). Persistent issues:
-
 <list remaining issues>
-
 Next steps:
 - Fix issues above and re-run: make test-unit
 - Or discuss the issue with Zie before re-submitting
@@ -107,5 +89,5 @@ Next steps:
 
 - Be specific about file and line when flagging issues
 - Don't nitpick style unless it causes real confusion
-- Return ALL issues found in this single response — do not stop at the first issue.
-- Max 2 total iterations: initial scan (all issues at once) + confirm pass. If 0 issues → APPROVED immediately, no confirm pass needed.
+- Return ALL issues in one response — don't stop at the first
+- Max 2 iterations: initial scan (all issues) + confirm pass. 0 issues → APPROVED immediately.

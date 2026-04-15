@@ -25,59 +25,51 @@ effort: low
 
 ### python-api (e.g., zie-memory)
 
-**Unit tests** (`tests/` — no `integration` marker):
-
-- Pure logic: search algorithms, score computation, data transforms
+**Unit** (`tests/` — no `integration` marker):
+- Pure logic: search, scoring, transforms
 - Mock external services (DB, HTTP)
-- Target: < 5s total, < 1s per test
+- Target: < 5s total, < 1s/test
 - Run: `pytest tests/ -x -q -m "not integration"`
 
-**Integration tests** (`tests/` — `@pytest.mark.integration`):
-
-- Real PostgreSQL — test queries, migrations, constraints
-- Real HTTP — test API endpoints end-to-end via TestClient
+**Integration** (`tests/` — `@pytest.mark.integration`):
+- Real PostgreSQL — queries, migrations, constraints
+- Real HTTP — API endpoints via TestClient
 - Skip if `TEST_DB_AVAILABLE` not set
 - Run: `TEST_DB_AVAILABLE=1 pytest tests/ -m "integration" -v`
 
-**E2E** (if HTMX dashboard present — `playwright_enabled=true`):
-
-- Dashboard loads, search works, memory CRUD via UI
+**E2E** (if `playwright_enabled=true`):
+- Dashboard loads, search, memory CRUD via UI
 - Run: `npx playwright test tests/e2e/`
 
 ### typescript-fullstack (Next.js, etc.)
 
-**Unit tests** (vitest):
-
+**Unit** (vitest):
 - Components (React Testing Library), utilities, hooks
-- No real network, no real DB
+- No real network/DB
 - Run: `npx vitest run --reporter=dot`
 
-**Integration tests** (vitest or supertest):
-
-- API route handlers with real DB (or test DB)
+**Integration** (vitest or supertest):
+- API route handlers with real/test DB
 - Run: `npx vitest run --project=integration`
 
 **E2E** (Playwright — always enabled):
-
-- Critical user journeys only: auth, core CRUD, payment flow
+- Critical journeys only: auth, core CRUD, payment
 - Not every component — only flows that break silently
 - Run: `npx playwright test`
 
 ### cli-tool / python-script
 
-**Unit tests** only:
-
+**Unit only**:
 - Input validation, output formatting, core logic
 - Subprocess tests for CLI invocation
 - No E2E needed (CLI = the E2E)
 
 ## ควรรัน Test ไหนเมื่อไหร่
 
-| Trigger | Tests to run |
+| Trigger | Tests |
 | --- | --- |
 | Every file save (PostToolUse hook) | Unit only (auto, fast) |
 | /implement task complete | Unit only |
 | /implement all tasks complete | Unit + Integration |
 | /release gate | Unit + Integration + E2E + Visual |
 | Debugging a failing test | Relevant unit only |
-

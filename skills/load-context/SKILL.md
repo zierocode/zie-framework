@@ -12,46 +12,33 @@ effort: low
 
 <!-- FAST PATH -->
 **Purpose:** Load ADR + project context bundle once per session for downstream reviewers.
-**When to use fast path:** context_bundle already provided → return it immediately.
-**Quick steps:** (1) If context_bundle provided → return it. (2) Else: cache check → disk fallback → return bundle.
+**Fast path:** context_bundle provided → return it immediately. Else: cache → disk → return bundle.
 <!-- DETAIL: load only if fast path insufficient -->
 
 # load-context — Shared Context Bundle
 
-Load ADRs and project context once. Returns `context_bundle` for every
-downstream reviewer call in the session.
+Load ADRs and project context once. Returns `context_bundle` for downstream reviewers.
 
 ## Steps
 
-**Fast-path:** If `context_bundle` is provided as an argument to this skill
-invocation → return `context_bundle` immediately. Skip all steps below.
+**Fast-path:** `context_bundle` provided as argument → return immediately. Skip below.
 
-**Step 0: Load unified cache**
+**Step 0: Load ADRs via cache**
 - Import `get_cache_manager` from `hooks/utils_cache.py`.
-- Call `cache = get_cache_manager(cwd)` where `cwd` is project root.
-- Call `adrs_content = cache.get_or_compute("adrs", session_id, compute_fn, ttl=3600)` where:
+- `cache = get_cache_manager(cwd)` where `cwd` is project root.
+- `adrs_content = cache.get_or_compute("adrs", session_id, compute_fn, ttl=3600)` where:
   ```python
   def compute_fn():
       decisions_dir = cwd / "zie-framework" / "decisions"
       adr_files = sorted(decisions_dir.glob("*.md"))
-      contents = [f.read_text() for f in adr_files if f.exists()]
-      return "\n\n".join(contents) if contents else ""
+      return "\n\n".join(f.read_text() for f in adr_files if f.exists()) or ""
   ```
-- **Cache hit:** `get_or_compute()` returns cached value → skip disk read.
-- **Cache miss:** `get_or_compute()` calls `compute_fn()` → reads ADRs from disk → caches result.
+- Cache hit → skip disk. Miss → compute → cache result.
 
-**Step 1: Design context**
-- Read `zie-framework/project/context.md` →
-  `context_content` (empty string if file missing).
-  - Use `cache.get_or_compute("project_md", session_id, compute_fn, ttl=300)` for caching.
-  - **Cache hit:** skip disk read. **Cache miss:** read from disk → cache.
+**Step 1: Load project context via cache**
+- `context_content = cache.get_or_compute("project_md", session_id, compute_fn, ttl=300)`
+- Reads `zie-framework/project/context.md`; empty string if missing.
+- Cache hit → skip disk. Miss → compute → cache.
 
 **Step 2: Assemble bundle**
-- Build and return:
-  ```
-  context_bundle = {
-    adrs: adrs_content,
-    context: context_content
-  }
-  ```
-
+- Return `{ adrs: adrs_content, context: context_content }`
