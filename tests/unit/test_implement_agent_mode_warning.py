@@ -12,20 +12,20 @@ class TestImplementAgentModeWarning:
     def test_agent_mode_check_present(self):
         """zie-implement documents agent mode check."""
         text = cmd_text()
-        assert "agent" in text.lower() and ("mode" in text.lower() or "zie-implement-mode" in text), \
+        assert "agent" in text.lower() and ("mode" in text.lower() or "builder" in text), \
             "zie-implement must document agent mode detection"
 
     def test_advisory_message_documented(self):
         """Advisory message for non-agent mode is documented (non-blocking)."""
         text = cmd_text()
-        assert "Tip" in text or "advisory" in text.lower() or "zie-implement-mode" in text, \
+        assert "Tip" in text or "advisory" in text.lower() or "builder" in text, \
             "zie-implement must show advisory (non-blocking) when not in agent session"
 
     def test_recommend_agent_mode_command(self):
         """Recommended agent mode command is documented."""
         text = cmd_text()
-        assert "zie-implement-mode" in text, \
-            "zie-implement must reference zie-framework:zie-implement-mode"
+        assert "builder" in text, \
+            "zie-implement must reference zie-framework:builder"
 
     def test_continue_option_available(self):
         """User can choose to continue or cancel."""

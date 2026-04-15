@@ -8,8 +8,8 @@
 
 The `/sprint` command had two sequential parallel phases:
 
-- **Phase 1**: Spec all items in parallel (spec-design + spec-reviewer)
-- **Phase 2**: Plan all items in parallel (write-plan + plan-reviewer)
+- **Phase 1**: Spec all items in parallel (spec-design + spec-review)
+- **Phase 2**: Plan all items in parallel (write-plan + plan-review)
 
 For items entering the sprint from the **Next lane**, Phase 1 already ran the
 full `spec → spec-review → write-plan → plan-review` chain. Phase 2 was

@@ -103,7 +103,7 @@ class TestSubagentStopAtomicWrite:
         log = project_tmp_path("subagent-log", cwd.name)
         log.mkdir(parents=True, exist_ok=True)
 
-        event = {"agent_id": "x", "agent_type": "spec-reviewer", "last_assistant_message": ""}
+        event = {"agent_id": "x", "agent_type": "spec-review", "last_assistant_message": ""}
         env = {**os.environ, "CLAUDE_CWD": str(cwd)}
         import subprocess
         result = subprocess.run(

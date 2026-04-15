@@ -159,8 +159,8 @@ class TestReadmeMd:
         )
 
     def test_skills_table_has_zie_audit(self):
-        assert "zie-audit" in self._content(), (
-            "Skills table missing zie-audit entry"
+        assert "audit" in self._content(), (
+            "Skills table missing audit entry"
         )
 
     def test_skills_section_mentions_subagents(self):

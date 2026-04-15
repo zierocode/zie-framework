@@ -25,7 +25,7 @@ class TestSpecDesignAutonomousMode:
     def test_inline_reviewer_call_in_autonomous(self):
         t = text().lower()
         assert "autonomous" in t and "inline" in t, \
-            "autonomous mode must call spec-reviewer inline"
+            "autonomous mode must call spec-review inline"
 
     def test_standalone_mode_unchanged(self):
         assert "full" in text() and "quick" in text(), \

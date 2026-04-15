@@ -2,7 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.parent.parent
 COMMANDS = ROOT / "commands"
-SKILL = ROOT / "skills" / "zie-audit" / "SKILL.md"
+SKILL = ROOT / "skills" / "audit" / "SKILL.md"
 
 
 def read_cmd(name):
@@ -21,23 +21,23 @@ class TestZieAuditCommand:
     def test_allowed_tools_include_websearch_and_webfetch(self):
         content = read_cmd("audit")
         assert "WebSearch" in content, \
-            "zie-audit must include WebSearch for external research"
+            "audit must include WebSearch for external research"
         assert "WebFetch" in content, \
-            "zie-audit must include WebFetch for external research"
+            "audit must include WebFetch for external research"
 
     def test_has_research_profile(self):
         # Skill is canonical; command delegates
         content = read_skill()
         assert "stack" in content or "deps" in content, \
-            "zie-audit skill must build a research profile (stack, deps)"
+            "audit skill must build a research profile (stack, deps)"
 
     def test_has_three_dimensions(self):
         content = read_skill()
-        assert "Security" in content, "zie-audit skill must cover Security dimension"
+        assert "Security" in content, "audit skill must cover Security dimension"
         assert "Code Health" in content or "Quality" in content or "Lean" in content, \
-            "zie-audit skill must cover Code Health/Lean dimension"
+            "audit skill must cover Code Health/Lean dimension"
         assert "Structural" in content or "Architecture" in content, \
-            "zie-audit skill must cover Structural/Architecture dimension"
+            "audit skill must cover Structural/Architecture dimension"
 
     def test_research_sources_are_dynamic(self):
         content = read_skill()
@@ -62,7 +62,7 @@ class TestZieAuditCommand:
     def test_has_synthesis_phase(self):
         content = read_skill()
         assert "Synthesis" in content or "synthesis" in content, \
-            "zie-audit skill must have a synthesis phase to consolidate findings"
+            "audit skill must have a synthesis phase to consolidate findings"
 
     def test_report_saved(self):
         content = read_skill()

@@ -38,50 +38,50 @@ def parse_agent_file(name: str) -> tuple[dict, str]:
 
 class TestImplementModeAgent:
     def test_file_exists(self):
-        assert (AGENTS_DIR / "zie-implement-mode.md").exists(), \
+        assert (AGENTS_DIR / "builder.md").exists(), \
             "agents/implement-mode.md not found"
 
     def test_frontmatter_model(self):
-        fm, _ = parse_agent_file("zie-implement-mode.md")
+        fm, _ = parse_agent_file("builder.md")
         assert fm.get("model", "").split("#")[0].strip() == "sonnet", \
             f"Expected model: sonnet, got: {fm.get('model')}"
 
     def test_frontmatter_permission_mode(self):
-        fm, _ = parse_agent_file("zie-implement-mode.md")
+        fm, _ = parse_agent_file("builder.md")
         assert fm.get("permissionMode") == "acceptEdits", \
             f"Expected permissionMode: acceptEdits, got: {fm.get('permissionMode')}"
 
     def test_frontmatter_tools_all(self):
-        fm, _ = parse_agent_file("zie-implement-mode.md")
+        fm, _ = parse_agent_file("builder.md")
         assert fm.get("tools") == "all", \
             f"Expected tools: all, got: {fm.get('tools')}"
 
     def test_body_mentions_tdd_loop_skill(self):
-        _, body = parse_agent_file("zie-implement-mode.md")
+        _, body = parse_agent_file("builder.md")
         assert "tdd-loop" in body, "System prompt must reference tdd-loop skill"
 
     def test_body_mentions_test_pyramid_skill(self):
-        _, body = parse_agent_file("zie-implement-mode.md")
+        _, body = parse_agent_file("builder.md")
         assert "test-pyramid" in body, "System prompt must reference test-pyramid skill"
 
     def test_body_mentions_sdlc_pipeline_stages(self):
-        _, body = parse_agent_file("zie-implement-mode.md")
+        _, body = parse_agent_file("builder.md")
         for stage in ["/backlog", "/spec", "/plan", "/implement",
                       "/release", "/retro"]:
             assert stage in body, f"System prompt must mention SDLC stage: {stage}"
 
     def test_body_mentions_wip_rule(self):
-        _, body = parse_agent_file("zie-implement-mode.md")
+        _, body = parse_agent_file("builder.md")
         assert "WIP=1" in body or "WIP = 1" in body, \
             "System prompt must mention WIP=1 rule"
 
     def test_body_has_graceful_degradation_note(self):
-        _, body = parse_agent_file("zie-implement-mode.md")
+        _, body = parse_agent_file("builder.md")
         assert "zie-init" in body or "/init" in body, \
             "System prompt must instruct graceful degradation when project not initialized"
 
     def test_no_secrets_in_file(self):
-        path = AGENTS_DIR / "zie-implement-mode.md"
+        path = AGENTS_DIR / "builder.md"
         content = path.read_text()
         secret_patterns = [
             r"sk-[A-Za-z0-9]{20,}",
@@ -91,57 +91,57 @@ class TestImplementModeAgent:
         ]
         for pat in secret_patterns:
             assert not re.search(pat, content, re.IGNORECASE), \
-                f"Possible secret found in zie-implement-mode.md matching pattern: {pat}"
+                f"Possible secret found in builder.md matching pattern: {pat}"
 
 
 class TestAuditModeAgent:
     def test_file_exists(self):
-        assert (AGENTS_DIR / "zie-audit-mode.md").exists(), \
+        assert (AGENTS_DIR / "auditor.md").exists(), \
             "agents/audit-mode.md not found"
 
     def test_frontmatter_model(self):
-        fm, _ = parse_agent_file("zie-audit-mode.md")
+        fm, _ = parse_agent_file("auditor.md")
         assert fm.get("model", "").split("#")[0].strip() == "sonnet", \
             f"Expected model: sonnet, got: {fm.get('model')}"
 
     def test_frontmatter_no_permission_mode_restriction(self):
-        """zie-audit-mode must NOT restrict permissionMode or tools — needs Agent tool for Phase 2 subagents."""
-        fm, _ = parse_agent_file("zie-audit-mode.md")
+        """auditor must NOT restrict permissionMode or tools — needs Agent tool for Phase 2 subagents."""
+        fm, _ = parse_agent_file("auditor.md")
         # permissionMode should be absent (removed in v1.28.4 to fix audit hang)
         assert fm.get("permissionMode") is None, \
             f"permissionMode should be absent (audit needs full tool access), got: {fm.get('permissionMode')}"
 
     def test_frontmatter_no_tools_restriction(self):
-        """zie-audit-mode must NOT restrict tools — needs Agent tool for Phase 2 subagents."""
-        fm, _ = parse_agent_file("zie-audit-mode.md")
+        """auditor must NOT restrict tools — needs Agent tool for Phase 2 subagents."""
+        fm, _ = parse_agent_file("auditor.md")
         # tools should be absent (removed in v1.28.4 to fix audit hang)
         assert fm.get("tools") is None, \
             f"tools should be absent (audit needs full tool access), got: {fm.get('tools')}"
 
     def test_frontmatter_tools_excludes_write(self):
-        fm, _ = parse_agent_file("zie-audit-mode.md")
+        fm, _ = parse_agent_file("auditor.md")
         tools_val = fm.get("tools", "")
         tool_list = re.split(r"[\[\],\s]+", tools_val)
         assert "Write" not in tool_list, \
             f"Write tool must not be in audit-mode tool list: {tools_val}"
 
     def test_body_enforces_read_only(self):
-        _, body = parse_agent_file("zie-audit-mode.md")
+        _, body = parse_agent_file("auditor.md")
         assert "read-only" in body.lower() or "read only" in body.lower(), \
             "System prompt must assert read-only contract"
 
     def test_body_mentions_audit_mode_message(self):
-        _, body = parse_agent_file("zie-audit-mode.md")
+        _, body = parse_agent_file("auditor.md")
         assert "audit mode" in body.lower(), \
             "System prompt must mention 'audit mode' for user-facing messaging"
 
     def test_body_directs_findings_to_backlog(self):
-        _, body = parse_agent_file("zie-audit-mode.md")
+        _, body = parse_agent_file("auditor.md")
         assert "backlog" in body.lower(), \
             "System prompt must instruct surfacing findings as backlog candidates"
 
     def test_body_prohibits_writes(self):
-        _, body = parse_agent_file("zie-audit-mode.md")
+        _, body = parse_agent_file("auditor.md")
         assert (
             "no write" in body.lower()
             or "do not write" in body.lower()
@@ -150,7 +150,7 @@ class TestAuditModeAgent:
         ), "System prompt must explicitly prohibit write operations"
 
     def test_no_secrets_in_file(self):
-        path = AGENTS_DIR / "zie-audit-mode.md"
+        path = AGENTS_DIR / "auditor.md"
         content = path.read_text()
         secret_patterns = [
             r"sk-[A-Za-z0-9]{20,}",
@@ -160,7 +160,7 @@ class TestAuditModeAgent:
         ]
         for pat in secret_patterns:
             assert not re.search(pat, content, re.IGNORECASE), \
-                f"Possible secret found in zie-audit-mode.md matching pattern: {pat}"
+                f"Possible secret found in auditor.md matching pattern: {pat}"
 
 
 class TestPluginJsonAgentsDir:
@@ -191,8 +191,8 @@ class TestSettingsJson:
 
     def test_settings_json_default_agent_is_implement_mode(self):
         settings = json.loads((REPO_ROOT / "settings.json").read_text())
-        assert settings["defaultAgent"] == "zie-implement-mode", \
-            f"Expected defaultAgent: 'zie-implement-mode', got: {settings.get('defaultAgent')}"
+        assert settings["defaultAgent"] == "builder", \
+            f"Expected defaultAgent: 'builder', got: {settings.get('defaultAgent')}"
 
     def test_settings_json_has_invocation_key(self):
         settings = json.loads((REPO_ROOT / "settings.json").read_text())
@@ -215,13 +215,13 @@ class TestReadmeAgentDocs:
 
     def test_implement_mode_in_readme(self):
         readme = (REPO_ROOT / "README.md").read_text()
-        assert "zie-implement-mode" in readme, \
-            "README.md must document zie-implement-mode agent"
+        assert "builder" in readme, \
+            "README.md must document builder agent"
 
     def test_audit_mode_in_readme(self):
         readme = (REPO_ROOT / "README.md").read_text()
-        assert "zie-audit-mode" in readme, \
-            "README.md must document zie-audit-mode agent"
+        assert "auditor" in readme, \
+            "README.md must document auditor agent"
 
     def test_agent_invocation_command_in_readme(self):
         readme = (REPO_ROOT / "README.md").read_text()
@@ -237,8 +237,8 @@ class TestClaudeMdAgentDocs:
 
     def test_implement_mode_in_claude_md(self):
         claude_md = (REPO_ROOT / "CLAUDE.md").read_text()
-        assert "zie-implement-mode" in claude_md, \
-            "CLAUDE.md must reference zie-implement-mode"
+        assert "builder" in claude_md, \
+            "CLAUDE.md must reference builder"
 
 
 class TestComponentsRegistryAgents:
@@ -253,12 +253,12 @@ class TestComponentsRegistryAgents:
         components = (
             REPO_ROOT / "zie-framework" / "project" / "components.md"
         ).read_text()
-        assert "zie-implement-mode" in components, \
-            "components.md Agents section must list zie-implement-mode"
+        assert "builder" in components, \
+            "components.md Agents section must list builder"
 
     def test_audit_mode_in_components(self):
         components = (
             REPO_ROOT / "zie-framework" / "project" / "components.md"
         ).read_text()
-        assert "zie-audit-mode" in components, \
-            "components.md Agents section must list zie-audit-mode"
+        assert "auditor" in components, \
+            "components.md Agents section must list auditor"

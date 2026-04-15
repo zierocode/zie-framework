@@ -28,10 +28,10 @@ class TestZiePlanContextBundle:
             "zie-plan must call write_adr_cache"
 
     def test_bundle_passed_to_reviewer(self):
-        """context_bundle is passed to plan-reviewer."""
+        """context_bundle is passed to plan-review."""
         text = cmd_text()
-        assert "context_bundle" in text and ("plan-reviewer" in text or "reviewer" in text.lower()), \
-            "zie-plan must pass context_bundle to plan-reviewer"
+        assert "context_bundle" in text and ("plan-review" in text or "reviewer" in text.lower()), \
+            "zie-plan must pass context_bundle to plan-review"
 
     def test_single_load_comment(self):
         """Context loaded once per session (not per-slug)."""

@@ -6,7 +6,7 @@
 
 ## Context
 
-The spec-reviewer, plan-reviewer, and impl-reviewer skills each called
+The spec-review, plan-review, and impl-review skills each called
 `Skill(zie-framework:reviewer-context)` as a separate hop to load ADR context
 and project context. This added 3–4 chain depth per review cycle: caller →
 reviewer → reviewer-context → disk reads → return. In a sprint with multiple

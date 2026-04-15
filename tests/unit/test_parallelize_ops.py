@@ -33,8 +33,8 @@ class TestRetroParallelADRAndRoadmap:
 
 class TestAuditAlreadyParallel:
     def test_zie_audit_skill_uses_parallel_agents(self):
-        """zie-audit skill must already spawn parallel agents for dimensions."""
-        content = (REPO_ROOT / "skills" / "zie-audit" / "SKILL.md").read_text()
+        """audit skill must already spawn parallel agents for dimensions."""
+        content = (REPO_ROOT / "skills" / "audit" / "SKILL.md").read_text()
         assert "parallel" in content.lower(), (
-            "zie-audit skill must use parallel agents for audit dimensions"
+            "audit skill must use parallel agents for audit dimensions"
         )

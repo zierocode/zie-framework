@@ -14,46 +14,46 @@ def command_text(name: str) -> str:
 
 class TestReviewerOutputInstructions:
     def test_spec_reviewer_all_issues_instruction(self):
-        assert "Return ALL issues found" in skill_text("spec-reviewer"), \
-            "spec-reviewer must instruct reviewer to return ALL issues"
-        assert "do not stop at the first issue" in skill_text("spec-reviewer"), \
-            "spec-reviewer must instruct reviewer not to stop at first issue"
+        assert "Return ALL issues found" in skill_text("spec-review"), \
+            "spec-review must instruct reviewer to return ALL issues"
+        assert "do not stop at the first issue" in skill_text("spec-review"), \
+            "spec-review must instruct reviewer not to stop at first issue"
 
     def test_plan_reviewer_all_issues_instruction(self):
-        assert "Return ALL issues found" in skill_text("plan-reviewer"), \
-            "plan-reviewer must instruct reviewer to return ALL issues"
-        assert "do not stop at the first issue" in skill_text("plan-reviewer"), \
-            "plan-reviewer must instruct reviewer not to stop at first issue"
+        assert "Return ALL issues found" in skill_text("plan-review"), \
+            "plan-review must instruct reviewer to return ALL issues"
+        assert "do not stop at the first issue" in skill_text("plan-review"), \
+            "plan-review must instruct reviewer not to stop at first issue"
 
     def test_impl_reviewer_all_issues_instruction(self):
-        assert "Return ALL issues found" in skill_text("impl-reviewer"), \
-            "impl-reviewer must instruct reviewer to return ALL issues"
-        assert "do not stop at the first issue" in skill_text("impl-reviewer"), \
-            "impl-reviewer must instruct reviewer not to stop at first issue"
+        assert "Return ALL issues found" in skill_text("impl-review"), \
+            "impl-review must instruct reviewer to return ALL issues"
+        assert "do not stop at the first issue" in skill_text("impl-review"), \
+            "impl-review must instruct reviewer not to stop at first issue"
 
     def test_spec_reviewer_no_old_max(self):
-        assert "Max 3 review iterations" not in skill_text("spec-reviewer"), \
-            "spec-reviewer must not contain old 3-iteration cap"
+        assert "Max 3 review iterations" not in skill_text("spec-review"), \
+            "spec-review must not contain old 3-iteration cap"
 
     def test_plan_reviewer_no_old_max(self):
-        assert "Max 3 review iterations" not in skill_text("plan-reviewer"), \
-            "plan-reviewer must not contain old 3-iteration cap"
+        assert "Max 3 review iterations" not in skill_text("plan-review"), \
+            "plan-review must not contain old 3-iteration cap"
 
     def test_impl_reviewer_no_old_max(self):
-        assert "Max 3 review iterations" not in skill_text("impl-reviewer"), \
-            "impl-reviewer must not contain old 3-iteration cap"
+        assert "Max 3 review iterations" not in skill_text("impl-review"), \
+            "impl-review must not contain old 3-iteration cap"
 
     def test_spec_reviewer_new_max(self):
-        assert "Max 2 total iterations" in skill_text("spec-reviewer"), \
-            "spec-reviewer must declare Max 2 total iterations"
+        assert "Max 2 total iterations" in skill_text("spec-review"), \
+            "spec-review must declare Max 2 total iterations"
 
     def test_plan_reviewer_new_max(self):
-        assert "Max 2 total iterations" in skill_text("plan-reviewer"), \
-            "plan-reviewer must declare Max 2 total iterations"
+        assert "Max 2 total iterations" in skill_text("plan-review"), \
+            "plan-review must declare Max 2 total iterations"
 
     def test_impl_reviewer_new_max(self):
-        assert "Max 2 total iterations" in skill_text("impl-reviewer"), \
-            "impl-reviewer must declare Max 2 total iterations"
+        assert "Max 2 total iterations" in skill_text("impl-review"), \
+            "impl-review must declare Max 2 total iterations"
 
 
 class TestCommandIterationLogic:
@@ -94,7 +94,7 @@ class TestCommandIterationLogic:
             "zie-implement must describe zero-issues fast path"
 
 
-ADR_014 = Path(__file__).parents[2] / "zie-framework" / "decisions" / "ADR-014-async-impl-reviewer-deferred-check.md"
+ADR_014 = Path(__file__).parents[2] / "zie-framework" / "decisions" / "ADR-014-async-impl-review-deferred-check.md"
 
 
 class TestADR014Amendment:

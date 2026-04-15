@@ -36,7 +36,7 @@ try:
 
     # Write a session marker when a reviewer agent returns ✅ APPROVED.
     # approve.py reads these markers to confirm the reviewer ran.
-    _REVIEWER_KINDS = {"spec-reviewer": "spec", "plan-reviewer": "plan"}
+    _REVIEWER_KINDS = {"spec-review": "spec", "plan-review": "plan"}
     if agent_type in _REVIEWER_KINDS and "\u2705 APPROVED" in last_message:
         kind = _REVIEWER_KINDS[agent_type]
         marker = project_tmp_path(f"reviewer-approved-{kind}", cwd.name)

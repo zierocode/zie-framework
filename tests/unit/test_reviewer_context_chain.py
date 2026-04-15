@@ -15,7 +15,7 @@ def _read(rel: str) -> str:
 import pytest
 
 
-@pytest.mark.parametrize("skill", ["spec-reviewer", "plan-reviewer", "impl-reviewer"])
+@pytest.mark.parametrize("skill", ["spec-review", "plan-review", "impl-review"])
 def test_reviewer_requires_context_bundle(skill):
     """Reviewer Phase 1 must require context_bundle from caller."""
     text = _read(f"skills/{skill}/SKILL.md")
@@ -29,66 +29,66 @@ def test_reviewer_requires_context_bundle(skill):
 
 
 def test_spec_reviewer_no_skill_reviewer_context_call():
-    """spec-reviewer must NOT invoke Skill(reviewer-context) — use inline context load."""
-    text = _read("skills/spec-reviewer/SKILL.md")
+    """spec-review must NOT invoke Skill(reviewer-context) — use inline context load."""
+    text = _read("skills/spec-review/SKILL.md")
     assert "Skill(reviewer-context)" not in text, (
-        "spec-reviewer must inline context load, not call Skill(reviewer-context)"
+        "spec-review must inline context load, not call Skill(reviewer-context)"
     )
 
 
 def test_plan_reviewer_no_skill_reviewer_context_call():
-    """plan-reviewer must NOT invoke Skill(reviewer-context) — use inline context load."""
-    text = _read("skills/plan-reviewer/SKILL.md")
+    """plan-review must NOT invoke Skill(reviewer-context) — use inline context load."""
+    text = _read("skills/plan-review/SKILL.md")
     assert "Skill(reviewer-context)" not in text, (
-        "plan-reviewer must inline context load, not call Skill(reviewer-context)"
+        "plan-review must inline context load, not call Skill(reviewer-context)"
     )
 
 
 def test_impl_reviewer_no_skill_reviewer_context_call():
-    """impl-reviewer must NOT invoke Skill(reviewer-context) — use inline context load."""
-    text = _read("skills/impl-reviewer/SKILL.md")
+    """impl-review must NOT invoke Skill(reviewer-context) — use inline context load."""
+    text = _read("skills/impl-review/SKILL.md")
     assert "Skill(reviewer-context)" not in text, (
-        "impl-reviewer must inline context load, not call Skill(reviewer-context)"
+        "impl-review must inline context load, not call Skill(reviewer-context)"
     )
 
 
 def test_spec_reviewer_has_inline_fast_path():
-    """spec-reviewer Phase 1 must have context_bundle fast-path inline."""
-    text = _read("skills/spec-reviewer/SKILL.md")
+    """spec-review Phase 1 must have context_bundle fast-path inline."""
+    text = _read("skills/spec-review/SKILL.md")
     assert "context_bundle" in text and ("fast" in text.lower() or "fast-path" in text.lower() or "disk" in text.lower()), (
-        "spec-reviewer must have inline fast-path context load"
+        "spec-review must have inline fast-path context load"
     )
 
 
 def test_plan_reviewer_has_inline_fast_path():
-    """plan-reviewer Phase 1 must have context_bundle fast-path inline."""
-    text = _read("skills/plan-reviewer/SKILL.md")
+    """plan-review Phase 1 must have context_bundle fast-path inline."""
+    text = _read("skills/plan-review/SKILL.md")
     assert "context_bundle" in text and ("fast" in text.lower() or "disk" in text.lower()), (
-        "plan-reviewer must have inline fast-path context load"
+        "plan-review must have inline fast-path context load"
     )
 
 
 def test_impl_reviewer_has_inline_fast_path():
-    """impl-reviewer Phase 1 must have context_bundle fast-path inline."""
-    text = _read("skills/impl-reviewer/SKILL.md")
+    """impl-review Phase 1 must have context_bundle fast-path inline."""
+    text = _read("skills/impl-review/SKILL.md")
     assert "context_bundle" in text and ("fast" in text.lower() or "disk" in text.lower()), (
-        "impl-reviewer must have inline fast-path context load"
+        "impl-review must have inline fast-path context load"
     )
 
 
 def test_spec_design_passes_context_bundle_to_reviewer():
-    """spec-design must pass context_bundle when invoking spec-reviewer."""
+    """spec-design must pass context_bundle when invoking spec-review."""
     text = _read("skills/spec-design/SKILL.md")
     assert "context_bundle" in text, (
-        "spec-design must pass context_bundle to Skill(zie-framework:spec-reviewer)"
+        "spec-design must pass context_bundle to Skill(zie-framework:spec-review)"
     )
 
 
 def test_write_plan_passes_context_bundle_to_reviewer():
-    """commands/plan.md must pass context_bundle when invoking plan-reviewer."""
+    """commands/plan.md must pass context_bundle when invoking plan-review."""
     text = _read("commands/plan.md")
     assert "context_bundle" in text, (
-        "commands/plan.md must pass context_bundle to Skill(zie-framework:plan-reviewer)"
+        "commands/plan.md must pass context_bundle to Skill(zie-framework:plan-review)"
     )
 
 
@@ -101,23 +101,23 @@ def _extract_phase1(skill_path: str) -> str:
 
 def test_spec_reviewer_phase1_structure():
     """Phase 1 must have context_bundle validation with Returns statement."""
-    phase1 = _extract_phase1("skills/spec-reviewer/SKILL.md")
-    assert "context_bundle" in phase1, "spec-reviewer Phase 1 missing context_bundle reference"
-    assert "Returns:" in phase1, "spec-reviewer Phase 1 missing Returns line"
+    phase1 = _extract_phase1("skills/spec-review/SKILL.md")
+    assert "context_bundle" in phase1, "spec-review Phase 1 missing context_bundle reference"
+    assert "Returns:" in phase1, "spec-review Phase 1 missing Returns line"
 
 
 def test_plan_reviewer_phase1_structure():
     """Phase 1 must have context_bundle validation with Returns statement."""
-    phase1 = _extract_phase1("skills/plan-reviewer/SKILL.md")
-    assert "context_bundle" in phase1, "plan-reviewer Phase 1 missing context_bundle reference"
-    assert "Returns:" in phase1, "plan-reviewer Phase 1 missing Returns line"
+    phase1 = _extract_phase1("skills/plan-review/SKILL.md")
+    assert "context_bundle" in phase1, "plan-review Phase 1 missing context_bundle reference"
+    assert "Returns:" in phase1, "plan-review Phase 1 missing Returns line"
 
 
 def test_impl_reviewer_phase1_structure():
     """Phase 1 must have context_bundle validation with Returns statement."""
-    phase1 = _extract_phase1("skills/impl-reviewer/SKILL.md")
-    assert "context_bundle" in phase1, "impl-reviewer Phase 1 missing context_bundle reference"
-    assert "Returns:" in phase1, "impl-reviewer Phase 1 missing Returns line"
+    phase1 = _extract_phase1("skills/impl-review/SKILL.md")
+    assert "context_bundle" in phase1, "impl-review Phase 1 missing context_bundle reference"
+    assert "Returns:" in phase1, "impl-review Phase 1 missing Returns line"
 
 
 def test_project_md_no_reviewer_context_row():

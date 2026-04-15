@@ -10,7 +10,7 @@ def cmd_text() -> str:
 
 class TestParallelReleaseGates:
     def test_docs_sync_spawns_before_gate1(self):
-        """docs-sync-check Agent spawns before unit tests (Pre-Gate-1 section)."""
+        """docs-sync Agent spawns before unit tests (Pre-Gate-1 section)."""
         text = cmd_text()
         pre_gate1_idx = text.find("Pre-Gate-1")
         gate1_idx = text.find("Gate 1/5")

@@ -29,7 +29,7 @@ def _wp():
 
 class TestSprintApprovalFlow:
     def test_sprint_phase1_uses_approve_py_for_plans(self):
-        """Sprint Phase 1 must call approve.py after plan-reviewer — not write approved:true."""
+        """Sprint Phase 1 must call approve.py after plan-review — not write approved:true."""
         t = _sprint()
         phase1_idx = t.index("PHASE 1")
         phase2_idx = t.index("PHASE 2")
@@ -98,12 +98,12 @@ class TestSpecCommandDraftPlanApproval:
             "spec --draft-plan must not instruct writing approved:true directly"
 
     def test_spec_draft_plan_invokes_plan_reviewer(self):
-        """--draft-plan branch must run plan-reviewer before approving."""
+        """--draft-plan branch must run plan-review before approving."""
         text = self._spec_cmd()
         draft_idx = text.index("--draft-plan branch")
         draft_section = text[draft_idx:draft_idx + 800]
-        assert "plan-reviewer" in draft_section, \
-            "spec --draft-plan must invoke plan-reviewer before approve.py"
+        assert "plan-review" in draft_section, \
+            "spec --draft-plan must invoke plan-review before approve.py"
 
 
 class TestWritePlanApprovalGate:

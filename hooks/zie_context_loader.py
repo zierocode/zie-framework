@@ -38,7 +38,7 @@ def build_context_map(cwd: Path) -> dict:
 
 def _get_skill_mtime(cwd: Path) -> float:
     """Get SKILL.md mtime for cache invalidation."""
-    skill_path = cwd / "skills" / "using-zie-framework" / "SKILL.md"
+    skill_path = cwd / "skills" / "context-map" / "SKILL.md"
     if skill_path.exists():
         return skill_path.stat().st_mtime
     return 0.0

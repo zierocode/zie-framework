@@ -1,8 +1,8 @@
-"""Tests for /audit — implementation in zie-audit skill (canonical since lean-dual-audit-pipeline)."""
+"""Tests for /audit — implementation in audit skill (canonical since lean-dual-audit-pipeline)."""
 from pathlib import Path
 
 # audit.md is now a thin dispatcher; all implementation is in the skill
-SKILL = Path(__file__).parents[2] / "skills" / "zie-audit" / "SKILL.md"
+SKILL = Path(__file__).parents[2] / "skills" / "audit" / "SKILL.md"
 AUDIT = Path(__file__).parents[2] / "commands" / "audit.md"
 
 
@@ -129,8 +129,8 @@ class TestGenericApplicability:
     def test_no_python_specific_assumptions(self):
         text = read_audit()
         # audit.md thin dispatcher must not be python-specific; skill handles generics
-        assert "zie-audit" in text, \
-            "audit.md must delegate to zie-audit skill (which handles multi-stack)"
+        assert "audit" in text, \
+            "audit.md must delegate to audit skill (which handles multi-stack)"
 
     def test_stack_variable_drives_research(self):
         text = read_skill()

@@ -1,8 +1,8 @@
-"""Tests for zie-audit skill: Phase 1 builds shared_context (canonical since lean-dual-audit-pipeline)."""
+"""Tests for audit skill: Phase 1 builds shared_context (canonical since lean-dual-audit-pipeline)."""
 from pathlib import Path
 
 # Implementation moved from commands/audit.md to skill
-SKILL_PATH = Path(__file__).parents[2] / "skills" / "zie-audit" / "SKILL.md"
+SKILL_PATH = Path(__file__).parents[2] / "skills" / "audit" / "SKILL.md"
 
 
 def skill_text() -> str:
@@ -13,7 +13,7 @@ class TestZieAuditSharedContext:
     def test_shared_context_bundle_present(self):
         """Phase 1 builds shared_context bundle."""
         assert "shared_context" in skill_text(), \
-            "zie-audit skill Phase 1 must build shared_context bundle"
+            "audit skill Phase 1 must build shared_context bundle"
 
     def test_shared_context_has_required_fields(self):
         """shared_context contains research_profile, backlog_slugs, adr_filenames, git_log."""
@@ -37,7 +37,7 @@ class TestZieAuditSharedContext:
         """ADR filenames read in Phase 1 before agents spawn."""
         text = skill_text()
         assert "adr" in text.lower() or "decisions" in text.lower(), \
-            "zie-audit skill Phase 1 must reference ADR/decisions for dedup"
+            "audit skill Phase 1 must reference ADR/decisions for dedup"
 
     def test_no_redundant_manifest_reads(self):
         """Manifests read in Phase 1, not per-agent."""

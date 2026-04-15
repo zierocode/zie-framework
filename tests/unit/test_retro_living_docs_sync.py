@@ -8,12 +8,12 @@ class TestRetroLivingDocsSync:
         return (COMMANDS_DIR / "retro.md").read_text()
 
     def test_docs_sync_check_skill_invoked(self):
-        assert "docs-sync-check" in self._retro_text(), \
-            "zie-retro.md must invoke docs-sync-check skill for docs sync"
+        assert "docs-sync" in self._retro_text(), \
+            "zie-retro.md must invoke docs-sync skill for docs sync"
 
     def test_docs_sync_check_skill_call_present(self):
-        assert "Skill(zie-framework:docs-sync-check)" in self._retro_text(), \
-            "zie-retro.md must use Skill(zie-framework:docs-sync-check)"
+        assert "Skill(zie-framework:docs-sync)" in self._retro_text(), \
+            "zie-retro.md must use Skill(zie-framework:docs-sync)"
 
     def test_docs_sync_verdict_printed(self):
         text = self._retro_text()

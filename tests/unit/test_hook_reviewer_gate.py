@@ -60,13 +60,13 @@ class TestReviewerGateBlocksApproval:
         write_spec(tmp_path, "approved: false\n---\n")
         path = "zie-framework/specs/2026-04-11-test-feature-design.md"
         r = run_hook("Write", {"file_path": path, "content": "approved: true\n"}, cwd=str(tmp_path))
-        assert "zie-framework:spec-reviewer" in r.stdout
+        assert "zie-framework:spec-review" in r.stdout
 
     def test_block_message_names_plan_reviewer(self, tmp_path):
         write_plan(tmp_path, "---\napproved: false\n---\n")
         path = "zie-framework/plans/2026-04-11-test-feature.md"
         r = run_hook("Write", {"file_path": path, "content": "approved: true\n"}, cwd=str(tmp_path))
-        assert "zie-framework:plan-reviewer" in r.stdout
+        assert "zie-framework:plan-review" in r.stdout
 
 
 class TestReviewerGateAllows:

@@ -39,14 +39,14 @@ EXPECTED = {
     "skills/spec-design/SKILL.md":   ("sonnet", "medium"),
     "skills/write-plan/SKILL.md":    ("sonnet", "low"),
     "skills/debug/SKILL.md":         ("sonnet", "low"),
-    "skills/spec-reviewer/SKILL.md": ("haiku",  "low"),
-    "skills/plan-reviewer/SKILL.md": ("haiku",  "low"),
-    "skills/impl-reviewer/SKILL.md": ("haiku",  "low"),
+    "skills/spec-review/SKILL.md": ("haiku",  "low"),
+    "skills/plan-review/SKILL.md": ("haiku",  "low"),
+    "skills/impl-review/SKILL.md": ("haiku",  "low"),
     "skills/verify/SKILL.md":        ("haiku",  "low"),
     "skills/tdd-loop/SKILL.md":      ("haiku",  "low"),
     "skills/test-pyramid/SKILL.md":  ("haiku",  "low"),
-    "skills/zie-audit/SKILL.md":         ("sonnet", "medium"),
-    "skills/docs-sync-check/SKILL.md":  ("haiku",  "low"),
+    "skills/audit/SKILL.md":         ("sonnet", "medium"),
+    "skills/docs-sync/SKILL.md":  ("haiku",  "low"),
 }
 
 VALID_MODELS = {"haiku", "sonnet", "opus"}
@@ -135,15 +135,15 @@ class TestExpectedValues:
 
 
 class TestAuditFiles:
-    """zie-audit uses sonnet+medium per ADR-021 (supersedes ADR-012)."""
+    """audit uses sonnet+medium per ADR-021 (supersedes ADR-012)."""
 
     def test_zie_audit_command_is_sonnet(self):
         fm = parse_frontmatter("commands/audit.md")
         assert fm.get("model") == "sonnet", "commands/audit.md must use sonnet (ADR-021)"
 
     def test_zie_audit_skill_is_sonnet(self):
-        fm = parse_frontmatter("skills/zie-audit/SKILL.md")
-        assert fm.get("model") == "sonnet", "skills/zie-audit/SKILL.md must use sonnet (ADR-021)"
+        fm = parse_frontmatter("skills/audit/SKILL.md")
+        assert fm.get("model") == "sonnet", "skills/audit/SKILL.md must use sonnet (ADR-021)"
 
     def test_no_opus_files_in_expected(self):
         """ADR-021: opus reservation removed — no file should use opus."""
@@ -159,9 +159,9 @@ class TestHaikuFiles:
     EXPECTED_HAIKU = [
         "commands/status.md",
         "commands/backlog.md",
-        "skills/spec-reviewer/SKILL.md",
-        "skills/plan-reviewer/SKILL.md",
-        "skills/impl-reviewer/SKILL.md",
+        "skills/spec-review/SKILL.md",
+        "skills/plan-review/SKILL.md",
+        "skills/impl-review/SKILL.md",
         "skills/verify/SKILL.md",
         "skills/tdd-loop/SKILL.md",
         "skills/test-pyramid/SKILL.md",

@@ -1,4 +1,4 @@
-"""Tests for model-routing-v2: haiku downgrade for zie-release and impl-reviewer."""
+"""Tests for model-routing-v2: haiku downgrade for zie-release and impl-review."""
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
@@ -34,13 +34,13 @@ class TestImplReviewerModel:
         import re
 
         import yaml
-        text = read("skills/impl-reviewer/SKILL.md")
+        text = read("skills/impl-review/SKILL.md")
         match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
         assert match
         fm = yaml.safe_load(match.group(1))
-        assert fm.get("model") == "haiku", "impl-reviewer SKILL.md must use haiku"
+        assert fm.get("model") == "haiku", "impl-review SKILL.md must use haiku"
 
     def test_impl_reviewer_has_note_annotation(self):
-        text = read("skills/impl-reviewer/SKILL.md")
+        text = read("skills/impl-review/SKILL.md")
         assert "<!-- NOTE:" in text, \
-            "impl-reviewer must have NOTE annotation"
+            "impl-review must have NOTE annotation"

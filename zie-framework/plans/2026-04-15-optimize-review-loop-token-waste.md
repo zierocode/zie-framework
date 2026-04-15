@@ -25,8 +25,8 @@ backlog: backlog/optimize-review-loop-token-waste.md
 | Modify | `commands/retro.md` | Remove `git log -50` injection |
 | Modify | `skills/spec-design/SKILL.md` | Replace reviewer loop with inline verification |
 | Modify | `skills/brainstorm/SKILL.md` | Pass keywords to load-context |
-| Modify | `skills/spec-reviewer/SKILL.md` | Scoped Grep/Glob in Phase 3 |
-| Modify | `skills/plan-reviewer/SKILL.md` | Scoped Grep/Glob in Phase 3 |
+| Modify | `skills/spec-review/SKILL.md` | Scoped Grep/Glob in Phase 3 |
+| Modify | `skills/plan-review/SKILL.md` | Scoped Grep/Glob in Phase 3 |
 
 ---
 
@@ -181,18 +181,18 @@ backlog: backlog/optimize-review-loop-token-waste.md
 <!-- depends_on: none -->
 
 **Acceptance Criteria:**
-- spec-reviewer Phase 3 scopes Grep/Glob to paths in spec's Components section
-- plan-reviewer Phase 3 scopes Grep/Glob to paths in plan's File Map
+- spec-review Phase 3 scopes Grep/Glob to paths in spec's Components section
+- plan-review Phase 3 scopes Grep/Glob to paths in plan's File Map
 - Both reviewers still fall back to broad scope if no paths found in spec/plan
 
 **Files:**
-- Modify: `skills/spec-reviewer/SKILL.md`
-- Modify: `skills/plan-reviewer/SKILL.md`
+- Modify: `skills/spec-review/SKILL.md`
+- Modify: `skills/plan-review/SKILL.md`
 
 - [ ] **Step 1: Read both reviewer SKILL.md files**
   Read Phase 3 sections for exact text.
 
-- [ ] **Step 2: Update spec-reviewer Phase 3**
+- [ ] **Step 2: Update spec-review Phase 3**
   Add scoped path extraction before file existence checks. Replace Phase 3 intro:
   ```
   1. **File existence** — named component files that don't exist and aren't marked "Create".
@@ -204,7 +204,7 @@ backlog: backlog/optimize-review-loop-token-waste.md
 
   Run: `make test-unit` — not applicable (Markdown-only change)
 
-- [ ] **Step 3: Update plan-reviewer Phase 3**
+- [ ] **Step 3: Update plan-review Phase 3**
   Replace Phase 3 step 1:
   ```
   1. **File existence** — list file-map files that don't exist and aren't marked "Create".
@@ -223,7 +223,7 @@ backlog: backlog/optimize-review-loop-token-waste.md
 **Acceptance Criteria:**
 - spec-design Step 5 no longer mentions re-invoking reviewer after fixes
 - spec-design Autonomous mode: "fix inline → verify inline → run approve.py"
-- plan.md plan-reviewer gate: invoke once → fix → verify inline → approve
+- plan.md plan-review gate: invoke once → fix → verify inline → approve
 - spec.md reviewer invocation: no "re-invoke" or "confirm pass"
 - sprint.md Phase 1 reviewer: inline verification language
 - No "re-check once", "re-invoke", "confirm pass", "pass 2", "Max N iterations" in any modified file
@@ -240,7 +240,7 @@ backlog: backlog/optimize-review-loop-token-waste.md
 - [ ] **Step 2: Update spec-design SKILL.md**
   Step 5:
   ```
-  5. **Spec reviewer loop** — invoke `Skill(zie-framework:spec-reviewer)` once:
+  5. **Spec reviewer loop** — invoke `Skill(zie-framework:spec-review)` once:
      - ✅ APPROVED → proceed to Step 6
      - ❌ Issues Found → fix all issues inline → verify each fix against the issue list
        (no re-invocation of reviewer — inline verification replaces confirm pass)
@@ -252,7 +252,7 @@ backlog: backlog/optimize-review-loop-token-waste.md
   - Replace: `Second failure → surface to user`
   - With: `Any issue unfixable → surface to user`
 
-- [ ] **Step 3: Update plan.md plan-reviewer gate**
+- [ ] **Step 3: Update plan.md plan-review gate**
   Replace confirm pass language:
   ```
   3. If ❌ Issues Found → fix ALL issues listed → verify each fix inline against issue list

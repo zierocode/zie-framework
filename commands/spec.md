@@ -29,7 +29,7 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 
 Extract keywords from backlog item (Problem + Approach sections — split on whitespace, remove stop words, take top 6 unique terms).
 Invoke `Skill(zie-framework:load-context, '<keywords>')` → result available as `context_bundle`.
-Pass `context_bundle` to spec-design and spec-reviewer invocations.
+Pass `context_bundle` to spec-design and spec-review invocations.
 
 ## Steps
 
@@ -70,7 +70,7 @@ Pass `context_bundle` to spec-design and spec-reviewer invocations.
      context (idea string becomes the problem statement — no backlog file
      needed).
    - spec-design asks clarifying questions, proposes approaches, writes
-     spec, runs spec-reviewer once, fixes issues inline if any, records `approved: true` in frontmatter.
+     spec, runs spec-review once, fixes issues inline if any, records `approved: true` in frontmatter.
    - After spec approved, add to ROADMAP Next:
      `- [ ] <idea title> — [spec](specs/YYYY-MM-DD-<slug>-design.md)`
 
@@ -86,7 +86,7 @@ Pass `context_bundle` to spec-design and spec-reviewer invocations.
 
    After spec commit:
    1. Auto-invoke `Skill(zie-framework:write-plan)` with slug → plan written with `approved: false`
-   2. Invoke `Skill(zie-framework:plan-reviewer)` inline with plan path + spec path
+   2. Invoke `Skill(zie-framework:plan-review)` inline with plan path + spec path
    3. If ✅ APPROVED → run approve.py via Bash (reviewer-gate blocks Write/Edit — this is the only allowed path):
       ```bash
       python3 hooks/approve.py zie-framework/plans/YYYY-MM-DD-<slug>.md

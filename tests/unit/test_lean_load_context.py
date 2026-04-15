@@ -44,8 +44,8 @@ def test_sprint_passes_context_bundle_to_implement():
 
 
 def test_implement_passes_context_bundle_to_reviewer():
-    """implement.md must pass context_bundle to impl-reviewer."""
+    """implement.md must pass context_bundle to impl-review."""
     text = _read("commands/implement.md")
     assert "context_bundle" in text, (
-        "commands/implement.md must pass context_bundle to impl-reviewer"
+        "commands/implement.md must pass context_bundle to impl-review"
     )

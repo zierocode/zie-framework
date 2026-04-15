@@ -1,10 +1,10 @@
 from pathlib import Path
 
-SKILL_PATH = Path(__file__).parents[2] / "skills" / "zie-audit" / "SKILL.md"
+SKILL_PATH = Path(__file__).parents[2] / "skills" / "audit" / "SKILL.md"
 
 
 def _phase_text(n: int) -> str:
-    """Extract Phase N section from zie-audit skill."""
+    """Extract Phase N section from audit skill."""
     text = SKILL_PATH.read_text()
     header = f"## Phase {n}"
     next_header = f"## Phase {n + 1}"

@@ -16,9 +16,9 @@ HOOKS_DIR = REPO_ROOT / "hooks"
 # Rough token estimate: 1 token ≈ 4 chars for English prose.
 # These thresholds are generous to avoid false failures from minor content edits.
 FAST_PATH_BUDGETS = {
-    "spec-reviewer": 600,   # ≤120 tokens ≈ 480 chars; 600 gives 25% margin
-    "plan-reviewer": 600,
-    "impl-reviewer": 400,   # ≤80 tokens ≈ 320 chars; 400 gives 25% margin
+    "spec-review": 600,   # ≤120 tokens ≈ 480 chars; 600 gives 25% margin
+    "plan-review": 600,
+    "impl-review": 400,   # ≤80 tokens ≈ 320 chars; 400 gives 25% margin
     "load-context":  300,   # ≤60 tokens ≈ 240 chars; 300 gives 25% margin
 }
 
@@ -43,15 +43,15 @@ class TestFastPathPresent:
         return fast_section
 
     def test_spec_reviewer_has_fast_path(self):
-        block = self._fast_path_block("spec-reviewer")
+        block = self._fast_path_block("spec-review")
         assert len(block) > 0
 
     def test_plan_reviewer_has_fast_path(self):
-        block = self._fast_path_block("plan-reviewer")
+        block = self._fast_path_block("plan-review")
         assert len(block) > 0
 
     def test_impl_reviewer_has_fast_path(self):
-        block = self._fast_path_block("impl-reviewer")
+        block = self._fast_path_block("impl-review")
         assert len(block) > 0
 
     def test_load_context_has_fast_path(self):
@@ -59,21 +59,21 @@ class TestFastPathPresent:
         assert len(block) > 0
 
     def test_spec_reviewer_fast_path_under_budget(self):
-        block = self._fast_path_block("spec-reviewer")
-        assert len(block) <= FAST_PATH_BUDGETS["spec-reviewer"], (
-            f"spec-reviewer FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['spec-reviewer']}"
+        block = self._fast_path_block("spec-review")
+        assert len(block) <= FAST_PATH_BUDGETS["spec-review"], (
+            f"spec-review FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['spec-review']}"
         )
 
     def test_plan_reviewer_fast_path_under_budget(self):
-        block = self._fast_path_block("plan-reviewer")
-        assert len(block) <= FAST_PATH_BUDGETS["plan-reviewer"], (
-            f"plan-reviewer FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['plan-reviewer']}"
+        block = self._fast_path_block("plan-review")
+        assert len(block) <= FAST_PATH_BUDGETS["plan-review"], (
+            f"plan-review FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['plan-review']}"
         )
 
     def test_impl_reviewer_fast_path_under_budget(self):
-        block = self._fast_path_block("impl-reviewer")
-        assert len(block) <= FAST_PATH_BUDGETS["impl-reviewer"], (
-            f"impl-reviewer FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['impl-reviewer']}"
+        block = self._fast_path_block("impl-review")
+        assert len(block) <= FAST_PATH_BUDGETS["impl-review"], (
+            f"impl-review FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['impl-review']}"
         )
 
     def test_load_context_fast_path_under_budget(self):

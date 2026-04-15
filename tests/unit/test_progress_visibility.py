@@ -33,30 +33,30 @@ class TestImplementProgress:
 
 
 class TestAuditProgress:
-    """zie-audit skill is canonical implementation since lean-dual-audit-pipeline."""
+    """audit skill is canonical implementation since lean-dual-audit-pipeline."""
 
     def _skill(self):
-        return (Path(__file__).parents[2] / "skills" / "zie-audit" / "SKILL.md").read_text()
+        return (Path(__file__).parents[2] / "skills" / "audit" / "SKILL.md").read_text()
 
     def test_phase_structure_present(self):
         text = self._skill()
         assert "## Phase 1" in text and "## Phase 2" in text, \
-            "zie-audit skill must contain Phase 1 and Phase 2 sections"
+            "audit skill must contain Phase 1 and Phase 2 sections"
 
     def test_three_dimension_agents_present(self):
         text = self._skill()
         assert "Agent A" in text and "Agent B" in text and "Agent C" in text, \
-            "zie-audit skill must describe dimension agents (A, B, C...)"
+            "audit skill must describe dimension agents (A, B, C...)"
 
     def test_research_parallel_dispatch_present(self):
         text = self._skill()
         assert "parallel" in text.lower() or "simultaneously" in text.lower(), \
-            "zie-audit skill must describe parallel agent dispatch"
+            "audit skill must describe parallel agent dispatch"
 
     def test_synthesis_phase_present(self):
         text = self._skill()
         assert "## Phase 4" in text and ("Synthesis" in text or "synthesis" in text), \
-            "zie-audit skill must contain a Synthesis phase"
+            "audit skill must contain a Synthesis phase"
 
 
 class TestReleaseProgress:
@@ -84,8 +84,8 @@ class TestPlanProgress:
 
     def test_reviewer_pass_marker_present(self):
         text = (COMMANDS_DIR / "plan.md").read_text()
-        assert "plan-reviewer pass" in text, \
-            "zie-plan.md must contain 'plan-reviewer pass' marker"
+        assert "plan-review pass" in text, \
+            "zie-plan.md must contain 'plan-review pass' marker"
 
 
 class TestResyncProgress:

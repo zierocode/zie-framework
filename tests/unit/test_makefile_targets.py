@@ -70,10 +70,10 @@ def test_zie_implement_target_exists():
 
 
 def test_zie_implement_invokes_agent_mode():
-    """make zie-implement must run claude --agent zie-framework:zie-implement-mode."""
+    """make zie-implement must run claude --agent zie-framework:builder."""
     result = _make("zie-implement")
-    assert "zie-implement-mode" in result.stdout, \
-        "make zie-implement must invoke claude --agent zie-framework:zie-implement-mode"
+    assert "builder" in result.stdout, \
+        "make zie-implement must invoke claude --agent zie-framework:builder"
 
 
 def test_zie_release_target_still_exists():

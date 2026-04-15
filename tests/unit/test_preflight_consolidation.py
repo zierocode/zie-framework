@@ -64,7 +64,7 @@ def test_implement_retains_live_context():
 
 def test_implement_retains_agent_advisory():
     body = _preflight_body("implement")
-    assert "agent" in body.lower() or "zie-implement-mode" in body
+    assert "agent" in body.lower() or "builder" in body
 
 
 def test_implement_retains_ready_guard():

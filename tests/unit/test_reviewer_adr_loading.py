@@ -6,9 +6,9 @@ import pytest
 SKILLS_DIR = Path(__file__).parents[2] / "skills"
 
 REVIEWER_SKILLS = [
-    SKILLS_DIR / "spec-reviewer" / "SKILL.md",
-    SKILLS_DIR / "plan-reviewer" / "SKILL.md",
-    SKILLS_DIR / "impl-reviewer" / "SKILL.md",
+    SKILLS_DIR / "spec-review" / "SKILL.md",
+    SKILLS_DIR / "plan-review" / "SKILL.md",
+    SKILLS_DIR / "impl-review" / "SKILL.md",
 ]
 
 

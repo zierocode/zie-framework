@@ -10,13 +10,13 @@ from pathlib import Path
 
 class TestDefaultMapping:
     def test_spec_maps_to_spec_reviewer(self):
-        assert DEFAULT_SKILL_MAPPING["spec"] == "spec-reviewer"
+        assert DEFAULT_SKILL_MAPPING["spec"] == "spec-review"
 
     def test_plan_maps_to_write_plan(self):
         assert DEFAULT_SKILL_MAPPING["plan"] == "write-plan"
 
     def test_implement_maps_to_impl_reviewer(self):
-        assert DEFAULT_SKILL_MAPPING["implement"] == "impl-reviewer"
+        assert DEFAULT_SKILL_MAPPING["implement"] == "impl-review"
 
 
 class TestInjectSkillContext:
@@ -39,7 +39,7 @@ class TestInjectSkillContext:
         (zf / ".config").write_text(json.dumps(config))
 
         # Create a skill file
-        skill_dir = tmp_path / "skills" / "impl-reviewer"
+        skill_dir = tmp_path / "skills" / "impl-review"
         skill_dir.mkdir(parents=True)
         (skill_dir / "SKILL.md").write_text("# Impl Reviewer\n\nReview code changes.")
 
@@ -92,7 +92,7 @@ class TestInjectSkillContext:
         (zf / ".config").write_text(json.dumps(config))
 
         # Create a long skill file
-        skill_dir = tmp_path / "skills" / "impl-reviewer"
+        skill_dir = tmp_path / "skills" / "impl-review"
         skill_dir.mkdir(parents=True)
         long_content = "# Impl Reviewer\n\n" + ("A" * 5000)
         (skill_dir / "SKILL.md").write_text(long_content)

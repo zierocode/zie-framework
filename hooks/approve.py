@@ -40,7 +40,7 @@ def approve(file_path: str) -> None:
     # Warn if reviewer-pass marker is absent (subagent-stop writes it on ✅ APPROVED)
     marker = _reviewer_marker(file_path)
     if not marker.exists():
-        kind = "spec-reviewer" if "specs/" in file_path else "plan-reviewer"
+        kind = "spec-review" if "specs/" in file_path else "plan-review"
         print(
             f"[approve.py] WARNING: no reviewer-pass marker found.\n"
             f"Run Skill('{kind}') first and wait for \u2705 APPROVED before approving.\n"

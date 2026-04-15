@@ -9,7 +9,7 @@ Three commands (`zie-plan`, `zie-implement`, `zie-sprint`) each contained an
 identical 8–12 line inline block that read ADRs, called `write_adr_cache`, read
 `project/context.md`, and assembled `context_bundle`. Any change to this
 protocol required updating three files. Similarly, three reviewer skills
-(`spec-reviewer`, `plan-reviewer`, `impl-reviewer`) contained identical ~30-line
+(`spec-review`, `plan-review`, `impl-review`) contained identical ~30-line
 Phase 1 blocks with the same ADR cache-first loading logic.
 
 ## Decision

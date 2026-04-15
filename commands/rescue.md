@@ -55,9 +55,9 @@ and what to do next. Read-only — no side effects.
 
    State → Next action mapping:
    - No spec → `Run /spec <slug>`
-   - Spec not approved → `Run Skill(zie-framework:spec-reviewer) then python3 hooks/approve.py <spec-path>`
+   - Spec not approved → `Run Skill(zie-framework:spec-review) then python3 hooks/approve.py <spec-path>`
    - No plan → `Run /plan <slug>`
-   - Plan not approved → `Run Skill(zie-framework:plan-reviewer) then python3 hooks/approve.py <plan-path>`
+   - Plan not approved → `Run Skill(zie-framework:plan-review) then python3 hooks/approve.py <plan-path>`
    - Plan approved, not in Now → `Run /implement`
    - In Now lane → `Run make test-fast to continue implementation`
    - Tests failing → `Run make test-fast — fix failing tests, then /release`

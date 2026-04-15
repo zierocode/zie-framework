@@ -25,9 +25,9 @@ CONFIG_DEFAULTS: dict = {
     "skill_auto_inject": {
         "enabled": True,
         "mapping": {
-            "spec": "spec-reviewer",
+            "spec": "spec-review",
             "plan": "write-plan",
-            "implement": "impl-reviewer",
+            "implement": "impl-review",
         },
     },
 }

@@ -46,5 +46,5 @@ class TestAsyncSkillPatterns:
             "zie-retro.md must document error/failure/continue handling"
 
         release = (CMD_DIR / "release.md").read_text()
-        assert "docs-sync-check unavailable" in release, \
-            "zie-release.md must document docs-sync-check unavailable skip message"
+        assert "docs-sync unavailable" in release, \
+            "zie-release.md must document docs-sync unavailable skip message"

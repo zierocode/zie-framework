@@ -35,7 +35,7 @@ def make_cwd(tmp_path):
 
 VALID_EVENT = {
     "agent_id": "abc-123",
-    "agent_type": "spec-reviewer",
+    "agent_type": "spec-review",
     "last_assistant_message": "Looks good overall.",
 }
 
@@ -90,7 +90,7 @@ class TestSubagentStopNormalWrite:
         run_hook(VALID_EVENT, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
         record = json.loads(log.read_text().strip().splitlines()[0])
-        assert record["agent_type"] == "spec-reviewer"
+        assert record["agent_type"] == "spec-review"
 
     def test_last_message_field(self, tmp_path):
         cwd = make_cwd(tmp_path)
@@ -168,7 +168,7 @@ class TestSubagentStopMissingFields:
 
     def test_missing_agent_id_defaults_to_unknown(self, tmp_path):
         cwd = make_cwd(tmp_path)
-        event = {"agent_type": "plan-reviewer", "last_assistant_message": "ok"}
+        event = {"agent_type": "plan-review", "last_assistant_message": "ok"}
         run_hook(event, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
         record = json.loads(log.read_text().strip().splitlines()[0])
@@ -252,9 +252,9 @@ class TestSubagentStopMultipleEvents:
     def test_three_events_produce_three_lines(self, tmp_path):
         cwd = make_cwd(tmp_path)
         events = [
-            {"agent_id": "a1", "agent_type": "spec-reviewer", "last_assistant_message": "msg1"},
-            {"agent_id": "a2", "agent_type": "plan-reviewer", "last_assistant_message": "msg2"},
-            {"agent_id": "a3", "agent_type": "impl-reviewer", "last_assistant_message": "msg3"},
+            {"agent_id": "a1", "agent_type": "spec-review", "last_assistant_message": "msg1"},
+            {"agent_id": "a2", "agent_type": "plan-review", "last_assistant_message": "msg2"},
+            {"agent_id": "a3", "agent_type": "impl-review", "last_assistant_message": "msg3"},
         ]
         for ev in events:
             run_hook(ev, tmp_cwd=cwd)
@@ -276,7 +276,7 @@ class TestSubagentStopMultipleEvents:
 
     def test_multiple_events_order_preserved(self, tmp_path):
         cwd = make_cwd(tmp_path)
-        types = ["spec-reviewer", "plan-reviewer", "impl-reviewer"]
+        types = ["spec-review", "plan-review", "impl-review"]
         for t in types:
             run_hook(
                 {"agent_id": "x", "agent_type": t, "last_assistant_message": ""},

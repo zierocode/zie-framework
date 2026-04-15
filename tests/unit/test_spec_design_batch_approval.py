@@ -38,6 +38,6 @@ class TestBatchApprovalStructure:
             assert section in text, f"section must remain: {section}"
 
     def test_spec_reviewer_invocation_still_present(self):
-        assert "spec-reviewer" in skill_text(), (
-            "spec-reviewer invocation must remain intact"
+        assert "spec-review" in skill_text(), (
+            "spec-review invocation must remain intact"
         )

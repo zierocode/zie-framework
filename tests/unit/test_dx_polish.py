@@ -32,29 +32,29 @@ class TestZieStatusPipeline:
 
 class TestReviewerNextSteps:
     def test_spec_reviewer_max_iterations_block(self):
-        text = read("skills/spec-reviewer/SKILL.md")
+        text = read("skills/spec-review/SKILL.md")
         assert "Max review iterations" in text or "max iterations" in text.lower(), \
-            "spec-reviewer must have max iterations next-steps block"
+            "spec-review must have max iterations next-steps block"
 
     def test_spec_reviewer_next_steps_actionable(self):
-        text = read("skills/spec-reviewer/SKILL.md")
+        text = read("skills/spec-review/SKILL.md")
         assert "Next steps:" in text or "next steps" in text.lower(), \
-            "spec-reviewer must provide next steps on max iterations"
+            "spec-review must provide next steps on max iterations"
 
     def test_plan_reviewer_max_iterations_block(self):
-        text = read("skills/plan-reviewer/SKILL.md")
+        text = read("skills/plan-review/SKILL.md")
         assert "Max review iterations" in text or "max iterations" in text.lower(), \
-            "plan-reviewer must have max iterations next-steps block"
+            "plan-review must have max iterations next-steps block"
 
     def test_plan_reviewer_large_plan_warning(self):
-        text = read("skills/plan-reviewer/SKILL.md")
+        text = read("skills/plan-review/SKILL.md")
         assert "15 tasks" in text or ">15" in text or "Large plan" in text, \
-            "plan-reviewer must warn when plan has >15 tasks"
+            "plan-review must warn when plan has >15 tasks"
 
     def test_impl_reviewer_max_iterations_block(self):
-        text = read("skills/impl-reviewer/SKILL.md")
+        text = read("skills/impl-review/SKILL.md")
         assert "Max review iterations" in text or "max iterations" in text.lower(), \
-            "impl-reviewer must have max iterations next-steps block"
+            "impl-review must have max iterations next-steps block"
 
 
 class TestTaskSizingGuidance:

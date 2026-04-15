@@ -8,9 +8,9 @@ from pathlib import Path
 from utils_error import log_error
 
 DEFAULT_SKILL_MAPPING: dict = {
-    "spec": "spec-reviewer",
+    "spec": "spec-review",
     "plan": "write-plan",
-    "implement": "impl-reviewer",
+    "implement": "impl-review",
 }
 
 MAX_INJECT_CHARS: int = 2000

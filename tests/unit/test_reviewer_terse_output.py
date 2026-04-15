@@ -5,7 +5,7 @@ SKILLS_DIR = Path(__file__).parents[2] / "skills"
 
 class TestSpecReviewerTerseOutput:
     def _text(self) -> str:
-        return (SKILLS_DIR / "spec-reviewer" / "SKILL.md").read_text()
+        return (SKILLS_DIR / "spec-review" / "SKILL.md").read_text()
 
     def test_approval_line_is_exactly_approved(self):
         text = self._text()
@@ -39,7 +39,7 @@ class TestSpecReviewerTerseOutput:
 
 class TestPlanReviewerTerseOutput:
     def _text(self) -> str:
-        return (SKILLS_DIR / "plan-reviewer" / "SKILL.md").read_text()
+        return (SKILLS_DIR / "plan-review" / "SKILL.md").read_text()
 
     def test_approval_line_is_exactly_approved(self):
         text = self._text()
@@ -73,7 +73,7 @@ class TestPlanReviewerTerseOutput:
 
 class TestImplReviewerTerseOutput:
     def _text(self) -> str:
-        return (SKILLS_DIR / "impl-reviewer" / "SKILL.md").read_text()
+        return (SKILLS_DIR / "impl-review" / "SKILL.md").read_text()
 
     def test_approval_line_is_exactly_approved(self):
         text = self._text()
@@ -96,7 +96,7 @@ class TestImplReviewerTerseOutput:
 
     def test_single_line_fix_prompt(self):
         text = self._text()
-        assert "Fix these, re-run make test-unit, and re-invoke impl-reviewer." in text
+        assert "Fix these, re-run make test-unit, and re-invoke impl-review." in text
 
     def test_phase_headings_unchanged(self):
         text = self._text()

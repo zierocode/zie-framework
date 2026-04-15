@@ -65,10 +65,10 @@ class TestZieReleaseChangelog:
 class TestZieReleaseDocSync:
     def test_ship_has_doc_sync_gate(self):
         content = read("commands/release.md")
-        # Structural: docs-sync-check skill must be invoked, and doc sync precedes the release gate
-        assert "docs-sync-check" in content, \
-            "/release must invoke docs-sync-check for doc sync gate"
-        assert_sections_ordered(content, "docs-sync-check", "## All Gates Passed")
+        # Structural: docs-sync skill must be invoked, and doc sync precedes the release gate
+        assert "docs-sync" in content, \
+            "/release must invoke docs-sync for doc sync gate"
+        assert_sections_ordered(content, "docs-sync", "## All Gates Passed")
 
 
 class TestZieReleaseMemory:

@@ -1,17 +1,17 @@
-## ADR-014: Async impl-reviewer with Deferred-Check Polling Pattern
+## ADR-014: Async impl-review with Deferred-Check Polling Pattern
 
 **Date:** 2026-03-24
 **Status:** Accepted (Compressed from ADR-000-summary.md)
 
 ## Context
 
-The impl-reviewer was previously synchronous — it blocked each REFACTOR phase
+The impl-review was previously synchronous — it blocked each REFACTOR phase
 while waiting for a full review cycle. For large tasks with many REFACTOR
 steps this significantly increased total implementation time.
 
 ## Decision
 
-Spawn impl-reviewer async after each REFACTOR step using
+Spawn impl-review async after each REFACTOR step using
 `run_in_background=True`. Poll for completion at the start of the next task
 iteration. Surface any issues found. Wait for all pending reviewers before the
 final commit (iteration cap: 2 iterations per reviewer).

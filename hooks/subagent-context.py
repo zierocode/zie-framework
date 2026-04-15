@@ -26,9 +26,9 @@ from utils_roadmap import parse_roadmap_section_content
 # Per-agent context budget table (supersedes ADR-046 Explore/Plan guard).
 # Value: True = inject context; False = skip inject entirely.
 AGENT_BUDGETS = {
-    "spec-reviewer":  True,   # receives spec file + ADR summary
-    "plan-reviewer":  True,   # receives plan + spec + ADR summary
-    "impl-reviewer":  True,   # receives changed files + plan
+    "spec-review":  True,   # receives spec file + ADR summary
+    "plan-review":  True,   # receives plan + spec + ADR summary
+    "impl-review":  True,   # receives changed files + plan
     "resync":         True,   # receives git log + file structure
     "Explore":        True,
     "Plan":           True,

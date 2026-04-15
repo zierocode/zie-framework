@@ -76,14 +76,14 @@ Invoke `Skill(zie-framework:load-context, '<keywords>')` → result available as
 (calls `write_adr_cache`, bundles `adr_cache_path` + `decisions/` + `project/context.md`).
 Pass `context_bundle` to every reviewer invocation below.
 
-## plan-reviewer gate (ทุก plan ต้องผ่าน)
+## plan-review gate (ทุก plan ต้องผ่าน)
 
 For each drafted plan `[Plan {N}/{total}]`, before showing to Zie:
 
-Print: `[Plan {N}/{total}] plan-reviewer pass`
+Print: `[Plan {N}/{total}] plan-review pass`
 
-1. Invoke `@agent-plan-reviewer` with:
-   <!-- fallback: Skill(zie-framework:plan-reviewer) -->
+1. Invoke `@agent-plan-review` with:
+   <!-- fallback: Skill(zie-framework:plan-review) -->
    - Path to plan file
    - Path to spec file (`zie-framework/specs/*-<slug>-design.md`)
    - `context_bundle` (pre-loaded ADRs + context.md)
@@ -96,7 +96,7 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
 ## ขออนุมัติ plan (ทีละ plan)
 
 1. For each reviewer-approved plan:
-   - **Auto-approve** — when plan-reviewer returns ✅ APPROVED, proceed automatically
+   - **Auto-approve** — when plan-review returns ✅ APPROVED, proceed automatically
      (no user confirmation required — reviewer verdict IS the gate):
    - Add `spec:` field to plan frontmatter via Edit (still `approved: false`):
 
@@ -128,10 +128,10 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
 
      Display: `"✓ Plan approved & moved to Ready. Run /implement to start building."`
      Override options (send as next message if needed):
-     - **re-draft** → revise plan and re-run plan-reviewer gate (keeps pending state)
+     - **re-draft** → revise plan and re-run plan-review gate (keeps pending state)
      - **drop** → leave item in Next unchanged, skip this plan
 
-   - **If plan-reviewer returns ❌ Issues Found**: ask user: "Fix and re-run, re-draft, or drop?" (old flow preserved)
+   - **If plan-review returns ❌ Issues Found**: ask user: "Fix and re-run, re-draft, or drop?" (old flow preserved)
 
 2. If `zie_memory_enabled=true` — WRITE after approval:
    - Complexity: ≤3 tasks = S, 4–7 = M, 8+ = L

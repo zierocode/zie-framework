@@ -1,8 +1,8 @@
-"""Tests for zie-audit MCP server usage check (audit-mcp-check feature)."""
+"""Tests for audit MCP server usage check (audit-mcp-check feature)."""
 from pathlib import Path
 
-# MCP check moved to zie-audit skill (canonical since lean-dual-audit-pipeline)
-SKILL = Path(__file__).parents[2] / "skills" / "zie-audit" / "SKILL.md"
+# MCP check moved to audit skill (canonical since lean-dual-audit-pipeline)
+SKILL = Path(__file__).parents[2] / "skills" / "audit" / "SKILL.md"
 
 
 def _text():
@@ -12,7 +12,7 @@ def _text():
 class TestMcpCheckPresent:
     def test_mcp_check_exists(self):
         assert "MCP" in _text() or "mcp__" in _text(), \
-            "zie-audit skill must contain an MCP server usage check"
+            "audit skill must contain an MCP server usage check"
 
     def test_mcp_check_has_low_finding(self):
         assert "LOW" in _text() or "consider removing" in _text(), \
@@ -44,7 +44,7 @@ class TestMcpCheckPresent:
         text = _text()
         agent_e_pos = text.find("Agent E —")
         mcp_pos = text.find("MCP")
-        assert agent_e_pos != -1, "zie-audit skill must have Agent E"
-        assert mcp_pos != -1, "zie-audit skill must have MCP check"
+        assert agent_e_pos != -1, "audit skill must have Agent E"
+        assert mcp_pos != -1, "audit skill must have MCP check"
         assert agent_e_pos < mcp_pos, \
             "MCP check must be inside Agent E block"

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-SKILL_FILE = Path(__file__).parents[2] / "skills" / "plan-reviewer" / "SKILL.md"
+SKILL_FILE = Path(__file__).parents[2] / "skills" / "plan-review" / "SKILL.md"
 
 
 class TestPlanReviewerDependencyHints:

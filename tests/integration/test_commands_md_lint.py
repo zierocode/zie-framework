@@ -50,23 +50,23 @@ def test_zie_implement_task_done_footer(zie_implement_md):
     )
 
 
-# ── T2: zie-audit ─────────────────────────────────────────────────────────────
+# ── T2: audit ─────────────────────────────────────────────────────────────
 
 def test_zie_audit_phase_header(zie_audit_md):
     assert "[Phase" in zie_audit_md, (
-        "zie-audit must print [Phase N/M] headers"
+        "audit must print [Phase N/M] headers"
     )
 
 
 def test_zie_audit_agent_completion_marker(zie_audit_md):
     assert "Agent" in zie_audit_md and "✓" in zie_audit_md, (
-        "zie-audit must print Agent {X} (Domain) ✓ per spawned agent"
+        "audit must print Agent {X} (Domain) ✓ per spawned agent"
     )
 
 
 def test_zie_audit_research_counter(zie_audit_md):
     assert "[Research" in zie_audit_md, (
-        "zie-audit must print [Research {N}/15] per search call"
+        "audit must print [Research {N}/15] per search call"
     )
 
 

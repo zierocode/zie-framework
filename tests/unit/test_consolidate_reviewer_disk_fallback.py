@@ -28,15 +28,15 @@ def _phase1_lines(skill_name: str) -> int:
 
 def test_spec_reviewer_phase1_is_compact():
     """Phase 1 must be a compact stub — no inline ADR read prose."""
-    assert _phase1_lines("spec-reviewer") <= 8, (
-        "spec-reviewer Phase 1 is too long — inline disk-fallback prose not removed"
+    assert _phase1_lines("spec-review") <= 8, (
+        "spec-review Phase 1 is too long — inline disk-fallback prose not removed"
     )
 
 
 def test_plan_reviewer_phase1_is_compact():
     """Phase 1 must be a compact stub — no inline ADR read prose."""
-    assert _phase1_lines("plan-reviewer") <= 8, (
-        "plan-reviewer Phase 1 is too long — inline disk-fallback prose not removed"
+    assert _phase1_lines("plan-review") <= 8, (
+        "plan-review Phase 1 is too long — inline disk-fallback prose not removed"
     )
 
 
@@ -44,6 +44,6 @@ def test_impl_reviewer_phase1_is_compact():
     """Phase 1 must be a compact stub — no inline ADR read steps.
     12-line limit allows for adr_cache_path note and 'files changed' step.
     """
-    assert _phase1_lines("impl-reviewer") <= 12, (
-        "impl-reviewer Phase 1 is too long — inline disk-fallback prose not removed"
+    assert _phase1_lines("impl-review") <= 12, (
+        "impl-review Phase 1 is too long — inline disk-fallback prose not removed"
     )

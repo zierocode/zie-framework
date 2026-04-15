@@ -49,9 +49,9 @@ def _make_zf(tmp_path: Path, *, version="1.0.0", project_type="lib",
         (commands_dir / f"{cmd}.md").write_text(f"# /{cmd}")
 
     # skills/ directory at PROJECT ROOT
-    skills_dir = tmp_path / "skills" / "using-zie-framework"
+    skills_dir = tmp_path / "skills" / "context-map"
     skills_dir.mkdir(parents=True, exist_ok=True)
-    (skills_dir / "SKILL.md").write_text("# using-zie-framework")
+    (skills_dir / "SKILL.md").write_text("# context-map")
 
     return zf
 
@@ -366,7 +366,7 @@ class TestCommandListOutput:
     def test_health_included_when_commands_health_present(self, tmp_path):
         _make_zf(tmp_path)
         # Provide SKILL.md so guard logic runs (not hardcoded fallback)
-        skill_dir = tmp_path / "skills" / "using-zie-framework"
+        skill_dir = tmp_path / "skills" / "context-map"
         skill_dir.mkdir(parents=True, exist_ok=True)
         (skill_dir / "SKILL.md").write_text(
             "## Command Map\n\n- `/spec` — design\n- `/health` — health dashboard\n"

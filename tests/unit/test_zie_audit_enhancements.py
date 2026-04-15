@@ -1,7 +1,7 @@
-"""Tests for zie-audit skill — implementation canonical since lean-dual-audit-pipeline."""
+"""Tests for audit skill — implementation canonical since lean-dual-audit-pipeline."""
 from pathlib import Path
 
-SKILL = Path(__file__).parents[2] / "skills" / "zie-audit" / "SKILL.md"
+SKILL = Path(__file__).parents[2] / "skills" / "audit" / "SKILL.md"
 
 
 def read_skill() -> str:

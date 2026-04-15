@@ -17,7 +17,7 @@ class TestParallelExecutionPatterns:
             "zie-implement.md must describe background/parallel agent execution"
 
     def test_zie_implement_file_conflict_in_plan_tools(self):
-        """File conflict detection is documented in write-plan and plan-reviewer."""
+        """File conflict detection is documented in write-plan and plan-review."""
         write_plan_text = (SKILLS_DIR / "write-plan" / "SKILL.md").read_text()
         assert "conflict" in write_plan_text.lower(), \
             "write-plan/SKILL.md must document file conflict detection"
@@ -42,12 +42,12 @@ class TestParallelExecutionPatterns:
             "write-plan/SKILL.md must document depends_on syntax"
 
     def test_plan_reviewer_suggests_depends_on(self):
-        """plan-reviewer/SKILL.md must suggest depends_on for shared files."""
-        text = (SKILLS_DIR / "plan-reviewer" / "SKILL.md").read_text()
+        """plan-review/SKILL.md must suggest depends_on for shared files."""
+        text = (SKILLS_DIR / "plan-review" / "SKILL.md").read_text()
         assert "depends_on" in text, \
-            "plan-reviewer/SKILL.md must mention depends_on"
+            "plan-review/SKILL.md must mention depends_on"
         assert "file conflict" in text.lower(), \
-            "plan-reviewer/SKILL.md must mention file conflict detection"
+            "plan-review/SKILL.md must mention file conflict detection"
 
     def test_parallel_docs_created(self):
         """zie-framework/docs/parallel-execution-patterns.md must exist."""

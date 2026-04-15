@@ -16,7 +16,7 @@ class TestPlanAutoApprove:
             "zie-plan must not ask 'Approve this plan?' when reviewer returns APPROVED"
 
     def test_auto_approve_on_reviewer_approved(self):
-        """When plan-reviewer returns APPROVED, plan is auto-approved."""
+        """When plan-review returns APPROVED, plan is auto-approved."""
         text = cmd_text()
         assert "auto" in text.lower() or "automatically" in text.lower() or \
                ("APPROVED" in text and "frontmatter" in text.lower()), \

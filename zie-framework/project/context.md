@@ -98,9 +98,9 @@ to implementation without review, and code could ship without per-task review.
 commands and automatic reviewer quality gates at each handoff:
 
 1. `/zie-backlog` — capture problem + motivation only
-2. `/zie-spec` → spec-design → **spec-reviewer loop** (max 3 iter)
-3. `/zie-plan` → write-plan → **plan-reviewer loop** (max 3 iter)
-4. `/zie-implement` → TDD per task → **impl-reviewer after each REFACTOR**
+2. `/zie-spec` → spec-design → **spec-review loop** (max 3 iter)
+3. `/zie-plan` → write-plan → **plan-review loop** (max 3 iter)
+4. `/zie-implement` → TDD per task → **impl-review after each REFACTOR**
 5. `/zie-release` — full gate sequence → merge → tag
 6. `/zie-retro` — ADRs + brain storage
 
@@ -156,7 +156,7 @@ layer is project-specific.
 
 ---
 
-## ADR-010: /zie-audit uses research_profile as dynamic intelligence layer (ADR-007)
+## ADR-010: /audit uses research_profile as dynamic intelligence layer (ADR-007)
 
 **Date:** 2026-03-23
 **Status:** Accepted
@@ -187,7 +187,7 @@ cross-referencing against actual files, ADR history, or ROADMAP.
 **Decision:** All three reviewer skills (spec/plan/impl) load a context
 bundle before reviewing (Phase 1: named files + ADRs + context.md + ROADMAP),
 run the existing checklist (Phase 2), then do cross-reference checks (Phase 3:
-file existence, ADR conflict, ROADMAP conflict, pattern match). `impl-reviewer`
+file existence, ADR conflict, ROADMAP conflict, pattern match). `impl-review`
 omits ROADMAP conflict check. Graceful skip if any source is missing.
 
 **Consequences:** Reviewers catch real-world issues. Bundle adds latency per

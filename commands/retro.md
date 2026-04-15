@@ -50,7 +50,7 @@ Five sections:
 - **การตัดสินใจสำคัญ** — decisions: what → why → consequence (ADR candidates)
 - **Pattern ที่ควรจำ** — P1/P2 memories for brain
 
-**Docs-sync check** — skip if `git_log_raw` starts with `release:`. Otherwise: `Skill(zie-framework:docs-sync-check)`.
+**Docs-sync check** — skip if `git_log_raw` starts with `release:`. Otherwise: `Skill(zie-framework:docs-sync)`.
 
 ### บันทึก ADRs + อัปเดต ROADMAP
 

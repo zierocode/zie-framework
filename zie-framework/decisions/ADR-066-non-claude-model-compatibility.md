@@ -24,7 +24,7 @@ zie-framework runs within Claude Code, which supports model tier routing (opus/s
 
 ## Agent Mode Limitation
 
-The `--agent` flag (`claude --agent zie-framework:zie-implement-mode`) is a Claude Code CLI feature.
+The `--agent` flag (`claude --agent zie-framework:builder`) is a Claude Code CLI feature.
 On non-Claude providers, use `/implement` directly in the current session — it works identically
 but without a fresh context window. `make implement-local` provides a convenience target that
 prints guidance about this distinction.

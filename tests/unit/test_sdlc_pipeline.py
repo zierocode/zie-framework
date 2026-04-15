@@ -85,35 +85,35 @@ class TestIntentDetectUpdated:
 
 class TestReviewerSkillsExist:
     def test_spec_reviewer_exists(self):
-        assert os.path.exists(skill("spec-reviewer")), \
-            "skills/spec-reviewer/SKILL.md must exist"
+        assert os.path.exists(skill("spec-review")), \
+            "skills/spec-review/SKILL.md must exist"
 
     def test_plan_reviewer_exists(self):
-        assert os.path.exists(skill("plan-reviewer")), \
-            "skills/plan-reviewer/SKILL.md must exist"
+        assert os.path.exists(skill("plan-review")), \
+            "skills/plan-review/SKILL.md must exist"
 
     def test_impl_reviewer_exists(self):
-        assert os.path.exists(skill("impl-reviewer")), \
-            "skills/impl-reviewer/SKILL.md must exist"
+        assert os.path.exists(skill("impl-review")), \
+            "skills/impl-review/SKILL.md must exist"
 
 
 
 class TestSkillsInvokeReviewers:
     def test_spec_design_invokes_spec_reviewer(self):
         content = read("skills/spec-design/SKILL.md")
-        assert "spec-reviewer" in content, \
-            "spec-design skill must invoke spec-reviewer loop"
+        assert "spec-review" in content, \
+            "spec-design skill must invoke spec-review loop"
 
     def test_write_plan_invokes_plan_reviewer(self):
         # Reviewer gate lives in zie-plan.md, NOT inside the skill
         skill_content = read("skills/write-plan/SKILL.md")
-        assert "plan-reviewer" not in skill_content, \
-            "write-plan skill must NOT invoke plan-reviewer (reviewer gate belongs in plan.md)"
+        assert "plan-review" not in skill_content, \
+            "write-plan skill must NOT invoke plan-review (reviewer gate belongs in plan.md)"
         command_content = read("commands/plan.md")
-        assert "plan-reviewer" in command_content, \
-            "plan.md must contain the plan-reviewer gate"
+        assert "plan-review" in command_content, \
+            "plan.md must contain the plan-review gate"
 
     def test_implement_invokes_impl_reviewer(self):
         content = read("commands/implement.md")
-        assert "impl-reviewer" in content, \
-            "implement must invoke impl-reviewer after each task"
+        assert "impl-review" in content, \
+            "implement must invoke impl-review after each task"

@@ -14,7 +14,7 @@ flows and made command names harder to type.
 
 Renamed all `commands/zie-*.md` → `commands/*.md` (e.g., `zie-backlog.md` →
 `backlog.md`). Invocation becomes `zie-framework:backlog` instead of
-`zie-framework:zie-backlog`. Skill directory names (`skills/zie-audit/`,
+`zie-framework:zie-backlog`. Skill directory names (`skills/audit/`,
 `skills/zie-memory/`, etc.) were intentionally NOT renamed — skill invocations use
 internal paths that are not user-typed, and renaming would break existing plugin
 marketplace references.

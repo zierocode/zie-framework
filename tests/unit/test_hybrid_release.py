@@ -94,8 +94,8 @@ def test_zie_init_no_zie_not_ready():
 
 class TestReleaseLeanFallbackExtension:
     def test_zie_release_no_blocking_docs_sync_fallback(self):
-        """Release must not block on docs-sync-check when Agent unavailable."""
+        """Release must not block on docs-sync when Agent unavailable."""
         content = (COMMANDS / "release.md").read_text()
-        assert "call Skill(zie-framework:docs-sync-check) inline" not in content, (
+        assert "call Skill(zie-framework:docs-sync) inline" not in content, (
             "Blocking inline Skill fallback must be replaced with graceful skip message"
         )

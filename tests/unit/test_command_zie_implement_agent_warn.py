@@ -27,6 +27,6 @@ class TestAgentModeConfirm:
     def test_agent_mode_command_referenced(self):
         """Recommended agent mode command is documented."""
         src = self._src()
-        assert "zie-implement-mode" in src, (
+        assert "builder" in src, (
             "zie-implement.md step 0 must mention the recommended agent mode"
         )

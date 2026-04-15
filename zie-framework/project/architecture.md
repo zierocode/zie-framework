@@ -69,8 +69,8 @@ User runs /zie-command
 - **v1.5.0** (2026-03-23) — `parse_roadmap_section()` dedup; `knowledge-hash.py`
   extracted as standalone utility; `read_event()`/`get_cwd()` boilerplate dedup
   in utils; CHANGELOG annotations + SECURITY.md + Dependabot config.
-- **v1.6.0** (2026-03-23) — Session-wide agent modes (`zie-implement-mode`,
-  `zie-audit-mode`); `notification-log` hook for permission/idle events;
+- **v1.6.0** (2026-03-23) — Session-wide agent modes (`builder`,
+  `auditor`); `notification-log` hook for permission/idle events;
   model+effort pinned on all skills and commands.
 - **v1.7.0** (2026-03-23) — 23-item sprint implementing v1.6.0 audit findings;
   Bandit B108 suppressions via config; pre-existing test pollution fixes.

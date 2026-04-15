@@ -50,51 +50,51 @@ class TestZieImplementContextLoad:
 
 class TestSpecReviewerContextBundle:
     def test_context_bundle_required(self):
-        text = (SKILLS_DIR / "spec-reviewer" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "spec-review" / "SKILL.md").read_text()
         assert "context_bundle" in text, \
-            "spec-reviewer SKILL.md must reference context_bundle"
+            "spec-review SKILL.md must reference context_bundle"
 
     def test_phase1_validation_present(self):
-        text = (SKILLS_DIR / "spec-reviewer" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "spec-review" / "SKILL.md").read_text()
         assert "Phase 1" in text and "Validate Context Bundle" in text, \
-            "spec-reviewer SKILL.md must have Phase 1 bundle validation"
+            "spec-review SKILL.md must have Phase 1 bundle validation"
 
     def test_disk_fallback_documented(self):
-        text = (SKILLS_DIR / "spec-reviewer" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "spec-review" / "SKILL.md").read_text()
         # Must document fallback when bundle unavailable
         assert "disk" in text.lower() or "fallback" in text.lower() or "decisions/" in text, \
-            "spec-reviewer SKILL.md must document disk fallback"
+            "spec-review SKILL.md must document disk fallback"
 
 
 class TestPlanReviewerContextBundle:
     def test_context_bundle_required(self):
-        text = (SKILLS_DIR / "plan-reviewer" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "plan-review" / "SKILL.md").read_text()
         assert "context_bundle" in text, \
-            "plan-reviewer SKILL.md must reference context_bundle"
+            "plan-review SKILL.md must reference context_bundle"
 
     def test_phase1_validation_present(self):
-        text = (SKILLS_DIR / "plan-reviewer" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "plan-review" / "SKILL.md").read_text()
         assert "Phase 1" in text and "Validate Context Bundle" in text, \
-            "plan-reviewer SKILL.md must have Phase 1 bundle validation"
+            "plan-review SKILL.md must have Phase 1 bundle validation"
 
     def test_disk_fallback_documented(self):
-        text = (SKILLS_DIR / "plan-reviewer" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "plan-review" / "SKILL.md").read_text()
         assert "disk" in text.lower() or "fallback" in text.lower() or "decisions/" in text, \
-            "plan-reviewer SKILL.md must document disk fallback"
+            "plan-review SKILL.md must document disk fallback"
 
 
 class TestImplReviewerContextBundle:
     def test_context_bundle_required(self):
-        text = (SKILLS_DIR / "impl-reviewer" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "impl-review" / "SKILL.md").read_text()
         assert "context_bundle" in text, \
-            "impl-reviewer SKILL.md must reference context_bundle"
+            "impl-review SKILL.md must reference context_bundle"
 
     def test_phase1_validation_present(self):
-        text = (SKILLS_DIR / "impl-reviewer" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "impl-review" / "SKILL.md").read_text()
         assert "Phase 1" in text and "Validate Context Bundle" in text, \
-            "impl-reviewer SKILL.md must have Phase 1 bundle validation"
+            "impl-review SKILL.md must have Phase 1 bundle validation"
 
     def test_modified_files_step_intact(self):
-        text = (SKILLS_DIR / "impl-reviewer" / "SKILL.md").read_text()
+        text = (SKILLS_DIR / "impl-review" / "SKILL.md").read_text()
         assert "files changed" in text or "files changed" in text.lower(), \
-            "impl-reviewer SKILL.md must reference caller's files changed list"
+            "impl-review SKILL.md must reference caller's files changed list"

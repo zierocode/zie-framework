@@ -21,34 +21,34 @@ def read_frontmatter(skill_name: str) -> dict:
 
 class TestReviewerSkillsFrontmatter:
     def test_spec_reviewer_user_invocable_false(self):
-        fm = read_frontmatter("spec-reviewer")
+        fm = read_frontmatter("spec-review")
         assert fm.get("user-invocable") is False, \
-            "spec-reviewer must have user-invocable: false"
+            "spec-review must have user-invocable: false"
 
     def test_spec_reviewer_allowed_tools(self):
-        fm = read_frontmatter("spec-reviewer")
+        fm = read_frontmatter("spec-review")
         assert fm.get("allowed-tools") == "Read, Grep, Glob", \
-            "spec-reviewer must have allowed-tools: Read, Grep, Glob"
+            "spec-review must have allowed-tools: Read, Grep, Glob"
 
     def test_plan_reviewer_user_invocable_false(self):
-        fm = read_frontmatter("plan-reviewer")
+        fm = read_frontmatter("plan-review")
         assert fm.get("user-invocable") is False, \
-            "plan-reviewer must have user-invocable: false"
+            "plan-review must have user-invocable: false"
 
     def test_plan_reviewer_allowed_tools(self):
-        fm = read_frontmatter("plan-reviewer")
+        fm = read_frontmatter("plan-review")
         assert fm.get("allowed-tools") == "Read, Grep, Glob", \
-            "plan-reviewer must have allowed-tools: Read, Grep, Glob"
+            "plan-review must have allowed-tools: Read, Grep, Glob"
 
     def test_impl_reviewer_user_invocable_false(self):
-        fm = read_frontmatter("impl-reviewer")
+        fm = read_frontmatter("impl-review")
         assert fm.get("user-invocable") is False, \
-            "impl-reviewer must have user-invocable: false"
+            "impl-review must have user-invocable: false"
 
     def test_impl_reviewer_allowed_tools(self):
-        fm = read_frontmatter("impl-reviewer")
+        fm = read_frontmatter("impl-review")
         assert fm.get("allowed-tools") == "Read, Grep, Glob, Bash", \
-            "impl-reviewer must have allowed-tools: Read, Grep, Glob, Bash"
+            "impl-review must have allowed-tools: Read, Grep, Glob, Bash"
 
 
 class TestInternalProcessSkillsFrontmatter:
@@ -81,7 +81,7 @@ class TestPlanningSkillsFrontmatter:
 
 
 ALL_SKILLS = [
-    "spec-reviewer", "plan-reviewer", "impl-reviewer",
+    "spec-review", "plan-review", "impl-review",
     "tdd-loop", "test-pyramid", "debug",
     "spec-design", "write-plan", "verify",
 ]

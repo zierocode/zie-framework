@@ -25,7 +25,7 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 
 ### Pre-Gate-1: Docs Sync (background)
 
-`Skill(zie-framework:docs-sync-check)` (run_in_background=True if supported). Fallback: print `[zie-framework] docs-sync-check unavailable — skipping`. Manual: `make docs-sync`
+`Skill(zie-framework:docs-sync)` (run_in_background=True if supported). Fallback: print `[zie-framework] docs-sync unavailable — skipping`. Manual: `make docs-sync`
 
 Collect result with other gates.
 
