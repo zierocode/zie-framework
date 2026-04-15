@@ -8,12 +8,7 @@
 
 ## Now — Active Sprint
 
-- [x] command-compress-batch — [spec](specs/2026-04-15-command-compress-batch-design.md) [plan](plans/2026-04-15-command-compress-batch.md)
-- [x] playwright-version-cache — [spec](specs/2026-04-15-playwright-version-cache-design.md) [plan](plans/2026-04-15-playwright-version-cache.md)
-- [x] audit-error-path-coverage — [spec](specs/2026-04-15-audit-error-path-coverage-design.md) [plan](plans/2026-04-15-audit-error-path-coverage.md)
-- [x] audit-prompt-injection-hardening — [spec](specs/2026-04-15-audit-prompt-injection-hardening-design.md) [plan](plans/2026-04-15-audit-prompt-injection-hardening.md)
-- [x] audit-error-handling-cleanup — [spec](specs/2026-04-15-audit-error-handling-cleanup-design.md) [plan](plans/2026-04-15-audit-error-handling-cleanup.md)
-- [x] audit-quick-wins-batch — [spec](specs/2026-04-15-audit-quick-wins-batch-design.md) [plan](plans/2026-04-15-audit-quick-wins-batch.md)
+<!-- -->
 
 ---
 
@@ -28,6 +23,15 @@
 <!-- -->
 
 ---
+
+## Done — v1.31.0 (2026-04-15)
+
+- [x] command-compress-batch — Compress sprint, status, retro, and release markdown files — 2026-04-15
+- [x] playwright-version-cache — Skip redundant playwright subprocess calls via version cache — 2026-04-15
+- [x] audit-error-path-coverage — Error-path coverage for all hooks (ADR-003) — 2026-04-15
+- [x] audit-prompt-injection-hardening — Prompt injection hardening: BLOCK on ambiguous, XML entity escaping — 2026-04-15
+- [x] audit-error-handling-cleanup — log_error helper + narrow exception types across hooks (ADR-003) — 2026-04-15
+- [x] audit-quick-wins-batch — Hardcoded paths, version sync, stale docs, test moves, code fixes — 2026-04-15
 
 ## Done — v1.30.1 (2026-04-15)
 

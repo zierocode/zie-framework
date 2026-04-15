@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.31.0 — 2026-04-15
+
+### Added
+
+- **command-compress-batch**: Compressed sprint, status, retro, and release markdown commands for leaner token usage
+- **playwright-version-cache**: Skip redundant `playwright --version` subprocess calls by caching version in CacheManager
+- **audit-error-path-coverage**: Error-path unit tests for all hooks (ADR-003 compliance)
+- **audit-prompt-injection-hardening**: Prompt injection hardening — BLOCK on ambiguous agent responses, XML entity escaping in safety_check_agent.py
+- **Compact output format**: `[zf]` prefix + inline status across hooks
+- **New-intent consolidation**: Single `INTENT_PATTERN` regex replaces 65 individual checks, length gate raised to 50
+- **Skill auto-inject**: Auto-inject skill context for active SDLC stage
+- **Skill compression**: 1492→1183 lines across all SKILL.md files
+- **Backlog dedup**: Dedup check across all ROADMAP lanes + expand existing items
+- **Init scaffold**: Scaffold `.claude/` config files (`settings.json`, `rules/sdlc.md`, `.ignore`) during `/init`
+- **Status content**: Show Problem excerpts and spec/plan status per Now/Ready item
+- **CacheManager extension**: mtime + session invalidation, `set_flag`/`has_flag`, migrated /tmp flags to CacheManager
+- **Command conventions**: Normalized pre-flight guards, error format, and output conventions across commands
+
+### Fixed
+
+- **Error handling cleanup**: Added `log_error()` helper and narrowed exception types across hooks (ADR-003)
+- **Quick wins batch**: Removed hardcoded paths, synced versions, cleaned stale docs, moved tests to `tests/unit/`, fixed auto-test.py junk code
+- **Test path fixes**: Corrected `hooks_dir` path resolution after test file move from `tests/` to `tests/unit/`
+
+### Tests
+
+- 2632 unit tests passing (128 pre-existing failures, mostly hook subprocess and sprint mock issues)
+- Python 3.13 compatibility verified (no more `dict | None` collection errors)
+
 ## v1.30.1 — 2026-04-15
 
 ### Fixed
