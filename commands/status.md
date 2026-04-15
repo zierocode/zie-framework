@@ -10,6 +10,8 @@ effort: low
 Show a concise snapshot of where the project is right now. No LLM reasoning
 needed — just read files and print.
 
+<!-- preflight: minimal -->
+
 ## Steps
 
 **Live context (injected at command load):**
@@ -146,3 +148,5 @@ Knowledge hash (bind as `current_hash_injected`):
    - Always available: "/status | /backlog | /implement | /fix |
      /release | /retro | /sprint"
 
+
+→ /next for recommended backlog items

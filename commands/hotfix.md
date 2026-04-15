@@ -8,6 +8,8 @@ effort: low
 
 # /hotfix — Emergency Hotfix Track
 
+<!-- preflight: full -->
+
 A lightweight track for urgent production fixes that cannot wait for the full
 backlog → spec → plan → implement pipeline. **Use only for production incidents requiring immediate release. Triggers release gate automatically. For non-urgent bugs, use /fix instead.**
 
@@ -15,9 +17,10 @@ Opens a drift log entry, applies the fix, closes the drift log, then ships.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Derive slug from argument or ask: "What is the hotfix for? (one-line slug)"
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
+
+2. Derive slug from argument or ask: "What is the hotfix for? (one-line slug)"
    `slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')`
-2. Read `zie-framework/.config` if it exists.
 
 ## Steps
 

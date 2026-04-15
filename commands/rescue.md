@@ -8,6 +8,8 @@ effort: low
 
 # /rescue — Pipeline Diagnosis
 
+<!-- preflight: minimal -->
+
 Scan zie-framework artifacts to determine where you are in the pipeline
 and what to do next. Read-only — no side effects.
 
@@ -72,4 +74,6 @@ and what to do next. Read-only — no side effects.
 - Git command fails: omit git state from report, continue
 - Artifact file unreadable: mark that step as `⬜ unknown`, continue
 - ROADMAP unreadable: skip Now/Done lane checks
+
+→ /implement to resume, or /fix to debug
 - Always exits cleanly — never halts or prompts for confirmation

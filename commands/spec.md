@@ -8,6 +8,8 @@ effort: medium
 
 # /spec — Backlog → Spec
 
+<!-- preflight: full -->
+
 Write a design spec for a backlog item. Invokes spec-design skill with
 reviewer loop. Output lives in `zie-framework/specs/`.
 

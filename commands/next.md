@@ -10,6 +10,8 @@ effort: low
 
 Read-only. Scans `zie-framework/backlog/`, scores items, and recommends top 3.
 
+<!-- preflight: minimal -->
+
 ## Steps
 
 1. **Check prerequisites**
@@ -65,3 +67,5 @@ Read-only. Scans `zie-framework/backlog/`, scores items, and recommends top 3.
 - Spec glob fails: assume item not in pipeline
 - Date parse error: treat age as 0
 - Always exits cleanly — never halts or modifies anything
+
+→ /spec <slug> to start the pipeline

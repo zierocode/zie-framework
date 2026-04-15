@@ -7,15 +7,17 @@ effort: medium
 
 # /release — Release Gate → Merge dev→main → Tag
 
+<!-- preflight: full -->
+
 > **Context tip:** If called after a long session (sprint / implement), run `/compact` first to free context before proceeding.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Check `zie-framework/` exists → else `/init`
-2. Read `zie-framework/.config` → `has_frontend`, `playwright_enabled`
-3. Read `VERSION` → current version
-4. Check branch → should be `dev`
-5. Verify VERSION non-empty: `cat VERSION` → empty/missing → STOP: "Run `make bump NEW=x.y.z` first"
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight) (checks Now lane — warns if WIP active).
+
+4. Read `VERSION` → current version
+5. Check branch → should be `dev`
+6. Verify VERSION non-empty: `cat VERSION` → empty/missing → STOP: "Run `make bump NEW=x.y.z` first"
 
 > **Non-Claude:** Use `/release` directly — NOT `make zie-release` (--agent unavailable)
 
@@ -58,12 +60,12 @@ Each: PASSED | SKIPPED | FAILED: <stderr>
 
 Wait for all three Bash calls. Collect all results:
 - All pass/skip → continue
-- Any fail → print all failures, STOP before version bump
+- Any fail → print all failures, STOP: "Gates failed — fix before releasing."
 
 Docs-sync: PASSED → "Docs in sync" | FAILED → update docs | unavailable → skip + `make docs-sync`
 
 TODOs/secrets scan (parallel): `grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .`
-Secrets found → STOP immediately.
+Secrets found → STOP: "Secrets detected — remove before releasing."
 
 ### ตรวจสอบ: Code diff ก่อน merge
 
@@ -94,7 +96,7 @@ merging.
 <!-- NOTE: narrative rewrite produces human-readable commit history. -->
 5. **Draft CHANGELOG entry**: run `git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline --no-merges`. Rewrite into Features/Fixed/Changed groups. Present for approve/edit. On `yes` → append to `CHANGELOG.md`; on `edit` → apply changes → write.
 
-6. **Pre-flight: ตรวจสอบ uncommitted files**: run `git status --short`. Release commit should have only `VERSION`, `CHANGELOG.md`, `ROADMAP.md` (project files like `plugin.json` committed by `make release`). Implementation files found → STOP. Docs from this gate → include.
+6. **Pre-flight: ตรวจสอบ uncommitted files**: run `git status --short`. Release commit should have only `VERSION`, `CHANGELOG.md`, `ROADMAP.md` (project files like `plugin.json` committed by `make release`). Implementation files found → STOP: "Uncommitted implementation files — clean working tree before release." Docs from this gate → include.
 
 7. **Commit release files**:
    ```bash
@@ -132,4 +134,6 @@ merging.
 
     /retro running...
     ```
+
+→ /retro for retrospective (auto-invoked)
 

@@ -8,6 +8,8 @@ effort: low
 
 # /plan — Spec → Draft Plan → Review → Approve → Ready
 
+<!-- preflight: full -->
+
 Draft implementation plans for approved backlog specs and get Zie's approval
 before building. Supports multiple items in parallel.
 
@@ -22,9 +24,9 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
    - Filter to items with an **approved spec**: check
      `zie-framework/specs/*-<slug>-design.md` for a file containing slug **and**
      `approved: true` in its frontmatter.
-   - If Next is empty → print "No backlog items. Run /backlog first." STOP.
+   - If Next is empty → print "No backlog items. Run /backlog first." STOP
    - If no Next items have an approved spec → print "No approved specs found.
-     Run /spec SLUG first." STOP.
+     Run /spec SLUG first." STOP:
    - Ask: "Which items to plan? Enter numbers (e.g. 1, 3)"
 
 ## ตรวจสอบ spec ก่อน plan (ทุก slug)
@@ -33,13 +35,11 @@ For each resolved slug (whether from args or from no-args selection):
 
 1. Glob `zie-framework/specs/*-<slug>-design.md`.
    - If no file found → print:
-     `⛔ No spec found for '<slug>'. Run /spec <slug> first.`
-     STOP — do not proceed with this slug.
+     `STOP: No spec found for '<slug>'. Run /spec <slug> first.`
    - If file found → read frontmatter.
 2. Check `approved: true` in frontmatter.
    - If `approved: false` or key absent → print:
-     `⛔ Spec exists but not approved. Complete /spec <slug> review first.`
-     STOP — do not proceed with this slug.
+     `STOP: Spec exists but not approved. Complete /spec <slug> review first.`
    - If `approved: true` → gate passes, continue.
 
 ## ร่าง plan สำหรับ slug ที่เลือก

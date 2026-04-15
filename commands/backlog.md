@@ -8,6 +8,8 @@ effort: low
 
 # /backlog — Capture Backlog Item
 
+<!-- preflight: full -->
+
 Capture a new idea as a backlog item. No spec or plan yet — just the
 problem and motivation. Output lives in `zie-framework/backlog/`.
 

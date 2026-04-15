@@ -8,12 +8,16 @@ effort: low
 
 # /chore — Chore Track
 
+<!-- preflight: full -->
+
 A lightweight track for maintenance work: dependency updates, config changes,
 cleanup, tooling fixes. No spec required. A Done entry is added when complete.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Derive slug from argument or ask: "What is the chore? (one-line description)"
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
+
+2. Derive slug from argument or ask: "What is the chore? (one-line description)"
    `slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')`
 
 ## Steps

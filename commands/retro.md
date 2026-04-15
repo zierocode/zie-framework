@@ -7,7 +7,11 @@ effort: low
 
 # /retro — Retrospective + ADRs + Brain Storage
 
+<!-- preflight: full -->
+
 ## ตรวจสอบก่อนเริ่ม
+
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight) (reads config, ROADMAP, checks WIP).
 
 **Live context (injected at command load):**
 
@@ -17,9 +21,7 @@ Commits since last tag:
 Recent activity (last 50 commits — bound as `git_log_raw` at pre-flight):
 !`git log -50 --oneline`
 
-1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. Read `zie-framework/.config` → project, zie_memory_enabled.
-3. Bind `roadmap_raw` — load `zie-framework/ROADMAP.md` once (reused by all downstream sections, no second read). Extract: Grep `## Now` → read to next `---`. Grep `## Done` → read ~20 lines only (bind as `done_section_raw`). Grep `## Next` → read to next `---` (cache as `next_lane`).
+4. Bind `roadmap_raw` — load `zie-framework/ROADMAP.md` once (reused by all downstream sections, no second read). Extract: Grep `## Now` → read to next `---`. Grep `## Done` → read ~20 lines only (bind as `done_section_raw`). Grep `## Next` → read to next `---` (cache as `next_lane`).
 4. Bind `git_log_raw` — the `!git log -50 --oneline` bang output injected above. Used by self-tuning and docs-sync guard — no Bash call needed.
    Print: "Analyzing git log..." — git context already injected above, no Bash needed.
 

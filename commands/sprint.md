@@ -8,13 +8,14 @@ effort: high
 
 # /sprint — Sprint Clear (Backlog → Ship → Retro)
 
+<!-- preflight: full -->
+
 Run a complete sprint cycle: spec+plan all items concurrently (no cap), implement sequentially (WIP=1), batch release once, single retro. Delta-only progress during Phase 1; full table at phase end.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Check `zie-framework/` exists → if not, tell user to run `/init` first.
-2. Read `zie-framework/.config` → zie_memory_enabled, project_type.
-3. Read `zie-framework/ROADMAP.md` → check all lanes.
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight) (checks all 3 steps + WIP guard).
+
 4. Check current branch is `dev`.
 5. Verify no uncommitted changes (warn if found).
 6. Check `.zie/handoff.md` — if present, read it. Use its Goals, Key Decisions,
