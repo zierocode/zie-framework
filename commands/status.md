@@ -137,6 +137,25 @@ Knowledge hash (bind as `current_hash_injected`):
    ```
    If Now lane is empty: skip pipeline row.
 
+7.6 **Pipeline Detail** — for each item in Now and Ready lanes, show a
+   one-line summary with Problem excerpt and spec/plan status.
+
+   For each slug in Now + Ready (from parse_roadmap_section):
+   - Read `zie-framework/backlog/<slug>.md`
+   - Extract text between `## Problem` and the next `##` heading
+   - Truncate to first 120 characters, append "…" if longer
+   - If file missing or no Problem section: use `(no description)`
+   - Check `zie-framework/specs/*-<slug>-design.md` → spec ✓ or —
+   - Check `zie-framework/plans/*-<slug>.md` → plan ✓ or —
+
+   Print:
+   ```
+   **Pipeline Detail**
+   - <slug>: <excerpt> | spec <✓|—> plan <✓|—>
+   ```
+
+   Skip this section if both Now and Ready lanes are empty.
+
 8. **ตรรกะขั้นตอนถัดไป** (เลือกที่เกี่ยวข้องที่สุด):
    - Nothing in ROADMAP Now → "Start a feature: /backlog"
    - Active plan exists, tasks incomplete → "Continue: /implement"

@@ -502,3 +502,40 @@ def is_track_active(cwd) -> bool:
         pass
 
     return False
+
+
+def extract_problem_excerpt(slug: str, backlog_dir, max_len: int = 120) -> str:
+    """Extract Problem excerpt from a backlog file.
+
+    Reads backlog/<slug>.md, extracts text between ## Problem and the
+    next ## heading. Truncates to max_len chars, appends … if longer.
+    Returns '(no description)' if file missing or no Problem section.
+    """
+    backlog_path = Path(backlog_dir) / f"{slug}.md"
+    if not backlog_path.exists():
+        return "(no description)"
+    try:
+        content = backlog_path.read_text()
+        match = re.search(r"^## Problem\s*\n\n(.+?)(?:\n\n## |\n\n---|\Z)", content, re.DOTALL | re.MULTILINE)
+        if not match:
+            return "(no description)"
+        text = match.group(1).strip().replace("\n", " ")
+        # Collapse whitespace
+        text = re.sub(r"\s+", " ", text)
+        if len(text) > max_len:
+            return text[:max_len].rstrip() + "…"
+        return text
+    except Exception:
+        return "(no description)"
+
+
+def check_spec_plan_status(slug: str, specs_dir, plans_dir) -> tuple:
+    """Check existence of spec and plan files for a slug.
+
+    Returns (spec_exists, plan_exists) as booleans.
+    """
+    specs_path = Path(specs_dir)
+    plans_path = Path(plans_dir)
+    spec_exists = any(specs_path.glob(f"*-{slug}-design.md"))
+    plan_exists = any(plans_path.glob(f"*-{slug}.md"))
+    return (spec_exists, plan_exists)
