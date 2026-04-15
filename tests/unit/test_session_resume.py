@@ -85,22 +85,22 @@ def _run_hook(tmp_path: Path, session_id: str = "test-session-resume") -> subpro
 
 
 class TestOutputLineCount:
-    def test_no_active_feature_has_at_least_4_lines(self, tmp_path):
+    def test_no_active_feature_has_at_least_2_lines(self, tmp_path):
         _make_zf(tmp_path, now_items=None)
         result = _run_hook(tmp_path)
         assert result.returncode == 0
         lines = result.stdout.strip().splitlines()
-        assert len(lines) >= 4, (
-            f"Expected at least 4 lines, got {len(lines)}:\n{result.stdout}"
+        assert len(lines) >= 2, (
+            f"Expected at least 2 lines, got {len(lines)}:\n{result.stdout}"
         )
 
-    def test_with_active_feature_has_at_least_4_lines(self, tmp_path):
+    def test_with_active_feature_has_at_least_2_lines(self, tmp_path):
         _make_zf(tmp_path, now_items=["session-resume-compression"])
         result = _run_hook(tmp_path)
         assert result.returncode == 0
         lines = result.stdout.strip().splitlines()
-        assert len(lines) >= 4, (
-            f"Expected at least 4 lines, got {len(lines)}:\n{result.stdout}"
+        assert len(lines) >= 2, (
+            f"Expected at least 2 lines, got {len(lines)}:\n{result.stdout}"
         )
 
 
@@ -110,42 +110,34 @@ class TestOutputFormat:
         result = _run_hook(tmp_path)
         assert result.returncode == 0
         line1 = result.stdout.strip().splitlines()[0]
-        assert "[zie-framework]" in line1
+        assert "[zf]" in line1
         assert "(plugin)" in line1
         assert "v2.3.4" in line1
 
-    def test_line2_active_feature_present(self, tmp_path):
+    def test_line1_now_key_with_active_feature(self, tmp_path):
         _make_zf(tmp_path, now_items=["my-cool-feature"])
         result = _run_hook(tmp_path)
-        lines = result.stdout.strip().splitlines()
-        assert lines[1].startswith("  Active:")
-        assert "my-cool-feature" in lines[1]
+        line1 = result.stdout.strip().splitlines()[0]
+        assert "now:" in line1
+        assert "my-cool-feature" in line1
 
-    def test_line2_no_active_feature_fallback(self, tmp_path):
+    def test_line1_now_key_fallback_when_empty(self, tmp_path):
         _make_zf(tmp_path, now_items=None)
         result = _run_hook(tmp_path)
-        lines = result.stdout.strip().splitlines()
-        assert lines[1].startswith("  Active:")
-        assert "No active feature" in lines[1]
-        assert "/backlog" in lines[1]
+        line1 = result.stdout.strip().splitlines()[0]
+        assert "now:" in line1
 
-    def test_line3_brain_enabled(self, tmp_path):
+    def test_line1_mem_key_enabled(self, tmp_path):
         _make_zf(tmp_path, zie_memory=True)
         result = _run_hook(tmp_path)
-        lines = result.stdout.strip().splitlines()
-        assert lines[2] == "  Brain: enabled"
+        line1 = result.stdout.strip().splitlines()[0]
+        assert "mem:on" in line1
 
-    def test_line3_brain_disabled(self, tmp_path):
+    def test_line1_mem_key_disabled(self, tmp_path):
         _make_zf(tmp_path, zie_memory=False)
         result = _run_hook(tmp_path)
-        lines = result.stdout.strip().splitlines()
-        assert lines[2] == "  Brain: disabled"
-
-    def test_line4_zie_status_hint(self, tmp_path):
-        _make_zf(tmp_path)
-        result = _run_hook(tmp_path)
-        lines = result.stdout.strip().splitlines()
-        assert lines[3] == "  → Run /status for full state"
+        line1 = result.stdout.strip().splitlines()[0]
+        assert "mem:off" in line1
 
 
 HOOK_DIR = REPO_ROOT / "hooks"
@@ -341,9 +333,9 @@ class TestCommandListOutput:
         _make_zf(tmp_path)
         result = _run_hook(tmp_path)
         assert result.returncode == 0
-        # Command list line starts with [zie-framework] framework: commands
+        # Command list line starts with [zf] and contains cmds:
         assert any(
-            "commands" in line and "zie-framework" in line
+            "cmds:" in line and "[zf]" in line
             for line in result.stdout.splitlines()
         ), "stdout must contain a command list line"
 
@@ -364,7 +356,7 @@ class TestCommandListOutput:
         # (check that it's absent in the command list line)
         cmd_lines = [
             l for l in result.stdout.splitlines()
-            if "commands" in l and "zie-framework" in l
+            if "cmds:" in l
         ]
         if cmd_lines:
             assert "/health" not in cmd_lines[0], (
@@ -385,7 +377,7 @@ class TestCommandListOutput:
         result = _run_hook(tmp_path)
         cmd_lines = [
             l for l in result.stdout.splitlines()
-            if "commands" in l and "zie-framework" in l
+            if "cmds:" in l
         ]
         if cmd_lines:
             assert "/health" in cmd_lines[0], (

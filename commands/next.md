@@ -44,19 +44,11 @@ Read-only. Scans `zie-framework/backlog/`, scores items, and recommends top 3.
 6. **Print top 3**
 
    ```
-   /next — recommended backlog items
+   /next
 
-   1. [HIGH] conversation-capture (score: 7)
-      Age: 3 days | Impact: high
-      → Run: /spec conversation-capture
-
-   2. [MEDIUM] code-quality-gates (score: 4)
-      Age: 1 week | Impact: medium
-      → Run: /spec code-quality-gates
-
-   3. [LOW] adaptive-learning (score: 2)
-      Age: 0 days | Impact: low
-      → Run: /spec adaptive-learning
+   1. [HIGH] conversation-capture (score:7) age:3d | /spec conversation-capture
+   2. [MEDIUM] code-quality-gates (score:4) age:1w | /spec code-quality-gates
+   3. [LOW] adaptive-learning (score:2) age:0d | /spec adaptive-learning
    ```
 
 7. **Edge cases**

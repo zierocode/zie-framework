@@ -82,43 +82,25 @@ Knowledge hash (bind as `current_hash_injected`):
 
    ## สถานะ zie-framework
 
-   | | |
-   | --- | --- |
-   | โปรเจกต์ | \<directory name> (\<project_type>) |
-   | Version | \<VERSION> |
-   | Velocity | \<velocity string> |
-   | Brain | \<enabled\|disabled> |
-   | Drift | \<N> bypass events (`zie-framework/.drift-log`) |
-   | Knowledge | \<✓ synced (date) \| ⚠ drift: /resync \| ? no baseline> |
+   project: \<directory name>(\<project_type>) v\<VERSION> | brain: \<on\|off> | drift: \<N>
+   knowledge: \<✓ synced \| ⚠ drift — /resync \| ? no baseline>
+   velocity: \<velocity string>
 
    **ROADMAP**
-   - Now: \<N> in progress
-   - Next: \<N> queued
-   - Done: \<N> shipped
+   - now: \<N> in progress | next: \<N> queued | done: \<N> shipped
 
    **งานปัจจุบัน**: \<first Now item or "ยังไม่มีงาน">
    **Plan**: \<zie-framework/plans/latest.md or "ยังไม่มี plan">
 
-   | Tests | สถานะ |
-   | --- | --- |
-   | unit | \<✓ pass \| ✗ fail \| ? stale \| n/a> |
-   | integration | \<✓ pass \| ✗ fail \| ? stale \| n/a> |
-   | e2e | \<✓ pass \| ✗ fail \| ? stale \| n/a> |
+   tests: unit:\<✓\|✗\|?\|n/a> int:\<✓\|✗\|?\|n/a> e2e:\<✓\|✗\|?\|n/a>
 
    **ขั้นตอนถัดไป**: \<context-appropriate suggestion>
 
-   **Framework Health**
+   config: safety=\<mode> mem=\<on\|off> pw=\<on\|off> drift=\<N>
 
-   | | |
-   | --- | --- |
-   | safety_check_mode | \<value from .config, default: regex> |
-   | zie-memory | \<enabled \| disabled> |
-   | playwright | \<enabled \| disabled> |
-   | Drift bypasses | \<N> events |
-
-   **Stop failures (last 5):**
+   failures:
    \<tail last 5 non-empty lines from failure-log, each clipped at 120 chars>
-   — or — `No stop failures recorded` if file missing or empty
+   — or — `none` if file missing or empty
 
 7.5 **Pipeline Stage Indicator** — detect active feature's pipeline stage:
 

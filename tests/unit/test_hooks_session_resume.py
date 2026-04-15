@@ -50,26 +50,26 @@ class TestSessionResumeHappyPath:
                        roadmap=SAMPLE_ROADMAP, version="1.2.3")
         r = run_hook(tmp_cwd=cwd)
         assert tmp_path.name in r.stdout
-        assert "[zie-framework]" in r.stdout
+        assert "[zf]" in r.stdout
 
     def test_prints_active_feature_from_now_section(self, tmp_path):
         cwd = make_cwd(tmp_path, config={}, roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
         assert "auth module" in r.stdout
 
-    def test_active_feature_shown_in_active_line(self, tmp_path):
+    def test_active_feature_shown_in_now_line(self, tmp_path):
         cwd = make_cwd(tmp_path, config={}, roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
         lines = r.stdout.strip().splitlines()
-        assert any("Active:" in line for line in lines), \
-            "Output must contain an Active: line"
+        assert any("now:" in line for line in lines), \
+            "Output must contain a line with now: key"
 
-    def test_output_has_at_least_4_lines(self, tmp_path):
+    def test_output_has_at_least_2_lines(self, tmp_path):
         cwd = make_cwd(tmp_path, config={}, roadmap=SAMPLE_ROADMAP,
                        plans={"2026-03-22-my-feature.md": "# plan"})
         r = run_hook(tmp_cwd=cwd)
-        assert len(r.stdout.strip().splitlines()) >= 4, \
-            "Output must always be at least 4 lines"
+        assert len(r.stdout.strip().splitlines()) >= 2, \
+            "Output must always be at least 2 lines"
 
     def test_brain_enabled_when_config_says_so(self, tmp_path):
         cwd = make_cwd(tmp_path, config={"zie_memory_enabled": True}, roadmap=SAMPLE_ROADMAP)
@@ -94,7 +94,7 @@ class TestSessionResumeGracefulDegradation:
         cwd = make_cwd(tmp_path, config={}, roadmap="## Now\n\n## Next\n")  # minimal roadmap
         r = run_hook(tmp_cwd=cwd)
         assert r.returncode == 0
-        assert "[zie-framework]" in r.stdout
+        assert "[zf]" in r.stdout
 
 
 class TestHookExceptionConvention:
@@ -145,7 +145,7 @@ class TestSessionResumeConfigParseWarning:
         (zf / "ROADMAP.md").write_text("## Now\n\n## Next\n")
         r = run_hook(tmp_cwd=tmp_path)
         assert r.returncode == 0
-        assert "[zie-framework]" in r.stdout
+        assert "[zf]" in r.stdout
 
     def test_no_warning_on_valid_config(self, tmp_path):
         """Valid .config must not produce any warning."""

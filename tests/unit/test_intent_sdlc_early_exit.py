@@ -170,7 +170,7 @@ class TestIdleStateSuffix:
         ctx = self._parse_context(r.stdout)
         assert ctx is not None, "Expected context output"
         assert "stage:idle" not in ctx
-        assert "task:none" not in ctx
+        assert "now:none" not in ctx
 
     def test_state_suffix_present_when_active_task(self, tmp_path):
         """Active Now item → state suffix always present."""
@@ -181,7 +181,7 @@ class TestIdleStateSuffix:
         ctx = self._parse_context(r.stdout)
         assert ctx is not None
         assert "stage:" in ctx
-        assert "task:" in ctx
+        assert "now:" in ctx
 
     def test_state_suffix_present_when_ambiguous(self, tmp_path):
         """idle + low intent score (< 2) → state suffix still present."""

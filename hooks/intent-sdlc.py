@@ -216,9 +216,8 @@ def _check_pipeline_preconditions(
             return None
         slug_list = ", ".join(f"'{s}'" for s in blocking)
         return (
-            f"⛔ STOP. No approved spec for {slug_list}. "
-            f"You must run /spec {blocking[0]} first. "
-            f"Do not proceed with planning."
+            f"⛔ No approved spec for {slug_list}. "
+            f"Run /spec {blocking[0]} first."
         )
 
     return None
@@ -244,10 +243,10 @@ def _positional_guidance(roadmap_content: str, cwd: Path, message: str) -> "str 
             slug_in_ready = True
             break
     if not has_approved_spec:
-        return f"Feature '{slug}' is in backlog. Start with /spec {slug}"
+        return f"backlog:{slug} → /spec {slug}"
     if has_approved_spec and not slug_in_ready:
-        return f"Spec approved for '{slug}'. Run /plan {slug}"
-    return f"Plan ready for '{slug}'. Run /implement to start"
+        return f"spec:{slug} ✓ → /plan {slug}"
+    return f"plan:{slug} ✓ → /implement"
 
 
 def derive_stage(task_text: str) -> str:
@@ -347,8 +346,7 @@ try:
     if len(message) < 50:
         if not has_sdlc_keyword:
             context = (
-                "[zie-framework] intent: unclear — "
-                "please clarify your request before proceeding"
+                "[zf] intent: unclear — clarify before proceeding"
             )
             if session_id != "default":
                 _dp = _dedup_path(session_id, cwd)
@@ -413,7 +411,7 @@ try:
                     count += 1
             if count >= 2:
                 hint = NEW_INTENT_HINTS[intent_name]
-                context = f"[zie-framework] intent: {intent_name} — {hint}"
+                context = f"[zf] intent: {intent_name} — {hint}"
                 _should_emit = True
                 if session_id != "default":
                     _dp = _dedup_path(session_id, cwd)
@@ -441,11 +439,7 @@ try:
     if gate_msg is None and best in ("implement", "fix"):
         if not is_track_active(cwd):
             no_track_msg = (
-                "no active track — pick one: "
-                "standard: /backlog → /spec → /plan → /implement | "
-                "hotfix: /hotfix | "
-                "spike: /spike | "
-                "chore: /chore"
+                "no track — /backlog→/spec→/plan→/implement | /hotfix | /spike | /chore"
             )
 
     # ── Positional guidance (only when no gate and no dominant intent) ────────
@@ -478,7 +472,7 @@ try:
     elif no_track_msg:
         parts.append(no_track_msg)
     elif intent_cmd:
-        parts.append(f"intent:{best} → {intent_cmd}")
+        parts.append(f"intent:{best}→{intent_cmd}")
     if guidance_msg and not _suppress_guidance:
         parts.append(guidance_msg)
     # State suffix: omit when idle + no active task + unambiguous intent (score >= 2)
@@ -486,9 +480,9 @@ try:
     _idle_unambiguous = (stage == "idle" and active_task == "none" and _best_score >= 2)
     if not _idle_unambiguous:
         parts.append(
-            f"task:{active_task} | stage:{stage} | next:{suggested_cmd} | tests:{test_status}"
+            f"now:{active_task} stage:{stage} next:{suggested_cmd} tests:{test_status}"
         )
-    context = "[zie-framework] " + " | ".join(parts)
+    context = "[zf] " + " | ".join(parts)
 
     # ── Skill auto-inject ────────────────────────────────────────────────────────
     _skill_content = inject_skill_context(best or stage, cwd)
@@ -505,5 +499,5 @@ try:
     print(json.dumps({"additionalContext": context}))
 
 except Exception as e:
-    print(f"[zie-framework] intent-sdlc: {e}", file=sys.stderr)
+    print(f"[zf] intent-sdlc: {e}", file=sys.stderr)
     sys.exit(0)
