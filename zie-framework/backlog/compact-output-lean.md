@@ -1,23 +1,25 @@
 ---
-tags: [chore]
+tags: [performance]
 ---
 
-# Lean Compact Output
+# Compact Hook and Command Output
 
 ## Problem
 
-`sdlc-compact.py` lists up to 20 changed files as individual `- filename` lines during PostCompact context injection. Compact events occur when context is near capacity, making every token count. Listing 20 filenames wastes ~100-200 tokens at the worst possible time.
-
-## Motivation
-
-Compact context is the most token-expensive context in the entire session. A summary line ("20 files changed") would suffice and save ~100-200 tokens per compact event.
+Hook output and command output contains verbose logging and formatting that adds token cost. `/status` output, `/next` output, and hook messages can be compressed by 15-25%.
 
 ## Rough Scope
 
 **In:**
-- Replace individual file listing with summary: "N files changed in paths: dir1/, dir2/, dir3/" (max 3 directory names)
-- Keep file listing only when N <= 5
+- Compress output from `intent-sdlc`, `session-resume`, and `status`/`next` commands
+- Remove verbose labels, use shorter format strings
+- Strip unnecessary newlines and padding
+- Target 15-25% token reduction in typical output
 
 **Out:**
-- Changing compact recovery logic
-- Changing what data sdlc-compact collects
+- Removing information that's needed for decision-making
+- Changing the structured format (keep machine-parseable sections intact)
+
+## Priority
+
+MEDIUM

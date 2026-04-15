@@ -6,20 +6,22 @@ tags: [feature]
 
 ## Problem
 
-The `/init` command bootstraps a project with `zie-framework/`, `CLAUDE.md`, `.config`, `Makefile`, and `.markdownlint.json`, but does not create Claude Code-specific configuration files that improve context efficiency and developer experience: `.ignore` (context filter), `.claude/rules/sdlc.md` (SDLC workflow rules), `.claude/settings.json` (auto-approve safe commands), and `CLAUDE.local.md` (local dev preferences template).
-
-## Motivation
-
-Projects using zie-framework benefit from optimized Claude Code configuration — less context waste from irrelevant files, auto-approved safe commands to reduce permission prompts, and path-scoped SDLC rules that only load when working with zie-framework internals. Currently every user must manually set these up after `/init`.
+The `/init` command currently only scans the project and generates knowledge files, but doesn't scaffold a `.claude/` directory with `settings.json`, key configuration for hooks, permissions, and MCP servers. New users have to manually configure these after `/init`.
 
 ## Rough Scope
 
-**In scope:**
-- `.ignore` at project root (exclude `__pycache__/`, `node_modules/`, `dist/`, `.env`, `zie-framework/evidence/`, `zie-framework/archive/`, etc.)
-- `.claude/rules/sdlc.md` (path-scoped to `zie-framework/**`, contains pipeline rules, WIP=1, reviewer enforcement)
-- `.claude/settings.json` (auto-approve `make test-fast`, `make test-ci`, `make lint`, `python3 *`)
-- `CLAUDE.local.md` template (local dev notes, non-Claude model compatibility, scratch pad)
+**In:**
+- Add `settings.json` scaffolding to `/init` — create `.claude/` directory structure
+- Populate default permissions (auto-approve `make test-fast`, `make lint`, `python3 *`)
+- Add hook config entries for zie-framework hooks
+- Add MCP server stubs for zie-memory
+- Template `.claude/rules/sdlc.md` with path-scoped SDLC workflow rules
+- Template `.ignore` for context filtering (`__pycache__/`, `node_modules/`, `dist/`, `.env`, `zie-framework/evidence/`, `zie-framework/archive/`)
 
-**Out of scope:**
+**Out:**
 - Global `~/.claude/` configuration (user's responsibility)
 - Changes to existing template files (`CLAUDE.md.template`, `Makefile`, etc.)
+
+## Priority
+
+HIGH — critical for onboarding experience

@@ -2,23 +2,24 @@
 tags: [feature]
 ---
 
-# Show ROADMAP Content in /status
+# Status Roadmap Content Summary
 
 ## Problem
 
-The `/status` command shows "Next: 9 queued" and "Done: 82 shipped" as counts only — it doesn't surface the actual backlog item names. Users who want to see what's queued must manually scan the `zie-framework/backlog/` directory instead of reading from the ROADMAP they already maintain.
-
-## Motivation
-
-ROADMAP.md is the single source of truth for project state. `/status` should give enough context to decide what to work on next without a second lookup. Surfacing backlog item names (especially top-priority ones) directly in `/status` eliminates a round-trip to the filesystem.
+The `/status` command reads ROADMAP but doesn't surface the content of backlog items, specs, or plans. Users need to manually check each file to understand what's in the pipeline.
 
 ## Rough Scope
 
 **In:**
-- Show top N backlog items from ROADMAP Next section in `/status` output
-- Show most recent Done items from ROADMAP Done section (last 3-5)
-- Respect existing targeted-read pattern (grep line numbers, read slice — don't load full file)
+- Add content summary to `/status` — show backlog Problem excerpt for each item in Next/Ready/Now lanes
+- Show spec status (exists/not yet, filename)
+- Show plan status (exists/not yet, filename)
+- Keep output concise — first 1-2 lines of Problem section only
 
 **Out:**
-- Full backlog listing (that's what `/next` is for)
-- Changing ROADMAP format or structure
+- Full file contents in status output (too verbose)
+- Changes to ROADMAP format itself
+
+## Priority
+
+LOW
