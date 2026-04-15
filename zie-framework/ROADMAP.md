@@ -8,16 +8,11 @@
 
 ## Now — Active Sprint
 
-- [ ] status-roadmap-content — [spec](specs/2026-04-15-status-roadmap-content-design.md) [plan](plans/2026-04-15-status-roadmap-content.md)
+- [ ] compact-output-lean — [spec](specs/2026-04-15-compact-output-lean-design.md) [plan](plans/2026-04-15-compact-output-lean.md)
 
 ---
 
-## Ready — Approved Plans
-
-- [ ] skill-manual-revise — [spec](specs/2026-04-15-status-roadmap-content-design.md) [plan](plans/2026-04-15-status-roadmap-content.md)
-- [ ] skill-manual-revise — [spec](specs/2026-04-15-skill-manual-revise-design.md) [plan](plans/2026-04-15-skill-manual-revise.md)
-- [ ] skill-manual-auto-inject — [spec](specs/2026-04-15-skill-manual-auto-inject-design.md) [plan](plans/2026-04-15-skill-manual-auto-inject.md)
-- [ ] intent-sdlc-lean — [spec](specs/2026-04-15-intent-sdlc-lean-design.md) [plan](plans/2026-04-15-intent-sdlc-lean.md)
+## Ready — Approved Plans — [spec](specs/2026-04-15-intent-sdlc-lean-design.md) [plan](plans/2026-04-15-intent-sdlc-lean.md)
 - [ ] compact-output-lean — [spec](specs/2026-04-15-compact-output-lean-design.md) [plan](plans/2026-04-15-compact-output-lean.md)
 - [ ] cache-systems-consolidate — [spec](specs/2026-04-15-cache-systems-consolidate-design.md) [plan](plans/2026-04-15-cache-systems-consolidate.md) ← merged config-session-cache + roadmap-cache-unify
 - [ ] command-conventions — [spec](specs/2026-04-15-command-conventions-design.md) [plan](plans/2026-04-15-command-conventions.md)
@@ -40,6 +35,12 @@
 
 ## Done — v1.30.1 (2026-04-15)
 
+- [x] skill-manual-revise — Compress SKILL.md files 1492→1183 lines — 2026-04-15
+- [x] skill-manual-auto-inject — Auto-inject skill context for active SDLC stage — 2026-04-15
+- [x] init-scaffold-claude-code-config — Scaffold .claude/ settings.json, rules/sdlc.md, .ignore during /init — 2026-04-15
+- [x] backlog-dedup-expand — Dedup check against Done items and expand existing items — 2026-04-15
+- [x] intent-sdlc-lean — Separate new-intent patterns, raise threshold to 50, strong-intent bypass — 2026-04-15
+- [x] status-roadmap-content — Show Problem excerpts and spec/plan status per Now/Ready item — 2026-04-15
 - [x] py39-compat-union-type — Fix Python 3.9 compatibility: add `from __future__ import annotations` to hooks using `X | None` union syntax, fix broken import path in zie_context_loader — 2026-04-15
 
 ---
