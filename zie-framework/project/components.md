@@ -43,18 +43,16 @@
 | --- | --- | --- |
 | auto-test.py | PostToolUse:Write/Edit | รัน test suite หลัง save (debounced, `debounce_ms=0` = disabled); OSError-guarded rglob + c.exists() |
 | safety-check.py | PreToolUse:Write/Edit/Bash | บล็อก dangerous cmds (exit 2 = block); includes metachar injection guard + path traversal checks (input-sanitizer merged in v1.16.3); MAX_MESSAGE_LEN=500 ReDoS guard; whitespace normalised before match |
-| intent-detect.py | PreToolUse:Bash | ตรวจ intent → suggest cmd (JSON out) |
+| intent-sdlc.py | PreToolUse:Bash | intent detection → suggest SDLC command (JSON out); pattern dedup cache; session-level intent flags |
 | session-resume.py | SessionStart | แสดง project state + active feature |
 | failure-context.py | PostToolUseFailure:Bash/Write/Edit | inject SDLC debug context (active task, branch, last commit, quick-fix hint); is_interrupt guard; reads branch/log from session git cache before subprocess |
-| stop-guard.py | Stop | บล็อก session หาก uncommitted implementation files ถูกตรวจพบ (hooks, tests, commands, skills, templates); stop_hook_active infinite-loop guard |
+| stop-handler.py | Stop | merged stop-guard + compact-hint + stop-pipeline-guard; uncommitted file check, sprint intent nudge, context health nudge; stop_hook_active infinite-loop guard |
 | session-learn.py | PostToolUse | สังเกต patterns, บันทึก micro-learnings |
 | wip-checkpoint.py | PeriodicTask | บันทึก WIP progress สู่ brain; counter ValueError recovery |
 | session-cleanup.py | Stop | ลบ project-scoped /tmp files on exit |
 | sdlc-compact.py | PreCompact / PostCompact | snapshot SDLC state before compaction; restore as additionalContext after; reads branch/diff from session git cache before subprocess |
-| sdlc-context.py | UserPromptSubmit | inject [sdlc] task/stage/next/tests context into every prompt |
 | subagent-context.py | SubagentStart:Explore/Plan | inject active feature slug, first incomplete task, ADR count into research subagents |
 | config-drift.py | ConfigChange:project_settings\|user_settings | ตรวจ CLAUDE.md / settings.json / zie-framework/.config drift → inject additionalContext to re-read |
-| compact-hint.py | Stop | print /compact hint when context_window usage ≥ compact_hint_threshold (default 0.8); configurable via .config; stop_hook_active infinite-loop guard |
 | notification-log.py | Notification:permission_prompt\|idle_prompt | log permission + idle events; inject additionalContext on 3+ repeated permission requests |
 | safety_check_agent.py | PreToolUse:Bash | agent-based safety check; merged into safety-check.py inline dispatch (v1.19.0) — no separate file read per Bash call |
 | sdlc-permissions.py | PermissionRequest | auto-approve safe SDLC Bash operations (make test-unit, git status, etc.) without interrupting Claude |

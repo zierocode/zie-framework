@@ -42,6 +42,10 @@ class TestLookupCache:
         if test_path is None:
             test_path = find_matching_test(...)  # rglob fallback
             cache.set_test_mapping(str(source_path), str(test_path))
+
+    Note: __test__ = False prevents pytest from collecting this class as a test.
+    """
+    __test__ = False
         if cache.should_debounce(str(source_path)):
             return  # Skip test run
     """

@@ -75,8 +75,8 @@ try:
 
     project = cwd.name
 
-    # Write pending_learn marker for next session (persistent across restarts)
-    pending_learn_file = persistent_project_path("pending_learn.txt", project)
+    # Write pending_learn marker for next session (project-local path, not /tmp)
+    pending_learn_file = zf / "pending_learn.txt"
 
     # Read ROADMAP for context
     roadmap_file = zf / "ROADMAP.md"
@@ -84,11 +84,15 @@ try:
     wip_context = "; ".join(now_lines[:3]) if now_lines else ""
     stage_at_end = _detect_stage(now_lines[0]) if now_lines else "idle"
 
-    atomic_write(
-        pending_learn_file,
-        f"project={project}\n"
-        f"wip={wip_context}\n",
-    )
+    try:
+        atomic_write(
+            pending_learn_file,
+            f"project={project}\n"
+            f"wip={wip_context}\n",
+        )
+        os.chmod(pending_learn_file, 0o600)
+    except (OSError, PermissionError) as e:
+        log_error("session-learn", "write_pending_learn", e)
 
     # ── Adaptive learning: record session pattern ────────────────────────────
     _log_path = project_tmp_path("pattern-log", project)

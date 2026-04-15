@@ -184,7 +184,12 @@ def _write_session_memory(session_data, cwd):
     if latest_link.exists() or latest_link.is_symlink():
         latest_link.unlink()
     try:
+        # Symlink target must resolve within memory directory
         latest_link.symlink_to(session_file.name)
+        if latest_link.is_symlink():
+            resolved = latest_link.resolve()
+            if not str(resolved).startswith(str(memory_dir.resolve())):
+                latest_link.unlink()
     except OSError:
         pass  # Symlinks may not be supported on all filesystems
 

@@ -214,7 +214,7 @@ try:
     # Infinite-loop guard
     if event.get("stop_hook_active"):
         sys.exit(0)
-except (json.JSONDecodeError, OSError):
+except (json.JSONDecodeError, OSError, AttributeError):
     sys.exit(0)
 
 # ---------------------------------------------------------------------------

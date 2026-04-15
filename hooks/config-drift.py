@@ -15,11 +15,11 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_error import log_error
+from utils_event import read_event
 
 # Outer guard ----------------------------------------------------------------
 try:
-    raw = sys.stdin.read()
-    event = json.loads(raw)
+    event = read_event()
 except (json.JSONDecodeError, OSError):
     sys.exit(0)
 

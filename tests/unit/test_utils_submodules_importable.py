@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = "/Users/zie/Code/zie-framework"
+REPO_ROOT = str(Path(__file__).parent.parent.parent)
 
 
 def _import_ok(module, symbols):
