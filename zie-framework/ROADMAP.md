@@ -21,6 +21,8 @@
 ## Next — Prioritized Backlog
 
 <!-- Items awaiting spec. Ordered by priority. -->
+- [ ] Remove GitHub CI — [backlog](backlog/remove-github-ci.md)
+- [ ] Optimize Review Loop Token Waste — [backlog](backlog/optimize-review-loop-token-waste.md)
 
 ---
 
