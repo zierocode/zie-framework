@@ -17,6 +17,7 @@ from utils_event import get_cwd, read_event
 from utils_config import CACHE_TTLS
 from utils_cache import get_cache_manager
 from utils_roadmap import is_track_active, parse_roadmap_section_content
+from utils_error import log_error
 from utils_skill_inject import inject_skill_context
 
 # ── Intent detection constants ────────────────────────────────────────────────
@@ -189,14 +190,22 @@ def _spec_approved(cwd: Path, slug: str) -> bool:
     specs_dir = cwd / "zie-framework" / "specs"
     try:
         matches = list(specs_dir.glob(f"*-{slug}-design.md"))
-    except Exception:
+    except OSError as e:
+        log_error("intent-sdlc", "spec_glob", e)
+        return False
+    except Exception as e:
+        log_error("intent-sdlc", "spec_glob", e)
         return False
     if not matches:
         return False
     try:
         content = matches[0].read_text()
         return bool(re.search(r'^approved:\s*true\s*$', content, re.MULTILINE))
-    except Exception:
+    except OSError as e:
+        log_error("intent-sdlc", "spec_read", e)
+        return False
+    except Exception as e:
+        log_error("intent-sdlc", "spec_read", e)
         return False
 
 
@@ -263,8 +272,10 @@ def get_test_status(cwd: Path) -> str:
         if ts is not None:
             age = time.time() - float(ts)
             return "stale" if age > STALE_THRESHOLD_SECS else "recent"
-    except Exception:
-        pass
+    except OSError as e:
+        log_error("intent-sdlc", "test_status", e)
+    except Exception as e:
+        log_error("intent-sdlc", "test_status", e)
     return "unknown"
 
 
@@ -276,7 +287,8 @@ def _read_dedup(cache, session_id: str, key: str) -> str:
     try:
         val = cache.get(key, session_id)
         return val if isinstance(val, str) else ""
-    except Exception:
+    except Exception as e:
+        log_error("intent-sdlc", "read_dedup", e)
         return ""
 
 
@@ -284,15 +296,18 @@ def _write_dedup(cache, session_id: str, key: str, context: str) -> None:
     """Write current context to CacheManager dedup cache."""
     try:
         cache.set(key, context, session_id, ttl=_DEDUP_TTL_SECS)
-    except Exception:
-        pass
+    except Exception as e:
+        log_error("intent-sdlc", "write_dedup", e)
 
 
 # ── Outer guard ───────────────────────────────────────────────────────────────
 
 try:
     event = read_event()
-except Exception:
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
+except Exception as e:
+    log_error("intent-sdlc", "read_event", e)
     sys.exit(0)
 
 try:
@@ -308,7 +323,10 @@ try:
     cwd = get_cwd()
     if not (cwd / "zie-framework").exists():
         sys.exit(0)
-except Exception:
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
+except Exception as e:
+    log_error("intent-sdlc", "early_exit_guard", e)
     sys.exit(0)
 
 # ── Inner operations ──────────────────────────────────────────────────────────
@@ -411,8 +429,8 @@ try:
                 if intent_name == "sprint":
                     try:
                         cache.set_flag("intent-sprint-flag", session_id)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        log_error("intent-sdlc", "sprint_flag_set", e)
                 sys.exit(0)
 
     # ── Pipeline gate check ───────────────────────────────────────────────────
@@ -439,8 +457,8 @@ try:
         _cached_agg = cache.get("pattern-aggregate", session_id)
         if isinstance(_cached_agg, dict):
             _pattern_agg = _cached_agg
-    except Exception:
-        pass  # Missing or corrupt aggregate — use defaults
+    except Exception as e:
+        log_error("intent-sdlc", "pattern_aggregate", e)  # Missing or corrupt aggregate — use defaults
     _most_common_stage = _pattern_agg.get("most_common_stage", "")
 
     # Suppress pipeline-position hint when user consistently works at implement stage

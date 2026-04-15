@@ -3,6 +3,8 @@
 import re
 from pathlib import Path
 
+from utils_error import log_error
+
 
 def infer_tag(title: str, keyword_map: dict) -> str:
     """Infer a tag from title text using keyword_map.
@@ -47,8 +49,8 @@ def find_duplicate_slugs(new_slug: str, backlog_dir) -> list:
             title_match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
             if title_match:
                 existing_tokens |= _tokenize(title_match.group(1))
-        except Exception:
-            pass
+        except (OSError, FileNotFoundError) as e:
+            log_error("utils_backlog", "read_title", e)
         if len(new_tokens & existing_tokens) >= 2:
             duplicates.append(existing_slug)
     return duplicates
@@ -100,6 +102,6 @@ def is_full_duplicate(new_title: str, new_slug: str, existing_slug: str, backlog
         if title_match:
             existing_tokens = _tokenize(title_match.group(1)) | set(existing_slug.lower().split("-"))
             return new_tokens <= existing_tokens
-    except Exception:
-        pass
+    except (OSError, FileNotFoundError) as e:
+        log_error("utils_backlog", "read_title", e)
     return False

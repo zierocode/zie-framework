@@ -16,6 +16,7 @@ from utils_roadmap import (
     read_roadmap_cached,
     write_git_status_cache,
 )
+from utils_error import log_error
 
 # ---------------------------------------------------------------------------
 # Outer guard — parse event; exit 0 on any failure; never block Claude
@@ -34,7 +35,10 @@ try:
     project_name = cwd.name
     session_id = event.get("session_id", "default")
     cache = get_cache_manager(cwd)
-except Exception:
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
+except Exception as e:
+    log_error("sdlc-compact", "outer_guard", e)
     sys.exit(0)
 
 # ---------------------------------------------------------------------------
@@ -122,8 +126,8 @@ elif hook_event_name == "PostCompact":
         cached_snap = cache.get("compact-snapshot", session_id)
         if cached_snap is not None and isinstance(cached_snap, dict):
             snapshot = cached_snap
-    except Exception:
-        pass
+    except Exception as e:
+        log_error("sdlc-compact", "cache_snapshot_read", e)
 
     # Fall back to persistent storage
     if snapshot is None:
@@ -132,7 +136,11 @@ elif hook_event_name == "PostCompact":
                 if _read_path.exists():
                     snapshot = json.loads(_read_path.read_text())
                     break
-            except Exception:
+            except (json.JSONDecodeError, OSError) as e:
+                log_error("sdlc-compact", "persistent_snapshot_read", e)
+                continue
+            except Exception as e:
+                log_error("sdlc-compact", "persistent_snapshot_read", e)
                 continue
 
     if snapshot is None:

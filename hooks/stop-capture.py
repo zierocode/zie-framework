@@ -16,10 +16,12 @@ sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_io import atomic_write
 from utils_cache import get_cache_manager
+from utils_error import log_error
 
 try:
     event = read_event()
-except Exception:
+except Exception as e:
+    log_error("stop-capture", "read_event", e)
     sys.exit(0)
 
 try:
@@ -83,5 +85,6 @@ source: design-tracker
     except Exception as _e:
         print(f"[zf] stop-capture: flag cleanup failed: {_e}", file=sys.stderr)
 
-except Exception:
+except Exception as e:
+    log_error("stop-capture", "main", e)
     sys.exit(0)

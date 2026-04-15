@@ -5,12 +5,14 @@ Async (background: true in hooks.json) — never blocks Claude.
 Checks for design signals in the user's message; writes a session flag that
 stop-capture.py reads at Stop time to write .zie/handoff.md.
 """
+import json
 import os
 import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
+from utils_error import log_error
 from utils_event import get_cwd, read_event
 from utils_cache import get_cache_manager
 
@@ -25,7 +27,7 @@ _COMPILED = [re.compile(p, re.IGNORECASE) for p in DESIGN_SIGNALS]
 
 try:
     event = read_event()
-except Exception:
+except (json.JSONDecodeError, OSError):
     sys.exit(0)
 
 try:
@@ -46,5 +48,6 @@ try:
     except Exception as _e:
         print(f"[zf] design-tracker: flag write failed: {_e}", file=sys.stderr)
 
-except Exception:
+except Exception as e:
+    log_error("design-tracker", "main", e)
     sys.exit(0)

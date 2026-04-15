@@ -13,6 +13,8 @@ import sys
 import time
 from pathlib import Path
 
+from utils_error import log_error
+
 EXCLUDE = {
     'node_modules', '.git', 'build', 'dist', '.next',
     '__pycache__', 'coverage', 'zie-framework', '.zie'
@@ -65,7 +67,8 @@ def _compute_max_mtime(root: Path) -> float:
             if "zie-framework" not in p.parts
         ]
         return max(mtimes) if mtimes else 0.0
-    except Exception:
+    except OSError as e:
+        log_error("knowledge-hash", "compute_max_mtime", e)
         return 0.0
 
 
@@ -76,7 +79,7 @@ if args.check:
             sys.exit(0)
         try:
             config = json.loads(config_path.read_text())
-        except Exception:
+        except (json.JSONDecodeError, OSError):
             sys.exit(0)
         stored = config.get('knowledge_hash', '')
         if not stored:
@@ -113,7 +116,8 @@ if args.check:
                 '[zf] Knowledge drift detected since last session'
                 ' — run /resync to update project context'
             )
-    except Exception:
+    except Exception as e:
+        log_error("knowledge-hash", "check", e)
         sys.exit(0)
 else:
     print(compute_hash(root))

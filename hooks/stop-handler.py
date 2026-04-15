@@ -18,6 +18,7 @@ from utils_event import get_cwd, read_event
 from utils_config import load_config
 from utils_roadmap import get_cached_git_status, parse_roadmap_items_with_dates, write_git_status_cache
 from utils_cache import get_cache_manager
+from utils_error import log_error
 
 # Canonical implementation file patterns for zie-framework layout.
 IMPL_PATTERNS = [
@@ -51,8 +52,8 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
         )
         if result.returncode == 0:
             git_log_output = result.stdout
-    except Exception:
-        pass  # Skip log-based nudges if git fails
+    except (OSError, subprocess.TimeoutExpired) as _e:
+        log_error("stop-handler", "git_log", _e)
 
     # Nudge 1: RED phase duration (git log based)
     if git_log_output:
@@ -94,10 +95,10 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                                 f"[zie-framework] nudge: RED phase '{slug}' has been "
                                 f"active for {days} days — consider splitting or committing"
                             )
-                except Exception:
-                    pass
-        except Exception:
-            pass
+                except (re.error, ValueError, OSError) as _e:
+                    log_error("stop-handler", "slug_date_parse", _e)
+        except Exception as _e:
+            log_error("stop-handler", "nudge_git_log", _e)
 
     # Nudge 2: Coverage staleness
     try:
@@ -111,8 +112,8 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                     print("[zie-framework] nudge: coverage data is stale — run 'make test-unit'")
                 elif cov_file.stat().st_mtime < newest_test_mtime:
                     print("[zie-framework] nudge: coverage data is stale — run 'make test-unit'")
-    except Exception:
-        pass
+    except (OSError, FileNotFoundError) as _e:
+        log_error("stop-handler", "coverage_staleness", _e)
 
     # Nudge 3: Stale backlog items in Next
     try:
@@ -127,8 +128,8 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                 f"[zie-framework] nudge: {stale_count} backlog item(s) in Next are older than "
                 "30 days — review or defer"
             )
-    except Exception:
-        pass
+    except (OSError, ValueError) as _e:
+        log_error("stop-handler", "stale_backlog_nudge", _e)
 
     # Nudge 4: Sprint intent without approved artifacts (from stop-pipeline-guard)
     try:
@@ -151,7 +152,8 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                             if re.search(r'^approved:\s*true\s*$', content, re.MULTILINE):
                                 found_approved = True
                                 break
-                        except Exception:
+                        except (OSError, FileNotFoundError) as _e:
+                            log_error("stop-handler", "artifact_mtime", _e)
                             continue
                     if found_approved:
                         break
@@ -164,8 +166,8 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
 
             # Cleanup flag
             cache.delete("intent-sprint-flag", session_id)
-    except Exception:
-        pass
+    except Exception as _e:
+        log_error("stop-handler", "sprint_intent_nudge", _e)
 
     # Nudge 5: Context window health (from compact-hint)
     try:
@@ -200,8 +202,8 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                             "— consider /compact soon to stay efficient."
                         )
                         cache.set_flag("compact-tier-advisory", session_id)
-    except Exception:
-        pass
+    except Exception as _e:
+        log_error("stop-handler", "context_window_nudge", _e)
 
 
 # ---------------------------------------------------------------------------
@@ -212,7 +214,7 @@ try:
     # Infinite-loop guard
     if event.get("stop_hook_active"):
         sys.exit(0)
-except Exception:
+except (json.JSONDecodeError, OSError):
     sys.exit(0)
 
 # ---------------------------------------------------------------------------

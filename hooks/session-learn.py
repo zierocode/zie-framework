@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
+from utils_error import log_error
 from utils_event import call_zie_memory_api, get_cwd, read_event
 from utils_io import atomic_write, persistent_project_path, project_tmp_path
 from utils_roadmap import parse_roadmap_now
@@ -40,8 +41,8 @@ def _rebuild_aggregate(log_path: Path, agg_path: Path) -> None:
     for line in lines[-_PATTERN_LOG_LOOKBACK:]:
         try:
             records.append(json.loads(line))
-        except Exception:
-            pass
+        except json.JSONDecodeError:
+            pass  # malformed line — skip
     if not records:
         return
     stage_counts: dict = {}
@@ -105,8 +106,8 @@ try:
         _line_count = sum(1 for _ in open(_log_path))
         if _line_count >= _PATTERN_LOG_LINES_TRIGGER and _line_count % _PATTERN_LOG_LINES_TRIGGER == 0:
             _rebuild_aggregate(_log_path, _agg_path)
-    except Exception:
-        pass  # never block on pattern log write failure
+    except Exception as e:
+        log_error("session-learn", "pattern_log_write", e)
 
     # Fast-path: honour ZIE_MEMORY_ENABLED=0 injected by session-resume.py
     _mem_enabled = os.environ.get("ZIE_MEMORY_ENABLED", "").strip()
@@ -127,5 +128,5 @@ try:
     except Exception as e:
         print(f"[zie-framework] session-learn: {e}", file=sys.stderr)
 
-except Exception:
+except (json.JSONDecodeError, OSError):
     sys.exit(0)

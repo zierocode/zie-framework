@@ -10,6 +10,8 @@ import time
 import urllib.request
 from pathlib import Path
 
+from utils_error import log_error
+
 
 def read_event() -> dict:
     """Read and parse the hook event from stdin.
@@ -18,7 +20,7 @@ def read_event() -> dict:
     """
     try:
         return json.loads(sys.stdin.read())
-    except Exception:
+    except (json.JSONDecodeError, OSError):
         sys.exit(0)
 
 
@@ -68,8 +70,8 @@ def log_hook_timing(
         })
         with open(log_dir / "timing.log", "a") as f:
             f.write(entry + "\n")
-    except Exception:
-        pass
+    except OSError as e:
+        log_error("utils_event", "log_hook_timing", e)
 
 
 def call_zie_memory_api(url: str, key: str, endpoint: str, payload: dict, timeout: int = 5) -> None:

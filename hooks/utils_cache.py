@@ -17,6 +17,8 @@ import time
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+from utils_error import log_error
+
 
 class CacheManager:
     """Session-scoped cache manager with TTL, mtime, and session invalidation.
@@ -306,7 +308,8 @@ def read_roadmap_unified(
     def _read() -> str:
         try:
             return roadmap_path.read_text()
-        except Exception:
+        except OSError as e:
+            log_error("utils_cache", "read_roadmap", e)
             return ""
 
     return cache.get_or_compute(
@@ -341,7 +344,8 @@ def read_adrs_unified(
             for adr in adr_files:
                 contents.append(adr.read_text())
             return "\n\n".join(contents)
-        except Exception:
+        except OSError as e:
+            log_error("utils_cache", "read_adrs", e)
             return ""
 
     return cache.get_or_compute("adrs", session_id, _read, ttl)
@@ -369,7 +373,8 @@ def read_project_context_unified(
     def _read() -> str:
         try:
             return context_path.read_text()
-        except Exception:
+        except OSError as e:
+            log_error("utils_cache", "read_project_context", e)
             return ""
 
     return cache.get_or_compute("project_md", session_id, _read, ttl)
@@ -447,7 +452,8 @@ def get_content_hash_cached(
                 if path.exists():
                     hasher.update(path.read_bytes())
                     found = True
-            except Exception:
+            except OSError as e:
+                log_error("utils_cache", "read_content_hash", e)
                 continue
         return hasher.hexdigest() if found else ""
 

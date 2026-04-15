@@ -15,6 +15,7 @@ from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
 from utils_config import load_config, CACHE_TTLS
 from utils_cache import get_cache_manager, get_playwright_version_cached  # noqa: E402
 from utils_roadmap import parse_roadmap_now, is_mtime_fresh, parse_roadmap_section, parse_roadmap_section_content
+from utils_error import log_error
 from zie_context_loader import get_cached_context  # noqa: E402
 from utils_skill_inject import inject_skill_context
 
@@ -301,7 +302,11 @@ try:
             try:
                 atomic_write(memory_path, new_content)
                 return True
-            except Exception:
+            except OSError as e:
+                log_error("session-resume", "pattern-apply-write", e)
+                return False
+            except Exception as e:
+                log_error("session-resume", "pattern-apply", e)
                 return False
 
         def _load_pending_learn_marker():
@@ -317,7 +322,11 @@ try:
                         key, value = line.split('=', 1)
                         data[key.strip()] = value.strip()
                 return data
-            except Exception:
+            except OSError as e:
+                log_error("session-resume", "pending-learn-read", e)
+                return None
+            except Exception as e:
+                log_error("session-resume", "pending-learn-parse", e)
                 return None
 
         # Load pending learn marker
@@ -358,7 +367,10 @@ try:
     except Exception as _e:
         print(f"[zf] session-resume: auto-improve skipped: {_e}", file=sys.stderr)
 
-except Exception:
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
+except Exception as e:
+    log_error("session-resume", "outer-guard", e)
     sys.exit(0)
 
 log_hook_timing(

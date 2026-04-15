@@ -16,6 +16,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
+from utils_error import log_error
 from utils_event import get_cwd, read_event
 from utils_io import atomic_write
 from utils_config import CACHE_TTLS
@@ -47,7 +48,7 @@ try:
     cwd = get_cwd()
     if not (cwd / "zie-framework").exists():
         sys.exit(0)
-except Exception:
+except (json.JSONDecodeError, OSError):
     sys.exit(0)
 
 # ── Budget table check ────────────────────────────────────────────────────────

@@ -10,6 +10,7 @@ import sys
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
+from utils_error import log_error
 from utils_event import get_cwd, read_event, sanitize_log_field
 from utils_io import project_tmp_path, safe_project_name, safe_write_tmp
 
@@ -19,7 +20,7 @@ try:
     notification_type = event.get("notification_type", "")
     if notification_type != "permission_prompt":
         sys.exit(0)
-except Exception:
+except (json.JSONDecodeError, OSError):
     sys.exit(0)
 
 
@@ -36,7 +37,8 @@ def _read_records(log_path):
             line = line.strip()
             if line:
                 records.append(json.loads(line))
-    except Exception:
+    except Exception as e:
+        log_error("notification-log", "read_records", e)
         return []
     return records
 

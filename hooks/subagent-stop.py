@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
+from utils_error import log_error
 from utils_event import get_cwd, read_event
 from utils_io import atomic_write, project_tmp_path
 
@@ -23,7 +24,7 @@ try:
     cwd = get_cwd()
     if not (cwd / "zie-framework").is_dir():
         sys.exit(0)
-except Exception:
+except (json.JSONDecodeError, OSError):
     sys.exit(0)
 
 # --- Tier 2: inner operations ---------------------------------------------
@@ -41,7 +42,7 @@ try:
         marker = project_tmp_path(f"reviewer-approved-{kind}", cwd.name)
         try:
             marker.write_text("approved")
-        except Exception:
+        except (OSError, PermissionError):
             pass  # never block on marker write failure
 
     record = {

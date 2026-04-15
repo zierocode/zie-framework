@@ -24,6 +24,7 @@ _hook_start = time.monotonic()
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
+from utils_error import log_error
 from utils_config import load_config, CACHE_TTLS
 from utils_cache import get_cache_manager
 from utils_io import project_tmp_path, safe_write_tmp
@@ -105,7 +106,7 @@ class TestLookupCache:
                     self.session_id,
                     ttl=CACHE_TTLS.get("test_map", 1800),
                 )
-            except Exception:
+            except OSError:
                 pass  # Non-fatal
 
     def invalidate_on_test_change(self, test_path: str) -> bool:
@@ -128,8 +129,8 @@ class TestLookupCache:
                 # (We don't track reverse mapping, so scan common patterns)
                 self.cache.delete(self._test_hash_key(test_path), self.session_id)
                 return True
-        except Exception:
-            pass
+        except OSError as e:
+            log_error("auto-test", "hash_comparison", e)
         return False
 
     def should_debounce(self, source_path: str, debounce_ms: int = 5000) -> bool:
@@ -336,7 +337,7 @@ if __name__ == "__main__":
                 except OSError:
                     try:
                         proc.kill()
-                    except Exception:
+                    except OSError:
                         pass
                 timed_out.set()
                 print(

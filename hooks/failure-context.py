@@ -14,6 +14,7 @@ from utils_roadmap import (
     read_roadmap_cached,
     write_git_status_cache,
 )
+from utils_error import log_error
 
 ALLOWED_TOOLS = {"Bash", "Write", "Edit"}
 
@@ -21,7 +22,10 @@ ALLOWED_TOOLS = {"Bash", "Write", "Edit"}
 
 try:
     event = read_event()
-except Exception:
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
+except Exception as e:
+    log_error("failure-context", "read_event", e)
     sys.exit(0)
 
 try:
@@ -31,7 +35,10 @@ try:
     tool_name = event.get("tool_name", "")
     if tool_name not in ALLOWED_TOOLS:
         sys.exit(0)
-except Exception:
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
+except Exception as e:
+    log_error("failure-context", "early_exit_guard", e)
     sys.exit(0)
 
 # ── Inner operations ─────────────────────────────────────────────────────────
@@ -49,7 +56,11 @@ try:
     try:
         roadmap_content = read_roadmap_cached(roadmap_path, session_id)
         now_items = parse_roadmap_section_content(roadmap_content, "now")
-    except Exception:
+    except OSError as e:
+        log_error("failure-context", "roadmap_read", e)
+        now_items = []
+    except Exception as e:
+        log_error("failure-context", "roadmap_read", e)
         now_items = []
     active_task = now_items[0] if now_items else "(none — check ROADMAP Now lane)"
 
@@ -70,7 +81,14 @@ try:
             )
             if log_result.returncode == 0:
                 write_git_status_cache(session_id, "log", last_commit)
-    except Exception:
+    except subprocess.TimeoutExpired as e:
+        log_error("failure-context", "git_log", e)
+        last_commit = "(git unavailable)"
+    except OSError as e:
+        log_error("failure-context", "git_log", e)
+        last_commit = "(git unavailable)"
+    except Exception as e:
+        log_error("failure-context", "git_log", e)
         last_commit = "(git unavailable)"
 
     # Git branch (with session cache, 5s TTL)
@@ -90,7 +108,14 @@ try:
             )
             if branch_result.returncode == 0:
                 write_git_status_cache(session_id, "branch", branch)
-    except Exception:
+    except subprocess.TimeoutExpired as e:
+        log_error("failure-context", "git_branch", e)
+        branch = "(git unavailable)"
+    except OSError as e:
+        log_error("failure-context", "git_branch", e)
+        branch = "(git unavailable)"
+    except Exception as e:
+        log_error("failure-context", "git_branch", e)
         branch = "(git unavailable)"
 
     # Build context string

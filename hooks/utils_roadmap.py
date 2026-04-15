@@ -11,6 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_io import atomic_write, safe_write_tmp
+from utils_error import log_error
 
 SDLC_STAGES: list = [
     "init", "backlog", "spec", "plan",
@@ -106,7 +107,11 @@ def read_roadmap_cached(roadmap_path, session_id: str, cwd=None) -> str:
     def _read() -> str:
         try:
             return Path(roadmap_path).read_text()
-        except Exception:
+        except OSError as e:
+            log_error("utils_roadmap", "read_roadmap", e)
+            return ""
+        except Exception as e:
+            log_error("utils_roadmap", "read_roadmap", e)
             return ""
 
     return cache.get_or_compute(
@@ -130,7 +135,11 @@ def get_cached_git_status(session_id: str, key: str, ttl: int = 5) -> str | None
             if age < ttl:
                 return cache_path.read_text()
         return None
-    except Exception:
+    except OSError as e:
+        log_error("utils_roadmap", "get_cached_git_status", e)
+        return None
+    except Exception as e:
+        log_error("utils_roadmap", "get_cached_git_status", e)
         return None
 
 
@@ -175,7 +184,11 @@ def get_cached_adrs(
         if abs(data["mtime"] - current_max_mtime) > 0.001:
             return None
         return data["content"]
-    except Exception:
+    except (OSError, json.JSONDecodeError) as e:
+        log_error("utils_roadmap", "get_cached_adrs", e)
+        return None
+    except Exception as e:
+        log_error("utils_roadmap", "get_cached_adrs", e)
         return None
 
 
@@ -207,7 +220,11 @@ def write_adr_cache(
         if safe_write_tmp(cache_path, payload):
             return (True, cache_path)
         return (False, None)
-    except Exception:
+    except OSError as e:
+        log_error("utils_roadmap", "write_adr_cache", e)
+        return (False, None)
+    except Exception as e:
+        log_error("utils_roadmap", "write_adr_cache", e)
         return (False, None)
 
 
@@ -427,7 +444,11 @@ def parse_roadmap_items_with_dates(roadmap_path, section_name: str) -> list:
                         date = None
                 results.append((clean, date))
         return results
-    except Exception:
+    except OSError as e:
+        log_error("utils_roadmap", "parse_roadmap_items_with_dates", e)
+        return []
+    except Exception as e:
+        log_error("utils_roadmap", "parse_roadmap_items_with_dates", e)
         return []
 
 
@@ -457,8 +478,10 @@ def is_track_active(cwd) -> bool:
                     break
                 if in_now and re.search(r'-\s*\[\s*\]', line):
                     return True
-    except Exception:
-        pass
+    except OSError as e:
+        log_error("utils_roadmap", "is_track_active_roadmap", e)
+    except Exception as e:
+        log_error("utils_roadmap", "is_track_active_roadmap", e)
 
     # Source 2: open drift marker
     try:
@@ -472,10 +495,15 @@ def is_track_active(cwd) -> bool:
                     event = json.loads(raw)
                     if event.get("closed_at") is None and "track" in event:
                         return True
-                except Exception:
+                except json.JSONDecodeError:
                     continue
-    except Exception:
-        pass
+                except Exception as e:
+                    log_error("utils_roadmap", "drift_line_parse", e)
+                    continue
+    except (OSError, json.JSONDecodeError) as e:
+        log_error("utils_roadmap", "is_track_active_drift", e)
+    except Exception as e:
+        log_error("utils_roadmap", "is_track_active_drift", e)
 
     return False
 
@@ -501,7 +529,11 @@ def extract_problem_excerpt(slug: str, backlog_dir, max_len: int = 120) -> str:
         if len(text) > max_len:
             return text[:max_len].rstrip() + "…"
         return text
-    except Exception:
+    except OSError as e:
+        log_error("utils_roadmap", "extract_problem_excerpt", e)
+        return "(no description)"
+    except Exception as e:
+        log_error("utils_roadmap", "extract_problem_excerpt", e)
         return "(no description)"
 
 

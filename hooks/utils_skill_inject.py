@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from utils_error import log_error
+
 DEFAULT_SKILL_MAPPING: dict = {
     "spec": "spec-reviewer",
     "plan": "write-plan",
@@ -31,7 +33,8 @@ def inject_skill_context(stage: str, cwd: Path) -> str | None:
 
     try:
         config = json.loads(config_path.read_text())
-    except Exception:
+    except (json.JSONDecodeError, OSError) as e:
+        log_error("utils_skill_inject", "read_config", e)
         return None
 
     # Check enabled flag (default: true)
@@ -59,5 +62,6 @@ def inject_skill_context(stage: str, cwd: Path) -> str | None:
         if len(content) > MAX_INJECT_CHARS:
             content = content[:MAX_INJECT_CHARS].rstrip() + "\n[...truncated]"
         return content
-    except Exception:
+    except OSError as e:
+        log_error("utils_skill_inject", "read_skill_file", e)
         return None
