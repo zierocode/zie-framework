@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 # Load auto-test.py directly (hyphen in filename prevents normal import)
-hooks_dir = Path(__file__).parent.parent / "hooks"
+hooks_dir = Path(__file__).parent.parent.parent / "hooks"
 auto_test_path = hooks_dir / "auto-test.py"
 spec = importlib.util.spec_from_file_location("auto_test", auto_test_path)
 auto_test_module = importlib.util.module_from_spec(spec)

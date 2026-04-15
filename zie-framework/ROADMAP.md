@@ -8,9 +8,11 @@
 
 ## Now — Active Sprint
 
-<!-- Current feature in progress. One at a time (WIP=1). -->
-
 <!-- -->
+
+---
+
+## Ready — Approved Plans — [spec](specs/2026-04-15-intent-sdlc-lean-design.md) [plan](plans/2026-04-15-intent-sdlc-lean.md)
 
 ---
 
@@ -18,35 +20,29 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
-- [ ] init-scaffold-claude-code-config — [backlog](backlog/init-scaffold-claude-code-config.md)
-- [ ] backlog-dedup-expand — [backlog](backlog/backlog-dedup-expand.md)
-- [ ] status-roadmap-content — [backlog](backlog/status-roadmap-content.md)
-- [ ] skill-manual-revise — [backlog](backlog/skill-manual-revise.md)
-- [ ] skill-manual-auto-inject — [backlog](backlog/skill-manual-auto-inject.md)
-- [ ] config-session-cache — [backlog](backlog/config-session-cache.md)
-- [ ] roadmap-cache-unify — [backlog](backlog/roadmap-cache-unify.md)
-- [ ] intent-sdlc-lean — [backlog](backlog/intent-sdlc-lean.md)
-- [ ] compact-output-lean — [backlog](backlog/compact-output-lean.md)
-- [ ] cache-systems-consolidate — [backlog](backlog/cache-systems-consolidate.md)
-- [ ] command-conventions — [backlog](backlog/command-conventions.md)
-- [ ] command-compress-sprint — [backlog](backlog/command-compress-sprint.md)
-- [ ] command-compress-status — [backlog](backlog/command-compress-status.md)
-- [ ] command-compress-retro — [backlog](backlog/command-compress-retro.md)
-- [ ] command-compress-release — [backlog](backlog/command-compress-release.md)
-- [ ] playwright-version-cache — [backlog](backlog/playwright-version-cache.md)
-- [ ] audit-hardcoded-test-paths — [backlog](backlog/audit-hardcoded-test-paths.md)
-- [ ] audit-error-path-coverage — [backlog](backlog/audit-error-path-coverage.md)
-- [ ] audit-version-sync — [backlog](backlog/audit-version-sync.md)
-- [ ] audit-prompt-injection-hardening — [backlog](backlog/audit-prompt-injection-hardening.md)
-- [ ] audit-error-handling-cleanup — [backlog](backlog/audit-error-handling-cleanup.md)
-- [ ] audit-stale-docs-refresh — [backlog](backlog/audit-stale-docs-refresh.md)
-- [ ] audit-test-quality-fixes — [backlog](backlog/audit-test-quality-fixes.md)
-- [ ] audit-quick-wins — [backlog](backlog/audit-quick-wins.md)
+<!-- -->
 
 ---
 
+## Done — v1.31.0 (2026-04-15)
+
+- [x] command-compress-batch — Compress sprint, status, retro, and release markdown files — 2026-04-15
+- [x] playwright-version-cache — Skip redundant playwright subprocess calls via version cache — 2026-04-15
+- [x] audit-error-path-coverage — Error-path coverage for all hooks (ADR-003) — 2026-04-15
+- [x] audit-prompt-injection-hardening — Prompt injection hardening: BLOCK on ambiguous, XML entity escaping — 2026-04-15
+- [x] audit-error-handling-cleanup — log_error helper + narrow exception types across hooks (ADR-003) — 2026-04-15
+- [x] audit-quick-wins-batch — Hardcoded paths, version sync, stale docs, test moves, code fixes — 2026-04-15
+
 ## Done — v1.30.1 (2026-04-15)
 
+- [x] cache-systems-consolidate — Unified CacheManager: mtime + session invalidation, migrated /tmp flags — 2026-04-15
+- [x] compact-output-lean — Compact hook output: [zf] prefix, inline format — 2026-04-15
+- [x] skill-manual-revise — Compress SKILL.md files 1492→1183 lines — 2026-04-15
+- [x] skill-manual-auto-inject — Auto-inject skill context for active SDLC stage — 2026-04-15
+- [x] init-scaffold-claude-code-config — Scaffold .claude/ settings.json, rules/sdlc.md, .ignore during /init — 2026-04-15
+- [x] backlog-dedup-expand — Dedup check against Done items and expand existing items — 2026-04-15
+- [x] intent-sdlc-lean — Separate new-intent patterns, raise threshold to 50, strong-intent bypass — 2026-04-15
+- [x] status-roadmap-content — Show Problem excerpts and spec/plan status per Now/Ready item — 2026-04-15
 - [x] py39-compat-union-type — Fix Python 3.9 compatibility: add `from __future__ import annotations` to hooks using `X | None` union syntax, fix broken import path in zie_context_loader — 2026-04-15
 
 ---

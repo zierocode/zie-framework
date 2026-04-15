@@ -17,7 +17,8 @@ from unittest.mock import patch
 from utils_config import load_config, validate_config
 from utils_event import get_cwd, read_event
 from utils_io import project_tmp_path
-from utils_roadmap import get_cached_roadmap, parse_roadmap_now, parse_roadmap_section, write_roadmap_cache
+from utils_roadmap import parse_roadmap_now, parse_roadmap_section, read_roadmap_cached
+from utils_cache import CacheManager
 
 
 class TestParseRoadmapNow:
@@ -851,77 +852,56 @@ class TestParseRoadmapNowWarnOnEmpty:
 
 
 class TestRoadmapCache:
-    """Tests for get_cached_roadmap() and write_roadmap_cache() (mtime-gated)."""
+    """Tests for read_roadmap_cached() delegating to CacheManager with mtime invalidation."""
 
     def _roadmap(self, tmp_path, content="## Now\n"):
         r = tmp_path / "ROADMAP.md"
         r.write_text(content)
         return r
 
-    def test_get_returns_none_when_no_cache(self, tmp_path):
-        """Cache miss returns None (no file written)."""
-        roadmap = self._roadmap(tmp_path)
-        result = get_cached_roadmap("test-sess-nocache-unique-99z", roadmap, tmp_dir=str(tmp_path))
-        assert result is None
+    def test_read_roadmap_cached_miss_reads_disk(self, tmp_path):
+        """Cold cache — reads disk and caches via CacheManager."""
+        import utils_cache
+        utils_cache._cache_manager = None  # Reset singleton
+        roadmap = self._roadmap(tmp_path, "## Now\n- [ ] feature\n")
+        result = read_roadmap_cached(roadmap, "sess-cache-01", cwd=tmp_path)
+        assert result == "## Now\n- [ ] feature\n"
 
-    def test_write_then_read_same_mtime(self, tmp_path):
-        """Cache hit when mtime matches."""
-        sid = "test-sess-fresh-unique-99z"
-        roadmap = self._roadmap(tmp_path, "# ROADMAP\n## Now\n")
-        write_roadmap_cache(sid, "# ROADMAP\n## Now\n", roadmap, tmp_dir=str(tmp_path))
-        result = get_cached_roadmap(sid, roadmap, tmp_dir=str(tmp_path))
-        assert result == "# ROADMAP\n## Now\n"
+    def test_read_roadmap_cached_hit_returns_cached(self, tmp_path):
+        """Cache warm — returns cached content (mtime matches)."""
+        import utils_cache
+        # Set up singleton CacheManager for this test
+        utils_cache._cache_manager = CacheManager(tmp_path / ".zie" / "cache")
+        roadmap = self._roadmap(tmp_path, "original content")
+        utils_cache._cache_manager.set("roadmap", "cached content", "sess-cache-02", ttl=600,
+                  invalidation="mtime", source_path=str(roadmap))
+        result = read_roadmap_cached(roadmap, "sess-cache-02", cwd=tmp_path)
+        assert result == "cached content"
 
-    def test_get_returns_none_when_mtime_changed(self, tmp_path):
-        """Cache miss when roadmap file is updated after write."""
-        sid = "test-sess-stale-unique-99z"
-        roadmap = self._roadmap(tmp_path, "## Now\n")
-        write_roadmap_cache(sid, "old", roadmap, tmp_dir=str(tmp_path))
-        time.sleep(0.01)
-        roadmap.write_text("## Now\n- [ ] updated\n")  # bumps mtime
-        result = get_cached_roadmap(sid, roadmap, tmp_dir=str(tmp_path))
-        assert result is None
+    def test_read_roadmap_cached_mtime_invalidation(self, tmp_path):
+        """Cache invalidated when ROADMAP.md mtime changes."""
+        import utils_cache
+        utils_cache._cache_manager = None  # Reset singleton
+        roadmap = self._roadmap(tmp_path, "original content")
+        # First call caches
+        result1 = read_roadmap_cached(roadmap, "sess-cache-03", cwd=tmp_path)
+        assert result1 == "original content"
+        # Modify file (advance mtime)
+        time.sleep(0.05)
+        roadmap.write_text("modified content")
+        # Cache should be invalidated, re-read from disk
+        # Need fresh CacheManager instance to see mtime change
+        utils_cache._cache_manager = None
+        result2 = read_roadmap_cached(roadmap, "sess-cache-03", cwd=tmp_path)
+        assert result2 == "modified content"
 
-    def test_get_returns_none_on_bad_session_id(self, tmp_path):
-        """Invalid/empty session ID returns None, does not raise."""
-        roadmap = self._roadmap(tmp_path)
-        result = get_cached_roadmap("", roadmap, tmp_dir=str(tmp_path))
-        assert result is None
-
-    def test_write_creates_parent_dirs(self, tmp_path):
-        """write_roadmap_cache creates the cache dir if needed."""
-        sid = "test-sess-newdir-unique-99z"
-        roadmap = self._roadmap(tmp_path)
-        write_roadmap_cache(sid, "content", roadmap, tmp_dir=str(tmp_path))
-        cache_file = tmp_path / f"zie-{sid}" / "roadmap-cache.json"
-        assert cache_file.exists()
-
-    def test_write_silently_swallows_errors(self, monkeypatch, tmp_path):
-        """write_roadmap_cache does not raise on I/O errors."""
-        roadmap = self._roadmap(tmp_path)
-        monkeypatch.setattr(Path, "mkdir", lambda *a, **kw: (_ for _ in ()).throw(OSError("no perms")))
-        write_roadmap_cache("sess-err-unique-99z", "content", roadmap)  # must not raise
-
-    def test_session_id_with_path_chars_sanitized(self, tmp_path):
-        """Session IDs with path-traversal chars are sanitized, not used raw."""
-        import re as _re
-        sid = "../../../etc/passwd"
-        safe_id = _re.sub(r'[^a-zA-Z0-9_-]', '-', sid)
-        roadmap = self._roadmap(tmp_path)
-        write_roadmap_cache(sid, "safe", roadmap, tmp_dir=str(tmp_path))
-        cache_file = tmp_path / f"zie-{safe_id}" / "roadmap-cache.json"
-        assert cache_file.exists()
-
-    def test_tmp_dir_injection_isolates_cache(self, tmp_path):
-        """tmp_dir param routes cache to injected directory, not system /tmp."""
-        sid = "test-sess-inject-99z"
-        roadmap = self._roadmap(tmp_path, "## Now\n")
-        write_roadmap_cache(sid, "isolated", roadmap, tmp_dir=str(tmp_path))
-        result = get_cached_roadmap(sid, roadmap, tmp_dir=str(tmp_path))
-        assert result == "isolated"
-        # Must not exist in system tmp (different path)
-        system_cache = Path(tempfile.gettempdir()) / f"zie-{sid}" / "roadmap-cache.json"
-        assert not system_cache.exists()
+    def test_read_roadmap_cached_missing_returns_empty(self, tmp_path):
+        """Missing ROADMAP.md — returns empty string."""
+        import utils_cache
+        utils_cache._cache_manager = None  # Reset singleton
+        roadmap = tmp_path / "ROADMAP.md"
+        result = read_roadmap_cached(roadmap, "sess-cache-04", cwd=tmp_path)
+        assert result == ""
 
 
 # ---------------------------------------------------------------------------
@@ -1110,21 +1090,19 @@ from utils_roadmap import compute_max_mtime, is_mtime_fresh  # noqa: E402
 
 
 class TestCacheWriteStderrLogs:
-    def test_write_roadmap_cache_logs_on_mkdir_error(self, tmp_path, capsys, monkeypatch):
-        """AC-1: mkdir failure → stderr log, no raise."""
+    def test_cache_manager_save_logs_on_mkdir_error(self, tmp_path, capsys, monkeypatch):
+        """AC-1: CacheManager._save logs to stderr on I/O errors, no raise."""
         import pathlib
 
-        roadmap = tmp_path / "ROADMAP.md"
-        roadmap.write_text("## Now\n")
+        cache = CacheManager(tmp_path / "cache")
 
-        def bad_mkdir(self, **kwargs):
-            raise PermissionError("no permission")
+        def bad_replace(src, dst):
+            raise OSError("no permission")
 
-        monkeypatch.setattr(pathlib.Path, "mkdir", bad_mkdir)
-        write_roadmap_cache("test-session", "content", roadmap)
+        monkeypatch.setattr(os, "replace", bad_replace)
+        cache.set("test-key", "test-val", "test-session", ttl=600)
         err = capsys.readouterr().err
-        assert "write_roadmap_cache" in err
-        assert "no permission" in err
+        assert "[zf]" in err
 
     def test_write_git_status_cache_logs_on_mkdir_error(self, tmp_path, capsys, monkeypatch):
         """AC-2: mkdir failure → stderr log, no raise."""

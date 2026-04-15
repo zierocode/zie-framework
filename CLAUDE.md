@@ -32,7 +32,7 @@ Running on `glm-5.1:cloud`, Ollama, or other non-Claude providers:
 
 | Feature | Claude Code | Non-Claude |
 |---------|-------------|------------|
-| `model:` frontmatter | Used for model routing (ADR-012) | Ignored — runs on provider's default model |
+| `model:` frontmatter | Used for model routing (ADR-022/ADR-063) | Ignored — runs on provider's default model |
 | `effort:` frontmatter | Routes to haiku/sonnet/opus | Ignored — no effect |
 | `--agent` flag | Available (`claude --agent`) | Unavailable — use Skill() directly |
 | Safety hooks | Claude models | Regex fallback when Claude unavailable (ADR-066) |

@@ -3,7 +3,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
-from utils_backlog import find_duplicate_slugs, infer_tag
+from utils_backlog import find_duplicate_slugs, find_roadmap_overlaps, infer_tag, is_full_duplicate
 
 TAG_KEYWORD_MAP = {
     "bug": ["fix", "error", "crash", "broken"],
@@ -64,3 +64,82 @@ class TestFindDuplicateSlugs:
         (tmp_path / "csv-export-report.md").write_text("")
         result = find_duplicate_slugs("add-csv-export", tmp_path)
         assert len(result) == 2
+
+    def test_title_text_overlap_detected(self, tmp_path):
+        """Slug has no overlap but title text does — should still detect."""
+        (tmp_path / "data-output.md").write_text("# CSV Export Tool\n\nSome content")
+        result = find_duplicate_slugs("add-csv-export", tmp_path)
+        assert "data-output" in result
+
+
+class TestFindRoadmapOverlaps:
+    def _write_roadmap(self, path, ready_block="", done_block=""):
+        content = f"""# ROADMAP — test
+
+---
+
+## Now — Active Sprint
+
+<!-- -->
+
+---
+
+## Ready — Approved Plans
+
+{ready_block}
+
+---
+
+## Next — Prioritized Backlog
+
+<!-- -->
+
+---
+
+## Done
+
+{done_block}
+
+<!-- -->
+"""
+        path.write_text(content)
+
+    def test_no_overlap_when_roadmap_empty(self, tmp_path):
+        roadmap = tmp_path / "ROADMAP.md"
+        self._write_roadmap(roadmap)
+        result = find_roadmap_overlaps("CSV Export Tool", roadmap)
+        assert result == []
+
+    def test_ready_overlap_detected(self, tmp_path):
+        roadmap = tmp_path / "ROADMAP.md"
+        self._write_roadmap(roadmap, ready_block="- [ ] csv-tool — CSV Export feature\n")
+        result = find_roadmap_overlaps("CSV Export Tool", roadmap)
+        assert len(result) >= 1
+        assert any("Ready" in r[0] for r in result)
+
+    def test_done_overlap_detected(self, tmp_path):
+        roadmap = tmp_path / "ROADMAP.md"
+        self._write_roadmap(roadmap, done_block="- [x] csv-output — CSV Export helper\n")
+        result = find_roadmap_overlaps("CSV Export Tool", roadmap)
+        assert len(result) >= 1
+        assert any("Done" in r[0] for r in result)
+
+    def test_single_token_no_overlap(self, tmp_path):
+        roadmap = tmp_path / "ROADMAP.md"
+        self._write_roadmap(roadmap, ready_block="- [ ] tool — Helper utility\n")
+        result = find_roadmap_overlaps("CSV Export", roadmap)
+        assert result == []
+
+
+class TestIsFullDuplicate:
+    def test_full_match_returns_true(self, tmp_path):
+        (tmp_path / "csv-export.md").write_text("# CSV Export\n\nContent here")
+        # All new tokens are contained in existing → full duplicate
+        assert is_full_duplicate("CSV Export", "csv-export", "csv-export", tmp_path) is True
+
+    def test_partial_match_returns_false(self, tmp_path):
+        (tmp_path / "csv-tool.md").write_text("# CSV Tool\n\nContent here")
+        assert is_full_duplicate("CSV Export", "add-csv-export", "csv-tool", tmp_path) is False
+
+    def test_missing_file_returns_false(self, tmp_path):
+        assert is_full_duplicate("CSV Export", "add-csv-export", "nonexistent", tmp_path) is False

@@ -47,12 +47,12 @@ class TestSessionStopHook:
 
     def test_hook_file_exists(self):
         """session-stop.py exists."""
-        hooks_dir = Path(__file__).parent.parent / "hooks"
+        hooks_dir = Path(__file__).parent.parent.parent / "hooks"
         assert (hooks_dir / "session-stop.py").exists()
 
     def test_hook_registered(self):
         """session-stop registered in hooks.json."""
-        hooks_json_path = Path(__file__).parent.parent / "hooks" / "hooks.json"
+        hooks_json_path = Path(__file__).parent.parent.parent / "hooks" / "hooks.json"
         hooks_json = json.loads(hooks_json_path.read_text())
         stop_hooks = hooks_json.get("hooks", {}).get("Stop", [])[0].get("hooks", [])
         hook_commands = [h["command"] for h in stop_hooks]
@@ -60,7 +60,7 @@ class TestSessionStopHook:
 
     def test_session_memory_schema(self, test_repo):
         """Session memory file follows correct schema."""
-        session_stop = Path(__file__).parent.parent / "hooks" / "session-stop.py"
+        session_stop = Path(__file__).parent.parent.parent / "hooks" / "session-stop.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-session-001"
         event_data = json.dumps({
@@ -98,7 +98,7 @@ class TestSessionStopHook:
 
     def test_pattern_extraction_heuristic(self, test_repo):
         """Heuristic pattern extraction detects repeated sequences."""
-        session_stop = Path(__file__).parent.parent / "hooks" / "session-stop.py"
+        session_stop = Path(__file__).parent.parent.parent / "hooks" / "session-stop.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-pattern-001"
 
@@ -143,7 +143,7 @@ class TestSessionStopHook:
 
     def test_auto_apply_threshold(self, test_repo):
         """Patterns with confidence >= 0.95 marked auto_apply=true."""
-        session_stop = Path(__file__).parent.parent / "hooks" / "session-stop.py"
+        session_stop = Path(__file__).parent.parent.parent / "hooks" / "session-stop.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-threshold-001"
 
@@ -178,7 +178,7 @@ class TestSessionStopHook:
 
     def test_context_keywords_extraction(self, test_repo):
         """Context keywords extracted from transcript."""
-        session_stop = Path(__file__).parent.parent / "hooks" / "session-stop.py"
+        session_stop = Path(__file__).parent.parent.parent / "hooks" / "session-stop.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-keywords-001"
 
@@ -209,7 +209,7 @@ class TestSessionStopHook:
 
     def test_sdlc_stage_detection(self, test_repo):
         """SDLC stage detected from ROADMAP Now lane."""
-        session_stop = Path(__file__).parent.parent / "hooks" / "session-stop.py"
+        session_stop = Path(__file__).parent.parent.parent / "hooks" / "session-stop.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-stage-001"
         event_data = json.dumps({})
@@ -233,7 +233,7 @@ class TestSessionStopHook:
 
     def test_pending_learn_marker(self, test_repo):
         """pending_learn.txt written for next session."""
-        session_stop = Path(__file__).parent.parent / "hooks" / "session-stop.py"
+        session_stop = Path(__file__).parent.parent.parent / "hooks" / "session-stop.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-pending-001"
         event_data = json.dumps({})
@@ -256,7 +256,7 @@ class TestSessionStopHook:
 
     def test_empty_transcript_graceful(self, test_repo):
         """Empty transcript handled gracefully."""
-        session_stop = Path(__file__).parent.parent / "hooks" / "session-stop.py"
+        session_stop = Path(__file__).parent.parent.parent / "hooks" / "session-stop.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-empty-001"
         event_data = json.dumps({"conversation_history": []})
@@ -282,7 +282,7 @@ class TestSessionStopPermissions:
 
     def test_session_memory_permissions(self, test_repo):
         """Session memory files have 0o600 permissions."""
-        session_stop = Path(__file__).parent.parent / "hooks" / "session-stop.py"
+        session_stop = Path(__file__).parent.parent.parent / "hooks" / "session-stop.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-perms-001"
         event_data = json.dumps({"conversation_history": ["test"]})
@@ -306,7 +306,7 @@ class TestSessionStopPermissions:
 
     def test_memory_dir_permissions(self, test_repo):
         """Memory directory has 0o700 permissions."""
-        session_stop = Path(__file__).parent.parent / "hooks" / "session-stop.py"
+        session_stop = Path(__file__).parent.parent.parent / "hooks" / "session-stop.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-dir-perms-001"
         event_data = json.dumps({"conversation_history": ["test"]})

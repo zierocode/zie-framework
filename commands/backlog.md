@@ -8,6 +8,8 @@ effort: low
 
 # /backlog — Capture Backlog Item
 
+<!-- preflight: full -->
+
 Capture a new idea as a backlog item. No spec or plan yet — just the
 problem and motivation. Output lives in `zie-framework/backlog/`.
 
@@ -41,8 +43,26 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 3c. **Duplicate check**: split new slug by `-` → token set. For each `.md` file in
     `zie-framework/backlog/`:
     - Tokenize its basename (strip `.md`, split by `-`)
-    - If ≥2 tokens overlap with new slug → warn: `"Similar item exists: backlog/<slug>.md"`
+    - Also read the `# Title` line from each file and tokenize that
+    - If ≥2 tokens overlap with new slug OR new title → warn: `"Similar item exists: backlog/<slug>.md"`
     - Does NOT block creation. Print all warnings before continuing.
+
+3d. **Ready/Done check**: scan Ready and Done sections of ROADMAP.md.
+    Extract item titles from each lane. Tokenize each title.
+    If ≥2 tokens overlap with new item tokens → warn:
+    `"Similar item exists in <Ready|Done>: <title>"`. Print all warnings.
+
+3e. **Expand check**: if any overlap from step 3c or 3d has ALL tokens
+    matching (full duplicate), ask:
+    `"Duplicate detected: backlog/<existing-slug>.md. Expand existing item? (y/n)"`
+    - **yes** → append to `backlog/<existing-slug>.md`:
+      ```
+      ## Additional Scope
+
+      <new context from user's input>
+      ```
+      Update ROADMAP to add reference if not already listed. Stop (skip steps 4-7).
+    - **no** → continue as normal (proceed to step 4).
 
 4. Write `zie-framework/backlog/<slug>.md`:
 

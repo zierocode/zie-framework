@@ -8,6 +8,8 @@ effort: medium
 
 # /resync — Rescan Codebase + Update Knowledge Docs
 
+<!-- preflight: full -->
+
 Full rescan of project codebase. Updates PROJECT.md, project/architecture.md,
 project/components.md, project/context.md, and knowledge_hash in .config.
 All updates require user confirmation before writing.
@@ -112,3 +114,5 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
    Run /status to verify sync status.
    ```
 
+
+→ /status to verify sync results

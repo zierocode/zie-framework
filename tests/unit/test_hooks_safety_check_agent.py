@@ -27,11 +27,13 @@ class TestParseAgentResponse:
     def test_allow_in_sentence(self):
         assert parse_agent_response("Safe command: ALLOW") == "ALLOW"
 
-    def test_empty_string_defaults_to_allow(self):
-        assert parse_agent_response("") == "ALLOW"
+    def test_empty_string_defaults_to_block(self):
+        """Empty response defaults to BLOCK (ADR-003 hardened)."""
+        assert parse_agent_response("") == "BLOCK"
 
-    def test_ambiguous_defaults_to_allow(self):
-        assert parse_agent_response("I'm not sure about this.") == "ALLOW"
+    def test_ambiguous_defaults_to_block(self):
+        """Ambiguous response defaults to BLOCK (ADR-003 hardened)."""
+        assert parse_agent_response("I'm not sure about this.") == "BLOCK"
 
     def test_block_takes_precedence_over_allow(self):
         # If both appear, BLOCK wins (conservative)
@@ -179,11 +181,11 @@ class TestPromptInjectionEscaping:
         assert "\u202e" not in safe
 
     def test_source_escapes_opening_tag(self):
-        """safety_check_agent.py source must escape the opening <command> tag."""
+        """safety_check_agent.py source must use _escape_for_xml for command content."""
         from pathlib import Path
         source = (Path(REPO_ROOT) / "hooks" / "safety_check_agent.py").read_text()
-        assert '"<command>"' in source or "'<command>'" in source, (
-            "safety_check_agent.py must escape the opening <command> tag"
+        assert "_escape_for_xml" in source, (
+            "safety_check_agent.py must use _escape_for_xml to escape XML special chars"
         )
 
 

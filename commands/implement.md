@@ -7,6 +7,8 @@ effort: medium
 
 # /implement — TDD Feature Implementation Loop
 
+<!-- preflight: full -->
+
 ## ตรวจสอบก่อนเริ่ม
 
 **Live context:**
@@ -18,7 +20,7 @@ effort: medium
    (advisory only — do not block, continue immediately)
 
 See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
-(ROADMAP.md not found → STOP and run /init to initialize this project.)
+(ROADMAP.md not found → STOP: "Run /init to initialize this project.")
 
 1. **Pre-flight: Ready lane guard** — read Ready lane:
    - Empty → auto-run `/plan` → get approval → continue. If still empty → STOP: "No approved plan in Ready lane. Run /plan first."

@@ -8,13 +8,15 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_config import load_config
-from utils_io import project_tmp_path, safe_write_tmp, persistent_project_path, safe_write_persistent
+from utils_io import persistent_project_path, safe_write_persistent
+from utils_cache import get_cache_manager
 from utils_roadmap import (
     get_cached_git_status,
     parse_roadmap_section_content,
     read_roadmap_cached,
     write_git_status_cache,
 )
+from utils_error import log_error
 
 # ---------------------------------------------------------------------------
 # Outer guard — parse event; exit 0 on any failure; never block Claude
@@ -31,9 +33,12 @@ try:
         sys.exit(0)
 
     project_name = cwd.name
-    snap_path = project_tmp_path("compact-snapshot", project_name)
     session_id = event.get("session_id", "default")
-except Exception:
+    cache = get_cache_manager(cwd)
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
+except Exception as e:
+    log_error("sdlc-compact", "outer_guard", e)
     sys.exit(0)
 
 # ---------------------------------------------------------------------------
@@ -102,27 +107,41 @@ if hook_event_name == "PreCompact":
         "tdd_phase": tdd_phase,
     }
     try:
-        safe_write_tmp(snap_path, json.dumps(snapshot))
+        cache.set("compact-snapshot", snapshot, session_id, ttl=0, invalidation="session")
     except Exception as e:
-        print(f"[zie-framework] sdlc-compact: snapshot write failed: {e}", file=sys.stderr)
+        print(f"[zf] sdlc-compact: snapshot write failed: {e}", file=sys.stderr)
 
     # --- Also persist to CLAUDE_PLUGIN_DATA for cross-session survival ---
     try:
         persist_path = persistent_project_path("compact-snapshot", project_name)
         safe_write_persistent(persist_path, json.dumps(snapshot))
     except Exception as e:
-        print(f"[zie-framework] sdlc-compact: persistent snapshot write failed: {e}", file=sys.stderr)
+        print(f"[zf] sdlc-compact: persistent snapshot write failed: {e}", file=sys.stderr)
 
 elif hook_event_name == "PostCompact":
-    # --- Read snapshot; try /tmp then persistent then live ROADMAP ---
+    # --- Read snapshot; try CacheManager then persistent then live ROADMAP ---
     snapshot = None
-    for _read_path in (snap_path, persistent_project_path("compact-snapshot", project_name)):
-        try:
-            if _read_path.exists():
-                snapshot = json.loads(_read_path.read_text())
-                break
-        except Exception:
-            continue
+    # Try CacheManager session cache first
+    try:
+        cached_snap = cache.get("compact-snapshot", session_id)
+        if cached_snap is not None and isinstance(cached_snap, dict):
+            snapshot = cached_snap
+    except Exception as e:
+        log_error("sdlc-compact", "cache_snapshot_read", e)
+
+    # Fall back to persistent storage
+    if snapshot is None:
+        for _read_path in (persistent_project_path("compact-snapshot", project_name),):
+            try:
+                if _read_path.exists():
+                    snapshot = json.loads(_read_path.read_text())
+                    break
+            except (json.JSONDecodeError, OSError) as e:
+                log_error("sdlc-compact", "persistent_snapshot_read", e)
+                continue
+            except Exception as e:
+                log_error("sdlc-compact", "persistent_snapshot_read", e)
+                continue
 
     if snapshot is None:
         # Fallback: read live ROADMAP (via session cache)

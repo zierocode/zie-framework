@@ -20,6 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
+from utils_error import log_error
 
 _APPROVED_TRUE_RE = re.compile(r"^approved:\s*true\s*$", re.MULTILINE)
 
@@ -33,7 +34,8 @@ def _already_approved(full_path: Path) -> bool:
     """True if file already has approved:true — allow idempotent re-writes."""
     try:
         return bool(_APPROVED_TRUE_RE.search(full_path.read_text()))
-    except Exception:
+    except (OSError, FileNotFoundError) as e:
+        log_error("reviewer-gate", "read_file", e)
         return False
 
 

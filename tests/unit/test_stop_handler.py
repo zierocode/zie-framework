@@ -289,7 +289,7 @@ class TestSourceInvariants:
     def test_no_shell_true_in_nudge1(self):
         """Nudge 1 block must not use shell=True (shell injection risk)."""
         source = Path(HOOK).read_text()
-        assert "shell=True" not in source, "shell=True must be removed from stop-guard.py"
+        assert "shell=True" not in source, "shell=True must be removed from stop-handler.py"
 
     def test_no_nosec_b602_annotation(self):
         """nosec B602 annotation must be removed after shell=True is eliminated."""
@@ -309,7 +309,7 @@ class TestSourceInvariants:
         )
 
     def test_nudge_gate_uses_cache_helpers(self):
-        """stop-guard.py must use get_cached_git_status for the nudge TTL gate."""
+        """stop-handler.py must use get_cached_git_status for the nudge TTL gate."""
         source = Path(HOOK).read_text()
         assert "get_cached_git_status" in source
         assert "write_git_status_cache" in source
@@ -383,11 +383,11 @@ class TestHooksJsonRegistration:
 # ---------------------------------------------------------------------------
 
 class TestComponentsDocumented:
-    def test_stop_guard_in_components_md(self):
+    def test_stop_handler_in_components_md(self):
         components = Path(REPO_ROOT) / "zie-framework" / "project" / "components.md"
         content = components.read_text()
-        assert "stop-guard.py" in content, (
-            "stop-guard.py must be documented in zie-framework/project/components.md"
+        assert "stop-handler.py" in content, (
+            "stop-handler.py must be documented in zie-framework/project/components.md"
         )
 
 
@@ -416,12 +416,12 @@ class TestRenameArrowInFilename:
         assert "Traceback" not in r.stderr
 
 
-class TestStopGuardTimeoutFromConfig:
+class TestStopHandlerTimeoutFromConfig:
     def test_subprocess_timeout_s_read_from_config(self):
-        """stop-guard.py must read subprocess_timeout_s from validated config."""
+        """stop-handler.py must read subprocess_timeout_s from validated config."""
         from pathlib import Path
         source = Path(HOOK).read_text()
         assert 'config["subprocess_timeout_s"]' in source, \
-            "stop-guard.py must use config['subprocess_timeout_s'], not hardcoded timeout"
+            "stop-handler.py must use config['subprocess_timeout_s'], not hardcoded timeout"
         assert "timeout=5" not in source, \
-            "hardcoded timeout=5 must be removed from stop-guard.py"
+            "hardcoded timeout=5 must be removed from stop-handler.py"

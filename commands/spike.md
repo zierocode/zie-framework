@@ -8,12 +8,16 @@ effort: low
 
 # /spike — Spike Track
 
+<!-- preflight: full -->
+
 A time-boxed investigation or proof-of-concept. Work lives in `spike-<slug>/`
 and does not write to ROADMAP or produce a shippable artifact.
 
 ## ตรวจสอบก่อนเริ่ม
 
-1. Derive slug from argument or ask: "What are you investigating? (one-line slug)"
+See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
+
+2. Derive slug from argument or ask: "What are you investigating? (one-line slug)"
    `slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')`
 
 ## Steps

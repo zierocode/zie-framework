@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_io import project_tmp_path
 from utils_roadmap import parse_roadmap_now, SDLC_STAGES
+from utils_error import log_error
 
 # Pattern detection thresholds
 _MIN_PATTERN_FREQUENCY = 3  # Min occurrences to be a pattern
@@ -183,7 +184,12 @@ def _write_session_memory(session_data, cwd):
     if latest_link.exists() or latest_link.is_symlink():
         latest_link.unlink()
     try:
+        # Symlink target must resolve within memory directory
         latest_link.symlink_to(session_file.name)
+        if latest_link.is_symlink():
+            resolved = latest_link.resolve()
+            if not str(resolved).startswith(str(memory_dir.resolve())):
+                latest_link.unlink()
     except OSError:
         pass  # Symlinks may not be supported on all filesystems
 
@@ -263,8 +269,8 @@ try:
     try:
         pending_learn_file.write_text(f"project={project}\nwip={wip_context}\n")
         os.chmod(pending_learn_file, 0o600)
-    except Exception:
-        pass  # Non-critical
+    except (OSError, PermissionError) as e:
+        log_error("session-stop", "write_pending_learn", e)
 
     sys.exit(0)
 

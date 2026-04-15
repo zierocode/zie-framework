@@ -31,7 +31,7 @@ def make_cwd(tmp_path: Path, roadmap: str = "## Now\n\n## Next\n") -> Path:
     return tmp_path
 
 
-SDLC_PROMPT = "implement this feature in the codebase please now"
+SDLC_PROMPT = "implement this new feature in the codebase right now please"
 
 
 class TestDedupCache:

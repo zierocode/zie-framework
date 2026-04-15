@@ -11,6 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_io import atomic_write, safe_write_tmp
+from utils_error import log_error
 
 SDLC_STAGES: list = [
     "init", "backlog", "spec", "plan",
@@ -91,52 +92,32 @@ def parse_roadmap_section_content(content: str, section_name: str) -> list:
     return lines
 
 
-def read_roadmap_cached(roadmap_path, session_id: str, tmp_dir=None) -> str:
-    """Return ROADMAP.md content using mtime-gated session cache, falling back to disk read.
+def read_roadmap_cached(roadmap_path, session_id: str, cwd=None) -> str:
+    """Return ROADMAP.md content using CacheManager mtime-gated cache.
 
-    On cache miss or mtime mismatch: reads from disk and writes to cache.
-    On any read error: returns empty string.
+    Delegates to CacheManager.get_or_compute with mtime invalidation.
+    Falls back to empty string on any read error.
     """
-    cached = get_cached_roadmap(session_id, roadmap_path, tmp_dir=tmp_dir)
-    if cached is not None:
-        return cached
-    try:
-        content = Path(roadmap_path).read_text()
-        write_roadmap_cache(session_id, content, roadmap_path, tmp_dir=tmp_dir)
-        return content
-    except Exception:
-        return ""
+    from utils_cache import get_cache_manager
+    if cwd is None:
+        cwd = Path(roadmap_path).parent.parent
+    cache = get_cache_manager(cwd)
+    roadmap_str = str(roadmap_path)
 
-
-def get_cached_roadmap(session_id: str, roadmap_path, tmp_dir=None) -> str | None:
-    """Return cached ROADMAP.md content if mtime matches current file mtime, else None."""
-    try:
-        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
-        cache_path = Path(tmp_dir or tempfile.gettempdir()) / f"zie-{safe_id}" / "roadmap-cache.json"
-        if not cache_path.exists():
-            return None
-        data = json.loads(cache_path.read_text())
-        current_mtime = os.path.getmtime(roadmap_path)
-        if abs(data["mtime"] - current_mtime) > 0.001:
-            return None
-        return data["content"]
-    except Exception:
-        return None
-
-
-def write_roadmap_cache(session_id: str, content: str, roadmap_path, tmp_dir=None) -> None:
-    """Write ROADMAP.md content to the session cache keyed by roadmap file mtime."""
-    try:
-        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
-        cache_dir = Path(tmp_dir or tempfile.gettempdir()) / f"zie-{safe_id}"
-        cache_dir.mkdir(parents=True, exist_ok=True)
+    def _read() -> str:
         try:
-            mtime = os.path.getmtime(roadmap_path)
-        except Exception:
-            mtime = 0.0
-        (cache_dir / "roadmap-cache.json").write_text(json.dumps({"mtime": mtime, "content": content}))
-    except Exception as e:
-        print(f"[zie-framework] write_roadmap_cache: {e}", file=sys.stderr)
+            return Path(roadmap_path).read_text()
+        except OSError as e:
+            log_error("utils_roadmap", "read_roadmap", e)
+            return ""
+        except Exception as e:
+            log_error("utils_roadmap", "read_roadmap", e)
+            return ""
+
+    return cache.get_or_compute(
+        "roadmap", session_id, _read, ttl=600,
+        invalidation="mtime", source_path=roadmap_str,
+    )
 
 
 def get_cached_git_status(session_id: str, key: str, ttl: int = 5) -> str | None:
@@ -154,7 +135,11 @@ def get_cached_git_status(session_id: str, key: str, ttl: int = 5) -> str | None
             if age < ttl:
                 return cache_path.read_text()
         return None
-    except Exception:
+    except OSError as e:
+        log_error("utils_roadmap", "get_cached_git_status", e)
+        return None
+    except Exception as e:
+        log_error("utils_roadmap", "get_cached_git_status", e)
         return None
 
 
@@ -199,7 +184,11 @@ def get_cached_adrs(
         if abs(data["mtime"] - current_max_mtime) > 0.001:
             return None
         return data["content"]
-    except Exception:
+    except (OSError, json.JSONDecodeError) as e:
+        log_error("utils_roadmap", "get_cached_adrs", e)
+        return None
+    except Exception as e:
+        log_error("utils_roadmap", "get_cached_adrs", e)
         return None
 
 
@@ -231,7 +220,11 @@ def write_adr_cache(
         if safe_write_tmp(cache_path, payload):
             return (True, cache_path)
         return (False, None)
-    except Exception:
+    except OSError as e:
+        log_error("utils_roadmap", "write_adr_cache", e)
+        return (False, None)
+    except Exception as e:
+        log_error("utils_roadmap", "write_adr_cache", e)
         return (False, None)
 
 
@@ -451,7 +444,11 @@ def parse_roadmap_items_with_dates(roadmap_path, section_name: str) -> list:
                         date = None
                 results.append((clean, date))
         return results
-    except Exception:
+    except OSError as e:
+        log_error("utils_roadmap", "parse_roadmap_items_with_dates", e)
+        return []
+    except Exception as e:
+        log_error("utils_roadmap", "parse_roadmap_items_with_dates", e)
         return []
 
 
@@ -481,8 +478,10 @@ def is_track_active(cwd) -> bool:
                     break
                 if in_now and re.search(r'-\s*\[\s*\]', line):
                     return True
-    except Exception:
-        pass
+    except OSError as e:
+        log_error("utils_roadmap", "is_track_active_roadmap", e)
+    except Exception as e:
+        log_error("utils_roadmap", "is_track_active_roadmap", e)
 
     # Source 2: open drift marker
     try:
@@ -496,9 +495,55 @@ def is_track_active(cwd) -> bool:
                     event = json.loads(raw)
                     if event.get("closed_at") is None and "track" in event:
                         return True
-                except Exception:
+                except json.JSONDecodeError:
                     continue
-    except Exception:
-        pass
+                except Exception as e:
+                    log_error("utils_roadmap", "drift_line_parse", e)
+                    continue
+    except (OSError, json.JSONDecodeError) as e:
+        log_error("utils_roadmap", "is_track_active_drift", e)
+    except Exception as e:
+        log_error("utils_roadmap", "is_track_active_drift", e)
 
     return False
+
+
+def extract_problem_excerpt(slug: str, backlog_dir, max_len: int = 120) -> str:
+    """Extract Problem excerpt from a backlog file.
+
+    Reads backlog/<slug>.md, extracts text between ## Problem and the
+    next ## heading. Truncates to max_len chars, appends … if longer.
+    Returns '(no description)' if file missing or no Problem section.
+    """
+    backlog_path = Path(backlog_dir) / f"{slug}.md"
+    if not backlog_path.exists():
+        return "(no description)"
+    try:
+        content = backlog_path.read_text()
+        match = re.search(r"^## Problem\s*\n\n(.+?)(?:\n\n## |\n\n---|\Z)", content, re.DOTALL | re.MULTILINE)
+        if not match:
+            return "(no description)"
+        text = match.group(1).strip().replace("\n", " ")
+        # Collapse whitespace
+        text = re.sub(r"\s+", " ", text)
+        if len(text) > max_len:
+            return text[:max_len].rstrip() + "…"
+        return text
+    except OSError as e:
+        log_error("utils_roadmap", "extract_problem_excerpt", e)
+        return "(no description)"
+    except Exception as e:
+        log_error("utils_roadmap", "extract_problem_excerpt", e)
+        return "(no description)"
+
+
+def check_spec_plan_status(slug: str, specs_dir, plans_dir) -> tuple:
+    """Check existence of spec and plan files for a slug.
+
+    Returns (spec_exists, plan_exists) as booleans.
+    """
+    specs_path = Path(specs_dir)
+    plans_path = Path(plans_dir)
+    spec_exists = any(specs_path.glob(f"*-{slug}-design.md"))
+    plan_exists = any(plans_path.glob(f"*-{slug}.md"))
+    return (spec_exists, plan_exists)

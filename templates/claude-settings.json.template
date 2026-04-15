@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make test-fast*)",
+      "Bash(make lint*)",
+      "Bash(make test-ci*)",
+      "Bash(make test-unit*)",
+      "Bash(python3 hooks/*)",
+      "Bash(pytest*)",
+      "Read",
+      "Write",
+      "Glob",
+      "Grep"
+    ]
+  }
+}

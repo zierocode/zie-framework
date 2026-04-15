@@ -59,12 +59,12 @@ class TestSessionResumeAutoImprove:
 
     def test_hook_file_exists(self):
         """session-resume.py exists."""
-        hooks_dir = Path(__file__).parent.parent / "hooks"
+        hooks_dir = Path(__file__).parent.parent.parent / "hooks"
         assert (hooks_dir / "session-resume.py").exists()
 
     def test_hook_registered(self):
         """session-resume registered in hooks.json for SessionStart."""
-        hooks_json_path = Path(__file__).parent.parent / "hooks" / "hooks.json"
+        hooks_json_path = Path(__file__).parent.parent.parent / "hooks" / "hooks.json"
         hooks_json = json.loads(hooks_json_path.read_text())
         session_start_hooks = hooks_json.get("hooks", {}).get("SessionStart", [])
 
@@ -74,7 +74,7 @@ class TestSessionResumeAutoImprove:
 
     def test_auto_apply_high_confidence_patterns(self, test_repo):
         """High-confidence patterns (>0.95) are auto-applied."""
-        hook = Path(__file__).parent.parent / "hooks" / "session-resume.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "session-resume.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-auto-improve-001"
 
@@ -129,7 +129,7 @@ class TestSessionResumeAutoImprove:
 
     def test_pattern_added_to_memory(self, test_repo):
         """Auto-applied patterns are added to MEMORY.md."""
-        hook = Path(__file__).parent.parent / "hooks" / "session-resume.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "session-resume.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-memory-001"
 
@@ -168,7 +168,7 @@ class TestSessionResumeAutoImprove:
 
     def test_pending_learn_marker_cleanup(self, test_repo):
         """pending_learn.txt marker is cleaned up after processing."""
-        hook = Path(__file__).parent.parent / "hooks" / "session-resume.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "session-resume.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-cleanup-001"
 
@@ -190,7 +190,7 @@ class TestSessionResumeAutoImprove:
 
     def test_wip_context_injection(self, test_repo):
         """WIP context from pending_learn.txt is injected."""
-        hook = Path(__file__).parent.parent / "hooks" / "session-resume.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "session-resume.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-wip-001"
 
@@ -212,7 +212,7 @@ class TestSessionResumeAutoImprove:
 
     def test_no_patterns_no_output(self, test_repo):
         """No additionalContext output when no patterns to apply."""
-        hook = Path(__file__).parent.parent / "hooks" / "session-resume.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "session-resume.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-nopattern-001"
 
@@ -230,7 +230,7 @@ class TestSessionResumeAutoImprove:
 
     def test_low_confidence_patterns_not_applied(self, test_repo):
         """Patterns below 0.95 threshold are not auto-applied."""
-        hook = Path(__file__).parent.parent / "hooks" / "session-resume.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "session-resume.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-lowconf-001"
 
@@ -265,7 +265,7 @@ class TestSessionResumeAutoImprove:
 
     def test_non_auto_apply_categories_not_applied(self, test_repo):
         """Patterns in non-auto-apply categories are not applied."""
-        hook = Path(__file__).parent.parent / "hooks" / "session-resume.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "session-resume.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-cat-001"
 
@@ -300,7 +300,7 @@ class TestSessionResumeAutoImprove:
 
     def test_empty_memory_dir_graceful(self, test_repo):
         """Empty memory directory handled gracefully."""
-        hook = Path(__file__).parent.parent / "hooks" / "session-resume.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "session-resume.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-empty-001"
 
@@ -322,7 +322,7 @@ class TestSessionResumeAutoImprove:
 
     def test_corrupt_session_memory_graceful(self, test_repo):
         """Corrupt session memory files handled gracefully."""
-        hook = Path(__file__).parent.parent / "hooks" / "session-resume.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "session-resume.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-corrupt-001"
 

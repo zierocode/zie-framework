@@ -5,6 +5,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from utils_error import log_error
+
 _MAX_EVENTS = 200
 
 
@@ -32,7 +34,8 @@ def read_drift_count(cwd) -> int:
             return 0
         lines = [ln for ln in log_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
         return len(lines)
-    except Exception:
+    except OSError as e:
+        log_error("utils_drift", "read_drift_count", e)
         return 0
 
 
@@ -54,7 +57,7 @@ def close_drift_track(cwd, slug: str) -> None:
                 continue
             try:
                 events.append(json.loads(raw))
-            except Exception:
+            except json.JSONDecodeError:
                 events.append({"_raw": raw})
 
         for i in range(len(events) - 1, -1, -1):
@@ -77,5 +80,5 @@ def _trim_log(log_path: Path) -> None:
         lines = [ln for ln in log_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
         if len(lines) > _MAX_EVENTS:
             log_path.write_text("\n".join(lines[-_MAX_EVENTS:]) + "\n", encoding="utf-8")
-    except Exception:
-        pass
+    except OSError as e:
+        log_error("utils_drift", "trim_log", e)

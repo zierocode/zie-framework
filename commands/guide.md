@@ -11,6 +11,8 @@ effort: low
 On-demand orientation: understand zie-framework capabilities, see where you
 are in the pipeline, and get concrete recommended next actions.
 
+<!-- preflight: minimal -->
+
 ## Step 1 — Check framework presence
 
 Check whether `zie-framework/` exists in the current working directory.
@@ -117,3 +119,5 @@ Run `/implement` to start TDD implementation, or `/sprint` for the full pipeline
 - ROADMAP.md missing: skip pipeline position, show command list only (no crash)
 - specs/ or plans/ missing: treat all items as no-spec state
 - File read errors: skip that item, continue with remaining
+
+→ /backlog to start a new item

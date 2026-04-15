@@ -11,6 +11,8 @@ effort: low
 Read-only diagnostic — never modifies state. Shows hook status, session
 state, and config validation in a single glance.
 
+<!-- preflight: minimal -->
+
 ## Steps
 
 1. **Check prerequisites**
@@ -70,3 +72,5 @@ state, and config validation in a single glance.
 - Config file missing: show defaults assumed
 - Git command fails: skip branch info
 - Always exits cleanly — never halts or modifies anything
+
+→ /status for current project state

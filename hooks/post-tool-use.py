@@ -15,6 +15,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
+from utils_error import log_error
 from utils_event import get_cwd, read_event
 from utils_io import project_tmp_path
 
@@ -87,8 +88,10 @@ def _get_suggestion_state(cwd, session_id):
             # Validate session ID
             if data.get("session_id") == session_id:
                 return data
-    except Exception:
-        pass
+    except (json.JSONDecodeError, OSError):
+        pass  # corrupt or missing state file — reset
+    except Exception as e:
+        log_error("post-tool-use", "load_suggestion_state", e)
     return {"session_id": session_id, "count": 0, "last_suggestion": None}
 
 
@@ -98,8 +101,10 @@ def _save_suggestion_state(cwd, state):
     try:
         state_file.write_text(json.dumps(state))
         os.chmod(state_file, 0o600)
-    except Exception:
-        pass
+    except (json.JSONDecodeError, OSError):
+        pass  # state write failure — non-fatal, will reset next load
+    except Exception as e:
+        log_error("post-tool-use", "save_suggestion_state", e)
 
 
 def _check_frequency_cap(state, priority="MEDIUM"):
@@ -119,8 +124,10 @@ def _check_frequency_cap(state, priority="MEDIUM"):
             now = datetime.now(timezone.utc)
             if (now - last_time).total_seconds() < _SUGGESTION_COOLDOWN_SECONDS:
                 return False
-        except Exception:
-            pass
+        except ValueError:
+            pass  # invalid date format — treat as no cooldown
+        except Exception as e:
+            log_error("post-tool-use", "check_frequency_cap", e)
 
     return True
 

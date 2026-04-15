@@ -45,12 +45,12 @@ class TestPostToolUseHook:
 
     def test_hook_file_exists(self):
         """post-tool-use.py exists."""
-        hooks_dir = Path(__file__).parent.parent / "hooks"
+        hooks_dir = Path(__file__).parent.parent.parent / "hooks"
         assert (hooks_dir / "post-tool-use.py").exists()
 
     def test_hook_registered(self):
         """post-tool-use registered in hooks.json for Bash and Write|Edit."""
-        hooks_json_path = Path(__file__).parent.parent / "hooks" / "hooks.json"
+        hooks_json_path = Path(__file__).parent.parent.parent / "hooks" / "hooks.json"
         hooks_json = json.loads(hooks_json_path.read_text())
         post_tool_hooks = hooks_json.get("hooks", {}).get("PostToolUse", [])
 
@@ -68,7 +68,7 @@ class TestPostToolUseHook:
 
     def test_test_failure_detection(self, test_repo):
         """Test failure triggers /fix suggestion."""
-        hook = Path(__file__).parent.parent / "hooks" / "post-tool-use.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-fail-001"
         event_data = json.dumps({
@@ -96,7 +96,7 @@ class TestPostToolUseHook:
 
     def test_multiple_errors_detection(self, test_repo):
         """Multiple similar errors trigger suggestion (via test_failure or multiple_errors)."""
-        hook = Path(__file__).parent.parent / "hooks" / "post-tool-use.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-multi-001"
         event_data = json.dumps({
@@ -125,7 +125,7 @@ class TestPostToolUseHook:
 
     def test_spec_complete_detection(self, test_repo):
         """Spec file written triggers plan suggestion."""
-        hook = Path(__file__).parent.parent / "hooks" / "post-tool-use.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-spec-001"
         event_data = json.dumps({
@@ -151,7 +151,7 @@ class TestPostToolUseHook:
 
     def test_plan_complete_detection(self, test_repo):
         """Plan file written triggers implement suggestion."""
-        hook = Path(__file__).parent.parent / "hooks" / "post-tool-use.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-plan-001"
         event_data = json.dumps({
@@ -177,7 +177,7 @@ class TestPostToolUseHook:
 
     def test_frequency_cap_max_suggestions(self, test_repo):
         """Max 3 suggestions per session enforced."""
-        hook = Path(__file__).parent.parent / "hooks" / "post-tool-use.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-cap-001"
 
@@ -209,7 +209,7 @@ class TestPostToolUseHook:
 
     def test_suggestion_format(self, test_repo):
         """Suggestion follows correct markdown format."""
-        hook = Path(__file__).parent.parent / "hooks" / "post-tool-use.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-format-001"
         event_data = json.dumps({
@@ -247,7 +247,7 @@ class TestPostToolUseHook:
 
     def test_no_suggestion_on_success(self, test_repo):
         """Successful test run produces no suggestion."""
-        hook = Path(__file__).parent.parent / "hooks" / "post-tool-use.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-success-001"
         event_data = json.dumps({
@@ -275,7 +275,7 @@ class TestPostToolUseHook:
 
     def test_empty_event_graceful(self, test_repo):
         """Empty event handled gracefully."""
-        hook = Path(__file__).parent.parent / "hooks" / "post-tool-use.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-empty-001"
         event_data = json.dumps({})
@@ -292,7 +292,7 @@ class TestPostToolUseHook:
 
     def test_non_matching_tool_no_suggestion(self, test_repo):
         """Non-matching tool use produces no suggestion."""
-        hook = Path(__file__).parent.parent / "hooks" / "post-tool-use.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-nomatch-001"
         event_data = json.dumps({
@@ -321,7 +321,7 @@ class TestSuggestionFrequency:
 
     def test_cooldown_enforced(self, test_repo):
         """Cooldown period enforced between suggestions."""
-        hook = Path(__file__).parent.parent / "hooks" / "post-tool-use.py"
+        hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-cooldown-001"
 

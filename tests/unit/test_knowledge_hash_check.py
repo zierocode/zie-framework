@@ -28,14 +28,14 @@ class TestCheckModeHashMismatch:
         write_config(tmp_path, knowledge_hash="deadbeef0000")
         r = run_check(tmp_path)
         assert r.returncode == 0
-        assert "[zie-framework] Knowledge drift detected" in r.stdout
+        assert "Knowledge drift detected" in r.stdout
         assert "/resync" in r.stdout
 
     def test_drift_message_exact_text(self, tmp_path):
         write_config(tmp_path, knowledge_hash="aaaaaaaaaaaa")
         r = run_check(tmp_path)
         assert (
-            "[zie-framework] Knowledge drift detected since last session"
+            "[zf] Knowledge drift detected since last session"
             " — run /resync to update project context"
         ) in r.stdout
 

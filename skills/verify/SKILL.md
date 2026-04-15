@@ -15,7 +15,7 @@ context: fork
 
 | Parameter | Values | Default | Description |
 | --- | --- | --- | --- |
-| `scope` | `full`, `tests-only` | `full` | Controls which checks run. `tests-only` runs checks 1, 2, and secrets scan from 4 only — skips TODOs (3), full code review (4), and docs sync (5). |
+| `scope` | `full`, `tests-only` | `full` | `tests-only` runs checks 1, 2, and secrets scan from 4 only — skips TODOs (3), full code review (4), and docs sync (5). |
 
 ## Input
 
@@ -29,96 +29,63 @@ context: fork
 }
 ```
 
-- `test_output`: if provided and non-empty, use as the test result — skip
-  re-running `make test-unit`. If `test_output` contains `failed` or `error` →
-  treat tests as failed.
-- `scope`: overrides the skill's scope parameter if provided.
-- `changed_files`: restrict TODO/secrets scan to these files if provided.
+| Key | Description |
+| --- | --- |
+| `test_output` | If provided and non-empty, use as test result — skip `make test-unit`. Contains `failed`/`error` → treat as failed. |
+| `scope` | Overrides skill's scope parameter if provided. |
+| `changed_files` | Restrict TODO/secrets scan to these files if provided. |
 
-**Fallback:** if `$ARGUMENTS` is empty or unparseable → run all checks normally,
-including `make test-unit` (existing behavior — fully backward compatible).
+Fallback: empty/unparseable `$ARGUMENTS` → run all checks normally (fully backward compatible).
 
 ## Scope: tests-only
 
-When called with `scope=tests-only`, run only:
-
-1. **Check 1** — ตรวจ Tests (full, as below)
-2. **Check 2** — ไม่มี regressions (full, as below)
-3. **Check 4 — secrets scan only:** Are secrets or credentials in the code? → STOP, remove immediately. Skip all other check 4 items.
-
-Skip check 3 (TODOs), skip the remainder of check 4 (design match, simplifications), and skip check 5 (docs sync entirely).
-
-Print a scoped verification summary:
-
-```text
-Verification complete (scope: tests-only):
-
-Tests   : unit ✓ | integration ✓|n/a | e2e ✓|n/a
-Secrets : none detected
-
-Scope was tests-only — docs sync and full code review skipped.
-```
-
-When called with `scope=full` or with no scope argument → run all 5 checks as documented below.
+Runs: Check 1, 2, and secrets scan from 4 only. Skips TODOs (3), full code review (4), docs sync (5).
+`scope=full` or no scope → run all 5 checks below.
 
 ## รายการตรวจสอบ
 
 ### 1. ตรวจ Tests
 
-**Guard:** if `test_output` provided and non-empty → use it as the result; skip `make test-unit`.
+Guard: `test_output` provided and non-empty → use it; skip `make test-unit`.
 
 ```bash
 make test-unit
 ```
 
 - All tests pass? ✓
-- Any new tests added for this feature? If not, explain why.
+- New tests added for this feature? If not, explain why.
 
-If integration tests exist:
-
-```bash
-make test-int
-```
-
-If e2e tests are enabled (playwright_enabled=true):
-
-```bash
-make test-e2e
-```
+If integration tests exist: `make test-int`
+If e2e enabled (`playwright_enabled=true`): `make test-e2e`
 
 ### 2. ไม่มี regressions
 
-**Guard:** if `test_output` provided and non-empty → use it (already ran in check 1); do NOT re-run `make test-unit`.
+Guard: `test_output` provided → use it (already ran in check 1); do NOT re-run `make test-unit`.
 
-- Compare pass count in `test_output` to the previous run — no unexpected changes.
+- Compare pass count in `test_output` to previous run — no unexpected changes.
 
 ### 3. ไม่มี TODO ค้างอยู่
-
-Search for leftover stubs:
 
 ```bash
 grep -r "TODO\|FIXME\|PLACEHOLDER\|pass  #" --include="*.py" .
 ```
 
-- Any hits in new code? Fix or create a tracked backlog item.
+- Hits in new code? Fix or create tracked backlog item.
 
 ### 4. ตรวจ code ตัวเอง
 
-- Does the implementation match the plan?
-- Are there any obvious simplifications (dead code, duplication)?
-- Are secrets or credentials in the code? → STOP, remove immediately.
+- Implementation matches the plan?
+- Obvious simplifications (dead code, duplication)?
+- Secrets or credentials in code? → STOP, remove immediately.
 
 ### 5. Documentation
 
-- Does `CLAUDE.md` need updating? (new commands, changed dependencies, new
-  rules)
-- Does `README.md` need updating? (new features, changed setup steps)
+- `CLAUDE.md` needs updating? (new commands, changed deps, new rules)
+- `README.md` needs updating? (new features, changed setup steps)
 
 ## สรุปผล
 
-Print a verification summary:
-
-```text
+```
 Verification complete:
 
 Tests   : unit ✓ | integration ✓|n/a | e2e ✓|n/a
@@ -129,5 +96,4 @@ Secrets : none detected
 Ready to ship: /release
 ```
 
-If anything fails → fix before proceeding. Never claim "done" with a failing
-check.
+Anything fails → fix before proceeding. Never claim "done" with a failing check.

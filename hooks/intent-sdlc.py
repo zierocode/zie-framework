@@ -5,7 +5,6 @@ Merged replacement for intent-detect.py + sdlc-context.py.
 Reads ROADMAP.md once (via session cache) and produces a single
 additionalContext payload combining intent suggestion + SDLC state.
 """
-import hashlib
 import json
 import os
 import re
@@ -15,10 +14,11 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
-from utils_io import project_tmp_path
 from utils_config import CACHE_TTLS
 from utils_cache import get_cache_manager
 from utils_roadmap import is_track_active, parse_roadmap_section_content
+from utils_error import log_error
+from utils_skill_inject import inject_skill_context
 
 # ── Intent detection constants ────────────────────────────────────────────────
 # Single combined regex with named groups for one-pass intent detection.
@@ -99,6 +99,30 @@ INTENT_PATTERN = re.compile(r"""
     )
 """, re.IGNORECASE | re.VERBOSE)
 
+# New-intent scoring: separate patterns for overlapping detection.
+# INTENT_PATTERN uses alternation (|) so only the first matching group is
+# populated — named groups that appear later in the alternation are never tried.
+# These separate patterns allow us to detect multiple signals in one message.
+NEW_INTENT_PATTERNS = {
+    "sprint": re.compile(
+        r"\bbuild\b | \bsprint\b | ทำเลย | สร้าง | เพิ่ม.*feature | start\s*coding",
+        re.IGNORECASE | re.VERBOSE,
+    ),
+    "fix": re.compile(
+        r"\bbroken\b | ไม่.*work | \bcrash\b | \bfail\b | แก้",
+        re.IGNORECASE | re.VERBOSE,
+    ),
+    "chore": re.compile(
+        r"\bupdate\b | \bbump\b | \brename\b | \bcleanup\b | \brefactor\b | ลบ",
+        re.IGNORECASE | re.VERBOSE,
+    ),
+}
+NEW_INTENT_HINTS = {
+    "sprint": "confirm backlog→spec→plan before implementing",
+    "fix":    "invoke /fix or /hotfix track",
+    "chore":  "use /chore to track this maintenance task",
+}
+
 # Suggestion mapping for intent → command
 SUGGESTIONS = {
     "init":      "/init",
@@ -115,27 +139,6 @@ SUGGESTIONS = {
     "chore":     "/chore",
     "spike":     "/spike",
     "brainstorm": "invoke zie-framework:brainstorm skill",
-}
-
-# Pre-compiled new-intent signals for sprint/fix/chore detection
-NEW_INTENT_REGEXES = {
-    "sprint": [re.compile(p, re.IGNORECASE) for p in [
-        r"ทำเลย", r"\bimplement\b", r"\bbuild\b", r"สร้าง",
-        r"เพิ่ม.*feature", r"start.*coding",
-    ]],
-    "fix": [re.compile(p, re.IGNORECASE) for p in [
-        r"\bbug\b", r"\bbroken\b", r"\berror\b", r"ไม่.*work",
-        r"\bcrash\b", r"\bfail\b", r"แก้",
-    ]],
-    "chore": [re.compile(p, re.IGNORECASE) for p in [
-        r"\bupdate\b", r"\bbump\b", r"\brename\b", r"\bcleanup\b",
-        r"\brefactor\b", r"ลบ",
-    ]],
-}
-NEW_INTENT_HINTS = {
-    "sprint": "confirm backlog→spec→plan before implementing",
-    "fix":    "invoke /fix or /hotfix track",
-    "chore":  "use /chore to track this maintenance task",
 }
 
 # ── SDLC context constants ────────────────────────────────────────────────────
@@ -187,14 +190,22 @@ def _spec_approved(cwd: Path, slug: str) -> bool:
     specs_dir = cwd / "zie-framework" / "specs"
     try:
         matches = list(specs_dir.glob(f"*-{slug}-design.md"))
-    except Exception:
+    except OSError as e:
+        log_error("intent-sdlc", "spec_glob", e)
+        return False
+    except Exception as e:
+        log_error("intent-sdlc", "spec_glob", e)
         return False
     if not matches:
         return False
     try:
         content = matches[0].read_text()
         return bool(re.search(r'^approved:\s*true\s*$', content, re.MULTILINE))
-    except Exception:
+    except OSError as e:
+        log_error("intent-sdlc", "spec_read", e)
+        return False
+    except Exception as e:
+        log_error("intent-sdlc", "spec_read", e)
         return False
 
 
@@ -212,9 +223,8 @@ def _check_pipeline_preconditions(
             return None
         slug_list = ", ".join(f"'{s}'" for s in blocking)
         return (
-            f"⛔ STOP. No approved spec for {slug_list}. "
-            f"You must run /spec {blocking[0]} first. "
-            f"Do not proceed with planning."
+            f"⛔ No approved spec for {slug_list}. "
+            f"Run /spec {blocking[0]} first."
         )
 
     return None
@@ -240,10 +250,10 @@ def _positional_guidance(roadmap_content: str, cwd: Path, message: str) -> "str 
             slug_in_ready = True
             break
     if not has_approved_spec:
-        return f"Feature '{slug}' is in backlog. Start with /spec {slug}"
+        return f"backlog:{slug} → /spec {slug}"
     if has_approved_spec and not slug_in_ready:
-        return f"Spec approved for '{slug}'. Run /plan {slug}"
-    return f"Plan ready for '{slug}'. Run /implement to start"
+        return f"spec:{slug} ✓ → /plan {slug}"
+    return f"plan:{slug} ✓ → /implement"
 
 
 def derive_stage(task_text: str) -> str:
@@ -256,53 +266,48 @@ def derive_stage(task_text: str) -> str:
 
 
 def get_test_status(cwd: Path) -> str:
-    tmp_file = project_tmp_path("last-test", cwd.name)
     try:
-        mtime = tmp_file.stat().st_mtime
-        age = time.time() - mtime
-        return "stale" if age > STALE_THRESHOLD_SECS else "recent"
-    except Exception:
-        return "unknown"
+        cache = get_cache_manager(cwd)
+        ts = cache.get("last-test", "_global")
+        if ts is not None:
+            age = time.time() - float(ts)
+            return "stale" if age > STALE_THRESHOLD_SECS else "recent"
+    except OSError as e:
+        log_error("intent-sdlc", "test_status", e)
+    except Exception as e:
+        log_error("intent-sdlc", "test_status", e)
+    return "unknown"
 
 
 _DEDUP_TTL_SECS = 600  # 10-minute session window
 
 
-def _dedup_path(session_id: str, cwd: Path) -> Path:
-    """Return the per-session dedup cache file path.
-
-    Includes a short hash of the full cwd path so that different directories
-    with the same basename (e.g., pytest tmp dirs across test runs) don't share
-    a dedup file.
-    """
-    safe_sid = re.sub(r"[^a-zA-Z0-9_-]", "-", session_id)
-    cwd_hash = hashlib.md5(str(cwd).encode(), usedforsecurity=False).hexdigest()[:8]
-    return project_tmp_path(f"intent-dedup-{safe_sid}-{cwd_hash}", cwd.name)
-
-
-def _read_dedup(path: Path) -> str:
-    """Return last emitted context string, or '' on miss/expired/error."""
+def _read_dedup(cache, session_id: str, key: str) -> str:
+    """Return last emitted context string from CacheManager, or '' on miss."""
     try:
-        if time.time() - path.stat().st_mtime > _DEDUP_TTL_SECS:
-            return ""  # expired — re-emit after TTL
-        return path.read_text()
-    except Exception:
+        val = cache.get(key, session_id)
+        return val if isinstance(val, str) else ""
+    except Exception as e:
+        log_error("intent-sdlc", "read_dedup", e)
         return ""
 
 
-def _write_dedup(path: Path, context: str) -> None:
-    """Write current context to dedup cache (best-effort, never blocks)."""
+def _write_dedup(cache, session_id: str, key: str, context: str) -> None:
+    """Write current context to CacheManager dedup cache."""
     try:
-        path.write_text(context)
-    except Exception:
-        pass
+        cache.set(key, context, session_id, ttl=_DEDUP_TTL_SECS)
+    except Exception as e:
+        log_error("intent-sdlc", "write_dedup", e)
 
 
 # ── Outer guard ───────────────────────────────────────────────────────────────
 
 try:
     event = read_event()
-except Exception:
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
+except Exception as e:
+    log_error("intent-sdlc", "read_event", e)
     sys.exit(0)
 
 try:
@@ -318,44 +323,51 @@ try:
     cwd = get_cwd()
     if not (cwd / "zie-framework").exists():
         sys.exit(0)
-except Exception:
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
+except Exception as e:
+    log_error("intent-sdlc", "early_exit_guard", e)
     sys.exit(0)
 
 # ── Inner operations ──────────────────────────────────────────────────────────
 
 try:
     session_id = event.get("session_id", "default")
+    cache = get_cache_manager(cwd)
 
     # ── Early-exit guard (short + zero SDLC keywords → unclear intent) ─────────
-    # Single-pass regex match for all 13 intent categories
+    # Single-pass regex match for all 17 intent categories (14 original + 3 new-intent)
     intent_match = INTENT_PATTERN.search(message)
     has_sdlc_keyword = intent_match is not None
 
-    if len(message) < 15:
+    # Strong-intent groups that bypass the short-message gate even under 50 chars
+    _STRONG_INTENT_GROUPS = {
+        "init", "sprint", "hotfix", "fix", "implement", "spec", "plan", "release", "retro", "status",
+    }
+    _has_strong_intent = (
+        intent_match is not None
+        and intent_match.lastgroup in _STRONG_INTENT_GROUPS
+    )
+
+    if len(message) < 50:
         if not has_sdlc_keyword:
             context = (
-                "[zie-framework] intent: unclear — "
-                "please clarify your request before proceeding"
+                "[zf] intent: unclear — clarify before proceeding"
             )
             if session_id != "default":
-                _dp = _dedup_path(session_id, cwd)
-                if _read_dedup(_dp) == context:
+                _dedup_key = f"intent-dedup-{session_id}"
+                if _read_dedup(cache, session_id, _dedup_key) == context:
                     sys.exit(0)
-                _write_dedup(_dp, context)
+                _write_dedup(cache, session_id, _dedup_key, context)
             print(json.dumps({"additionalContext": context}))
-        sys.exit(0)  # short messages always exit (ambiguous even with keyword)
+            sys.exit(0)
+        if not _has_strong_intent:
+            sys.exit(0)  # short with weak keyword → exit
 
     if not has_sdlc_keyword:
         sys.exit(0)
 
-    # ── New-intent signal tables (≥2 threshold, evaluated after roadmap read) ──
-    NEW_INTENT_HINTS = {
-        "sprint": "confirm backlog→spec→plan before implementing",
-        "fix":    "invoke /fix or /hotfix track",
-        "chore":  "use /chore to track this maintenance task",
-    }
-
-    # ── Intent detection (single-pass regex with named groups) ─────────────────
+    # ── SDLC context (unified cache — session-scoped with TTL) ──────────
     intent_cmd = None
     best = None
     scores = {}
@@ -371,7 +383,6 @@ try:
 
     # ── SDLC context (unified cache — session-scoped with TTL) ──────────
     roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
-    cache = get_cache_manager(cwd)
     roadmap_ttl = CACHE_TTLS.get("roadmap", 600)
     roadmap_content = cache.get_or_compute(
         "roadmap", session_id, lambda: roadmap_path.read_text(), roadmap_ttl
@@ -388,31 +399,39 @@ try:
     suggested_cmd = STAGE_COMMANDS.get(stage, "/status")
     test_status = get_test_status(cwd)
 
-    # ── New-intent scoring (≥2 threshold) ─────────────────────────────────────
-    # Sprint only fires when idle (no active Now lane item); fix/chore always fire.
-    for intent_name, compiled_regexes in NEW_INTENT_REGEXES.items():
+    # ── New-intent scoring from separate patterns (≥2 threshold) ────────────────
+    # Use NEW_INTENT_PATTERNS for overlapping detection since INTENT_PATTERN's
+    # alternation only populates the first matching named group.
+    _BOOST_GROUPS = {"sprint": "implement", "fix": "fix", "chore": "chore"}
+    for intent_name, pattern in NEW_INTENT_PATTERNS.items():
         if intent_name == "sprint" and active_task != "none":
             continue  # user has planned work — they're already in the pipeline
-        score = sum(1 for p in compiled_regexes if p.search(message))
-        if score >= 2:
-            hint = NEW_INTENT_HINTS[intent_name]
-            context = f"[zie-framework] intent: {intent_name} — {hint}"
-            _should_emit = True
-            if session_id != "default":
-                _dp = _dedup_path(session_id, cwd)
-                if _read_dedup(_dp) == context:
-                    _should_emit = False
-                else:
-                    _write_dedup(_dp, context)
-            if _should_emit:
-                print(json.dumps({"additionalContext": context}))
-            if intent_name == "sprint":
-                try:
-                    sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
-                    sprint_flag.write_text("active")
-                except Exception:
-                    pass
-            sys.exit(0)
+        if pattern.search(message):
+            count = 1
+            boost_group = _BOOST_GROUPS.get(intent_name)
+            if boost_group and intent_match and intent_match.lastgroup == boost_group:
+                count = 2
+            for other_name, other_pattern in NEW_INTENT_PATTERNS.items():
+                if other_name != intent_name and other_pattern.search(message):
+                    count += 1
+            if count >= 2:
+                hint = NEW_INTENT_HINTS[intent_name]
+                context = f"[zf] intent: {intent_name} — {hint}"
+                _should_emit = True
+                if session_id != "default":
+                    _dedup_key = f"intent-new-{intent_name}-{session_id}"
+                    if _read_dedup(cache, session_id, _dedup_key) == context:
+                        _should_emit = False
+                    else:
+                        _write_dedup(cache, session_id, _dedup_key, context)
+                if _should_emit:
+                    print(json.dumps({"additionalContext": context}))
+                if intent_name == "sprint":
+                    try:
+                        cache.set_flag("intent-sprint-flag", session_id)
+                    except Exception as e:
+                        log_error("intent-sdlc", "sprint_flag_set", e)
+                sys.exit(0)
 
     # ── Pipeline gate check ───────────────────────────────────────────────────
     gate_msg = None
@@ -424,11 +443,7 @@ try:
     if gate_msg is None and best in ("implement", "fix"):
         if not is_track_active(cwd):
             no_track_msg = (
-                "no active track — pick one: "
-                "standard: /backlog → /spec → /plan → /implement | "
-                "hotfix: /hotfix | "
-                "spike: /spike | "
-                "chore: /chore"
+                "no track — /backlog→/spec→/plan→/implement | /hotfix | /spike | /chore"
             )
 
     # ── Positional guidance (only when no gate and no dominant intent) ────────
@@ -437,13 +452,13 @@ try:
         guidance_msg = _positional_guidance(roadmap_content, cwd, message)
 
     # ── Read pattern aggregate for personalized thresholds ───────────────────
-    _agg_path = project_tmp_path("pattern-aggregate", cwd.name)
     _pattern_agg: dict = {}
     try:
-        if _agg_path.exists():
-            _pattern_agg = json.loads(_agg_path.read_text())
-    except Exception:
-        pass  # Missing or corrupt aggregate — use defaults
+        _cached_agg = cache.get("pattern-aggregate", session_id)
+        if isinstance(_cached_agg, dict):
+            _pattern_agg = _cached_agg
+    except Exception as e:
+        log_error("intent-sdlc", "pattern_aggregate", e)  # Missing or corrupt aggregate — use defaults
     _most_common_stage = _pattern_agg.get("most_common_stage", "")
 
     # Suppress pipeline-position hint when user consistently works at implement stage
@@ -461,7 +476,7 @@ try:
     elif no_track_msg:
         parts.append(no_track_msg)
     elif intent_cmd:
-        parts.append(f"intent:{best} → {intent_cmd}")
+        parts.append(f"intent:{best}→{intent_cmd}")
     if guidance_msg and not _suppress_guidance:
         parts.append(guidance_msg)
     # State suffix: omit when idle + no active task + unambiguous intent (score >= 2)
@@ -469,19 +484,24 @@ try:
     _idle_unambiguous = (stage == "idle" and active_task == "none" and _best_score >= 2)
     if not _idle_unambiguous:
         parts.append(
-            f"task:{active_task} | stage:{stage} | next:{suggested_cmd} | tests:{test_status}"
+            f"now:{active_task} stage:{stage} next:{suggested_cmd} tests:{test_status}"
         )
-    context = "[zie-framework] " + " | ".join(parts)
+    context = "[zf] " + " | ".join(parts)
+
+    # ── Skill auto-inject ────────────────────────────────────────────────────────
+    _skill_content = inject_skill_context(best or stage, cwd)
+    if _skill_content:
+        context += "\n\n" + _skill_content
 
     # ── Dedup: skip re-injection when context unchanged since last emission ──────
     if session_id != "default":
-        _dp = _dedup_path(session_id, cwd)
-        if _read_dedup(_dp) == context:
+        _dedup_key = f"intent-dedup-{session_id}"
+        if _read_dedup(cache, session_id, _dedup_key) == context:
             sys.exit(0)
-        _write_dedup(_dp, context)
+        _write_dedup(cache, session_id, _dedup_key, context)
 
     print(json.dumps({"additionalContext": context}))
 
 except Exception as e:
-    print(f"[zie-framework] intent-sdlc: {e}", file=sys.stderr)
+    print(f"[zf] intent-sdlc: {e}", file=sys.stderr)
     sys.exit(0)

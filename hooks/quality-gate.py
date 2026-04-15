@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
+from utils_error import log_error  # noqa: E402
 from utils_event import get_cwd, read_event  # noqa: E402
 
 # Outer guard — any unhandled exception exits 0 (never blocks Claude)
@@ -45,7 +46,7 @@ try:
         coverage_xml = cwd / "coverage.xml"
         if not coverage_file.exists() and not coverage_xml.exists():
             warnings.append("coverage: no coverage data found — run tests before committing")
-    except Exception:
+    except OSError:
         pass  # skip on any error
 
     # ── Check 2: Dead code signals in staged diff ──────────────────────────
@@ -123,7 +124,8 @@ try:
     else:
         print("Quality gate: 0 warnings", file=sys.stderr)
 
-except Exception:
+except Exception as e:
+    log_error("quality-gate", "main", e)
     sys.exit(0)
 
 sys.exit(0)

@@ -6,19 +6,22 @@ disk reads across 6+ hooks per session.
 
 Cache location: .zie/cache/session-cache.json
 Session isolation: keyed by session_id to prevent cross-session pollution.
-TTL expiration: time-based expiration per key.
+Invalidation modes: ttl (time-based), mtime (file-change), session (clear_session).
 """
 import hashlib
 import json
 import os
 import re
+import sys
 import time
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+from utils_error import log_error
+
 
 class CacheManager:
-    """Session-scoped cache manager with TTL support.
+    """Session-scoped cache manager with TTL, mtime, and session invalidation.
 
     Usage:
         cache = CacheManager(Path(".zie/cache"))
@@ -27,6 +30,15 @@ class CacheManager:
 
         # Or use cache-or-compute helper:
         value = cache.get_or_compute("roadmap", session_id, compute_fn, ttl=600)
+
+        # mtime invalidation — invalidate when source file changes:
+        cache.set("roadmap", content, session_id, ttl=600,
+                   invalidation="mtime", source_path=roadmap_path)
+        cache.get_or_compute("roadmap", session_id, compute_fn, ttl=600,
+                              invalidation="mtime", source_path=roadmap_path)
+
+        # session invalidation — persists until clear_session():
+        cache.set("flag", True, session_id, ttl=0, invalidation="session")
     """
 
     def __init__(self, cache_dir: Path):
@@ -66,20 +78,39 @@ class CacheManager:
             os.replace(tmp_name, self.cache_file)
             os.chmod(self.cache_file, 0o600)
         except Exception as e:
-            print(f"[zie-framework] CacheManager._save: {e}", file=os.stderr)
+            print(f"[zf] CacheManager._save: {e}", file=sys.stderr)
 
     def _session_key(self, session_id: str) -> str:
         """Return session-scoped key prefix."""
         return f"session:{session_id}"
 
     def _is_expired(self, entry: dict) -> bool:
-        """Check if cache entry is expired based on TTL."""
+        """Check if cache entry is expired based on invalidation mode."""
+        invalidation = entry.get("invalidation", "ttl")
+
+        if invalidation == "session":
+            # Session-scoped entries never expire by time
+            return False
+
+        if invalidation == "mtime":
+            # Invalidate if source file mtime has changed
+            source_path = entry.get("source_path")
+            stored_mtime = entry.get("mtime")
+            if source_path and stored_mtime is not None:
+                try:
+                    current_mtime = os.path.getmtime(source_path)
+                    if abs(current_mtime - stored_mtime) > 0.001:
+                        return True
+                except OSError:
+                    return True
+            # Fall through to TTL check
+        # ttl invalidation (default) — check expires_at
         if "expires_at" not in entry:
             return False
         return time.time() > entry["expires_at"]
 
     def get(self, key: str, session_id: str) -> Optional[Any]:
-        """Get cached value (TTL-aware).
+        """Get cached value (invalidation-aware).
 
         Args:
             key: Cache key (e.g., "roadmap", "adrs", "project_md")
@@ -103,23 +134,54 @@ class CacheManager:
 
         return entry.get("value")
 
-    def set(self, key: str, value: Any, session_id: str, ttl: int) -> None:
-        """Set cached value with TTL.
+    def set(
+        self,
+        key: str,
+        value: Any,
+        session_id: str,
+        ttl: int = 600,
+        invalidation: str = "ttl",
+        source_path: Optional[str] = None,
+    ) -> None:
+        """Set cached value with invalidation mode.
 
         Args:
             key: Cache key
             value: Value to cache (must be JSON-serializable)
             session_id: Session identifier
-            ttl: Time-to-live in seconds
+            ttl: Time-to-live in seconds (default 600; used only for "ttl" mode)
+            invalidation: One of "ttl" (default), "mtime", or "session".
+                - "ttl": expire after ttl seconds
+                - "mtime": expire when source_path's mtime changes
+                - "session": persist until clear_session() (expires_at=inf)
+            source_path: Required when invalidation="mtime". File path whose mtime
+                is tracked to detect changes.
         """
         session_key = self._session_key(session_id)
         full_key = f"{session_key}:{key}"
 
-        self._cache[full_key] = {
+        entry: dict = {
             "value": value,
-            "expires_at": time.time() + ttl,
             "created_at": time.time(),
+            "invalidation": invalidation,
         }
+
+        if invalidation == "mtime":
+            if source_path is None:
+                raise ValueError("source_path is required for mtime invalidation")
+            entry["source_path"] = str(source_path)
+            try:
+                entry["mtime"] = os.path.getmtime(source_path)
+            except OSError:
+                entry["mtime"] = 0.0
+            entry["expires_at"] = time.time() + ttl  # fallback TTL for mtime
+        elif invalidation == "session":
+            entry["expires_at"] = float("inf")
+        else:
+            # ttl mode (default)
+            entry["expires_at"] = time.time() + ttl
+
+        self._cache[full_key] = entry
         self._save()
 
     def delete(self, key: str, session_id: str) -> None:
@@ -148,7 +210,9 @@ class CacheManager:
         key: str,
         session_id: str,
         compute_fn: Callable[[], Any],
-        ttl: int,
+        ttl: int = 600,
+        invalidation: str = "ttl",
+        source_path: Optional[str] = None,
     ) -> Any:
         """Cache-or-compute helper.
 
@@ -156,7 +220,9 @@ class CacheManager:
             key: Cache key
             session_id: Session identifier
             compute_fn: Function to call on cache miss (no arguments)
-            ttl: Time-to-live in seconds
+            ttl: Time-to-live in seconds (default 600)
+            invalidation: One of "ttl", "mtime", or "session"
+            source_path: Required when invalidation="mtime"
 
         Returns:
             Cached value or computed value
@@ -167,8 +233,34 @@ class CacheManager:
 
         # Compute and cache
         value = compute_fn()
-        self.set(key, value, session_id, ttl)
+        self.set(key, value, session_id, ttl=ttl,
+                 invalidation=invalidation, source_path=source_path)
         return value
+
+    def set_flag(self, key: str, session_id: str) -> None:
+        """Set a lightweight boolean flag (session-scoped).
+
+        Equivalent to set(key, True, session_id, invalidation="session").
+        Used to replace /tmp flag files.
+
+        Args:
+            key: Flag name (e.g., "compact-tier-1", "design-mode")
+            session_id: Session identifier
+        """
+        self.set(key, True, session_id, ttl=0, invalidation="session")
+
+    def has_flag(self, key: str, session_id: str) -> bool:
+        """Check if a session-scoped boolean flag is set.
+
+        Args:
+            key: Flag name
+            session_id: Session identifier
+
+        Returns:
+            True if the flag exists and is truthy, False otherwise
+        """
+        value = self.get(key, session_id)
+        return bool(value)
 
 
 # ── Global cache instance (lazy initialization) ───────────────────────────────
@@ -200,7 +292,7 @@ def read_roadmap_unified(
     cwd: Path,
     ttl: int = 600,
 ) -> str:
-    """Read ROADMAP.md content using unified cache.
+    """Read ROADMAP.md content using unified cache with mtime invalidation.
 
     Args:
         roadmap_path: Path to ROADMAP.md
@@ -216,10 +308,14 @@ def read_roadmap_unified(
     def _read() -> str:
         try:
             return roadmap_path.read_text()
-        except Exception:
+        except OSError as e:
+            log_error("utils_cache", "read_roadmap", e)
             return ""
 
-    return cache.get_or_compute("roadmap", session_id, _read, ttl)
+    return cache.get_or_compute(
+        "roadmap", session_id, _read, ttl,
+        invalidation="mtime", source_path=str(roadmap_path),
+    )
 
 
 def read_adrs_unified(
@@ -248,7 +344,8 @@ def read_adrs_unified(
             for adr in adr_files:
                 contents.append(adr.read_text())
             return "\n\n".join(contents)
-        except Exception:
+        except OSError as e:
+            log_error("utils_cache", "read_adrs", e)
             return ""
 
     return cache.get_or_compute("adrs", session_id, _read, ttl)
@@ -276,10 +373,54 @@ def read_project_context_unified(
     def _read() -> str:
         try:
             return context_path.read_text()
-        except Exception:
+        except OSError as e:
+            log_error("utils_cache", "read_project_context", e)
             return ""
 
     return cache.get_or_compute("project_md", session_id, _read, ttl)
+
+
+def get_playwright_version_cached(
+    session_id: str,
+    cwd: Path,
+    ttl: int = 600,
+) -> str:
+    """Get Playwright version string, cached per session.
+
+    Caches the result of `playwright --version` for the session TTL.
+    On subprocess failure (not installed, timeout), returns empty string
+    without creating a cache entry — so the next call retries.
+
+    Args:
+        session_id: Session identifier
+        cwd: Project root (for cache directory resolution)
+        ttl: Cache TTL in seconds (default: 600)
+
+    Returns:
+        Version string (e.g. "1.55.1") or empty string on failure
+    """
+    import subprocess
+
+    def _get_version() -> str:
+        try:
+            result = subprocess.run(
+                ["playwright", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            raw = result.stdout.strip()
+            parts = raw.split()
+            return parts[-1] if parts else ""
+        except (FileNotFoundError, OSError, subprocess.TimeoutExpired):
+            return ""
+
+    cache = get_cache_manager(cwd)
+    version = cache.get_or_compute("playwright_version", session_id, _get_version, ttl)
+    # Don't cache empty results — allow retry on next call
+    if version == "":
+        cache.delete("playwright_version", session_id)
+    return version
 
 
 def get_content_hash_cached(
@@ -311,7 +452,8 @@ def get_content_hash_cached(
                 if path.exists():
                     hasher.update(path.read_bytes())
                     found = True
-            except Exception:
+            except OSError as e:
+                log_error("utils_cache", "read_content_hash", e)
                 continue
         return hasher.hexdigest() if found else ""
 

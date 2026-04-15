@@ -13,11 +13,14 @@ import os
 import sys
 from pathlib import Path
 
+sys.path.insert(0, os.path.dirname(__file__))
+from utils_error import log_error
+from utils_event import read_event
+
 # Outer guard ----------------------------------------------------------------
 try:
-    raw = sys.stdin.read()
-    event = json.loads(raw)
-except Exception:
+    event = read_event()
+except (json.JSONDecodeError, OSError):
     sys.exit(0)
 
 try:
@@ -30,7 +33,7 @@ try:
 
     try:
         changed = Path(file_path)
-    except Exception:
+    except (ValueError, OSError):
         sys.exit(0)
 
     cwd = Path(os.environ.get("CLAUDE_CWD", os.getcwd()))

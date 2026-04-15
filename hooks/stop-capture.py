@@ -14,25 +14,28 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
-from utils_io import atomic_write, project_tmp_path
+from utils_io import atomic_write
+from utils_cache import get_cache_manager
+from utils_error import log_error
 
 try:
     event = read_event()
-except Exception:
+except Exception as e:
+    log_error("stop-capture", "read_event", e)
     sys.exit(0)
 
 try:
+    session_id = event.get("session_id", "") or "default"
     cwd = get_cwd()
     project = cwd.name
+    cache = get_cache_manager(cwd)
 
     # Skip if brainstorm skill already ran (it's the primary writer)
-    brainstorm_flag = project_tmp_path("brainstorm-active", project)
-    if brainstorm_flag.exists():
+    if cache.has_flag("brainstorm-active", session_id):
         sys.exit(0)
 
     # Skip if no design conversation detected this session
-    design_flag = project_tmp_path("design-mode", project)
-    if not design_flag.exists():
+    if not cache.has_flag("design-mode", session_id):
         sys.exit(0)
 
     # Create .zie/ dir if absent
@@ -40,7 +43,7 @@ try:
     try:
         zie_dir.mkdir(parents=True, exist_ok=True)
     except Exception as e:
-        print(f"[zie-framework] stop-capture: cannot create .zie/: {e}", file=sys.stderr)
+        print(f"[zf] stop-capture: cannot create .zie/: {e}", file=sys.stderr)
         sys.exit(0)
 
     # Write handoff.md
@@ -73,14 +76,15 @@ source: design-tracker
     try:
         atomic_write(handoff_path, handoff_content)
     except Exception as e:
-        print(f"[zie-framework] stop-capture: handoff write failed: {e}", file=sys.stderr)
+        print(f"[zf] stop-capture: handoff write failed: {e}", file=sys.stderr)
         sys.exit(0)
 
     # Cleanup design-mode flag
     try:
-        design_flag.unlink(missing_ok=True)
+        cache.delete("design-mode", session_id)
     except Exception as _e:
-        print(f"[zie-framework] stop-capture: flag cleanup failed: {_e}", file=sys.stderr)
+        print(f"[zf] stop-capture: flag cleanup failed: {_e}", file=sys.stderr)
 
-except Exception:
+except Exception as e:
+    log_error("stop-capture", "main", e)
     sys.exit(0)

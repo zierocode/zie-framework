@@ -13,9 +13,11 @@ _hook_start = _time.monotonic()
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
 from utils_config import load_config, CACHE_TTLS
-from utils_cache import get_cache_manager  # noqa: E402
+from utils_cache import get_cache_manager, get_playwright_version_cached  # noqa: E402
 from utils_roadmap import parse_roadmap_now, is_mtime_fresh, parse_roadmap_section, parse_roadmap_section_content
+from utils_error import log_error
 from zie_context_loader import get_cached_context  # noqa: E402
+from utils_skill_inject import inject_skill_context
 
 # Minimum safe Playwright version — derived from CVE-2025-59288.
 # CVE-2025-59288: arbitrary code execution via malicious CDP response.
@@ -24,51 +26,48 @@ from zie_context_loader import get_cached_context  # noqa: E402
 PLAYWRIGHT_MIN_VERSION = (1, 55, 1)
 
 
-def _check_playwright_version(config: dict) -> None:
-    """Warn and disable playwright_enabled if installed version is below minimum safe."""
+def _check_playwright_version(config: dict, session_id: str, cwd: Path) -> None:
+    """Warn and disable playwright_enabled if installed version is below minimum safe.
+
+    Uses cached version lookup via get_playwright_version_cached() to avoid
+    running `playwright --version` subprocess on every hook invocation within
+    the same session.
+    """
     if not config.get("playwright_enabled"):
         return
 
-    raw = ""
-    try:
-        result = subprocess.run(
-            ["playwright", "--version"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-        )
-        raw = result.stdout.strip()
-        parts = raw.split()
-        version_str = parts[-1] if parts else ""
-        version_tuple = tuple(int(x) for x in version_str.split(".") if x)
-        if not version_tuple:
-            raise ValueError("empty version")
-        if version_tuple < PLAYWRIGHT_MIN_VERSION:
-            min_str = ".".join(str(x) for x in PLAYWRIGHT_MIN_VERSION)
-            print(
-                f"[zie-framework] WARNING: Playwright {version_str} is below minimum safe"
-                f" version {min_str} (CVE-2025-59288). playwright_enabled disabled for this"
-                f" session. Run: playwright self-update",
-                file=sys.stderr,
-            )
-            config["playwright_enabled"] = False
-    except (FileNotFoundError, OSError):
+    version_str = get_playwright_version_cached(session_id, cwd)
+
+    if not version_str:
+        # Empty string means playwright not installed or subprocess failed
         print(
-            "[zie-framework] WARNING: playwright not found."
+            "[zf] WARNING: playwright not found."
             " playwright_enabled disabled for this session.",
             file=sys.stderr,
         )
         config["playwright_enabled"] = False
+        return
+
+    try:
+        version_tuple = tuple(int(x) for x in version_str.split(".") if x)
+        if not version_tuple:
+            raise ValueError("empty version")
     except ValueError:
         print(
-            f"[zie-framework] session-resume: could not parse playwright version from: \"{raw}\"",
+            f"[zf] session-resume: could not parse playwright version from: \"{version_str}\"",
             file=sys.stderr,
         )
-    except Exception as e:
+        return
+
+    if version_tuple < PLAYWRIGHT_MIN_VERSION:
+        min_str = ".".join(str(x) for x in PLAYWRIGHT_MIN_VERSION)
         print(
-            f"[zie-framework] session-resume: playwright version check failed: {e}",
+            f"[zf] WARNING: Playwright {version_str} is below minimum safe"
+            f" version {min_str} (CVE-2025-59288). playwright_enabled disabled for this"
+            f" session. Run: playwright self-update",
             file=sys.stderr,
         )
+        config["playwright_enabled"] = False
 
 
 # Outer guard — any unhandled exception exits 0 (never blocks Claude)
@@ -79,17 +78,17 @@ try:
     zf = cwd / "zie-framework"
 
     if not zf.exists():
-        print("[zie-framework] init: project not set up — run /init to initialize zie-framework")
+        print("[zf] init: project not set up — run /init to initialize zie-framework")
         sys.exit(0)
 
     # Read config
     config = load_config(cwd)
 
-    # Playwright version safety check (CVE-2025-59288)
-    _check_playwright_version(config)
-
     # Read ROADMAP via unified cache (session-scoped)
     session_id = os.environ.get("CLAUDE_SESSION_ID", "default")
+
+    # Playwright version safety check (CVE-2025-59288) — uses cached version
+    _check_playwright_version(config, session_id, cwd)
     roadmap_file = zf / "ROADMAP.md"
     cache = get_cache_manager(cwd)
     roadmap_ttl = CACHE_TTLS.get("roadmap", 600)
@@ -126,7 +125,7 @@ try:
             _p = Path(_env_file_path)
             if os.path.islink(_p):
                 print(
-                    f"[zie-framework] WARNING: CLAUDE_ENV_FILE is a symlink,"
+                    f"[zf] WARNING: CLAUDE_ENV_FILE is a symlink,"
                     f" skipping write: {_p}",
                     file=sys.stderr,
                 )
@@ -135,7 +134,7 @@ try:
             os.chmod(_p, 0o600)
         except Exception as e:
             print(
-                f"[zie-framework] session-resume: env-file write failed: {e}",
+                f"[zf] session-resume: env-file write failed: {e}",
                 file=sys.stderr,
             )
 
@@ -145,11 +144,17 @@ try:
     else:
         active_label = "No active feature — run /backlog to start one"
 
+    # Build dynamic command list from cache
+    _cmd_list = "/backlog /spec /plan /implement /sprint /fix /chore /hotfix /guide /status /audit /retro /release /resync /init"
+    try:
+        context = get_cached_context(cwd)
+        _cmd_list = " ".join(c["name"] for c in context["commands"])
+    except Exception as _e:
+        print(f"[zf] session-resume: context cache failed: {_e}", file=sys.stderr)
+
     lines = [
-        f"[zie-framework] {project_name} ({project_type}) v{version}",
-        f"  Active: {active_label}",
-        f"  Brain: {'enabled' if zie_memory else 'disabled'}",
-        "  → Run /status for full state",
+        f"[zf] {project_name}({project_type}) v{version} | now:{active_label} | mem:{'on' if zie_memory else 'off'}",
+        f"[zf] cmds: {_cmd_list} | workflow: backlog→spec→plan→implement→release→retro",
     ]
 
     print("\n".join(lines))
@@ -168,10 +173,33 @@ try:
                         snippet = stripped[:120]
                         break
                 if snippet:
-                    print(f"[zie-framework] Last session: {snippet}")
+                    print(f"[zf] Last session: {snippet}")
     except Exception as _e:
         if not isinstance(_e, (IsADirectoryError, PermissionError)):
-            print(f"[zie-framework] session-resume: continuity read skipped: {_e}", file=sys.stderr)
+            print(f"[zf] session-resume: continuity read skipped: {_e}", file=sys.stderr)
+
+    # ── Skill auto-inject for active stage ─────────────────────────────────────
+    try:
+        # Derive stage from ROADMAP: if Now lane has an item, stage is "implement"
+        # If Ready lane has items but Now is empty, stage is "plan"
+        # If Next lane has items but Ready/Now are empty, stage is "spec"
+        ready_items = parse_roadmap_section_content(roadmap_content, "ready") if roadmap_content else []
+        next_items = parse_roadmap_section_content(roadmap_content, "next") if roadmap_content else []
+        if now_items:
+            _stage = "implement"
+        elif ready_items:
+            _stage = "plan"
+        elif next_items:
+            _stage = "spec"
+        else:
+            _stage = ""
+
+        if _stage:
+            _skill_ctx = inject_skill_context(_stage, cwd)
+            if _skill_ctx:
+                print(f"[zf] knowledge: skill-auto-inject stage={_stage}")
+    except Exception as _e:
+        print(f"[zf] session-resume: skill-inject failed: {_e}", file=sys.stderr)
 
     # ── Framework self-awareness block ────────────────────────────────────────
 
@@ -187,37 +215,24 @@ try:
         # max_mtime=git_commit_mtime, written_at=project_md_mtime → True = fresh
         stale = not is_mtime_fresh(git_commit_mtime, project_md_mtime)
         if stale:
-            print("[zie-framework] knowledge: PROJECT.md outdated — run /resync to refresh")
+            print("[zf] knowledge: PROJECT.md outdated — /resync to refresh")
     except Exception as _e:
         if not isinstance(_e, FileNotFoundError):
-            print(f"[zie-framework] session-resume: staleness check skipped: {_e}", file=sys.stderr)
+            print(f"[zf] session-resume: staleness check skipped: {_e}", file=sys.stderr)
 
     # Load command map from unified cache (invalidate on SKILL.md mtime change)
-    _HARDCODED_FALLBACK = (
-        "[zie-framework] framework: commands — "
-        "/backlog /spec /plan /implement /sprint /fix /chore /hotfix "
-        "/guide /status /audit /retro /release /resync /init"
-    )
-    try:
-        context = get_cached_context(cwd)
-        cmd_line = f"[zie-framework] framework: commands — {' '.join(c['name'] for c in context['commands'])}"
-    except Exception:
-        cmd_line = _HARDCODED_FALLBACK
-
-    print(cmd_line)
-    print("[zie-framework] workflow: backlog→spec→plan→implement→release→retro (use /sprint for full pipeline)")
-    print("[zie-framework] anti-patterns: never approve spec/plan directly; always run reviewer first; never skip pipeline on \"ทำเลย\"")
+    # Anti-patterns (compact)
+    print("[zf] anti: reviewer first; no skip on 'ทำเลย'")
 
     # Backlog nudge: Next lane items pending
     try:
         next_items = parse_roadmap_section(roadmap_file, "next")
         if next_items:
             print(
-                f"[zie-framework] backlog: {len(next_items)} item(s) pending"
-                f" — run /spec {next_items[0]} to start designing"
+                f"[zf] backlog: {len(next_items)} pending — /spec {next_items[0]}"
             )
     except Exception as _e:
-        print(f"[zie-framework] session-resume: backlog nudge skipped: {_e}", file=sys.stderr)
+        print(f"[zf] session-resume: backlog nudge skipped: {_e}", file=sys.stderr)
 
     # Drift detection — fire-and-forget background check
     try:
@@ -232,7 +247,7 @@ try:
             stderr=_sp.DEVNULL,
         )
     except Exception as e:
-        print(f"[zie-framework] session-resume: drift check failed: {e}", file=sys.stderr)
+        print(f"[zf] session-resume: drift check failed: {e}", file=sys.stderr)
 
     # ── Auto-Improve: Load and auto-apply high-confidence patterns ────────────
     try:
@@ -250,7 +265,7 @@ try:
                             if pattern.get("auto_apply", False):
                                 patterns.append(pattern)
                     except Exception as _e:
-                        print(f"[zie-framework] session-resume: pattern load failed: {_e}", file=sys.stderr)
+                        print(f"[zf] session-resume: pattern load failed: {_e}", file=sys.stderr)
             return patterns
 
         def _filter_auto_apply_patterns(patterns):
@@ -287,7 +302,11 @@ try:
             try:
                 atomic_write(memory_path, new_content)
                 return True
-            except Exception:
+            except OSError as e:
+                log_error("session-resume", "pattern-apply-write", e)
+                return False
+            except Exception as e:
+                log_error("session-resume", "pattern-apply", e)
                 return False
 
         def _load_pending_learn_marker():
@@ -303,7 +322,11 @@ try:
                         key, value = line.split('=', 1)
                         data[key.strip()] = value.strip()
                 return data
-            except Exception:
+            except OSError as e:
+                log_error("session-resume", "pending-learn-read", e)
+                return None
+            except Exception as e:
+                log_error("session-resume", "pending-learn-parse", e)
                 return None
 
         # Load pending learn marker
@@ -339,12 +362,15 @@ try:
             try:
                 pending_marker.unlink()
             except Exception as _e:
-                print(f"[zie-framework] session-resume: pending marker cleanup failed: {_e}", file=sys.stderr)
+                print(f"[zf] session-resume: pending marker cleanup failed: {_e}", file=sys.stderr)
 
     except Exception as _e:
-        print(f"[zie-framework] session-resume: auto-improve skipped: {_e}", file=sys.stderr)
+        print(f"[zf] session-resume: auto-improve skipped: {_e}", file=sys.stderr)
 
-except Exception:
+except (json.JSONDecodeError, OSError):
+    sys.exit(0)
+except Exception as e:
+    log_error("session-resume", "outer-guard", e)
     sys.exit(0)
 
 log_hook_timing(

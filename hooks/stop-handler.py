@@ -17,7 +17,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_config import load_config
 from utils_roadmap import get_cached_git_status, parse_roadmap_items_with_dates, write_git_status_cache
-from utils_io import project_tmp_path
+from utils_cache import get_cache_manager
+from utils_error import log_error
 
 # Canonical implementation file patterns for zie-framework layout.
 IMPL_PATTERNS = [
@@ -51,8 +52,8 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
         )
         if result.returncode == 0:
             git_log_output = result.stdout
-    except Exception:
-        pass  # Skip log-based nudges if git fails
+    except (OSError, subprocess.TimeoutExpired) as _e:
+        log_error("stop-handler", "git_log", _e)
 
     # Nudge 1: RED phase duration (git log based)
     if git_log_output:
@@ -94,10 +95,10 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                                 f"[zie-framework] nudge: RED phase '{slug}' has been "
                                 f"active for {days} days — consider splitting or committing"
                             )
-                except Exception:
-                    pass
-        except Exception:
-            pass
+                except (re.error, ValueError, OSError) as _e:
+                    log_error("stop-handler", "slug_date_parse", _e)
+        except Exception as _e:
+            log_error("stop-handler", "nudge_git_log", _e)
 
     # Nudge 2: Coverage staleness
     try:
@@ -111,8 +112,8 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                     print("[zie-framework] nudge: coverage data is stale — run 'make test-unit'")
                 elif cov_file.stat().st_mtime < newest_test_mtime:
                     print("[zie-framework] nudge: coverage data is stale — run 'make test-unit'")
-    except Exception:
-        pass
+    except (OSError, FileNotFoundError) as _e:
+        log_error("stop-handler", "coverage_staleness", _e)
 
     # Nudge 3: Stale backlog items in Next
     try:
@@ -127,13 +128,13 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                 f"[zie-framework] nudge: {stale_count} backlog item(s) in Next are older than "
                 "30 days — review or defer"
             )
-    except Exception:
-        pass
+    except (OSError, ValueError) as _e:
+        log_error("stop-handler", "stale_backlog_nudge", _e)
 
     # Nudge 4: Sprint intent without approved artifacts (from stop-pipeline-guard)
     try:
-        sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
-        if sprint_flag.exists():
+        cache = get_cache_manager(cwd)
+        if cache.has_flag("intent-sprint-flag", session_id):
             today = date.today().isoformat()
             found_approved = False
             zf = cwd / "zie-framework"
@@ -151,21 +152,22 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                             if re.search(r'^approved:\s*true\s*$', content, re.MULTILINE):
                                 found_approved = True
                                 break
-                        except Exception:
+                        except (OSError, FileNotFoundError) as _e:
+                            log_error("stop-handler", "artifact_mtime", _e)
                             continue
                     if found_approved:
                         break
 
             if not found_approved:
                 print(
-                    "[zie-framework] sprint intent detected but no approved spec/plan found "
+                    "[zf] sprint intent detected but no approved spec/plan found "
                     "this session\n  → Run /spec <feature> then /plan <feature> before implementing"
                 )
 
             # Cleanup flag
-            sprint_flag.unlink(missing_ok=True)
-    except Exception:
-        pass
+            cache.delete("intent-sprint-flag", session_id)
+    except Exception as _e:
+        log_error("stop-handler", "sprint_intent_nudge", _e)
 
     # Nudge 5: Context window health (from compact-hint)
     try:
@@ -180,40 +182,28 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                 pct_int = int(pct * 100)
 
                 session_id = event.get("session_id", "")
-                safe_sid = re.sub(r'[^a-zA-Z0-9]', '-', session_id) if session_id else "nosid"
-                project = cwd.name
-
-                def _tier_fired(tier: str) -> bool:
-                    flag = project_tmp_path(f"compact-tier-{tier}-{safe_sid}", project)
-                    return flag.exists()
-
-                def _mark_tier(tier: str) -> None:
-                    flag = project_tmp_path(f"compact-tier-{tier}-{safe_sid}", project)
-                    try:
-                        flag.write_text("fired")
-                    except Exception:
-                        pass
+                cache = get_cache_manager(cwd)
 
                 advisory_threshold = config.get("compact_advisory_threshold", 0.75)
                 mandatory_threshold = config.get("compact_mandatory_threshold", 0.90)
 
                 if pct >= mandatory_threshold:
-                    if not _tier_fired("mandatory"):
+                    if not cache.has_flag("compact-tier-mandatory", session_id):
                         print(
-                            f"[zie-framework] Context at {pct_int}% — too full for heavy commands. "
+                            f"[zf] Context at {pct_int}% — too full for heavy commands. "
                             "Start a fresh session instead: run `make zie-release` in a new terminal "
                             "for release, or open a new Claude window for other commands."
                         )
-                        _mark_tier("mandatory")
+                        cache.set_flag("compact-tier-mandatory", session_id)
                 elif pct >= advisory_threshold:
-                    if not _tier_fired("advisory"):
+                    if not cache.has_flag("compact-tier-advisory", session_id):
                         print(
-                            f"[zie-framework] Context at {pct_int}% "
+                            f"[zf] Context at {pct_int}% "
                             "— consider /compact soon to stay efficient."
                         )
-                        _mark_tier("advisory")
-    except Exception:
-        pass
+                        cache.set_flag("compact-tier-advisory", session_id)
+    except Exception as _e:
+        log_error("stop-handler", "context_window_nudge", _e)
 
 
 # ---------------------------------------------------------------------------
@@ -224,7 +214,7 @@ try:
     # Infinite-loop guard
     if event.get("stop_hook_active"):
         sys.exit(0)
-except Exception:
+except (json.JSONDecodeError, OSError, AttributeError):
     sys.exit(0)
 
 # ---------------------------------------------------------------------------
