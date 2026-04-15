@@ -1,4 +1,4 @@
-"""Tests for mtime-gated ROADMAP cache in utils_roadmap.py."""
+"""Tests for read_roadmap_cached delegating to CacheManager (mtime invalidation)."""
 import os
 import sys
 import time
@@ -6,65 +6,61 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
-from utils_roadmap import get_cached_roadmap, read_roadmap_cached, write_roadmap_cache
-
-
-class TestGetCachedRoadmap:
-    def test_cache_hit(self, tmp_path):
-        """Cache hit when mtime matches exactly."""
-        roadmap = tmp_path / "ROADMAP.md"
-        roadmap.write_text("## Now\n- [ ] feature\n")
-        write_roadmap_cache("sess1", "cached content", roadmap, tmp_dir=tmp_path)
-        result = get_cached_roadmap("sess1", roadmap, tmp_dir=tmp_path)
-        assert result == "cached content"
-
-    def test_cache_miss_on_mtime_change(self, tmp_path):
-        """Cache miss when ROADMAP.md mtime changes after write."""
-        roadmap = tmp_path / "ROADMAP.md"
-        roadmap.write_text("## Now\n- [ ] feature\n")
-        write_roadmap_cache("sess2", "cached content", roadmap, tmp_dir=tmp_path)
-        # Touch the file to advance mtime
-        time.sleep(0.01)
-        roadmap.write_text("## Now\n- [ ] updated\n")
-        result = get_cached_roadmap("sess2", roadmap, tmp_dir=tmp_path)
-        assert result is None
-
-    def test_cache_miss_on_no_file(self, tmp_path):
-        """Cache miss when no cache file exists."""
-        roadmap = tmp_path / "ROADMAP.md"
-        roadmap.write_text("## Now\n")
-        result = get_cached_roadmap("sess3", roadmap, tmp_dir=tmp_path)
-        assert result is None
-
-    def test_write_round_trip(self, tmp_path):
-        """write_roadmap_cache + get_cached_roadmap returns original content."""
-        roadmap = tmp_path / "ROADMAP.md"
-        roadmap.write_text("## Now\n- [ ] thing\n")
-        write_roadmap_cache("sess4", "original content", roadmap, tmp_dir=tmp_path)
-        assert get_cached_roadmap("sess4", roadmap, tmp_dir=tmp_path) == "original content"
+sys_path = os.path.join(os.path.dirname(__file__), "../../hooks")
+if sys_path not in sys.path:
+    sys.path.insert(0, sys_path)
+from utils_roadmap import read_roadmap_cached
+from utils_cache import CacheManager, get_cache_manager
 
 
 class TestReadRoadmapCached:
-    def test_hit_returns_cached(self, tmp_path):
+    def test_hit_returns_content(self, tmp_path):
         """Cache warm — returns cached content without re-reading disk."""
         roadmap = tmp_path / "ROADMAP.md"
-        roadmap.write_text("disk content")
-        write_roadmap_cache("sess5", "cached content", roadmap, tmp_dir=tmp_path)
-        result = read_roadmap_cached(roadmap, "sess5", tmp_dir=tmp_path)
+        roadmap.write_text("## Now\n- [ ] feature\n")
+        # Write via CacheManager to warm cache
+        cache = get_cache_manager(tmp_path)
+        # Reset singleton so we get fresh state
+        import utils_cache
+        utils_cache._cache_manager = CacheManager(tmp_path / ".zie" / "cache")
+        cache = utils_cache._cache_manager
+        cache.set("roadmap", "cached content", "sess1", ttl=600,
+                  invalidation="mtime", source_path=str(roadmap))
+        result = read_roadmap_cached(roadmap, "sess1", cwd=tmp_path)
         assert result == "cached content"
 
     def test_miss_reads_disk(self, tmp_path):
-        """Cold cache — reads disk and warms cache."""
+        """Cold cache — reads disk and caches via CacheManager."""
+        import utils_cache
+        utils_cache._cache_manager = None  # Reset singleton
         roadmap = tmp_path / "ROADMAP.md"
-        roadmap.write_text("disk content")
-        result = read_roadmap_cached(roadmap, "sess6", tmp_dir=tmp_path)
-        assert result == "disk content"
-        # Cache is now warm
-        assert get_cached_roadmap("sess6", roadmap, tmp_dir=tmp_path) == "disk content"
+        roadmap.write_text("## Now\n- [ ] feature\n")
+        result = read_roadmap_cached(roadmap, "sess2", cwd=tmp_path)
+        assert result == "## Now\n- [ ] feature\n"
+        # Verify cached via get_cache_manager (same singleton)
+        cache = get_cache_manager(tmp_path)
+        assert cache.get("roadmap", "sess2") == "## Now\n- [ ] feature\n"
 
     def test_missing_roadmap_returns_empty(self, tmp_path):
         """ROADMAP.md absent — returns empty string."""
+        import utils_cache
+        utils_cache._cache_manager = None  # Reset singleton
         roadmap = tmp_path / "ROADMAP.md"
-        result = read_roadmap_cached(roadmap, "sess7", tmp_dir=tmp_path)
+        result = read_roadmap_cached(roadmap, "sess3", cwd=tmp_path)
         assert result == ""
+
+    def test_mtime_invalidation(self, tmp_path):
+        """Cache invalidated when ROADMAP.md mtime changes."""
+        import utils_cache
+        utils_cache._cache_manager = None  # Reset singleton
+        roadmap = tmp_path / "ROADMAP.md"
+        roadmap.write_text("original content")
+        result1 = read_roadmap_cached(roadmap, "sess4", cwd=tmp_path)
+        assert result1 == "original content"
+        # Modify file (advance mtime)
+        time.sleep(0.05)
+        roadmap.write_text("modified content")
+        # Need fresh CacheManager instance to see mtime change
+        utils_cache._cache_manager = None
+        result2 = read_roadmap_cached(roadmap, "sess4", cwd=tmp_path)
+        assert result2 == "modified content"

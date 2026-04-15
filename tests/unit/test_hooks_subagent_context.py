@@ -7,7 +7,7 @@ from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-from utils_roadmap import write_roadmap_cache
+from utils_cache import CacheManager
 
 SAMPLE_ROADMAP = """\
 ## Now

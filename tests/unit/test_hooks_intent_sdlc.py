@@ -6,7 +6,7 @@ import sys
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-from utils_roadmap import write_roadmap_cache
+from utils_cache import CacheManager
 
 
 def run_hook(event, tmp_cwd=None, session_id=None):
@@ -113,8 +113,10 @@ class TestIntentSdlcRoadmapCache:
         )
         sid = "test-cache-hit-unique-77z"
         roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
-        # Prime cache with an active task (same mtime as disk)
-        write_roadmap_cache(sid, "## Now\n- [ ] cached-feature — implement\n\n## Next\n", roadmap_path)
+        # Prime cache with an active task via CacheManager (mtime invalidation)
+        cache = CacheManager(cwd / ".zie" / "cache")
+        cache.set("roadmap", "## Now\n- [ ] cached-feature — implement\n\n## Next\n", sid, ttl=600,
+                  invalidation="mtime", source_path=str(roadmap_path))
         r = run_hook({"prompt": "implement the task"}, tmp_cwd=cwd, session_id=sid)
         assert r.returncode == 0
         assert r.stdout.strip() != ""

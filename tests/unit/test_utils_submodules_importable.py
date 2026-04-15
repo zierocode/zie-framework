@@ -31,7 +31,7 @@ def test_utils_io_importable():
 def test_utils_roadmap_importable():
     _import_ok("utils_roadmap", ["SDLC_STAGES", "parse_roadmap_section", "parse_roadmap_section_content",
                                  "parse_roadmap_now", "parse_roadmap_ready", "read_roadmap_cached",
-                                 "get_cached_roadmap", "write_roadmap_cache", "compact_roadmap_done",
+                                 "compact_roadmap_done",
                                  "get_cached_git_status", "write_git_status_cache",
                                  "get_cached_adrs", "write_adr_cache", "compute_max_mtime", "is_mtime_fresh"])
 

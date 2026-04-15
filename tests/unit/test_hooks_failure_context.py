@@ -183,13 +183,15 @@ class TestFailureContextRoadmapCache:
         """Cache content takes priority over disk ROADMAP."""
         import sys
         sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-        from utils_roadmap import write_roadmap_cache
+        from utils_cache import CacheManager
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         # Disk: empty Now
         (zf / "ROADMAP.md").write_text("## Now\n\n## Next\n")
         sid = "test-failure-cache-unique-88z"
-        write_roadmap_cache(sid, "## Now\n- [ ] cached-failure-task\n\n## Next\n", zf / "ROADMAP.md")
+        cache = CacheManager(tmp_path / ".zie" / "cache")
+        cache.set("roadmap", "## Now\n- [ ] cached-failure-task\n\n## Next\n", sid, ttl=600,
+                  invalidation="mtime", source_path=str(zf / "ROADMAP.md"))
         event = {"tool_name": "Bash", "session_id": sid}
         env = {**os.environ, "CLAUDE_CWD": str(tmp_path)}
         r = subprocess.run(
