@@ -53,13 +53,13 @@ def test_spike_pattern_in_patterns():
     )
 
 
-def test_new_intent_regexes_at_module_level():
-    """NEW_INTENT_REGEXES must be a module-level assignment."""
+def test_new_intent_patterns_at_module_level():
+    """NEW_INTENT_PATTERNS must be a module-level dict (replaces NEW_INTENT_REGEXES)."""
     source = HOOK_PATH.read_text()
     tree = ast.parse(source)
     module_names = _get_module_level_names(tree)
-    assert "NEW_INTENT_REGEXES" in module_names, (
-        "NEW_INTENT_REGEXES must be defined at module level, not inside a function"
+    assert "NEW_INTENT_PATTERNS" in module_names, (
+        "NEW_INTENT_PATTERNS must be defined at module level, not inside a function"
     )
 
 

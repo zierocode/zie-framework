@@ -98,22 +98,26 @@ INTENT_PATTERN = re.compile(r"""
         อยากให้มี | ควรจะ | น่าจะเพิ่ม | ปรับอะไรดี |
         คิดว่าขาดอะไร | \bexplore\b
     )
-    |
-    (?P<new_sprint>
-        ทำเลย | \bbuild\b | สร้าง | เพิ่ม.*feature | start.*coding
-    )
-    |
-    (?P<new_fix>
-        \bbroken\b | ไม่.*work | \bcrash\b | \bfail\b | แก้
-    )
-    |
-    (?P<new_chore>
-        \bupdate\b | \bbump\b | \brename\b | \bcleanup\b | \brefactor\b | ลบ
-    )
 """, re.IGNORECASE | re.VERBOSE)
 
-# New-intent scoring thresholds: count how many of these groups matched
-NEW_INTENT_GROUPS = ("new_sprint", "new_fix", "new_chore")
+# New-intent scoring: separate patterns for overlapping detection.
+# INTENT_PATTERN uses alternation (|) so only the first matching group is
+# populated — named groups that appear later in the alternation are never tried.
+# These separate patterns allow us to detect multiple signals in one message.
+NEW_INTENT_PATTERNS = {
+    "sprint": re.compile(
+        r"\bbuild\b | \bsprint\b | ทำเลย | สร้าง | เพิ่ม.*feature | start\s*coding",
+        re.IGNORECASE | re.VERBOSE,
+    ),
+    "fix": re.compile(
+        r"\bbroken\b | ไม่.*work | \bcrash\b | \bfail\b | แก้",
+        re.IGNORECASE | re.VERBOSE,
+    ),
+    "chore": re.compile(
+        r"\bupdate\b | \bbump\b | \brename\b | \bcleanup\b | \brefactor\b | ลบ",
+        re.IGNORECASE | re.VERBOSE,
+    ),
+}
 NEW_INTENT_HINTS = {
     "sprint": "confirm backlog→spec→plan before implementing",
     "fix":    "invoke /fix or /hotfix track",
@@ -327,9 +331,18 @@ try:
     session_id = event.get("session_id", "default")
 
     # ── Early-exit guard (short + zero SDLC keywords → unclear intent) ─────────
-    # Single-pass regex match for all 13 intent categories
+    # Single-pass regex match for all 17 intent categories (14 original + 3 new-intent)
     intent_match = INTENT_PATTERN.search(message)
     has_sdlc_keyword = intent_match is not None
+
+    # Strong-intent groups that bypass the short-message gate even under 50 chars
+    _STRONG_INTENT_GROUPS = {
+        "init", "sprint", "hotfix", "spec", "plan", "release", "retro", "status",
+    }
+    _has_strong_intent = (
+        intent_match is not None
+        and intent_match.lastgroup in _STRONG_INTENT_GROUPS
+    )
 
     if len(message) < 50:
         if not has_sdlc_keyword:
@@ -343,56 +356,14 @@ try:
                     sys.exit(0)
                 _write_dedup(_dp, context)
             print(json.dumps({"additionalContext": context}))
-        sys.exit(0)  # short messages always exit (ambiguous even with keyword)
+            sys.exit(0)
+        if not _has_strong_intent:
+            sys.exit(0)  # short with weak keyword → exit
 
     if not has_sdlc_keyword:
         sys.exit(0)
 
-    # ── New-intent scoring from combined regex (≥2 threshold) ────────────────────
-    # Each new-intent group that matched counts as 1; ≥2 triggers the hint.
-    NEW_INTENT_CATEGORY_MAP = {
-        "new_sprint": "sprint",
-        "new_fix":    "fix",
-        "new_chore":  "chore",
-    }
-    for new_group, intent_name in NEW_INTENT_CATEGORY_MAP.items():
-        if intent_name == "sprint" and active_task != "none":
-            continue  # user has planned work — they're already in the pipeline
-        if intent_match and intent_match.group(new_group):
-            # A single new-intent group match = at least 1 signal.
-            # For sprint: also count if primary "implement" matched (second signal).
-            count = 1
-            if intent_name == "sprint" and intent_match.group("implement"):
-                count = 2
-            if intent_name == "fix" and intent_match.group("fix"):
-                count = 2
-            if intent_name == "chore" and intent_match.group("chore"):
-                count = 2
-            # Also count overlaps between new-intent groups
-            for other_group in NEW_INTENT_GROUPS:
-                if other_group != new_group and intent_match.group(other_group):
-                    count += 1
-            if count >= 2:
-                hint = NEW_INTENT_HINTS[intent_name]
-                context = f"[zie-framework] intent: {intent_name} — {hint}"
-                _should_emit = True
-                if session_id != "default":
-                    _dp = _dedup_path(session_id, cwd)
-                    if _read_dedup(_dp) == context:
-                        _should_emit = False
-                    else:
-                        _write_dedup(_dp, context)
-                if _should_emit:
-                    print(json.dumps({"additionalContext": context}))
-                if intent_name == "sprint":
-                    try:
-                        sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
-                        sprint_flag.write_text("active")
-                    except Exception:
-                        pass
-                sys.exit(0)
-
-    # ── Intent detection (single-pass regex with named groups) ─────────────────
+    # ── SDLC context (unified cache — session-scoped with TTL) ──────────
     intent_cmd = None
     best = None
     scores = {}
@@ -424,6 +395,41 @@ try:
 
     suggested_cmd = STAGE_COMMANDS.get(stage, "/status")
     test_status = get_test_status(cwd)
+
+    # ── New-intent scoring from separate patterns (≥2 threshold) ────────────────
+    # Use NEW_INTENT_PATTERNS for overlapping detection since INTENT_PATTERN's
+    # alternation only populates the first matching named group.
+    _BOOST_GROUPS = {"sprint": "implement", "fix": "fix", "chore": "chore"}
+    for intent_name, pattern in NEW_INTENT_PATTERNS.items():
+        if intent_name == "sprint" and active_task != "none":
+            continue  # user has planned work — they're already in the pipeline
+        if pattern.search(message):
+            count = 1
+            boost_group = _BOOST_GROUPS.get(intent_name)
+            if boost_group and intent_match and intent_match.lastgroup == boost_group:
+                count = 2
+            for other_name, other_pattern in NEW_INTENT_PATTERNS.items():
+                if other_name != intent_name and other_pattern.search(message):
+                    count += 1
+            if count >= 2:
+                hint = NEW_INTENT_HINTS[intent_name]
+                context = f"[zie-framework] intent: {intent_name} — {hint}"
+                _should_emit = True
+                if session_id != "default":
+                    _dp = _dedup_path(session_id, cwd)
+                    if _read_dedup(_dp) == context:
+                        _should_emit = False
+                    else:
+                        _write_dedup(_dp, context)
+                if _should_emit:
+                    print(json.dumps({"additionalContext": context}))
+                if intent_name == "sprint":
+                    try:
+                        sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
+                        sprint_flag.write_text("active")
+                    except Exception:
+                        pass
+                sys.exit(0)
 
     # ── Pipeline gate check ───────────────────────────────────────────────────
     gate_msg = None

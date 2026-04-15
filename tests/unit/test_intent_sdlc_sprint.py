@@ -149,7 +149,7 @@ class TestFixIntentHint:
 
 class TestUnclearIntentHint:
     def test_short_ambiguous_message_triggers_unclear(self, tmp_path):
-        # < 15 chars, no SDLC keywords → unclear hint
+        # < 50 chars, no SDLC keywords → unclear hint
         r = _run_hook("do it", tmp_path)
         assert r.returncode == 0
         output = r.stdout.strip()
@@ -161,7 +161,7 @@ class TestUnclearIntentHint:
             )
 
     def test_silent_on_clear_nonmatching_message(self, tmp_path):
-        # Clear message >15 chars but no SDLC keyword → no output
+        # Clear message >50 chars but no SDLC keyword → no output
         r = _run_hook("today is a beautiful sunny day", tmp_path)
         assert r.returncode == 0
         # Either no output or empty additionalContext
