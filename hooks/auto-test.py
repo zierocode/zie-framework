@@ -46,9 +46,6 @@ class TestLookupCache:
     Note: __test__ = False prevents pytest from collecting this class as a test.
     """
     __test__ = False
-        if cache.should_debounce(str(source_path)):
-            return  # Skip test run
-    """
 
     def __init__(self, session_id: str, cwd: Path):
         """Initialize test lookup cache.
