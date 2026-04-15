@@ -10,12 +10,11 @@
 
 - [x] command-compress-batch — [spec](specs/2026-04-15-command-compress-batch-design.md) [plan](plans/2026-04-15-command-compress-batch.md)
 - [x] playwright-version-cache — [spec](specs/2026-04-15-playwright-version-cache-design.md) [plan](plans/2026-04-15-playwright-version-cache.md)
+- [x] audit-error-path-coverage — [spec](specs/2026-04-15-audit-error-path-coverage-design.md) [plan](plans/2026-04-15-audit-error-path-coverage.md)
 
 ---
 
 ## Ready — Approved Plans — [spec](specs/2026-04-15-intent-sdlc-lean-design.md) [plan](plans/2026-04-15-intent-sdlc-lean.md)
-- [ ] playwright-version-cache — [spec](specs/2026-04-15-playwright-version-cache-design.md) [plan](plans/2026-04-15-playwright-version-cache.md)
-- [ ] audit-error-path-coverage — [spec](specs/2026-04-15-audit-error-path-coverage-design.md) [plan](plans/2026-04-15-audit-error-path-coverage.md)
 - [ ] audit-prompt-injection-hardening — [spec](specs/2026-04-15-audit-prompt-injection-hardening-design.md) [plan](plans/2026-04-15-audit-prompt-injection-hardening.md)
 - [ ] audit-error-handling-cleanup — [spec](specs/2026-04-15-audit-error-handling-cleanup-design.md) [plan](plans/2026-04-15-audit-error-handling-cleanup.md)
 - [ ] audit-quick-wins-batch — [spec](specs/2026-04-15-audit-quick-wins-batch-design.md) [plan](plans/2026-04-15-audit-quick-wins-batch.md) ← merged quick-wins+hardcoded-test-paths+stale-docs-refresh+test-quality-fixes+version-sync
