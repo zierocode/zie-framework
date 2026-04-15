@@ -98,7 +98,27 @@ INTENT_PATTERN = re.compile(r"""
         อยากให้มี | ควรจะ | น่าจะเพิ่ม | ปรับอะไรดี |
         คิดว่าขาดอะไร | \bexplore\b
     )
+    |
+    (?P<new_sprint>
+        ทำเลย | \bbuild\b | สร้าง | เพิ่ม.*feature | start.*coding
+    )
+    |
+    (?P<new_fix>
+        \bbroken\b | ไม่.*work | \bcrash\b | \bfail\b | แก้
+    )
+    |
+    (?P<new_chore>
+        \bupdate\b | \bbump\b | \brename\b | \bcleanup\b | \brefactor\b | ลบ
+    )
 """, re.IGNORECASE | re.VERBOSE)
+
+# New-intent scoring thresholds: count how many of these groups matched
+NEW_INTENT_GROUPS = ("new_sprint", "new_fix", "new_chore")
+NEW_INTENT_HINTS = {
+    "sprint": "confirm backlog→spec→plan before implementing",
+    "fix":    "invoke /fix or /hotfix track",
+    "chore":  "use /chore to track this maintenance task",
+}
 
 # Suggestion mapping for intent → command
 SUGGESTIONS = {
@@ -116,27 +136,6 @@ SUGGESTIONS = {
     "chore":     "/chore",
     "spike":     "/spike",
     "brainstorm": "invoke zie-framework:brainstorm skill",
-}
-
-# Pre-compiled new-intent signals for sprint/fix/chore detection
-NEW_INTENT_REGEXES = {
-    "sprint": [re.compile(p, re.IGNORECASE) for p in [
-        r"ทำเลย", r"\bimplement\b", r"\bbuild\b", r"สร้าง",
-        r"เพิ่ม.*feature", r"start.*coding",
-    ]],
-    "fix": [re.compile(p, re.IGNORECASE) for p in [
-        r"\bbug\b", r"\bbroken\b", r"\berror\b", r"ไม่.*work",
-        r"\bcrash\b", r"\bfail\b", r"แก้",
-    ]],
-    "chore": [re.compile(p, re.IGNORECASE) for p in [
-        r"\bupdate\b", r"\bbump\b", r"\brename\b", r"\bcleanup\b",
-        r"\brefactor\b", r"ลบ",
-    ]],
-}
-NEW_INTENT_HINTS = {
-    "sprint": "confirm backlog→spec→plan before implementing",
-    "fix":    "invoke /fix or /hotfix track",
-    "chore":  "use /chore to track this maintenance task",
 }
 
 # ── SDLC context constants ────────────────────────────────────────────────────
@@ -332,7 +331,7 @@ try:
     intent_match = INTENT_PATTERN.search(message)
     has_sdlc_keyword = intent_match is not None
 
-    if len(message) < 15:
+    if len(message) < 50:
         if not has_sdlc_keyword:
             context = (
                 "[zie-framework] intent: unclear — "
@@ -349,12 +348,49 @@ try:
     if not has_sdlc_keyword:
         sys.exit(0)
 
-    # ── New-intent signal tables (≥2 threshold, evaluated after roadmap read) ──
-    NEW_INTENT_HINTS = {
-        "sprint": "confirm backlog→spec→plan before implementing",
-        "fix":    "invoke /fix or /hotfix track",
-        "chore":  "use /chore to track this maintenance task",
+    # ── New-intent scoring from combined regex (≥2 threshold) ────────────────────
+    # Each new-intent group that matched counts as 1; ≥2 triggers the hint.
+    NEW_INTENT_CATEGORY_MAP = {
+        "new_sprint": "sprint",
+        "new_fix":    "fix",
+        "new_chore":  "chore",
     }
+    for new_group, intent_name in NEW_INTENT_CATEGORY_MAP.items():
+        if intent_name == "sprint" and active_task != "none":
+            continue  # user has planned work — they're already in the pipeline
+        if intent_match and intent_match.group(new_group):
+            # A single new-intent group match = at least 1 signal.
+            # For sprint: also count if primary "implement" matched (second signal).
+            count = 1
+            if intent_name == "sprint" and intent_match.group("implement"):
+                count = 2
+            if intent_name == "fix" and intent_match.group("fix"):
+                count = 2
+            if intent_name == "chore" and intent_match.group("chore"):
+                count = 2
+            # Also count overlaps between new-intent groups
+            for other_group in NEW_INTENT_GROUPS:
+                if other_group != new_group and intent_match.group(other_group):
+                    count += 1
+            if count >= 2:
+                hint = NEW_INTENT_HINTS[intent_name]
+                context = f"[zie-framework] intent: {intent_name} — {hint}"
+                _should_emit = True
+                if session_id != "default":
+                    _dp = _dedup_path(session_id, cwd)
+                    if _read_dedup(_dp) == context:
+                        _should_emit = False
+                    else:
+                        _write_dedup(_dp, context)
+                if _should_emit:
+                    print(json.dumps({"additionalContext": context}))
+                if intent_name == "sprint":
+                    try:
+                        sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
+                        sprint_flag.write_text("active")
+                    except Exception:
+                        pass
+                sys.exit(0)
 
     # ── Intent detection (single-pass regex with named groups) ─────────────────
     intent_cmd = None
@@ -388,32 +424,6 @@ try:
 
     suggested_cmd = STAGE_COMMANDS.get(stage, "/status")
     test_status = get_test_status(cwd)
-
-    # ── New-intent scoring (≥2 threshold) ─────────────────────────────────────
-    # Sprint only fires when idle (no active Now lane item); fix/chore always fire.
-    for intent_name, compiled_regexes in NEW_INTENT_REGEXES.items():
-        if intent_name == "sprint" and active_task != "none":
-            continue  # user has planned work — they're already in the pipeline
-        score = sum(1 for p in compiled_regexes if p.search(message))
-        if score >= 2:
-            hint = NEW_INTENT_HINTS[intent_name]
-            context = f"[zie-framework] intent: {intent_name} — {hint}"
-            _should_emit = True
-            if session_id != "default":
-                _dp = _dedup_path(session_id, cwd)
-                if _read_dedup(_dp) == context:
-                    _should_emit = False
-                else:
-                    _write_dedup(_dp, context)
-            if _should_emit:
-                print(json.dumps({"additionalContext": context}))
-            if intent_name == "sprint":
-                try:
-                    sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
-                    sprint_flag.write_text("active")
-                except Exception:
-                    pass
-            sys.exit(0)
 
     # ── Pipeline gate check ───────────────────────────────────────────────────
     gate_msg = None
