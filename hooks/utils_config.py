@@ -22,6 +22,14 @@ CONFIG_DEFAULTS: dict = {
     "test_indicators": "",
     "project_type": "unknown",
     "zie_memory_enabled": False,
+    "skill_auto_inject": {
+        "enabled": True,
+        "mapping": {
+            "spec": "spec-reviewer",
+            "plan": "write-plan",
+            "implement": "impl-reviewer",
+        },
+    },
 }
 
 # Cache TTLs in seconds for unified-context-cache

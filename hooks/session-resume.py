@@ -16,6 +16,7 @@ from utils_config import load_config, CACHE_TTLS
 from utils_cache import get_cache_manager  # noqa: E402
 from utils_roadmap import parse_roadmap_now, is_mtime_fresh, parse_roadmap_section, parse_roadmap_section_content
 from zie_context_loader import get_cached_context  # noqa: E402
+from utils_skill_inject import inject_skill_context
 
 # Minimum safe Playwright version — derived from CVE-2025-59288.
 # CVE-2025-59288: arbitrary code execution via malicious CDP response.
@@ -172,6 +173,29 @@ try:
     except Exception as _e:
         if not isinstance(_e, (IsADirectoryError, PermissionError)):
             print(f"[zie-framework] session-resume: continuity read skipped: {_e}", file=sys.stderr)
+
+    # ── Skill auto-inject for active stage ─────────────────────────────────────
+    try:
+        # Derive stage from ROADMAP: if Now lane has an item, stage is "implement"
+        # If Ready lane has items but Now is empty, stage is "plan"
+        # If Next lane has items but Ready/Now are empty, stage is "spec"
+        ready_items = parse_roadmap_section_content(roadmap_content, "ready") if roadmap_content else []
+        next_items = parse_roadmap_section_content(roadmap_content, "next") if roadmap_content else []
+        if now_items:
+            _stage = "implement"
+        elif ready_items:
+            _stage = "plan"
+        elif next_items:
+            _stage = "spec"
+        else:
+            _stage = ""
+
+        if _stage:
+            _skill_ctx = inject_skill_context(_stage, cwd)
+            if _skill_ctx:
+                print(f"[zie-framework] knowledge: skill-auto-inject stage={_stage}")
+    except Exception:
+        pass  # Skill inject is best-effort — never block session start
 
     # ── Framework self-awareness block ────────────────────────────────────────
 

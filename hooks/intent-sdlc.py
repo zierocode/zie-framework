@@ -19,6 +19,7 @@ from utils_io import project_tmp_path
 from utils_config import CACHE_TTLS
 from utils_cache import get_cache_manager
 from utils_roadmap import is_track_active, parse_roadmap_section_content
+from utils_skill_inject import inject_skill_context
 
 # ── Intent detection constants ────────────────────────────────────────────────
 # Single combined regex with named groups for one-pass intent detection.
@@ -472,6 +473,11 @@ try:
             f"task:{active_task} | stage:{stage} | next:{suggested_cmd} | tests:{test_status}"
         )
     context = "[zie-framework] " + " | ".join(parts)
+
+    # ── Skill auto-inject ────────────────────────────────────────────────────────
+    _skill_content = inject_skill_context(best or stage, cwd)
+    if _skill_content:
+        context += "\n\n" + _skill_content
 
     # ── Dedup: skip re-injection when context unchanged since last emission ──────
     if session_id != "default":
