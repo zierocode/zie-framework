@@ -23,6 +23,8 @@
 <!-- Items awaiting spec. Ordered by priority. -->
 - [ ] Remove GitHub CI — [backlog](backlog/remove-github-ci.md)
 - [ ] Optimize Review Loop Token Waste — [backlog](backlog/optimize-review-loop-token-waste.md)
+- [ ] Deeper Thinking in Backlog Spec Plan — [backlog](backlog/deeper-thinking-backlog-spec-plan.md)
+- [ ] Parallel Pipeline Stages — [backlog](backlog/parallel-pipeline-stages.md)
 
 ---
 
