@@ -50,7 +50,7 @@ When `$ARGUMENTS[1]` is `autonomous`:
 - Skip Steps 1–3 (clarifying questions, approaches, user review loop).
 - Write spec directly from backlog content (Step 5) — treat all sections as accepted.
 - Step 5 (Blind Spots check) runs automatically — add findings to Edge Cases section.
-- Run spec-reviewer inline (Skill call in same context — no Agent spawn).
+- Run spec-review inline (Skill call in same context — no Agent spawn).
 - ✅ APPROVED → follow Step 7 exactly: write frontmatter `approved: false`, then `python3 hooks/approve.py <spec-file>` via Bash. Do NOT use Write/Edit to set `approved: true` — reviewer-gate blocks it.
 - ❌ Issues Found → fix all issues inline → verify each fix against issue list → run approve.py. Any issue unfixable → surface to user (Interruption Protocol case 2).
 
@@ -90,12 +90,12 @@ When `$ARGUMENTS[1]` is `autonomous`:
    ```
 
 6. **Spec reviewer loop** — <!-- BLOCKING: do not write frontmatter (Step 7) until reviewer returns ✅ APPROVED -->
-   invoke `Skill(zie-framework:spec-reviewer)` once with: spec file path, backlog item context, `context_bundle=<context_bundle>` (pass through for inline fast-path).
+   invoke `Skill(zie-framework:spec-review)` once with: spec file path, backlog item context, `context_bundle=<context_bundle>` (pass through for inline fast-path).
    - ✅ APPROVED → proceed to Step 7
    - ❌ Issues Found → fix all issues inline → verify each fix against the issue list (no re-invocation — inline verification replaces confirm pass)
    - If any issue cannot be fixed → surface to user
 
-7. **Record approval** — once spec-reviewer returns ✅ APPROVED:
+7. **Record approval** — once spec-review returns ✅ APPROVED:
 
    a. Prepend frontmatter with `approved: false` (gate requires this before approve.py):
    ```yaml
@@ -115,7 +115,7 @@ When `$ARGUMENTS[1]` is `autonomous`:
 
 9. Print handoff — do NOT auto-invoke write-plan:
    ```text
-   Spec approved ✓ (reviewed by spec-reviewer) → zie-framework/specs/YYYY-MM-DD-<slug>-design.md
+   Spec approved ✓ (reviewed by spec-review) → zie-framework/specs/YYYY-MM-DD-<slug>-design.md
 
    Next: Run /plan <slug> to draft the implementation plan.
    ```
