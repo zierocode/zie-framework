@@ -23,25 +23,16 @@
 - [ ] status-roadmap-content — [backlog](backlog/status-roadmap-content.md)
 - [ ] skill-manual-revise — [backlog](backlog/skill-manual-revise.md)
 - [ ] skill-manual-auto-inject — [backlog](backlog/skill-manual-auto-inject.md)
-- [ ] config-session-cache — [backlog](backlog/config-session-cache.md)
-- [ ] roadmap-cache-unify — [backlog](backlog/roadmap-cache-unify.md)
 - [ ] intent-sdlc-lean — [backlog](backlog/intent-sdlc-lean.md)
 - [ ] compact-output-lean — [backlog](backlog/compact-output-lean.md)
-- [ ] cache-systems-consolidate — [backlog](backlog/cache-systems-consolidate.md)
+- [ ] cache-systems-consolidate — [backlog](backlog/cache-systems-consolidate.md) ← merged config-session-cache + roadmap-cache-unify
 - [ ] command-conventions — [backlog](backlog/command-conventions.md)
-- [ ] command-compress-sprint — [backlog](backlog/command-compress-sprint.md)
-- [ ] command-compress-status — [backlog](backlog/command-compress-status.md)
-- [ ] command-compress-retro — [backlog](backlog/command-compress-retro.md)
-- [ ] command-compress-release — [backlog](backlog/command-compress-release.md)
+- [ ] command-compress-batch — [backlog](backlog/command-compress-batch.md) ← merged sprint+status+retro+release
 - [ ] playwright-version-cache — [backlog](backlog/playwright-version-cache.md)
-- [ ] audit-hardcoded-test-paths — [backlog](backlog/audit-hardcoded-test-paths.md)
 - [ ] audit-error-path-coverage — [backlog](backlog/audit-error-path-coverage.md)
-- [ ] audit-version-sync — [backlog](backlog/audit-version-sync.md)
 - [ ] audit-prompt-injection-hardening — [backlog](backlog/audit-prompt-injection-hardening.md)
 - [ ] audit-error-handling-cleanup — [backlog](backlog/audit-error-handling-cleanup.md)
-- [ ] audit-stale-docs-refresh — [backlog](backlog/audit-stale-docs-refresh.md)
-- [ ] audit-test-quality-fixes — [backlog](backlog/audit-test-quality-fixes.md)
-- [ ] audit-quick-wins — [backlog](backlog/audit-quick-wins.md)
+- [ ] audit-quick-wins-batch — [backlog](backlog/audit-quick-wins-batch.md) ← merged quick-wins+hardcoded-test-paths+stale-docs-refresh+test-quality-fixes+version-sync
 
 ---
 
