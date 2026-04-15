@@ -1,6 +1,6 @@
 ---
 adr: 000
-title: ADR Summary (ADR-001 to ADR-030)
+title: ADR Summary (ADR-001 to ADR-067)
 status: Compressed
 date: 2026-04-03
 ---
@@ -81,3 +81,5 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-067 | Release Skill Git Ops Direct | `/release` performs git ops directly (not via `make release`); `make _publish` hook for project publish logic. | Accepted |
 | — | v1.29.0 | Mega sprint: auto-learn/decide/improve, unified-context-cache, light-retro, WIP=1 impl. | Accepted |
 | — | v1.30.0 | Context-loader sprint + non-Claude model compat docs. | Accepted |
+| — | v1.31.0 | Deeper thinking prompts, command compress, audit quick wins. | Accepted |
+| — | v1.32.0 | ADR keyword filter, inline verification, parallel agents, remove GitHub CI. | Accepted |
