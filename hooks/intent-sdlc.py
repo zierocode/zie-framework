@@ -5,7 +5,6 @@ Merged replacement for intent-detect.py + sdlc-context.py.
 Reads ROADMAP.md once (via session cache) and produces a single
 additionalContext payload combining intent suggestion + SDLC state.
 """
-import hashlib
 import json
 import os
 import re
@@ -15,7 +14,6 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
-from utils_io import project_tmp_path
 from utils_config import CACHE_TTLS
 from utils_cache import get_cache_manager
 from utils_roadmap import is_track_active, parse_roadmap_section_content
@@ -259,44 +257,33 @@ def derive_stage(task_text: str) -> str:
 
 
 def get_test_status(cwd: Path) -> str:
-    tmp_file = project_tmp_path("last-test", cwd.name)
     try:
-        mtime = tmp_file.stat().st_mtime
-        age = time.time() - mtime
-        return "stale" if age > STALE_THRESHOLD_SECS else "recent"
+        cache = get_cache_manager(cwd)
+        ts = cache.get("last-test", "_global")
+        if ts is not None:
+            age = time.time() - float(ts)
+            return "stale" if age > STALE_THRESHOLD_SECS else "recent"
     except Exception:
-        return "unknown"
+        pass
+    return "unknown"
 
 
 _DEDUP_TTL_SECS = 600  # 10-minute session window
 
 
-def _dedup_path(session_id: str, cwd: Path) -> Path:
-    """Return the per-session dedup cache file path.
-
-    Includes a short hash of the full cwd path so that different directories
-    with the same basename (e.g., pytest tmp dirs across test runs) don't share
-    a dedup file.
-    """
-    safe_sid = re.sub(r"[^a-zA-Z0-9_-]", "-", session_id)
-    cwd_hash = hashlib.md5(str(cwd).encode(), usedforsecurity=False).hexdigest()[:8]
-    return project_tmp_path(f"intent-dedup-{safe_sid}-{cwd_hash}", cwd.name)
-
-
-def _read_dedup(path: Path) -> str:
-    """Return last emitted context string, or '' on miss/expired/error."""
+def _read_dedup(cache, session_id: str, key: str) -> str:
+    """Return last emitted context string from CacheManager, or '' on miss."""
     try:
-        if time.time() - path.stat().st_mtime > _DEDUP_TTL_SECS:
-            return ""  # expired — re-emit after TTL
-        return path.read_text()
+        val = cache.get(key, session_id)
+        return val if isinstance(val, str) else ""
     except Exception:
         return ""
 
 
-def _write_dedup(path: Path, context: str) -> None:
-    """Write current context to dedup cache (best-effort, never blocks)."""
+def _write_dedup(cache, session_id: str, key: str, context: str) -> None:
+    """Write current context to CacheManager dedup cache."""
     try:
-        path.write_text(context)
+        cache.set(key, context, session_id, ttl=_DEDUP_TTL_SECS)
     except Exception:
         pass
 
@@ -328,6 +315,7 @@ except Exception:
 
 try:
     session_id = event.get("session_id", "default")
+    cache = get_cache_manager(cwd)
 
     # ── Early-exit guard (short + zero SDLC keywords → unclear intent) ─────────
     # Single-pass regex match for all 17 intent categories (14 original + 3 new-intent)
@@ -336,7 +324,7 @@ try:
 
     # Strong-intent groups that bypass the short-message gate even under 50 chars
     _STRONG_INTENT_GROUPS = {
-        "init", "sprint", "hotfix", "spec", "plan", "release", "retro", "status",
+        "init", "sprint", "hotfix", "fix", "implement", "spec", "plan", "release", "retro", "status",
     }
     _has_strong_intent = (
         intent_match is not None
@@ -349,10 +337,10 @@ try:
                 "[zf] intent: unclear — clarify before proceeding"
             )
             if session_id != "default":
-                _dp = _dedup_path(session_id, cwd)
-                if _read_dedup(_dp) == context:
+                _dedup_key = f"intent-dedup-{session_id}"
+                if _read_dedup(cache, session_id, _dedup_key) == context:
                     sys.exit(0)
-                _write_dedup(_dp, context)
+                _write_dedup(cache, session_id, _dedup_key, context)
             print(json.dumps({"additionalContext": context}))
             sys.exit(0)
         if not _has_strong_intent:
@@ -377,7 +365,6 @@ try:
 
     # ── SDLC context (unified cache — session-scoped with TTL) ──────────
     roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
-    cache = get_cache_manager(cwd)
     roadmap_ttl = CACHE_TTLS.get("roadmap", 600)
     roadmap_content = cache.get_or_compute(
         "roadmap", session_id, lambda: roadmap_path.read_text(), roadmap_ttl
@@ -414,17 +401,16 @@ try:
                 context = f"[zf] intent: {intent_name} — {hint}"
                 _should_emit = True
                 if session_id != "default":
-                    _dp = _dedup_path(session_id, cwd)
-                    if _read_dedup(_dp) == context:
+                    _dedup_key = f"intent-new-{intent_name}-{session_id}"
+                    if _read_dedup(cache, session_id, _dedup_key) == context:
                         _should_emit = False
                     else:
-                        _write_dedup(_dp, context)
+                        _write_dedup(cache, session_id, _dedup_key, context)
                 if _should_emit:
                     print(json.dumps({"additionalContext": context}))
                 if intent_name == "sprint":
                     try:
-                        sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
-                        sprint_flag.write_text("active")
+                        cache.set_flag("intent-sprint-flag", session_id)
                     except Exception:
                         pass
                 sys.exit(0)
@@ -448,11 +434,11 @@ try:
         guidance_msg = _positional_guidance(roadmap_content, cwd, message)
 
     # ── Read pattern aggregate for personalized thresholds ───────────────────
-    _agg_path = project_tmp_path("pattern-aggregate", cwd.name)
     _pattern_agg: dict = {}
     try:
-        if _agg_path.exists():
-            _pattern_agg = json.loads(_agg_path.read_text())
+        _cached_agg = cache.get("pattern-aggregate", session_id)
+        if isinstance(_cached_agg, dict):
+            _pattern_agg = _cached_agg
     except Exception:
         pass  # Missing or corrupt aggregate — use defaults
     _most_common_stage = _pattern_agg.get("most_common_stage", "")
@@ -491,10 +477,10 @@ try:
 
     # ── Dedup: skip re-injection when context unchanged since last emission ──────
     if session_id != "default":
-        _dp = _dedup_path(session_id, cwd)
-        if _read_dedup(_dp) == context:
+        _dedup_key = f"intent-dedup-{session_id}"
+        if _read_dedup(cache, session_id, _dedup_key) == context:
             sys.exit(0)
-        _write_dedup(_dp, context)
+        _write_dedup(cache, session_id, _dedup_key, context)
 
     print(json.dumps({"additionalContext": context}))
 

@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
 from utils_config import load_config
 from utils_roadmap import get_cached_git_status, parse_roadmap_items_with_dates, write_git_status_cache
-from utils_io import project_tmp_path
+from utils_cache import get_cache_manager
 
 # Canonical implementation file patterns for zie-framework layout.
 IMPL_PATTERNS = [
@@ -132,8 +132,8 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
 
     # Nudge 4: Sprint intent without approved artifacts (from stop-pipeline-guard)
     try:
-        sprint_flag = project_tmp_path("intent-sprint-flag", cwd.name)
-        if sprint_flag.exists():
+        cache = get_cache_manager(cwd)
+        if cache.has_flag("intent-sprint-flag", session_id):
             today = date.today().isoformat()
             found_approved = False
             zf = cwd / "zie-framework"
@@ -158,12 +158,12 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
 
             if not found_approved:
                 print(
-                    "[zie-framework] sprint intent detected but no approved spec/plan found "
+                    "[zf] sprint intent detected but no approved spec/plan found "
                     "this session\n  → Run /spec <feature> then /plan <feature> before implementing"
                 )
 
             # Cleanup flag
-            sprint_flag.unlink(missing_ok=True)
+            cache.delete("intent-sprint-flag", session_id)
     except Exception:
         pass
 
@@ -180,38 +180,26 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                 pct_int = int(pct * 100)
 
                 session_id = event.get("session_id", "")
-                safe_sid = re.sub(r'[^a-zA-Z0-9]', '-', session_id) if session_id else "nosid"
-                project = cwd.name
-
-                def _tier_fired(tier: str) -> bool:
-                    flag = project_tmp_path(f"compact-tier-{tier}-{safe_sid}", project)
-                    return flag.exists()
-
-                def _mark_tier(tier: str) -> None:
-                    flag = project_tmp_path(f"compact-tier-{tier}-{safe_sid}", project)
-                    try:
-                        flag.write_text("fired")
-                    except Exception:
-                        pass
+                cache = get_cache_manager(cwd)
 
                 advisory_threshold = config.get("compact_advisory_threshold", 0.75)
                 mandatory_threshold = config.get("compact_mandatory_threshold", 0.90)
 
                 if pct >= mandatory_threshold:
-                    if not _tier_fired("mandatory"):
+                    if not cache.has_flag("compact-tier-mandatory", session_id):
                         print(
-                            f"[zie-framework] Context at {pct_int}% — too full for heavy commands. "
+                            f"[zf] Context at {pct_int}% — too full for heavy commands. "
                             "Start a fresh session instead: run `make zie-release` in a new terminal "
                             "for release, or open a new Claude window for other commands."
                         )
-                        _mark_tier("mandatory")
+                        cache.set_flag("compact-tier-mandatory", session_id)
                 elif pct >= advisory_threshold:
-                    if not _tier_fired("advisory"):
+                    if not cache.has_flag("compact-tier-advisory", session_id):
                         print(
-                            f"[zie-framework] Context at {pct_int}% "
+                            f"[zf] Context at {pct_int}% "
                             "— consider /compact soon to stay efficient."
                         )
-                        _mark_tier("advisory")
+                        cache.set_flag("compact-tier-advisory", session_id)
     except Exception:
         pass
 

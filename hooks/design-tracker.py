@@ -12,7 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
-from utils_io import project_tmp_path
+from utils_cache import get_cache_manager
 
 DESIGN_SIGNALS = [
     r"\bdesign\b", r"\bspec\b", r"\bfeature\b", r"\bimprove\b",
@@ -33,17 +33,18 @@ try:
     if not message or len(message) < 5:
         sys.exit(0)
 
+    session_id = event.get("session_id", "")
     cwd = get_cwd()
 
     hits = sum(1 for p in _COMPILED if p.search(message))
     if hits < 2:
         sys.exit(0)
 
-    flag = project_tmp_path("design-mode", cwd.name)
+    cache = get_cache_manager(cwd)
     try:
-        flag.write_text("active")
+        cache.set_flag("design-mode", session_id or "default")
     except Exception as _e:
-        print(f"[zie-framework] design-tracker: flag write failed: {_e}", file=sys.stderr)
+        print(f"[zf] design-tracker: flag write failed: {_e}", file=sys.stderr)
 
 except Exception:
     sys.exit(0)

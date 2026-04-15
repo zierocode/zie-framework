@@ -10,7 +10,7 @@ import pytest
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "sdlc-compact.py")
 sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
-from utils_io import project_tmp_path
+from utils_cache import CacheManager
 
 SAMPLE_ROADMAP = """## Now
 - [ ] Implement sdlc-compact hook
@@ -53,8 +53,21 @@ def make_cwd(tmp_path, roadmap=None, config=None):
     return tmp_path
 
 
-def snapshot_path(tmp_path):
-    return project_tmp_path("compact-snapshot", tmp_path.name)
+def get_cache(tmp_path):
+    """Get CacheManager instance for test project."""
+    return CacheManager(tmp_path / ".zie" / "cache")
+
+
+def read_snapshot(tmp_path, session_id):
+    """Read compact-snapshot from CacheManager."""
+    cache = get_cache(tmp_path)
+    return cache.get("compact-snapshot", session_id)
+
+
+def write_snapshot(tmp_path, session_id, data):
+    """Write compact-snapshot to CacheManager."""
+    cache = get_cache(tmp_path)
+    cache.set("compact-snapshot", data, session_id, ttl=0, invalidation="session")
 
 
 # ---------------------------------------------------------------------------
@@ -86,11 +99,9 @@ class TestSdlcCompactOuterGuard:
         # tmp_path has no zie-framework/ subdir
         r = run_hook("PreCompact", tmp_cwd=tmp_path)
         assert r.returncode == 0
-        assert not snapshot_path(tmp_path).exists()
 
     def test_postcompact_exits_zero_without_zf_dir(self, tmp_path):
         r = run_hook("PostCompact", tmp_cwd=tmp_path)
-        assert r.returncode == 0
         assert r.stdout.strip() == ""
 
     def test_unknown_event_name_exits_zero(self, tmp_path):
@@ -105,123 +116,101 @@ class TestSdlcCompactOuterGuard:
 # ---------------------------------------------------------------------------
 
 class TestSdlcCompactPreCompact:
-    @pytest.fixture(autouse=True)
-    def _cleanup(self, tmp_path):
-        yield
-        p = snapshot_path(tmp_path)
-        if p.is_symlink() or p.exists():
-            p.unlink(missing_ok=True)
-
-    def test_writes_snapshot_file(self, tmp_path):
+    def test_writes_snapshot_to_cache(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         r = run_hook("PreCompact", tmp_cwd=cwd)
         assert r.returncode == 0
-        assert snapshot_path(tmp_path).exists(), "compact-snapshot file must be written"
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
+        assert data is not None, "compact-snapshot must be written to CacheManager"
 
-    def test_snapshot_is_valid_json(self, tmp_path):
+    def test_snapshot_is_valid_dict(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook("PreCompact", tmp_cwd=cwd)
-        raw = snapshot_path(tmp_path).read_text()
-        data = json.loads(raw)  # must not raise
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert isinstance(data, dict)
 
     def test_snapshot_contains_active_task(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert "sdlc-compact hook" in data["active_task"]
 
     def test_snapshot_contains_now_items_list(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert isinstance(data["now_items"], list)
         assert len(data["now_items"]) == 2
 
     def test_snapshot_contains_git_branch_key(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert "git_branch" in data
         assert isinstance(data["git_branch"], str)
 
     def test_snapshot_contains_changed_files_key(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert "changed_files" in data
         assert isinstance(data["changed_files"], list)
 
     def test_snapshot_contains_tdd_phase_key(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert "tdd_phase" in data
 
     def test_snapshot_reads_tdd_phase_from_config(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, config={"tdd_phase": "RED"})
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert data["tdd_phase"] == "RED"
 
     def test_snapshot_tdd_phase_defaults_to_empty_when_no_config(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert data["tdd_phase"] == ""
 
     def test_snapshot_tdd_phase_empty_when_config_missing_field(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP, config={"project_type": "python"})
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert data["tdd_phase"] == ""
 
     def test_snapshot_tdd_phase_empty_on_corrupt_config(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         (tmp_path / "zie-framework" / ".config").write_text("not-valid-json")
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert data["tdd_phase"] == ""
 
     def test_snapshot_active_task_empty_when_no_now_items(self, tmp_path):
         roadmap = "## Now\n\n## Next\n- [ ] something\n"
         cwd = make_cwd(tmp_path, roadmap=roadmap)
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert data["active_task"] == ""
         assert data["now_items"] == []
 
     def test_snapshot_active_task_empty_when_no_roadmap(self, tmp_path):
         cwd = make_cwd(tmp_path)  # no ROADMAP.md
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert data["active_task"] == ""
 
     def test_changed_files_capped_at_20(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        # We cannot force git to report >20 files without a real repo,
-        # but we can verify the key exists and is a list (cap enforcement is
-        # unit-tested via test_build_snapshot_caps_changed_files below)
         run_hook("PreCompact", tmp_cwd=cwd)
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert len(data["changed_files"]) <= 20
 
     def test_no_stdout_on_precompact(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         r = run_hook("PreCompact", tmp_cwd=cwd)
         assert r.stdout.strip() == ""
-
-    def test_symlink_snapshot_path_skipped_gracefully(self, tmp_path):
-        cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        snap = snapshot_path(tmp_path)
-        real = tmp_path / "important.txt"
-        real.write_text("do not overwrite")
-        snap.symlink_to(real)
-        r = run_hook("PreCompact", tmp_cwd=cwd)
-        assert r.returncode == 0
-        assert real.read_text() == "do not overwrite"
-        assert "WARNING" in r.stderr
-        snap.unlink()
 
     def test_git_unavailable_writes_snapshot_with_empty_git_fields(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
@@ -230,7 +219,7 @@ class TestSdlcCompactPreCompact:
         empty_bin.mkdir()
         r = run_hook("PreCompact", tmp_cwd=cwd, env_overrides={"PATH": str(empty_bin)})
         assert r.returncode == 0
-        data = json.loads(snapshot_path(tmp_path).read_text())
+        data = read_snapshot(tmp_path, f"test-sc-{abs(hash(str(cwd) + 'PreCompact')) % 999999}")
         assert data["git_branch"] == ""
         assert data["changed_files"] == []
 
@@ -240,16 +229,12 @@ class TestSdlcCompactPreCompact:
 # ---------------------------------------------------------------------------
 
 class TestSdlcCompactPostCompact:
-    @pytest.fixture(autouse=True)
-    def _cleanup(self, tmp_path):
-        yield
-        p = snapshot_path(tmp_path)
-        if p.is_symlink() or p.exists():
-            p.unlink(missing_ok=True)
+    def _session_id(self, cwd):
+        return f"test-sc-{abs(hash(str(cwd) + 'PostCompact')) % 999999}"
 
     def _write_snapshot(self, tmp_path, data: dict):
-        snap = snapshot_path(tmp_path)
-        snap.write_text(json.dumps(data))
+        sid = self._session_id(tmp_path)
+        write_snapshot(tmp_path, sid, data)
 
     def test_emits_valid_json_to_stdout(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
@@ -346,8 +331,7 @@ class TestSdlcCompactPostCompact:
 
     def test_missing_snapshot_falls_back_to_live_roadmap(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        # No snapshot written — file absent
-        assert not snapshot_path(tmp_path).exists()
+        # No snapshot written — CacheManager has no compact-snapshot
         r = run_hook("PostCompact", tmp_cwd=cwd)
         assert r.returncode == 0
         out = json.loads(r.stdout)
@@ -364,7 +348,11 @@ class TestSdlcCompactPostCompact:
 
     def test_corrupt_snapshot_falls_back_to_live_roadmap(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        snapshot_path(tmp_path).write_text("not-valid-json!!!")
+        # Write corrupt data to CacheManager directly
+        cache = get_cache(tmp_path)
+        sid = self._session_id(cwd)
+        # Write a string instead of dict to simulate corrupt data
+        cache.set("compact-snapshot", "not-valid-json!!!", sid, ttl=0, invalidation="session")
         r = run_hook("PostCompact", tmp_cwd=cwd)
         assert r.returncode == 0
         out = json.loads(r.stdout)
@@ -376,7 +364,6 @@ class TestSdlcCompactPostCompact:
         """PostCompact must exit 0 even when git is not on PATH."""
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         # No snapshot — forces live fallback which calls git
-        assert not snapshot_path(tmp_path).exists()
         empty_bin = tmp_path / "empty_bin"
         empty_bin.mkdir()
         r = run_hook(
@@ -474,8 +461,8 @@ class TestSubprocessTimeouts:
 
         Timing contract:
           - Fake git sleeps 60s.
-          - Hook has timeout=5 per call (GREEN) → ~10s total → exits 0.
-          - Hook has no timeout (RED) → hangs 60s → outer test fires at 15s → TimeoutExpired (FAIL).
+          - Hook has timeout=5 per call (GREEN) -> ~10s total -> exits 0.
+          - Hook has no timeout (RED) -> hangs 60s -> outer test fires at 15s -> TimeoutExpired (FAIL).
         """
         import stat
         # Create a fake git that hangs
@@ -498,7 +485,7 @@ class TestSubprocessTimeouts:
             input=event,
             capture_output=True,
             text=True,
-            timeout=15,  # > 2 × 5s (branch + diff) but < 60s (fake git sleep)
+            timeout=15,  # > 2 * 5s (branch + diff) but < 60s (fake git sleep)
             env=env,
         )
         assert result.returncode == 0

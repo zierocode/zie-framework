@@ -14,11 +14,10 @@ import json
 import os
 import re
 import sys
-import time
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_event import get_cwd, read_event
-from utils_io import atomic_write, project_tmp_path
+from utils_io import atomic_write
 from utils_config import CACHE_TTLS
 from utils_cache import get_cache_manager, get_content_hash_cached
 from utils_roadmap import parse_roadmap_section_content
@@ -78,17 +77,12 @@ content_hash = get_content_hash_cached(cwd, session_id)
 # If session_id is absent (spec: fallback to always-inject), skip cache entirely.
 
 if session_id:
-    safe_sid = re.sub(r'[^a-zA-Z0-9]', '-', session_id)
-    cache_flag = project_tmp_path(f"session-context-{safe_sid}", project)
-    if cache_flag.exists():
-        flag_age = time.time() - cache_flag.stat().st_mtime
-        if flag_age < 7200:
-            # Already injected this session — skip to avoid redundant context
-            sys.exit(0)
-        # Stale flag (>2h) — delete and re-inject
-        cache_flag.unlink(missing_ok=True)
+    cache = get_cache_manager(cwd)
+    if cache.has_flag("session-context-injected", session_id):
+        # Already injected this session — skip to avoid redundant context
+        sys.exit(0)
 else:
-    cache_flag = None  # no session_id → always inject (spec fallback)
+    cache = get_cache_manager(cwd)  # still needed for roadmap cache
 
 # ── Inner operations ──────────────────────────────────────────────────────────
 
@@ -98,7 +92,6 @@ adr_count = "unknown"
 
 # Read ROADMAP Now lane (via unified cache)
 try:
-    cache = get_cache_manager(cwd)
     roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
     roadmap_ttl = CACHE_TTLS.get("roadmap", 600)
     roadmap_content = cache.get_or_compute(
@@ -175,12 +168,11 @@ else:
 print(json.dumps({"additionalContext": payload}))
 
 # Write session cache flag so subsequent SubagentStart events skip inject
-# cache_flag is None when session_id was absent (spec fallback: always inject)
-if cache_flag is not None:
+if session_id:
     try:
-        atomic_write(cache_flag, "cached")
+        cache.set_flag("session-context-injected", session_id)
     except Exception as e:
-        print(f"[zie-framework] subagent-context: cache write failed: {e}", file=sys.stderr)
+        print(f"[zf] subagent-context: cache write failed: {e}", file=sys.stderr)
         # Non-fatal — next subagent will just inject again
 
 # Content-hash cache is now handled by unified CacheManager (get_or_compute)
