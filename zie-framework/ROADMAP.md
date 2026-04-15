@@ -8,13 +8,11 @@
 
 ## Now — Active Sprint
 
-- [ ] compact-output-lean — [spec](specs/2026-04-15-compact-output-lean-design.md) [plan](plans/2026-04-15-compact-output-lean.md)
+- [ ] command-conventions — [spec](specs/2026-04-15-command-conventions-design.md) [plan](plans/2026-04-15-command-conventions.md)
 
 ---
 
 ## Ready — Approved Plans — [spec](specs/2026-04-15-intent-sdlc-lean-design.md) [plan](plans/2026-04-15-intent-sdlc-lean.md)
-- [ ] compact-output-lean — [spec](specs/2026-04-15-compact-output-lean-design.md) [plan](plans/2026-04-15-compact-output-lean.md)
-- [ ] cache-systems-consolidate — [spec](specs/2026-04-15-cache-systems-consolidate-design.md) [plan](plans/2026-04-15-cache-systems-consolidate.md) ← merged config-session-cache + roadmap-cache-unify
 - [ ] command-conventions — [spec](specs/2026-04-15-command-conventions-design.md) [plan](plans/2026-04-15-command-conventions.md)
 - [ ] command-compress-batch — [spec](specs/2026-04-15-command-compress-batch-design.md) [plan](plans/2026-04-15-command-compress-batch.md) ← merged sprint+status+retro+release
 - [ ] playwright-version-cache — [spec](specs/2026-04-15-playwright-version-cache-design.md) [plan](plans/2026-04-15-playwright-version-cache.md)
@@ -35,6 +33,8 @@
 
 ## Done — v1.30.1 (2026-04-15)
 
+- [x] cache-systems-consolidate — Unified CacheManager: mtime + session invalidation, migrated /tmp flags — 2026-04-15
+- [x] compact-output-lean — Compact hook output: [zf] prefix, inline format — 2026-04-15
 - [x] skill-manual-revise — Compress SKILL.md files 1492→1183 lines — 2026-04-15
 - [x] skill-manual-auto-inject — Auto-inject skill context for active SDLC stage — 2026-04-15
 - [x] init-scaffold-claude-code-config — Scaffold .claude/ settings.json, rules/sdlc.md, .ignore during /init — 2026-04-15
