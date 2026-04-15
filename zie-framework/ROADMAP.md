@@ -8,12 +8,11 @@
 
 ## Now — Active Sprint
 
-- [x] command-conventions — [spec](specs/2026-04-15-command-conventions-design.md) [plan](plans/2026-04-15-command-conventions.md)
+- [x] command-compress-batch — [spec](specs/2026-04-15-command-compress-batch-design.md) [plan](plans/2026-04-15-command-compress-batch.md)
 
 ---
 
 ## Ready — Approved Plans — [spec](specs/2026-04-15-intent-sdlc-lean-design.md) [plan](plans/2026-04-15-intent-sdlc-lean.md)
-- [ ] command-compress-batch — [spec](specs/2026-04-15-command-compress-batch-design.md) [plan](plans/2026-04-15-command-compress-batch.md) ← merged sprint+status+retro+release
 - [ ] playwright-version-cache — [spec](specs/2026-04-15-playwright-version-cache-design.md) [plan](plans/2026-04-15-playwright-version-cache.md)
 - [ ] audit-error-path-coverage — [spec](specs/2026-04-15-audit-error-path-coverage-design.md) [plan](plans/2026-04-15-audit-error-path-coverage.md)
 - [ ] audit-prompt-injection-hardening — [spec](specs/2026-04-15-audit-prompt-injection-hardening-design.md) [plan](plans/2026-04-15-audit-prompt-injection-hardening.md)

@@ -7,14 +7,11 @@ effort: low
 
 # /status — Show current SDLC state
 
-Show a concise snapshot of where the project is right now. No LLM reasoning
-needed — just read files and print.
-
 <!-- preflight: minimal -->
 
-## Steps
+Concise snapshot of project state. No LLM reasoning — just read files and print.
 
-**Live context (injected at command load):**
+**Live context (injected at load):**
 
 ROADMAP snapshot (first 30 lines):
 !`cat zie-framework/ROADMAP.md | head -30`
@@ -22,131 +19,72 @@ ROADMAP snapshot (first 30 lines):
 Knowledge hash (bind as `current_hash_injected`):
 !`python3 hooks/knowledge-hash.py 2>/dev/null || echo "knowledge-hash: unavailable"`
 
-1. **Check initialization**: if `zie-framework/` does not exist → print "Not
-   initialized. Run /init first." and stop.
+## Steps
 
-2. **Read files**: `zie-framework/.config` (including `knowledge_hash`,
-   `knowledge_synced_at`), `VERSION`, specs/plans dirs เพื่อ context.
-   Read drift count from `zie-framework/.drift-log` — count non-empty lines
-   (each line is one drift event). If file missing → count is 0.
-   Read the stopfailure-log at
-   `project_tmp_path("failure-log", safe_project_name(cwd.name))` →
-   `/tmp/zie-<sanitized-project-name>-failure-log`.
-   Tail last 5 non-empty lines. If file missing → use empty list.
-   Clip each line at 120 chars.
-   For ROADMAP.md — use targeted reads only:
-   - **Now section**: Grep `## Now` → Read from that line to next `---` separator.
-   - **Next count**: Grep `- [` lines between `## Next` and next `---` → count only.
-   - **Done count**: Grep `- [` lines between `## Done` and next `---` → count only.
-   Do not load full Next or Done section content.
+1. **Check initialization** — `zie-framework/` absent → "Not initialized. Run /init first." Stop.
+2. **Read files** — `.config` (incl. `knowledge_hash`, `knowledge_synced_at`), `VERSION`, specs/plans dirs. Read drift count from `.drift-log` (non-empty lines; 0 if missing). Tail last 5 non-empty lines from failure-log (clip at 120 chars). For ROADMAP: targeted reads only — Grep `## Now` → read to next `---`; count `- [` in Next/Done (count only, no content).
+3. **Find active plan** — most recent file in `plans/` where ROADMAP Now is not empty.
+4. **Knowledge drift** — compare `current_hash_injected` to stored `knowledge_hash`:
 
-3. **Find active plan**: most recent file in `zie-framework/plans/` where
-   ROADMAP.md "Now" section is not empty.
+   | Comparison | Status |
+   | --- | --- |
+   | Missing hash | `? no baseline — run /resync` |
+   | Equal | `✓ synced (<knowledge_synced_at>)` |
+   | Differs | `⚠ drift detected — run /resync` |
 
-4. **Check knowledge drift** — use `current_hash_injected` (already computed above,
-   no second Bash call needed):
+5. **Test health** — detect runner from `.config`:
 
-   - Read `knowledge_hash` from `zie-framework/.config`
-   - If missing → Knowledge status: `? no baseline — run /resync`
-   - Compare script output to stored hash:
-     - Equal → `✓ synced (<knowledge_synced_at>)`
-     - Differs → `⚠ drift detected — run /resync`
-   - Knowledge row is informational only — does not block suggestions
+   | Runner | Cache check | Result |
+   | --- | --- | --- |
+   | pytest | `.pytest_cache/v/cache/lastfailed` | Non-empty → ✗, Empty → ✓, No dir → ? |
+   | pytest | `.pytest_cache/` mtime vs `tests/` mtime | Newer test file → ? stale (overrides above) |
+   | vitest/jest | Cache dir timestamp | No cache → ? stale |
 
-5. **Check test health** (detect test runner from `.config`):
-
-   **pytest** (`test_runner=pytest`):
-   - Check `.pytest_cache/v/cache/lastfailed`:
-     - Non-empty → `✗ fail` | Empty → `✓ pass` | No dir → `? stale`
-   - Compare mtime of `.pytest_cache/` vs newest file under `tests/`:
-     - Newer test file → `? stale` (overrides prior result)
-
-   **vitest/jest** (`test_runner=vitest|jest`):
-   - Check `node_modules/.vitest/` or `.jest-cache/` last-run timestamp
-   - If no cache dir → `? stale`
-
-6. **Compute release velocity** via a single Bash call:
-
+6. **Release velocity** — single Bash call:
    ```bash
-   git log --tags --simplify-by-decoration --pretty="%D|%ai" | \
-     grep -E 'tag: v?[0-9]+\.[0-9]+\.[0-9]+' | head -6
+   git log --tags --simplify-by-decoration --pretty="%D|%ai" | grep -E 'tag: v?[0-9]+\.[0-9]+\.[0-9]+' | head -6
    ```
+   Parse semver tag + date per line. Compute intervals between consecutive pairs.
+   Fewer than 2 entries → "Velocity: not enough releases yet". Otherwise → `"Velocity (last N): Xd, Yd, …"`
 
-   Each output line contains ref decorations and ISO author-date separated by `|`.
-   Parse the first semver tag (`v?X.Y.Z`) and the date (`YYYY-MM-DD`) from each line.
+7. **Print status**:
 
-   - Collect up to 6 entries (to compute up to 5 intervals).
-   - For each consecutive pair, compute `days = (date[n] - date[n+1]).days`.
-   - Fewer than 2 entries → velocity string = `"Velocity: not enough releases yet"`.
-   - Otherwise → `"Velocity (last N): Xd, Yd, Zd, …"` where N = number of intervals (≤ 5).
+   ```
+   ## สถานะ <project>
 
-7. **พิมพ์สถานะ** โดยใช้ markdown format:
-
-   ## สถานะ zie-framework
-
-   project: \<directory name>(\<project_type>) v\<VERSION> | brain: \<on\|off> | drift: \<N>
-   knowledge: \<✓ synced \| ⚠ drift — /resync \| ? no baseline>
-   velocity: \<velocity string>
+   project: <dir>(<type>) v<VERSION> | brain: <on|off> | drift: <N>
+   knowledge: <✓ synced | ⚠ drift | ? no baseline>
+   velocity: <velocity string>
 
    **ROADMAP**
-   - now: \<N> in progress | next: \<N> queued | done: \<N> shipped
+   - now: <N> in progress | next: <N> queued | done: <N> shipped
 
-   **งานปัจจุบัน**: \<first Now item or "ยังไม่มีงาน">
-   **Plan**: \<zie-framework/plans/latest.md or "ยังไม่มี plan">
+   **งานปัจจุบัน**: <first Now item or "ยังไม่มีงาน">
+   **Plan**: <plans/latest.md or "ยังไม่มี plan">
 
-   tests: unit:\<✓\|✗\|?\|n/a> int:\<✓\|✗\|?\|n/a> e2e:\<✓\|✗\|?\|n/a>
+   tests: unit:<✓|✗|?|n/a> int:<✓|✗|?|n/a> e2e:<✓|✗|?|n/a>
 
-   **ขั้นตอนถัดไป**: \<context-appropriate suggestion>
+   **ขั้นตอนถัดไป**: <context-appropriate suggestion>
 
-   config: safety=\<mode> mem=\<on\|off> pw=\<on\|off> drift=\<N>
+   config: safety=<mode> mem=<on|off> pw=<on|off> drift=<N>
 
    failures:
-   \<tail last 5 non-empty lines from failure-log, each clipped at 120 chars>
-   — or — `none` if file missing or empty
-
-7.5 **Pipeline Stage Indicator** — detect active feature's pipeline stage:
-
-   For each item in ROADMAP Now lane, detect which stages are complete:
-   - **backlog** ✓ — `zie-framework/backlog/<slug>.md` exists
-   - **spec** ✓ — `zie-framework/specs/*-<slug>-design.md` exists with `approved: true`
-   - **plan** ✓ — `zie-framework/plans/*-<slug>.md` exists with `approved: true`
-   - **implement** ▶ — Now lane has `[ ]` item (in progress)
-   - **implement** ✓ — Now lane has `[x]` item (complete, pending release)
-   - **release** ✓ — git tag matching current VERSION exists
-   - **retro** ✓ — `zie-framework/decisions/` has ADRs dated today
-
-   Print pipeline row:
-   ```
-   Pipeline: backlog ✓ → spec ✓ → plan ✓ → implement ▶ → release — → retro —
-   ```
-   If Now lane is empty: skip pipeline row.
-
-7.6 **Pipeline Detail** — for each item in Now and Ready lanes, show a
-   one-line summary with Problem excerpt and spec/plan status.
-
-   For each slug in Now + Ready (from parse_roadmap_section):
-   - Read `zie-framework/backlog/<slug>.md`
-   - Extract text between `## Problem` and the next `##` heading
-   - Truncate to first 120 characters, append "…" if longer
-   - If file missing or no Problem section: use `(no description)`
-   - Check `zie-framework/specs/*-<slug>-design.md` → spec ✓ or —
-   - Check `zie-framework/plans/*-<slug>.md` → plan ✓ or —
-
-   Print:
-   ```
-   **Pipeline Detail**
-   - <slug>: <excerpt> | spec <✓|—> plan <✓|—>
+   <tail last 5 from failure-log, each clipped at 120 chars>
    ```
 
-   Skip this section if both Now and Ready lanes are empty.
+7.5 **Pipeline stage** — per Now item, detect backlog→spec→plan→implement→release→retro completion. Print: `Pipeline: backlog ✓ → spec ✓ → plan ✓ → implement ▶ → release — → retro —`. Skip if Now is empty.
 
-8. **ตรรกะขั้นตอนถัดไป** (เลือกที่เกี่ยวข้องที่สุด):
-   - Nothing in ROADMAP Now → "Start a feature: /backlog"
-   - Active plan exists, tasks incomplete → "Continue: /implement"
-   - Tests stale or failing → "Fix tests: /fix"
-   - All tasks in plan complete → "Ready to release: /release"
-   - Always available: "/status | /backlog | /implement | /fix |
-     /release | /retro | /sprint"
+7.6 **Pipeline detail** — per Now+Ready slug: read backlog `## Problem` excerpt (truncated to 120 chars), check spec/plan status. Print: `- <slug>: <excerpt> | spec <✓|—> plan <✓|—>`. Skip if both lanes empty.
 
+8. **Next step logic**:
+
+   | Condition | Suggestion |
+   | --- | --- |
+   | Nothing in Now | "Start a feature: /backlog" |
+   | Active plan, tasks incomplete | "Continue: /implement" |
+   | Tests stale or failing | "Fix tests: /fix" |
+   | All tasks complete | "Ready to release: /release" |
+
+   Always show: `/status | /backlog | /implement | /fix | /release | /retro | /sprint`
 
 → /next for recommended backlog items

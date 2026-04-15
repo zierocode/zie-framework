@@ -18,159 +18,62 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 
 4. Check current branch is `dev`.
 5. Verify no uncommitted changes (warn if found).
-6. Check `.zie/handoff.md` — if present, read it. Use its Goals, Key Decisions,
-   and Constraints as context brief for this sprint run. After the sprint
-   completes successfully (after retro), delete `.zie/handoff.md`.
-   If handoff.md is malformed (missing frontmatter) → warn and fall back to
-   manual prompt mode.
+6. Check `.zie/handoff.md` — if present, read it. After the sprint completes (after retro), delete `.zie/handoff.md`. If malformed (missing frontmatter) → warn and fall back to manual prompt mode.
 7. **Sprint resume check** — Read `zie-framework/.sprint-state` if it exists:
    - Parse JSON: `{phase, items, completed_phases, remaining_items, started_at}`
-   - If found, ask: `"Incomplete sprint found (phase {phase}/4, {N} items remaining). Resume? (yes / restart)"`
-   - `yes` → skip audit, jump to the phase stored in state, use remaining_items
-     - If phase=2: print `[resume] Phase 2 — skipping completed: <items \ remaining_items> | resuming from: <first of remaining_items>`
-   - `restart` → delete `.sprint-state`, proceed with fresh sprint
-   - If file is malformed → delete it, proceed fresh
+   - If found: `"Incomplete sprint found (phase {phase}/4, {N} items remaining). Resume? (yes / restart)"`
+   - `yes` → skip audit, jump to stored phase, use remaining_items
+   - `restart` → delete `.sprint-state`, proceed fresh
+   - Malformed → delete it, proceed fresh
 
 ## Arguments
 
 | Flag / Positional | Description | Default |
 | --- | --- | --- |
-| `slugs` (positional) | Space-separated backlog slugs to process; omit to process all Next+Ready items | all items |
-| `--dry-run` | Print sprint audit table and stop — do not execute | off |
-| `--skip-ready` | Skip items already in Ready lane (spec+plan approved) | off |
+| `slugs` (positional) | Space-separated backlog slugs; omit for all Next+Ready | all items |
+| `--dry-run` | Print sprint audit table and stop | off |
+| `--skip-ready` | Skip items already in Ready lane | off |
 | `--version=X.Y.Z` | Override version bump for Phase 3 release | auto |
-
-Flag handling is inline at each consuming step below.
 
 ## "All" means ALL — No Silent Drops
 
-When the user says "do all of these", "ทำทั้งหมด", "sprint ทั้งหมด", or provides a list without exclusions:
-- **Every item in the list (or in Next+Ready) MUST be included.** No item may be silently dropped.
-- The sprint audit table MUST show every item. Missing items = error.
+Every item in Next+Ready MUST be included. No silent drops. Missing items = error.
 
-**Item consolidation (allowed, but must be declared):**
-Small items CAN be merged into a single backlog entry when they: (a) share a single file/component, (b) each takes < 15 min, and (c) have no spec or plan yet. When merging:
-1. Create one combined backlog file covering all merged items.
-2. Print before the audit table:
-   ```
-   [MERGED] <slug-a> + <slug-b> → <combined-slug>
-   Reason: both touch <X> and are trivially small.
-   Original items: <slug-a> (<title>), <slug-b> (<title>)
-   ```
-3. The combined backlog `## Problem` must reference all original items by name.
-4. Never merge items with existing specs/plans, different domains, or HIGH/CRITICAL priority.
+**Consolidation** (allowed, must declare): merge small items sharing a file/component, each <15 min, no spec/plan yet.
+Print: `[MERGED] <slug-a> + <slug-b> → <combined-slug> — both touch <X>`. Never merge items with existing specs/plans or HIGH/CRITICAL priority.
 
 ## Step 0: AUDIT — Build Sprint Plan
 
-1. **Read ROADMAP lanes**:
-   - **Next**: items awaiting spec
-   - **Ready**: items with approved plan, awaiting impl
-   - **Now**: active work (should be empty at sprint start)
-   - **Done**: shipped
+1. **Read ROADMAP lanes** — Next (awaiting spec), Ready (approved plan), Now (active), Done (shipped)
+2. **Classify items** — per slug: `[backlog ✓/—] [spec ✓/pending] [plan ✓/pending] [impl ✓/—]`
+3. **Compute phase assignment**: needs_spec, needs_plan, ready_impl
+4. **Check dependencies** — scan backlog files for `<!-- depends_on: slug-N -->` → serialize in PLAN/IMPL
+5. **Compute suggested version** — bump patch from last `release:` git tag, store in `.zie/sprint-state.json`
+6. **Print sprint audit table** — Needs Spec/Plan/Impl counts + per-item status
+7. **--dry-run** → print table and stop
+8. **User confirmation** → `yes`/`edit`/`cancel`
 
-2. **Classify items**:
+## Load Context Bundle
 
-   For each slug in Next + Ready lanes:
-   - Check `zie-framework/backlog/<slug>.md` exists → `[backlog: ✓]`
-   - Glob `zie-framework/specs/*-<slug>-design.md` + read frontmatter → `[spec: ✓/pending]`
-   - Glob `zie-framework/plans/*-<slug>.md` + read frontmatter → `[plan: ✓/pending]`
-   - Check if item in Now → `[impl: ✓/—]`
-
-3. **Compute phase assignment**:
-
-   ```
-   needs_spec = Next items without approved spec
-   needs_plan = (Next+Ready items with approved spec) \ Ready items with approved plan
-   ready_impl = Ready items with approved plan
-   ```
-
-4. **Check for dependencies**:
-
-   - Scan all backlog files for `<!-- depends_on: slug-N -->` comments
-   - Build dependency graph
-   - Items with dependencies → mark for serialization in PLAN/IMPL phases
-
-5. **Compute suggested version** (pre-computed at sprint start):
-
-   ```python
-   import subprocess
-   result = subprocess.run(
-       ["git", "log", "--oneline", "--grep=^release:"],
-       capture_output=True, text=True, cwd=str(cwd)
-   )
-   releases = result.stdout.strip().split("\n") if result.stdout.strip() else []
-   last_version = "1.0.0"
-   if releases:
-       import re
-       m = re.search(r"v?(\d+\.\d+\.\d+)", releases[0])
-       if m:
-           last_version = m.group(1)
-   # Bump patch
-   parts = list(map(int, last_version.split(".")))
-   parts[2] += 1
-   suggested_version = ".".join(map(str, parts))
-   ```
-
-   Store in `.zie/sprint-state.json`: `"suggested_version": "<version>"`
-
-6. **Print sprint audit table**:
-
-   ```
-   SPRINT AUDIT
-
-   Needs Spec:  <count> items
-   Needs Plan:  <count> items
-   Ready to Impl: <count> items
-   Dependencies: <count> edges (if any)
-   Suggested version: v<suggested_version>
-
-   [item1] backlog ✓ | spec — | plan — | impl —
-   [item2] backlog ✓ | spec ✓ | plan — | impl —
-   [item3] backlog ✓ | spec ✓ | plan ✓ | impl —
-   ...
-   ```
-
-7. **--dry-run branch**: if `--dry-run` present → print audit table and stop. Say "Run without --dry-run to execute."
-
-8. **User confirmation**:
-
-   ```
-   Sprint ready. Process:
-   - Phase 1: Spec <N> items (parallel, with inline retry on partial failure)
-   - Phase 2: Impl <N> items (sequential, WIP=1)
-   - Phase 3: Release v<suggested-version> (pre-computed)
-   - Phase 4: Retro
-
-   Start sprint? (yes / edit / cancel)
-   ```
-
-   - `yes` → continue to Phase 1
-   - `edit` → ask which items to include/skip (filter slugs)
-   - `cancel` → stop
-
-## Load Context Bundle (Once Per Sprint)
-
-<!-- context: ROADMAP already injected by session-resume/subagent-context hook; re-read only if Now lane may have changed -->
-
-Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
-(reads `decisions/*.md` ADRs + `project/context.md`).
+Invoke `Skill(zie-framework:load-context)` → `context_bundle` (ADRs + project context). Used by all downstream phases.
 
 ## Autonomous Mode
 
-Set `autonomous_mode=true` for all downstream skill invocations.
-This flag suppresses interactive turns, approval gates, and agent spawns in spec-design, write-plan, and retro.
+`autonomous_mode=true` for all skill invocations. Suppresses interactive turns, approval gates, agent spawns.
 
 **Interruption Protocol** — sprint pauses for user only in 3 cases:
-1. Backlog clarity score < 2 → ask 1 question per vague item, then continue
+1. Clarity score < 2 → ask 1 question per vague item
 2. Auto-fix failed after 1 retry → surface issue + interrupt
-3. Unresolvable dependency conflict between items → ask once before Phase 1
+3. Unresolvable dependency conflict → ask once before Phase 1
 
-**Clarity scoring** (per Next item needing spec — computed in Step 0 AUDIT):
-- +1 if `## Problem` has ≥ 2 sentences
-- +1 if `## Rough Scope` has content
-- +1 if title names a concrete action ("add X", "fix Y", "remove Z")
-- Score ≥ 2 → `[clarity: direct]` — write spec without Q&A
-- Score < 2 → `[clarity: ask]` — ask 1 clarifying question first, then write
+**Clarity scoring** (per Next item needing spec):
+
+| Criterion | Score |
+| --- | --- |
+| `## Problem` has ≥ 2 sentences | +1 |
+| `## Rough Scope` has content | +1 |
+| Title names a concrete action | +1 |
+| Score ≥ 2 → direct; Score < 2 → ask 1 question | |
 
 ## PHASE 1: SPEC ALL (Parallel)
 
@@ -178,165 +81,72 @@ TaskCreate subject="Phase 1/4 — Spec All"
 
 For `[clarity: ask]` items: ask 1 question per item first, then proceed.
 
-For each item in needs_spec (all launched concurrently — parallel Skill calls, passing `context_bundle`):
+For each item in needs_spec (parallel Skill calls, passing `context_bundle`):
 1. `Skill(zie-framework:spec-design, '<slug> autonomous')` — writes spec, runs spec-reviewer inline, auto-approves
-2. After spec approved: `Skill(zie-framework:write-plan, '<slug>')` — writes plan
-3. Inline plan-reviewer: invoke `Skill(zie-framework:plan-reviewer, context_bundle=<context_bundle>)` in current context — no Agent spawn
-   - ✅ APPROVED → run `python3 hooks/approve.py <plan-file>` via Bash (reviewer-gate blocks Write/Edit — this is the ONLY allowed approval path), then move ROADMAP Next → Ready automatically
-   - ❌ Issues Found → fix inline (1 pass, then re-check once) → re-run approve.py on pass
+2. `Skill(zie-framework:write-plan, '<slug>')` — writes plan
+3. Inline plan-reviewer: `Skill(zie-framework:plan-reviewer, context_bundle=<context_bundle>)`
+   - ✅ APPROVED → `python3 hooks/approve.py <plan-file>` (ONLY approval path)
+   - ❌ Issues Found → fix inline (1 pass), re-check once → re-run approve.py
    - Second failure → interrupt (Interruption Protocol case 2)
 
-No intermediate general-purpose Agent spawn. Skills run directly in sprint context.
-On failure: inline retry once → if still failing → interrupt (Interruption Protocol case 2).
+No Agent spawn. Skills run directly. On failure: inline retry once → still failing → interrupt.
 
-Print: `"Phase 1: Speccing <N> items in parallel (all concurrent)..."`
+Progress: `[spec N/total] <slug> ✓` or `[spec N/total] <slug> ❌ <issue>` (delta-only; full table at phase end).
 
-**Progress reporting (delta-only):** As each agent completes, print a single
-line: `[spec N/total] <slug> ✓` or `[spec N/total] <slug> ❌ <issue>`.
-Do NOT print a full tracker table on each completion — only print the full
-status table once, after all agents have finished (or after retry exhausted).
+After Phase 1: reload ROADMAP → `roadmap_post_phase1`. Write sprint context bundle to `.zie/sprint-context.json` (specs, plans, roadmap, context_bundle — passthrough for Phases 2-3).
 
-Wait for all Phase 1 agents → collect results.
-- Each spec result: approved → mark in audit
-- Any partial failure (spec+plan chain incomplete) → inline retry: re-spawn a single
-  sequential agent for each failed slug (no separate phase — retry happens before
-  progress bar prints). If retry also fails → print error, halt sprint.
+TaskUpdate → Phase 1/4 complete. Write `.sprint-state` with phase=2.
 
-After Phase 1 (+ any retries): reload ROADMAP → bind as `roadmap_post_phase1`.
-
-**Write sprint context bundle** (Phase 1→2→3 passthrough):
-```python
-import json
-from pathlib import Path
-
-sprint_context = {
-    "specs": {...},    # Spec content for each item (keyed by slug)
-    "plans": {...},    # Plan content for each item (keyed by slug)
-    "roadmap": roadmap_post_phase1,
-    "context_bundle": context_bundle,  # From load-context skill
-}
-bundle_path = cwd / ".zie" / "sprint-context.json"
-bundle_path.parent.mkdir(parents=True, exist_ok=True)
-bundle_path.write_text(json.dumps(sprint_context))
-```
-
-TaskUpdate → Phase 1/4 complete
-Write `zie-framework/.sprint-state` → `{"phase": 2, "items": <all_slugs>, "completed_phases": [1], "remaining_items": <ready_slugs>, "current_task": "", "tdd_phase": "", "last_action": "spec-done", "started_at": <iso_ts>}`
-Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
-Print ETA: `Phase 1/4 — 3 phases remaining`
-
-**Context checkpoint:** Run `/compact` now to clear Phase 1 conversation history before implementation.
+**Context checkpoint:** Run `/compact` to clear Phase 1 history before implementation.
 
 ## PHASE 2: IMPLEMENT (Sequential, WIP=1)
 
 TaskCreate subject="Phase 2/4 — Implement"
 
-**Read sprint context bundle** (Phase 1→2 passthrough):
-```python
-import json
-bundle_path = cwd / ".zie" / "sprint-context.json"
-if bundle_path.exists():
-    sprint_context = json.loads(bundle_path.read_text())
-    # Use specs/plans from bundle — no disk re-read
-else:
-    sprint_context = {}  # Fallback: read from disk (resume case)
-```
+Read sprint context bundle from `.zie/sprint-context.json` (fallback: read from disk on resume).
 
-Read Ready items from `roadmap_post_phase1` (ordered by priority: CRITICAL → HIGH → MEDIUM → LOW). Re-read ROADMAP only if a mutation occurred after Phase 1.
+For each Ready item (priority: CRITICAL → HIGH → MEDIUM → LOW):
 
-For each item in priority order:
+1. Move Ready → Now in ROADMAP. Update `.sprint-state`: `current_task = <slug>`
+2. `make zie-implement` — agent reads Now lane, implements, commits, exits
+3. After return: check Now item `[x]` and committed → `[impl N/total] <slug> ✓`
+4. Update `.sprint-state`: remove slug from remaining, `last_action = "impl-done:<slug>"`
+5. If not last item: `/compact` → `[compact] context cleared after <slug>`
+6. Non-zero exit → `[impl N/total] <slug> ❌ <issue>` → halt sprint
 
-1. Move item from Ready → Now in ROADMAP
-   Update `.sprint-state`: `current_task = <slug>`, `tdd_phase = ""`, `last_action = "impl-start"`
-2. Run implement agent via Bash (same pattern as Phase 3 release — fresh context, agent mode):
-   ```bash
-   make zie-implement
-   ```
-   The agent reads the Now lane from ROADMAP, implements, commits, and exits.
-   **Context passthrough:** Pass `sprint_context["plans"].get(<slug>)` to implement agent if available.
-3. After Bash returns, check ROADMAP.md — Now item marked `[x]` and committed → success.
-   `[impl N/total] <slug> ✓ <commit>`
-   Update `.sprint-state`: `remaining_items` = previous `remaining_items` minus `<slug>`, `current_task = ""`, `last_action = "impl-done:<slug>"`
-   (write immediately so resume can skip this item if context overflows before next item)
-   If this is not the last item: run `/compact` → print `[compact] context cleared after <slug>`
-   Update `.sprint-state`: `last_action = "compact-after:<slug>"`
-4. Non-zero exit or Now lane still active: `[impl N/total] <slug> ❌ <issue>` → halt sprint
+After all impl: all items `[x]` in Now. Write `.sprint-state` with phase=3.
 
-After all impl complete: all items marked `[x]` in Now.
-TaskUpdate → Phase 2/4 complete
-Write `zie-framework/.sprint-state` → `{"phase": 3, "items": <all_slugs>, "completed_phases": [1, 2], "remaining_items": [], "current_task": "release", "tdd_phase": "", "last_action": "release-start", "suggested_version": "<version>", "started_at": <iso_ts>}`
-Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
-Print ETA: `Phase 2/4 — 2 phases remaining`
-
-**Context checkpoint:** Run `/compact` now to clear implementation history before release.
+**Context checkpoint:** Run `/compact` before release.
 
 ## PHASE 3: BATCH RELEASE
 
 TaskCreate subject="Phase 3/4 — Release"
 
-**Read sprint context bundle** (Phase 1→2→3 passthrough):
-```python
-import json
-bundle_path = cwd / ".zie" / "sprint-context.json"
-if bundle_path.exists():
-    sprint_context = json.loads(bundle_path.read_text())
-    # Use specs/plans from bundle for release notes
-else:
-    sprint_context = {}  # Fallback: read from disk
-```
-
-**Read pre-computed version** from sprint state:
-```python
-import json
-state_path = cwd / ".zie" / "sprint-state.json"
-if state_path.exists():
-    state = json.loads(state_path.read_text())
-    version = state.get("suggested_version", "auto")
-else:
-    version = "auto"  # Fallback: compute at release time
-```
-
-Invoke `/release`:
+Read sprint context bundle + pre-computed version from `.zie/sprint-state.json`.
 
 ```bash
 zie-release --bump-to=<version>
 ```
 
-With version override if provided (overrides pre-computed):
+Override: `zie-release --bump-to=<version_override>`
 
-```bash
-zie-release --bump-to=<version_override>
-```
+Context passthrough: pass `sprint_context["specs"]` and `sprint_context["plans"]` to release for notes.
 
-**Context passthrough:** Pass `sprint_context["specs"]` and `sprint_context["plans"]` to release for generating release notes from approved content.
-
-Print: `"Phase 4: Batch release..."`
-TaskUpdate → Phase 3/4 complete
-Write `zie-framework/.sprint-state` → `{"phase": 4, "items": <all_slugs>, "completed_phases": [1, 2, 3], "remaining_items": [], "current_task": "", "tdd_phase": "", "last_action": "release-done", "started_at": <iso_ts>}`
-Print progress bar: `{"█" * done_blocks}{"░" * empty_blocks} {done}/{total} ({pct}%)`
-Print ETA: `Phase 3/4 — 1 phase remaining`
+TaskUpdate → Phase 3/4 complete. Write `.sprint-state` with phase=4.
 
 ## PHASE 4: SPRINT RETRO (auto)
 
 TaskCreate subject="Phase 4/4 — Retro"
 
-Auto-invoke retro inline — no user prompt. Retro runs automatically in light mode
-(ROADMAP Done + ADR-000-summary only). Full ADR writing triggered only if any shipped
-plan contains `<!-- adr: required -->`.
+Auto-invoke retro inline. Light mode (ROADMAP Done + ADR-000-summary only). Full ADR writing only if shipped plan has `<!-- adr: required -->`.
 
 ```bash
 zie-retro
 ```
 
-Print: `"Phase 4: Sprint retro (automatically)..."`
-TaskUpdate → Phase 4/4 complete
-Delete `zie-framework/.sprint-state` (sprint complete — no resume needed)
-Print progress bar: `████████████████████ 4/4 (100%)`
-Print ETA: `Sprint complete`
+TaskUpdate → Phase 4/4 complete. Delete `.sprint-state`.
 
 ## Summary
-
-Print final sprint summary:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -359,8 +169,11 @@ Next: /backlog to queue new items.
 
 ## Error Handling
 
-- **Phase 1 fails** (retry exhausted): halt sprint, surface issue. User can fix and restart from that item.
-- **Phase 2 fails**: halt sprint, invoke `/fix`, re-implement.
-- **Phase 3 fails**: halt before merge, print error. User can debug and retry release manually.
-- **Phase 4 fails**: non-blocking, print warning. Retro can be run manually later.
+| Phase | Failure | Action |
+| --- | --- | --- |
+| Phase 1 | Retry exhausted | Halt sprint, surface issue |
+| Phase 2 | Implement fails | Halt sprint, invoke `/fix` |
+| Phase 3 | Release fails | Halt before merge, user debugs |
+| Phase 4 | Retro fails | Non-blocking, print warning |
 
+→ /status to check pipeline state
