@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """ROADMAP parsing, caching, ADR caching, and mtime gate helpers."""
+from __future__ import annotations
 import json
 import os
 import re

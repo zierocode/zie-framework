@@ -53,7 +53,7 @@ def _build_cache_key(skill_mtime: float) -> str:
 def get_cached_context(cwd: Path) -> dict:
     """Get command map from session cache, or build if missing."""
     try:
-        from hooks.utils_cache import get_cache_manager
+        from utils_cache import get_cache_manager
         skill_mtime = _get_skill_mtime(cwd)
         cache_key = _build_cache_key(skill_mtime)
         session_id = os.environ.get("CLAUDE_SESSION_ID", "default")

@@ -6,6 +6,8 @@ Features:
 - Per-file debounce (not global)
 - Cache invalidation on test file change
 """
+from __future__ import annotations
+
 import hashlib
 import json
 import os
