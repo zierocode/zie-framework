@@ -14,25 +14,31 @@
 
 ---
 
+## Ready — Approved Plans
+
+- [ ] init-scaffold-claude-code-config — [spec](specs/2026-04-15-init-scaffold-claude-code-config-design.md) [plan](plans/2026-04-15-init-scaffold-claude-code-config.md)
+- [ ] backlog-dedup-expand — [spec](specs/2026-04-15-backlog-dedup-expand-design.md) [plan](plans/2026-04-15-backlog-dedup-expand.md)
+- [ ] status-roadmap-content — [spec](specs/2026-04-15-status-roadmap-content-design.md) [plan](plans/2026-04-15-status-roadmap-content.md)
+- [ ] skill-manual-revise — [spec](specs/2026-04-15-skill-manual-revise-design.md) [plan](plans/2026-04-15-skill-manual-revise.md)
+- [ ] skill-manual-auto-inject — [spec](specs/2026-04-15-skill-manual-auto-inject-design.md) [plan](plans/2026-04-15-skill-manual-auto-inject.md)
+- [ ] intent-sdlc-lean — [spec](specs/2026-04-15-intent-sdlc-lean-design.md) [plan](plans/2026-04-15-intent-sdlc-lean.md)
+- [ ] compact-output-lean — [spec](specs/2026-04-15-compact-output-lean-design.md) [plan](plans/2026-04-15-compact-output-lean.md)
+- [ ] cache-systems-consolidate — [spec](specs/2026-04-15-cache-systems-consolidate-design.md) [plan](plans/2026-04-15-cache-systems-consolidate.md) ← merged config-session-cache + roadmap-cache-unify
+- [ ] command-conventions — [spec](specs/2026-04-15-command-conventions-design.md) [plan](plans/2026-04-15-command-conventions.md)
+- [ ] command-compress-batch — [spec](specs/2026-04-15-command-compress-batch-design.md) [plan](plans/2026-04-15-command-compress-batch.md) ← merged sprint+status+retro+release
+- [ ] playwright-version-cache — [spec](specs/2026-04-15-playwright-version-cache-design.md) [plan](plans/2026-04-15-playwright-version-cache.md)
+- [ ] audit-error-path-coverage — [spec](specs/2026-04-15-audit-error-path-coverage-design.md) [plan](plans/2026-04-15-audit-error-path-coverage.md)
+- [ ] audit-prompt-injection-hardening — [spec](specs/2026-04-15-audit-prompt-injection-hardening-design.md) [plan](plans/2026-04-15-audit-prompt-injection-hardening.md)
+- [ ] audit-error-handling-cleanup — [spec](specs/2026-04-15-audit-error-handling-cleanup-design.md) [plan](plans/2026-04-15-audit-error-handling-cleanup.md)
+- [ ] audit-quick-wins-batch — [spec](specs/2026-04-15-audit-quick-wins-batch-design.md) [plan](plans/2026-04-15-audit-quick-wins-batch.md) ← merged quick-wins+hardcoded-test-paths+stale-docs-refresh+test-quality-fixes+version-sync
+
+---
+
 ## Next — Prioritized Backlog
 
 <!-- Ready to start. Ordered by priority. -->
 
-- [ ] init-scaffold-claude-code-config — [backlog](backlog/init-scaffold-claude-code-config.md)
-- [ ] backlog-dedup-expand — [backlog](backlog/backlog-dedup-expand.md)
-- [ ] status-roadmap-content — [backlog](backlog/status-roadmap-content.md)
-- [ ] skill-manual-revise — [backlog](backlog/skill-manual-revise.md)
-- [ ] skill-manual-auto-inject — [backlog](backlog/skill-manual-auto-inject.md)
-- [ ] intent-sdlc-lean — [backlog](backlog/intent-sdlc-lean.md)
-- [ ] compact-output-lean — [backlog](backlog/compact-output-lean.md)
-- [ ] cache-systems-consolidate — [backlog](backlog/cache-systems-consolidate.md) ← merged config-session-cache + roadmap-cache-unify
-- [ ] command-conventions — [backlog](backlog/command-conventions.md)
-- [ ] command-compress-batch — [backlog](backlog/command-compress-batch.md) ← merged sprint+status+retro+release
-- [ ] playwright-version-cache — [backlog](backlog/playwright-version-cache.md)
-- [ ] audit-error-path-coverage — [backlog](backlog/audit-error-path-coverage.md)
-- [ ] audit-prompt-injection-hardening — [backlog](backlog/audit-prompt-injection-hardening.md)
-- [ ] audit-error-handling-cleanup — [backlog](backlog/audit-error-handling-cleanup.md)
-- [ ] audit-quick-wins-batch — [backlog](backlog/audit-quick-wins-batch.md) ← merged quick-wins+hardcoded-test-paths+stale-docs-refresh+test-quality-fixes+version-sync
+<!-- -->
 
 ---
 
