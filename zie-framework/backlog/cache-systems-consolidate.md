@@ -1,24 +1,31 @@
-# cache-systems-consolidate
+---
+tags: [feature]
+---
+
+# Consolidate Caching Systems
 
 ## Problem
 
-Three separate cache systems exist in the codebase: session config caching (config reads re-fetched per hook invocation), ROADMAP caching (mtime-gated session cache), and content-hash TTL caching (spec/plan content hashes). Each has its own cache invalidation logic, TTL management, and cache directory structure. This creates maintenance overhead and inconsistent cache behavior.
+Three independent caching mechanisms coexist, unaware of each other:
+1. `CacheManager` (`.zie/cache/session-cache.json`) — TTL-based, used by 3 hooks
+2. Legacy mtime cache (`/tmp/zie-{sid}/roadmap-cache.json`) — mtime-based, used by 2 hooks
+3. Ad-hoc `/tmp` flags (20+ files via `project_tmp_path()`) — no TTL, no invalidation
+
+A ROADMAP read cached in system 1 does not prevent a read in system 2 or 3. Additionally, compact-tier flags use a naming pattern that `session-cleanup.py` never cleans up (different prefix).
+
+## Motivation
+
+Three caching systems for the same data category means 2-3 redundant reads per session, 20+ orphaned temp files, and developer confusion about which cache to use. Consolidating into CacheManager eliminates redundancy and provides a single, testable caching interface.
 
 ## Rough Scope
 
-- Unify config-session-cache, roadmap-cache-unify, and existing content-hash cache into a single `CacheManager` class or module
-- Single cache directory under `.zie/cache/` with consistent TTL and invalidation
-- Migrate existing cache consumers to use the unified API
-- Remove duplicate cache logic from individual hooks
-- Maintain backward compatibility during migration
+**In:**
+- Migrate legacy mtime-based `read_roadmap_cached()` into CacheManager (with mtime invalidation option)
+- Migrate frequently-used `/tmp` flags into CacheManager key-value store (dedup, session flags, compact tier)
+- Keep ad-hoc `/tmp` flags for one-off coordination (session-resume cache flag) — not all need CacheManager
+- Fix compact-tier flag naming to match session-cleanup pattern
+- Add CacheManager TTL option for "session-scoped" (expire at session end)
 
-## Priority
-
-MEDIUM — reduces maintenance surface and ensures consistent caching behavior
-
-## Merged From
-
-- config-session-cache — session-level config read caching
-- roadmap-cache-unify — unify ROADMAP/ADR caching with session-scoped TTL
-
-Reason: Both touch the same caching subsystem. cache-systems-consolidate already covers their scope. Merging avoids implementing two caches that will be replaced by the unified system.
+**Out:**
+- Removing all `/tmp` usage (some are legitimate for inter-process coordination)
+- Changing CacheManager's JSON format
