@@ -1,0 +1,7 @@
+__pycache__/
+node_modules/
+dist/
+.env
+zie-framework/evidence/
+zie-framework/archive/
+.zie/

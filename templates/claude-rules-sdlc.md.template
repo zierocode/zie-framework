@@ -1,0 +1,23 @@
+# SDLC Workflow
+
+Pipeline order: `/backlog` → `/spec` → `/plan` → `/implement` → `/release` → `/retro`
+
+## Commands
+
+| Stage | Command | Purpose |
+| --- | --- | --- |
+| Capture | `/backlog` | Add a new idea as a backlog item |
+| Design | `/spec` | Write design spec for a backlog item |
+| Plan | `/plan` | Draft implementation plan from spec |
+| Build | `/implement` | TDD implementation loop (WIP=1) |
+| Ship | `/release` | Merge dev→main, version bump |
+| Review | `/retro` | Post-release retrospective + ADRs |
+
+## Rules
+
+- WIP=1: only one item in Now lane at a time
+- TDD required during `/implement`: write failing test → make it pass → refactor
+- Run `make test-fast` before every commit
+- Never skip pipeline stages on "just do it"
+- Use `/status` to see current position in pipeline
+- Use `/sprint` for batch processing all items at once

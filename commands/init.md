@@ -261,7 +261,21 @@ then re-run /init."`
       Run `chmod +x .githooks/pre-commit` after.
     - Run `git config core.hooksPath .githooks` to activate the hook.
 
-12. **If `playwright_enabled=true`**:
+12. **Scaffold `.claude/` configuration**:
+    - Create `.claude/` directory if missing.
+    - Copy `templates/claude-settings.json.template` → `.claude/settings.json`
+      (skip if `.claude/settings.json` already exists).
+    - Create `.claude/rules/` directory if missing.
+    - Copy `templates/claude-rules-sdlc.md.template` → `.claude/rules/sdlc.md`
+      (skip if `.claude/rules/sdlc.md` already exists).
+    - For `.ignore` at project root:
+      - If exists: read existing content, append any patterns from
+        `templates/dot-ignore.template` that are missing (no duplicates).
+      - If missing: copy from `templates/dot-ignore.template`.
+    - All three files are idempotent — re-running `/init` never overwrites
+      existing `.claude/settings.json` or `.claude/rules/sdlc.md`.
+
+13. **If `playwright_enabled=true`**:
     - Check if `@playwright/test` in package.json devDependencies
     - If not: ask "Install @playwright/test? This will run npm install. (yes/no)"
       → If yes: `npm install --save-dev @playwright/test` +
@@ -270,13 +284,13 @@ then re-run /init."`
     - Create `playwright.config.ts` from template if it doesn't exist
     - Create `tests/e2e/` directory with `fixtures.ts`
 
-13. **If `zie_memory_enabled=true`**:
+14. **If `zie_memory_enabled=true`**:
     - Store project bootstrap memory:
       Call `mcp__plugin_zie-memory_zie-memory__remember` with
       `"Project <name> initialized with zie-framework. Type: <project_type>. Stack: <tech_stack>. Test runner: <test_runner>."
       tags=[zie-framework, init, <project_name>]`
 
-14. **Print summary**:
+15. **Print summary**:
 
    ```text
    zie-framework initialized in <project>/
@@ -289,9 +303,12 @@ then re-run /init."`
 
    Created:
      zie-framework/  (specs, plans, decisions, ROADMAP.md)
-     CLAUDE.md       (<created|skipped — already exists>)
-     Makefile        (<created|updated>)
-     VERSION         (<created|kept>)
+     .claude/settings.json  (<created|skipped — already exists>)
+     .claude/rules/sdlc.md  (<created|skipped — already exists>)
+     .ignore                (<created|updated>)
+     CLAUDE.md              (<created|skipped — already exists>)
+     Makefile               (<created|updated>)
+     VERSION                (<created|kept>)
 
    Next: Run /status to see current state.
          Run /backlog to start your first feature.
