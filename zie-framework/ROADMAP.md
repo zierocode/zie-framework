@@ -18,6 +18,7 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+- [ ] backlog-dedup-expand — [backlog](backlog/backlog-dedup-expand.md)
 - [ ] status-roadmap-content — [backlog](backlog/status-roadmap-content.md)
 - [ ] skill-manual-revise — [backlog](backlog/skill-manual-revise.md)
 - [ ] skill-manual-auto-inject — [backlog](backlog/skill-manual-auto-inject.md)
