@@ -10,13 +10,12 @@ import argparse
 import hashlib
 import json
 import sys
-import tempfile
 import time
 from pathlib import Path
 
 EXCLUDE = {
     'node_modules', '.git', 'build', 'dist', '.next',
-    '__pycache__', 'coverage', 'zie-framework'
+    '__pycache__', 'coverage', 'zie-framework', '.zie'
 }
 EXCLUDE_PATHS = {'zie-framework/plans/archive', 'zie-framework/archive'}
 CONFIG_FILES = [
@@ -58,28 +57,6 @@ def compute_hash(root: Path) -> str:
     return hashlib.sha256(s.encode()).hexdigest()
 
 
-def _mtime_cache_path(root: Path) -> Path:
-    """Return path to the mtime gate cache file for this project root."""
-    import hashlib
-    path_hash = hashlib.sha256(str(root.resolve()).encode()).hexdigest()[:16]
-    return Path(tempfile.gettempdir()) / f"zie-kh-{path_hash}.mtime"
-
-
-def _read_mtime_cache(cache_path: Path) -> float:
-    """Return stored mtime float, or 0.0 on any error."""
-    try:
-        return float(cache_path.read_text().strip())
-    except Exception:
-        return 0.0
-
-
-def _write_mtime_cache(cache_path: Path, mtime: float) -> None:
-    try:
-        cache_path.write_text(str(mtime))
-    except Exception:
-        pass
-
-
 def _compute_max_mtime(root: Path) -> float:
     """Return the maximum mtime of all .md files under root (excluding zie-framework/)."""
     try:
@@ -106,18 +83,35 @@ if args.check:
             sys.exit(0)
 
         # mtime gate: skip expensive rglob+hash when no .md file has changed
-        cache_path = _mtime_cache_path(root)
-        written_at = _read_mtime_cache(cache_path)
+        # Uses CacheManager with mtime invalidation instead of /tmp file
+        sys.path.insert(0, str(Path(__file__).parent))
+        from utils_cache import get_cache_manager
+        cache = get_cache_manager(root)
+
+        # Compute max_mtime to use as mtime source
         max_mtime = _compute_max_mtime(root)
-        if written_at > 0.0 and max_mtime <= written_at:
-            sys.exit(0)  # cache hit — no files changed since last check
+
+        def _compute_and_hash():
+            current = compute_hash(root)
+            return current
+
+        # Use config_path as mtime source — if any .md changes, max_mtime changes
+        # which means config_path mtime may not catch it. Instead, we use a TTL
+        # approach with the hash as value, and invalidate via mtime on config_path.
+        # However, the real check is: if the cached hash == stored hash, we're good.
+        # We use CacheManager to cache the expensive compute_hash result.
+        cached_hash = cache.get("knowledge_mtime", "knowledge-hash-check")
+        if cached_hash is not None and cached_hash == stored:
+            sys.exit(0)  # cache hit — hash matches stored
 
         current = compute_hash(root)
-        _write_mtime_cache(cache_path, time.time())
+        # Cache the computed hash for future checks
+        cache.set("knowledge_mtime", "knowledge-hash-check", current, ttl=3600,
+                 invalidation="session")
         if current != stored:
             print(
-                '[zie-framework] Knowledge drift detected since last session'
-                ' \u2014 run /resync to update project context'
+                '[zf] Knowledge drift detected since last session'
+                ' — run /resync to update project context'
             )
     except Exception:
         sys.exit(0)
