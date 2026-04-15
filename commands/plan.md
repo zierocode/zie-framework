@@ -71,7 +71,8 @@ For each resolved slug (whether from args or from no-args selection):
 
 <!-- context-load: adrs + project context -->
 
-Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
+Extract keywords from spec (Problem + Approach sections — split on whitespace, remove stop words, take top 6 unique terms).
+Invoke `Skill(zie-framework:load-context, '<keywords>')` → result available as `context_bundle`
 (calls `write_adr_cache`, bundles `adr_cache_path` + `decisions/` + `project/context.md`).
 Pass `context_bundle` to every reviewer invocation below.
 
@@ -86,13 +87,10 @@ Print: `[Plan {N}/{total}] plan-reviewer pass`
    - Path to plan file
    - Path to spec file (`zie-framework/specs/*-<slug>-design.md`)
    - `context_bundle` (pre-loaded ADRs + context.md)
-2. If ❌ Issues Found → fix ALL issues listed → invoke reviewer once more
-   as a confirm pass (pass 2 of 2).
-   - If confirm pass returns ✅ APPROVED → proceed to Zie approval below.
-   - If confirm pass returns ❌ Issues Found again → surface to Zie:
-     "Reviewer found persistent issues after fix pass. Review plan manually."
-   Max 2 total iterations: initial scan (pass 1) + confirm pass (pass 2).
-   If 0 issues on initial scan → APPROVED immediately, no confirm pass needed.
+2. If ❌ Issues Found → fix ALL issues listed → verify each fix inline against issue list
+   (no re-invocation of reviewer — inline verification replaces confirm pass)
+   - If all fixes verified → proceed to Zie approval below
+   - If any issue unfixable → surface to Zie
 3. If ✅ Approved on initial scan → proceed to Zie approval below.
 
 ## ขออนุมัติ plan (ทีละ plan)

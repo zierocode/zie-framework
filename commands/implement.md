@@ -46,7 +46,8 @@ Tasks without `depends_on` run in parallel (max 4 concurrent). Tasks with `<!-- 
 <!-- context: ROADMAP already injected by session-resume/subagent-context hook; re-read only if Now lane may have changed -->
 <!-- context-load: adrs + project context -->
 
-Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`
+Extract keywords from plan (Goal + Architecture sections — split on whitespace, remove stop words, take top 6 unique terms).
+Invoke `Skill(zie-framework:load-context, '<keywords>')` → result available as `context_bundle`
 (calls `write_adr_cache`, bundles `adr_cache_path` + `decisions/` + `project/context.md`).
 Pass `context_bundle` to every impl-reviewer call.
 

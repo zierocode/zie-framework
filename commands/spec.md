@@ -27,7 +27,8 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 
 <!-- context-load: adrs + project context -->
 
-Invoke `Skill(zie-framework:load-context)` → result available as `context_bundle`.
+Extract keywords from backlog item (Problem + Approach sections — split on whitespace, remove stop words, take top 6 unique terms).
+Invoke `Skill(zie-framework:load-context, '<keywords>')` → result available as `context_bundle`.
 Pass `context_bundle` to spec-design and spec-reviewer invocations.
 
 ## Steps
@@ -69,7 +70,7 @@ Pass `context_bundle` to spec-design and spec-reviewer invocations.
      context (idea string becomes the problem statement — no backlog file
      needed).
    - spec-design asks clarifying questions, proposes approaches, writes
-     spec, runs spec-reviewer loop, records `approved: true` in frontmatter.
+     spec, runs spec-reviewer once, fixes issues inline if any, records `approved: true` in frontmatter.
    - After spec approved, add to ROADMAP Next:
      `- [ ] <idea title> — [spec](specs/YYYY-MM-DD-<slug>-design.md)`
 

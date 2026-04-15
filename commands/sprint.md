@@ -55,7 +55,8 @@ Print: `[MERGED] <slug-a> + <slug-b> → <combined-slug> — both touch <X>`. Ne
 
 ## Load Context Bundle
 
-Invoke `Skill(zie-framework:load-context)` → `context_bundle` (ADRs + project context). Used by all downstream phases.
+Extract keywords per item from backlog items (Problem + Approach — top 6 terms each).
+Invoke `Skill(zie-framework:load-context, '<first-item-keywords>')` → `context_bundle` (ADRs + project context). Used by all downstream phases.
 
 ## Autonomous Mode
 
@@ -98,7 +99,7 @@ Spawn background Agent with prompt:
     2. Invoke `Skill(zie-framework:write-plan, '<slug>')` — this writes the plan.
     3. Invoke `Skill(zie-framework:plan-reviewer)` inline — verify the plan.
        - ✅ APPROVED → run `python3 hooks/approve.py <plan-file>` via Bash
-       - ❌ Issues Found → fix all issues inline → verify each fix → run approve.py
+       - ❌ Issues Found → fix all issues inline → verify each fix against issue list → run approve.py
        - Any issue unfixable → return failure with details
 
     Context bundle is provided below. Use it directly — do not re-invoke load-context.

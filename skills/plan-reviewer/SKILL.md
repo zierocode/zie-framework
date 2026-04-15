@@ -56,7 +56,7 @@ Returns: `adrs_content`, `context_content`.
 
 ## Phase 3 — Context Checks
 
-1. **File existence** — list file-map files that don't exist and aren't marked "Create".
+1. **File existence** — extract directory paths from plan's File Map. Scope Glob/Grep to those directories only. If no paths found → use current broad scope. List file-map files that don't exist and aren't marked "Create".
 2. **ADR conflict** — flag planned approach contradicting a loaded ADR. No ADRs → skip.
 3. **ROADMAP conflict** — flag overlap with Ready/Now item (same feature/duplicate scope). ROADMAP missing → skip.
 4. **Pattern match** — flag divergence from patterns in read files. Surface for Zie to accept/reject — reviewer notes, doesn't decide.

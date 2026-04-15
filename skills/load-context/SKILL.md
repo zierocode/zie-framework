@@ -5,7 +5,7 @@ user-invocable: false
 context: fork
 agent: Explore
 allowed-tools: Read, Grep, Glob
-argument-hint: ""
+argument-hint: "[keywords]"
 model: haiku
 effort: low
 ---
@@ -19,20 +19,23 @@ effort: low
 
 Load ADRs and project context once. Returns `context_bundle` for downstream reviewers.
 
+## Arguments
+
+| Pos | Var | Description | Default |
+| --- | --- | --- | --- |
+| 0 | `$ARGUMENTS[0]` | Comma-separated keywords for ADR relevance filter | absent → load all ADRs |
+
 ## Steps
 
 **Fast-path:** `context_bundle` provided as argument → return immediately. Skip below.
 
-**Step 0: Load ADRs via cache**
+**Step 0: Load ADRs via cache (with keyword filter)**
 - Import `get_cache_manager` from `hooks/utils_cache.py`.
 - `cache = get_cache_manager(cwd)` where `cwd` is project root.
-- `adrs_content = cache.get_or_compute("adrs", session_id, compute_fn, ttl=3600)` where:
-  ```python
-  def compute_fn():
-      decisions_dir = cwd / "zie-framework" / "decisions"
-      adr_files = sorted(decisions_dir.glob("*.md"))
-      return "\n\n".join(f.read_text() for f in adr_files if f.exists()) or ""
-  ```
+- If `keywords` argument provided:
+  - Parse: split on commas, strip whitespace, lowercase.
+  - `adrs_content = cache.get_or_compute("adrs:kw:{keywords_hash}", session_id, compute_fn, ttl=3600)` where compute_fn calls `read_adrs_unified(cwd, keywords=keywords_list)`
+- If no keywords → current behavior: `adrs_content = cache.get_or_compute("adrs", session_id, compute_fn, ttl=3600)`
 - Cache hit → skip disk. Miss → compute → cache result.
 
 **Step 1: Load project context via cache**

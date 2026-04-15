@@ -18,9 +18,6 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 Commits since last tag:
 !`git log $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD --oneline`
 
-Recent activity (last 50 commits — bound as `git_log_raw`):
-!`git log -50 --oneline`
-
 4. Bind `roadmap_raw` — load `ROADMAP.md` once. Extract: Grep `## Now` → read to next `---`. Grep `## Done` → read ~20 lines (bind as `done_section_raw`). Grep `## Next` → read to next `---` (cache as `next_lane`).
 
 ## Steps

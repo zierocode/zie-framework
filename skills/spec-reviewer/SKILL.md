@@ -52,7 +52,7 @@ Returns: `adrs_content`, `context_content`.
 
 Cross-reference spec against loaded bundle:
 
-1. **File existence** — named component files that don't exist and aren't marked "Create".
+1. **File existence** — extract directory paths from spec's Components section. Scope Glob/Grep to those directories only. If no paths found → use current broad scope. Named component files that don't exist and aren't marked "Create" are flagged.
 2. **ADR conflict** — design decision contradicting a loaded ADR. No ADRs → skip.
 3. **ROADMAP conflict** — overlap with Ready/Now item (same feature/duplicate scope). ROADMAP missing → skip.
 

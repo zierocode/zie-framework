@@ -52,7 +52,7 @@ When `$ARGUMENTS[1]` is `autonomous`:
 - Step 5 (Blind Spots check) runs automatically — add findings to Edge Cases section.
 - Run spec-reviewer inline (Skill call in same context — no Agent spawn).
 - ✅ APPROVED → follow Step 7 exactly: write frontmatter `approved: false`, then `python3 hooks/approve.py <spec-file>` via Bash. Do NOT use Write/Edit to set `approved: true` — reviewer-gate blocks it.
-- ❌ Issues Found → fix inline (1 pass) → re-check once → re-run approve.py on pass. Second failure → surface to user (Interruption Protocol case 2).
+- ❌ Issues Found → fix all issues inline → verify each fix against issue list → run approve.py. Any issue unfixable → surface to user (Interruption Protocol case 2).
 
 **Used by:** `/sprint` autonomous execution. **Not for:** standalone `/spec` — always uses `full` or `quick`.
 
@@ -90,8 +90,10 @@ When `$ARGUMENTS[1]` is `autonomous`:
    ```
 
 6. **Spec reviewer loop** — <!-- BLOCKING: do not write frontmatter (Step 7) until reviewer returns ✅ APPROVED -->
-   invoke `Skill(zie-framework:spec-reviewer)` with: spec file path, backlog item context, `context_bundle=<context_bundle>` (pass through for inline fast-path).
-   If ❌ Issues Found → fix → re-invoke → repeat until ✅ APPROVED. Max 3 iterations → surface to human.
+   invoke `Skill(zie-framework:spec-reviewer)` once with: spec file path, backlog item context, `context_bundle=<context_bundle>` (pass through for inline fast-path).
+   - ✅ APPROVED → proceed to Step 7
+   - ❌ Issues Found → fix all issues inline → verify each fix against the issue list (no re-invocation — inline verification replaces confirm pass)
+   - If any issue cannot be fixed → surface to user
 
 7. **Record approval** — once spec-reviewer returns ✅ APPROVED:
 

@@ -323,32 +323,88 @@ def read_adrs_unified(
     session_id: str,
     cwd: Path,
     ttl: int = 3600,
+    keywords: Optional[list] = None,
 ) -> str:
-    """Read all ADRs and return combined content.
+    """Read ADRs and return combined content, optionally filtered by keywords.
 
     Args:
         decisions_dir: Path to zie-framework/decisions/
         session_id: Session identifier
         cwd: Project root
         ttl: Cache TTL in seconds (default: 3600)
+        keywords: Optional list of keywords for ADR relevance filter.
+            When provided: always include ADR-000-summary, then include
+            only ADRs whose filename or first-line title matches any keyword
+            (case-insensitive). If no keywords match, fall back to all ADRs.
+            If None/empty: load all ADRs (current behavior).
 
     Returns:
         Combined ADR content string, or empty string on error
     """
     cache = get_cache_manager(cwd)
 
+    # If keywords provided, use a keyword-specific cache key
+    cache_key = "adrs"
+    if keywords:
+        kw_hash = hashlib.md5(" ".join(sorted(keywords)).lower().encode()).hexdigest()[:8]
+        cache_key = f"adrs:kw:{kw_hash}"
+
     def _read() -> str:
         try:
             adr_files = sorted(decisions_dir.glob("*.md"))
-            contents = []
+            if not adr_files:
+                return ""
+
+            # No keywords → load all ADRs (safe default)
+            if not keywords:
+                contents = []
+                for adr in adr_files:
+                    contents.append(adr.read_text())
+                return "\n\n".join(contents)
+
+            # Keywords provided: filter by relevance
+            kw_lower = [k.lower() for k in keywords]
+            summary_files = []
+            matching_files = []
+
             for adr in adr_files:
+                name_lower = adr.stem.lower()
+                # Always collect ADR-000-summary
+                if name_lower.startswith("adr-000") or "summary" in name_lower:
+                    summary_files.append(adr)
+                    continue
+
+                # Match keywords against filename
+                if any(kw in name_lower for kw in kw_lower):
+                    matching_files.append(adr)
+                    continue
+
+                # Match keywords against first line (title)
+                try:
+                    first_line = adr.read_text().split("\n", 1)[0].lower()
+                    if any(kw in first_line for kw in kw_lower):
+                        matching_files.append(adr)
+                except OSError:
+                    continue
+
+            # If no matches, fall back to all ADRs
+            if not matching_files:
+                contents = []
+                for adr in adr_files:
+                    contents.append(adr.read_text())
+                return "\n\n".join(contents)
+
+            # Return summary + matching ADRs
+            result_files = summary_files + matching_files
+            contents = []
+            for adr in result_files:
                 contents.append(adr.read_text())
             return "\n\n".join(contents)
         except OSError as e:
             log_error("utils_cache", "read_adrs", e)
             return ""
 
-    return cache.get_or_compute("adrs", session_id, _read, ttl)
+    return cache.get_or_compute(cache_key, session_id, _read, ttl)
 
 
 def read_project_context_unified(
