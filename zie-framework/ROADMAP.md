@@ -18,6 +18,7 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
+- [ ] init-scaffold-claude-code-config — [backlog](backlog/init-scaffold-claude-code-config.md)
 - [ ] backlog-dedup-expand — [backlog](backlog/backlog-dedup-expand.md)
 - [ ] status-roadmap-content — [backlog](backlog/status-roadmap-content.md)
 - [ ] skill-manual-revise — [backlog](backlog/skill-manual-revise.md)
