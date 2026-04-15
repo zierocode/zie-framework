@@ -75,27 +75,57 @@ Invoke `Skill(zie-framework:load-context)` → `context_bundle` (ADRs + project 
 | Title names a concrete action | +1 |
 | Score ≥ 2 → direct; Score < 2 → ask 1 question | |
 
-## PHASE 1: SPEC ALL (Parallel)
+## PHASE 1: SPEC ALL (Parallel Agents)
 
 TaskCreate subject="Phase 1/4 — Spec All"
 
 For `[clarity: ask]` items: ask 1 question per item first, then proceed.
 
-For each item in needs_spec (parallel Skill calls, passing `context_bundle`):
-1. `Skill(zie-framework:spec-design, '<slug> autonomous')` — writes spec, runs spec-reviewer inline, auto-approves
-2. `Skill(zie-framework:write-plan, '<slug>')` — writes plan
-3. Inline plan-reviewer: `Skill(zie-framework:plan-reviewer, context_bundle=<context_bundle>)`
-   - ✅ APPROVED → `python3 hooks/approve.py <plan-file>` (ONLY approval path)
-   - ❌ Issues Found → fix inline (1 pass), re-check once → re-run approve.py
-   - Second failure → interrupt (Interruption Protocol case 2)
+**Concurrency cap:** `min(4, number of items in needs_spec)`. Excess items queue until slots open.
 
-No Agent spawn. Skills run directly. On failure: inline retry once → still failing → interrupt.
+**Single-item fast path:** If only 1 item needs spec+plan, use Skill calls directly (no Agent spawn overhead):
+1. `Skill(zie-framework:spec-design, '<slug> autonomous')` → spec-reviewer inline → approve
+2. `Skill(zie-framework:write-plan, '<slug>')` → plan-reviewer inline → approve.py
+3. Skip to Phase 1 completion below.
 
-Progress: `[spec N/total] <slug> ✓` or `[spec N/total] <slug> ❌ <issue>` (delta-only; full table at phase end).
+**Multi-item parallel path:** For each item in needs_spec (up to `cap` concurrent):
 
-After Phase 1: reload ROADMAP → `roadmap_post_phase1`. Write sprint context bundle to `.zie/sprint-context.json` (specs, plans, roadmap, context_bundle — passthrough for Phases 2-3).
+Spawn background Agent with prompt:
 
-TaskUpdate → Phase 1/4 complete. Write `.sprint-state` with phase=2.
+    You are running the spec+plan pipeline for backlog item "<slug>".
+
+    1. Invoke `Skill(zie-framework:spec-design, '<slug> autonomous')` — this writes the spec, runs spec-reviewer inline, and auto-approves.
+    2. Invoke `Skill(zie-framework:write-plan, '<slug>')` — this writes the plan.
+    3. Invoke `Skill(zie-framework:plan-reviewer)` inline — verify the plan.
+       - ✅ APPROVED → run `python3 hooks/approve.py <plan-file>` via Bash
+       - ❌ Issues Found → fix all issues inline → verify each fix → run approve.py
+       - Any issue unfixable → return failure with details
+
+    Context bundle is provided below. Use it directly — do not re-invoke load-context.
+
+    <context_bundle>
+
+Wait for all agents to complete. As each agent returns:
+- Success → `[spec N/total] <slug> ✓` → update `.sprint-state`: add slug to `completed_phase1_items`
+- Failure → inline retry: re-spawn a single Agent for that slug. If retry also fails → `[spec N/total] <slug> ❌ <issue>` → halt sprint.
+
+After all Phase 1 agents (+ retries): reload ROADMAP → `roadmap_post_phase1`.
+Update ROADMAP: move all approved items from Next → Ready (single batch write, not per-agent).
+
+Progress: delta-only per agent; full table at phase end.
+
+Extract keywords per item from backlog items (Problem + Approach — top 6 terms each). Write sprint context to `.zie/sprint-context.json`:
+
+    sprint_context = {
+        "specs": {...},           # Spec content for each item (keyed by slug)
+        "plans": {...},          # Plan content for each item (keyed by slug)
+        "roadmap": roadmap_post_phase1,
+        "keywords_per_item": {...},  # slug → keywords string for downstream load-context calls
+    }
+
+Do NOT persist full context_bundle in JSON — downstream phases call load-context with keywords (cached).
+
+TaskUpdate → Phase 1/4 complete. Write `.sprint-state` with phase=2, `completed_phase1_items: [<list of completed slugs>]`.
 
 **Context checkpoint:** Run `/compact` to clear Phase 1 history before implementation.
 
@@ -103,7 +133,7 @@ TaskUpdate → Phase 1/4 complete. Write `.sprint-state` with phase=2.
 
 TaskCreate subject="Phase 2/4 — Implement"
 
-Read sprint context bundle from `.zie/sprint-context.json` (fallback: read from disk on resume).
+Read sprint context bundle from `.zie/sprint-context.json` (fallback: read from disk on resume). Uses `keywords_per_item` for load-context calls (cached), not full context_bundle.
 
 For each Ready item (priority: CRITICAL → HIGH → MEDIUM → LOW):
 
@@ -158,7 +188,7 @@ Tests: ✓ unit | ✓ integration | ✓|n/a e2e
 ADRs: <count> (phase 5)
 
 Phases:
-  1. Spec    — <N> items, <elapsed> (parallel + inline retry)
+  1. Spec    — <N> items, <elapsed> (parallel agents + inline retry)
   2. Impl    — <N> items, <elapsed> | WIP=1
   3. Release — v<version>, <elapsed>
   4. Retro   — <N> ADRs, <elapsed>
@@ -171,7 +201,7 @@ Next: /backlog to queue new items.
 
 | Phase | Failure | Action |
 | --- | --- | --- |
-| Phase 1 | Retry exhausted | Halt sprint, surface issue |
+| Phase 1 | Agent fails after retry | Halt sprint, surface issue |
 | Phase 2 | Implement fails | Halt sprint, invoke `/fix` |
 | Phase 3 | Release fails | Halt before merge, user debugs |
 | Phase 4 | Retro fails | Non-blocking, print warning |
