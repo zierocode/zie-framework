@@ -8,13 +8,11 @@
 
 ## Now — Active Sprint
 
-- [ ] init-scaffold-claude-code-config — [spec](specs/2026-04-15-init-scaffold-claude-code-config-design.md) [plan](plans/2026-04-15-init-scaffold-claude-code-config.md)
+- [ ] backlog-dedup-expand — [spec](specs/2026-04-15-backlog-dedup-expand-design.md) [plan](plans/2026-04-15-backlog-dedup-expand.md)
 
 ---
 
-## Ready — Approved Plans
-
-- [ ] backlog-dedup-expand — [spec](specs/2026-04-15-backlog-dedup-expand-design.md) [plan](plans/2026-04-15-backlog-dedup-expand.md)
+## Ready — Approved Plans — [spec](specs/2026-04-15-backlog-dedup-expand-design.md) [plan](plans/2026-04-15-backlog-dedup-expand.md)
 - [ ] status-roadmap-content — [spec](specs/2026-04-15-status-roadmap-content-design.md) [plan](plans/2026-04-15-status-roadmap-content.md)
 - [ ] skill-manual-revise — [spec](specs/2026-04-15-skill-manual-revise-design.md) [plan](plans/2026-04-15-skill-manual-revise.md)
 - [ ] skill-manual-auto-inject — [spec](specs/2026-04-15-skill-manual-auto-inject-design.md) [plan](plans/2026-04-15-skill-manual-auto-inject.md)
