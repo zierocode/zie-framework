@@ -84,7 +84,16 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
    ## Rough Scope
 
    <optional — what's in and out>
+
+   ## Considerations
+
+   <!-- Auto-suggested: 2-3 edge cases, risks, or dependencies the user may have missed. Remove if none are relevant. -->
+   1. <edge case or risk — e.g., "What happens if X fails?" or "Depends on Y which may not be available">
+   2. <alternative approach or non-obvious impact>
+   3. <dependency or ordering concern>
    ```
+
+   Fill in Considerations by thinking about: failure modes, dependencies on other systems, edge cases the user may not have considered, and alternatives that might be simpler. If none are relevant, leave the section empty.
 
 5. Update `zie-framework/ROADMAP.md` Next section:
    `- [ ] <title> — [backlog](backlog/<slug>.md)`

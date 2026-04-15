@@ -48,9 +48,10 @@ When `$ARGUMENTS[0]` is a backlog slug, read `zie-framework/backlog/<slug>.md` a
 When `$ARGUMENTS[1]` is `autonomous`:
 
 - Skip Steps 1–3 (clarifying questions, approaches, user review loop).
-- Write spec directly from backlog content (Step 4) — treat all sections as accepted.
+- Write spec directly from backlog content (Step 5) — treat all sections as accepted.
+- Step 5 (Blind Spots check) runs automatically — add findings to Edge Cases section.
 - Run spec-reviewer inline (Skill call in same context — no Agent spawn).
-- ✅ APPROVED → follow Step 6 exactly: write frontmatter `approved: false`, then `python3 hooks/approve.py <spec-file>` via Bash. Do NOT use Write/Edit to set `approved: true` — reviewer-gate blocks it.
+- ✅ APPROVED → follow Step 7 exactly: write frontmatter `approved: false`, then `python3 hooks/approve.py <spec-file>` via Bash. Do NOT use Write/Edit to set `approved: true` — reviewer-gate blocks it.
 - ❌ Issues Found → fix inline (1 pass) → re-check once → re-run approve.py on pass. Second failure → surface to user (Interruption Protocol case 2).
 
 **Used by:** `/sprint` autonomous execution. **Not for:** standalone `/spec` — always uses `full` or `quick`.
@@ -68,7 +69,14 @@ When `$ARGUMENTS[1]` is `autonomous`:
 
    User requests changes → apply all in one batch, re-present once, then continue. User accepts → proceed to Step 4. Max one re-draft cycle; if further issues remain, surface for section-level guidance.
 
-4. **Write spec** to `zie-framework/specs/YYYY-MM-DD-<feature-slug>-design.md`
+4. **Blind Spots check** — before reviewer, explicitly consider:
+   - What does this spec NOT cover? List gaps in scope.
+   - What are the failure modes? What happens when assumptions are wrong?
+   - What alternatives were considered but rejected? Why?
+   - What downstream impacts might this have on other parts of the system?
+   Add findings to the spec's Edge Cases section. If no blind spots found, note "No additional blind spots identified."
+
+5. **Write spec** to `zie-framework/specs/YYYY-MM-DD-<feature-slug>-design.md`
 
    ```markdown
    # <Feature Name> — Design Spec
@@ -81,11 +89,11 @@ When `$ARGUMENTS[1]` is `autonomous`:
    **Out of Scope:** <list>
    ```
 
-5. **Spec reviewer loop** — <!-- BLOCKING: do not write frontmatter (Step 6) until reviewer returns ✅ APPROVED -->
+6. **Spec reviewer loop** — <!-- BLOCKING: do not write frontmatter (Step 7) until reviewer returns ✅ APPROVED -->
    invoke `Skill(zie-framework:spec-reviewer)` with: spec file path, backlog item context, `context_bundle=<context_bundle>` (pass through for inline fast-path).
    If ❌ Issues Found → fix → re-invoke → repeat until ✅ APPROVED. Max 3 iterations → surface to human.
 
-6. **Record approval** — once spec-reviewer returns ✅ APPROVED:
+7. **Record approval** — once spec-reviewer returns ✅ APPROVED:
 
    a. Prepend frontmatter with `approved: false` (gate requires this before approve.py):
    ```yaml
@@ -101,9 +109,9 @@ When `$ARGUMENTS[1]` is `autonomous`:
    python3 hooks/approve.py zie-framework/specs/YYYY-MM-DD-<slug>-design.md
    ```
 
-7. **Store spec approval in brain** — if `zie_memory_enabled=true`: → zie-memory: remember("Spec approved: <feature>. Key decisions: [<d1>].", tags=[spec, `<project>`, `<feature-area>`])
+8. **Store spec approval in brain** — if `zie_memory_enabled=true`: → zie-memory: remember("Spec approved: <feature>. Key decisions: [<d1>].", tags=[spec, `<project>`, `<feature-area>`])
 
-8. Print handoff — do NOT auto-invoke write-plan:
+9. Print handoff — do NOT auto-invoke write-plan:
    ```text
    Spec approved ✓ (reviewed by spec-reviewer) → zie-framework/specs/YYYY-MM-DD-<slug>-design.md
 

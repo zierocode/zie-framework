@@ -41,6 +41,7 @@ backlog: backlog/<slug>.md
 **Goal:** <one sentence>
 **Architecture:** <2-3 sentences>
 **Tech Stack:** <key technologies>
+**Risk Review:** <1-2 sentences — key risks, rollback strategy, hidden dependencies>
 
 ---
 ```
@@ -53,6 +54,17 @@ Before defining tasks, map out files to create or modify:
 | --- | --- | --- |
 | Create | `path/to/file.py` | What this file does |
 | Modify | `path/to/existing.py` | What changes |
+
+## Risk Review
+
+Before writing tasks, explicitly consider:
+
+1. **What can go wrong?** — Identify the top 2-3 failure modes (wrong assumptions, dependency failures, data loss).
+2. **Rollback strategy** — How do you undo each change if it breaks in production? Is rollback safe?
+3. **Hidden dependencies** — What other systems, files, or teams does this change affect that aren't obvious from the spec?
+4. **Rejected alternatives** — What approaches were considered but dismissed? Why? (Helps future readers understand the decision.)
+
+Add findings to the plan's `**Risk Review:**` header. If no significant risks: write "No significant risks identified."
 
 ## Task Sizing Guidance
 

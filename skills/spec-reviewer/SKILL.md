@@ -13,7 +13,7 @@ effort: low
 <!-- FAST PATH -->
 **Purpose:** Review a design spec for completeness, YAGNI, and testability.
 **When to use fast path:** Spec is short (<40 lines) and problem/approach/components/testing sections are all present.
-**Quick steps:** (1) Read spec. (2) Check 9-item Phase 2 checklist. (3) Check 3-item Phase 3 context checks. (4) Output ✅ APPROVED or ❌ Issues Found.
+**Quick steps:** (1) Read spec. (2) Check 10-item Phase 2 checklist. (3) Check 3-item Phase 3 context checks. (4) Output ✅ APPROVED or ❌ Issues Found.
 <!-- DETAIL: load only if fast path insufficient -->
 
 # spec-reviewer — Design Spec Review
@@ -44,8 +44,9 @@ Returns: `adrs_content`, `context_content`.
 5. **Edge Cases** — Known edge cases listed?
 6. **Out of Scope** — Scope explicitly bounded?
 7. **YAGNI** — Anything not needed for the stated problem?
-8. **Ambiguity** — Requirements interpretable multiple ways without more context?
-9. **Testability** — Acceptance criteria derivable from this spec?
+8. **Unquestioned assumptions** — Does the spec assume something without stating it? (e.g., "users will always have X", "Y is always available", "Z never fails"). Flag assumptions that aren't validated.
+9. **Ambiguity** — Requirements interpretable multiple ways without more context?
+10. **Testability** — Acceptance criteria derivable from this spec?
 
 ## Phase 3 — Context Checks
 

@@ -13,7 +13,7 @@ effort: low
 <!-- FAST PATH -->
 **Purpose:** Review an implementation plan for TDD structure, spec coverage, and task granularity.
 **When to use fast path:** Plan has ≤10 tasks and each task has explicit test steps.
-**Quick steps:** (1) Read plan + spec. (2) Check 10-item Phase 2 checklist. (3) Check Phase 3 context. (4) Output ✅ APPROVED or ❌ Issues Found.
+**Quick steps:** (1) Read plan + spec. (2) Check 12-item Phase 2 checklist. (3) Check Phase 3 context. (4) Output ✅ APPROVED or ❌ Issues Found.
 <!-- DETAIL: load only if fast path insufficient -->
 
 # plan-reviewer — Implementation Plan Review
@@ -47,7 +47,9 @@ Returns: `adrs_content`, `context_content`.
 7. **Dependencies** — `depends_on` comments where needed?
 8. **Spec coverage** — Every requirement in the spec covered?
 9. **YAGNI** — Anything included that the spec doesn't require?
-10. **Dependency hints** — Build file→tasks map: for each task, collect file paths it creates/modifies; record `file → [task IDs]`. Then:
+10. **Rollback plan** — For each task that modifies existing files: is there a safe rollback path? Can changes be reverted without data loss? Flag tasks with no rollback strategy.
+11. **Hidden dependencies** — Does any task depend on a system, service, or file not mentioned in the spec? Flag implicit dependencies (e.g., "assumes DB migration already ran", "depends on env var X").
+12. **Dependency hints** — Build file→tasks map: for each task, collect file paths it creates/modifies; record `file → [task IDs]`. Then:
     - **File conflict (blocking):** File in 2+ task IDs without `depends_on` → flag: "Tasks N and M both write to X.py — add `<!-- depends_on: TN -->`"
     - **Independent tasks (advisory):** No shared files and no `depends_on` → suggest: "Tasks N and M appear independent — consider `<!-- depends_on: -->` for parallel execution"
     - Skip when ≤1 tasks. Conflicts block APPROVED; suggestions do not.
