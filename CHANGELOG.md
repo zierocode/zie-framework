@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.32.2 — 2026-04-16
+
+### Fixed
+
+- **Branding consistency**: Added `zie-framework:` prefix to all 14 SKILL.md `name:` fields so slash commands display as `/zie-framework:<skill>` consistently
+- **Skill() invocations**: Updated bare `Skill('spec-review')` calls to `Skill('zie-framework:spec-review')` in guide.md and approve.py
+- **Template updates**: Replaced stale `/zie-*` command names (`/zie-idea`, `/zie-plan`, etc.) with current `/backlog`, `/plan`, `/implement`, `/release`, `/retro` in ROADMAP and PROJECT templates
+- **Argument-hint fixes**: Updated example invocations in `/spec` and `/plan` from `zie-spec`/`zie-plan` to `/spec`/`/plan`
+- **README sync**: Skill table now uses `zie-framework:` prefixed names
+
 ## v1.32.1 — 2026-04-16
 
 ### Changed
