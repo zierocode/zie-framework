@@ -53,16 +53,13 @@ effort: low
 - `/plan` — plan from approved spec
 - `/implement` — TDD implementation (agent mode)
 - `/sprint` — full pipeline: backlog→spec→plan→implement→release→retro
-- `/fix` — debug & fix failing tests/features
-- `/chore` — maintenance, no spec needed
-- `/hotfix` — emergency fix, ship fast
-- `/status` — current SDLC state
+- `/fix` — debug & fix failing tests/features (`--hotfix` for emergencies, `--chore` for maintenance)
+- `/status` — current SDLC state (`--guide` for walkthrough, `--health` for hook check, `--brief` for design brief)
 - `/audit` — project audit
 - `/retro` — post-release retrospective
 - `/release` — merge dev→main, bump version
 - `/resync` — refresh project knowledge
 - `/init` — bootstrap in a new project
-- `/guide` — walkthrough + next actions
 
 ### Workflow Map
 

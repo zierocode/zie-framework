@@ -97,7 +97,7 @@ def test_group_a_hooks_no_bare_utils_import():
 
 
 def test_group_b_hooks_no_bare_utils_import():
-    group_b = ["stopfailure-log.py", "notification-log.py", "subagent-stop.py", "session-cleanup.py"]
+    group_b = ["stopfailure-log.py", "notification-log.py", "subagent-stop.py"]
     hooks_dir = Path(REPO_ROOT) / "hooks"
     violations = []
     for name in group_b:
@@ -126,10 +126,10 @@ def test_group_d_hooks_no_bare_utils_import():
         "session-resume.py",
         "failure-context.py",
         "sdlc-compact.py",
-        "wip-checkpoint.py",
         "intent-sdlc.py",
         "subagent-context.py",
-        "session-learn.py",
+        "session-end.py",
+        "post-tool-use.py",
     ]
     hooks_dir = Path(REPO_ROOT) / "hooks"
     violations = []

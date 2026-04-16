@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Post-tool-use hook — proactive suggestions (auto-decide).
+"""Post-tool-use hook — proactive suggestions + WIP checkpoint.
+
+Merged from: post-tool-use.py (suggestions) + wip-checkpoint.py (memory checkpoint).
 
 Analyzes tool output and presents context-aware suggestions at key moments.
-Non-blocking: users can skip suggestions easily.
+Also checkpoints WIP to zie-memory every 5 edits (when zie-memory is available).
 
-Triggered on PostToolUse event for Bash (test runs) and Write/Edit (file changes).
-Always exits 0 — never blocks Claude.
+Non-blocking: always exits 0.
 """
 
 import json
@@ -16,14 +17,14 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_error import log_error
-from utils_event import get_cwd, read_event
-from utils_io import project_tmp_path
+from utils_event import call_zie_memory_api, get_cwd, read_event
+from utils_io import persistent_project_path, project_tmp_path, safe_write_persistent
+from utils_roadmap import parse_roadmap_now
 
-# Suggestion frequency limits
+# ── Suggestion constants ─────────────────────────────────────────────────────
 _MAX_SUGGESTIONS_PER_SESSION = 3
-_SUGGESTION_COOLDOWN_SECONDS = 300  # 5 minutes
+_SUGGESTION_COOLDOWN_SECONDS = 300
 
-# Trigger patterns
 _TEST_FAILURE_PATTERNS = [
     re.compile(r"FAILED", re.IGNORECASE),
     re.compile(r"AssertionError", re.IGNORECASE),
@@ -35,7 +36,6 @@ _MULTIPLE_ERROR_PATTERNS = [
     re.compile(r"(ERROR|FAILED|AssertionError)", re.IGNORECASE),
 ]
 
-# Suggestion templates
 _SUGGESTION_TEMPLATES = {
     "test_failure": "[zf] suggestion: {error_count} test(s) failing → run /fix",
     "multiple_errors": "[zf] suggestion: {error_count} similar errors → review pattern and fix root cause",
@@ -43,46 +43,42 @@ _SUGGESTION_TEMPLATES = {
     "plan_complete": "[zf] suggestion: plan written ({plan_name}) → run /implement",
 }
 
+# ── WIP checkpoint constants (merged from wip-checkpoint.py) ────────────────
+_CHECKPOINT_EVERY = 5  # Call memory API every N edits
+
+
+# ── Suggestion logic ────────────────────────────────────────────────────────
 
 def _get_suggestion_state(cwd, session_id):
-    """Load suggestion frequency state."""
     state_file = project_tmp_path("suggestion-state", cwd.name)
     try:
         if state_file.exists():
             data = json.loads(state_file.read_text())
-            # Validate session ID
             if data.get("session_id") == session_id:
                 return data
     except (json.JSONDecodeError, OSError):
-        pass  # corrupt or missing state file — reset
+        pass
     except Exception as e:
         log_error("post-tool-use", "load_suggestion_state", e)
     return {"session_id": session_id, "count": 0, "last_suggestion": None}
 
 
 def _save_suggestion_state(cwd, state):
-    """Save suggestion frequency state."""
     state_file = project_tmp_path("suggestion-state", cwd.name)
     try:
         state_file.write_text(json.dumps(state))
         os.chmod(state_file, 0o600)
     except (json.JSONDecodeError, OSError):
-        pass  # state write failure — non-fatal, will reset next load
+        pass
     except Exception as e:
         log_error("post-tool-use", "save_suggestion_state", e)
 
 
 def _check_frequency_cap(state, priority="MEDIUM"):
-    """Check if suggestion frequency cap allows this suggestion."""
-    # HIGH priority bypasses cooldown
     if priority == "HIGH":
         return state["count"] < _MAX_SUGGESTIONS_PER_SESSION
-
-    # Check max suggestions
     if state["count"] >= _MAX_SUGGESTIONS_PER_SESSION:
         return False
-
-    # Check cooldown
     if state.get("last_suggestion"):
         try:
             last_time = datetime.fromisoformat(state["last_suggestion"])
@@ -90,84 +86,63 @@ def _check_frequency_cap(state, priority="MEDIUM"):
             if (now - last_time).total_seconds() < _SUGGESTION_COOLDOWN_SECONDS:
                 return False
         except ValueError:
-            pass  # invalid date format — treat as no cooldown
+            pass
         except Exception as e:
             log_error("post-tool-use", "check_frequency_cap", e)
-
     return True
 
 
 def _detect_test_failure(tool_result):
-    """Detect test failure from Bash tool result."""
     if tool_result.get("tool") != "Bash":
         return False, 0
-
     command = tool_result.get("command", "")
     if "pytest" not in command and "test" not in command:
         return False, 0
-
     output = tool_result.get("output", "") + tool_result.get("stderr", "")
     exit_code = tool_result.get("exit_code", 0)
-
     if exit_code != 0:
-        # Count failed tests
         error_count = sum(1 for pattern in _TEST_FAILURE_PATTERNS for _ in pattern.findall(output))
         return True, max(error_count, 1)
-
     return False, 0
 
 
 def _detect_multiple_errors(tool_result):
-    """Detect 3+ similar errors in output."""
     output = tool_result.get("output", "") + tool_result.get("stderr", "")
-
     error_count = 0
     for pattern in _MULTIPLE_ERROR_PATTERNS:
         error_count += len(pattern.findall(output))
-
     return error_count >= 3, error_count
 
 
 def _detect_spec_complete(event, cwd):
-    """Detect spec file written."""
     tool_result = event.get("tool_result", {})
     tool_name = tool_result.get("tool", "")
     if tool_name not in ["Write", "Edit"]:
         return False, None, None
-
     file_path = tool_result.get("input", {}).get("file_path", "")
     if "specs" in file_path and file_path.endswith(".md"):
-        # Extract slug from filename (format: YYYY-MM-DD-slug-design.md)
         slug_match = re.search(r"\d{4}-\d{2}-\d{2}-(.+)-design\.md", file_path)
         if slug_match:
-            slug = slug_match.group(1)
-            return True, file_path, slug
-
+            return True, file_path, slug_match.group(1)
     return False, None, None
 
 
 def _detect_plan_complete(event, cwd):
-    """Detect plan file written."""
     tool_result = event.get("tool_result", {})
     tool_name = tool_result.get("tool", "")
     if tool_name not in ["Write", "Edit"]:
         return False, None, None
-
     file_path = tool_result.get("input", {}).get("file_path", "")
     if "plans" in file_path and file_path.endswith(".md"):
-        # Extract slug from filename (format: slug.md or YYYY-MM-DD-slug.md)
         slug_match = re.search(r"([^/]+)\.md$", file_path)
         if slug_match:
             slug = slug_match.group(1)
-            # Skip if it's a design doc or other plan metadata
             if "design" not in slug.lower():
                 return True, file_path, slug
-
     return False, None, None
 
 
 def _generate_suggestion(trigger_type, **kwargs):
-    """Generate formatted suggestion."""
     template = _SUGGESTION_TEMPLATES.get(trigger_type)
     if not template:
         return None
@@ -175,12 +150,66 @@ def _generate_suggestion(trigger_type, **kwargs):
 
 
 def _get_priority(trigger_type):
-    """Get trigger priority level."""
     high_priority = ["test_failure", "multiple_errors"]
     return "HIGH" if trigger_type in high_priority else "MEDIUM"
 
 
-# Main execution
+# ── WIP checkpoint logic (merged from wip-checkpoint.py) ────────────────────
+
+def _run_wip_checkpoint(cwd, session_id):
+    """Checkpoint WIP to zie-memory every N edits."""
+    # Only run for Edit/Write tools
+    api_key = os.environ.get("ZIE_MEMORY_API_KEY", "")
+    api_url = os.environ.get("ZIE_MEMORY_API_URL", "")
+    if not api_key or not api_url.startswith("https://"):
+        return
+
+    # Fast-path: honour ZIE_MEMORY_ENABLED=0 injected by session-resume.py
+    _mem_enabled = os.environ.get("ZIE_MEMORY_ENABLED", "").strip()
+    if _mem_enabled == "0":
+        return
+
+    zf = cwd / "zie-framework"
+    if not zf.exists():
+        return
+
+    # Edit counter via persistent file
+    counter_file = persistent_project_path("edit-count", cwd.name)
+    count = 0
+    if counter_file.exists():
+        try:
+            count = int(counter_file.read_text().strip())
+        except Exception as e:
+            print(f"[zie-framework] post-tool-use/wip: {e}", file=sys.stderr)
+
+    count += 1
+    safe_write_persistent(counter_file, str(count))
+
+    # Only call memory API every N edits
+    if count % _CHECKPOINT_EVERY != 0:
+        return
+
+    # Read current ROADMAP "Now" section for WIP context
+    roadmap_file = zf / "ROADMAP.md"
+    lines = parse_roadmap_now(roadmap_file)
+    wip_summary = "; ".join(lines[:3]) if lines else ""
+    if not wip_summary:
+        return
+
+    project = cwd.name
+    content = f"[WIP:{project}] {wip_summary} (checkpoint at {count} edits)"
+    try:
+        call_zie_memory_api(
+            api_url, api_key, "/api/hooks/wip-update",
+            {"content": content, "priority": "project", "tags": ["wip", "checkpoint", project], "project": project, "force": True},
+            timeout=3,
+        )
+    except Exception as e:
+        print(f"[zie-framework] post-tool-use/wip: {e}", file=sys.stderr)
+
+
+# ── Main execution ──────────────────────────────────────────────────────────
+
 try:
     event = read_event()
     if not event:
@@ -188,55 +217,48 @@ try:
 
     cwd = get_cwd()
     session_id = os.environ.get("CLAUDE_SESSION_ID", datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S"))
+    tool_name = event.get("tool_name", "")
 
-    # Load suggestion state
+    # ── WIP checkpoint (for Edit/Write) ────────────────────────────────────
+    if tool_name in ("Edit", "Write"):
+        _run_wip_checkpoint(cwd, session_id)
+
+    # ── Suggestion logic ──────────────────────────────────────────────────
     state = _get_suggestion_state(cwd, session_id)
-
-    # Detect triggers
     tool_result = event.get("tool_result", {})
     suggestion = None
     trigger_type = None
     trigger_data = {}
 
-    # Test failure detection (HIGH priority)
     is_failure, error_count = _detect_test_failure(tool_result)
     if is_failure:
         trigger_type = "test_failure"
         trigger_data = {"error_count": error_count}
 
-    # Multiple errors detection (HIGH priority)
     if not trigger_type:
         is_multiple, error_count = _detect_multiple_errors(tool_result)
         if is_multiple:
             trigger_type = "multiple_errors"
             trigger_data = {"error_count": error_count}
 
-    # Spec complete detection (MEDIUM priority)
     if not trigger_type:
         is_complete, file_path, slug = _detect_spec_complete(event, cwd)
         if is_complete and slug:
             trigger_type = "spec_complete"
             trigger_data = {"spec_name": file_path.split("/")[-1], "slug": slug}
 
-    # Plan complete detection (MEDIUM priority)
     if not trigger_type:
         is_complete, file_path, slug = _detect_plan_complete(event, cwd)
         if is_complete and slug:
             trigger_type = "plan_complete"
             trigger_data = {"plan_name": file_path.split("/")[-1], "slug": slug}
 
-    # Generate and present suggestion
     if trigger_type:
         priority = _get_priority(trigger_type)
-
         if _check_frequency_cap(state, priority):
             suggestion = _generate_suggestion(trigger_type, **trigger_data)
-
             if suggestion:
-                # Output suggestion via additionalContext
                 print(json.dumps({"additionalContext": suggestion}))
-
-                # Update state
                 state["count"] += 1
                 state["last_suggestion"] = datetime.now(timezone.utc).isoformat()
                 _save_suggestion_state(cwd, state)
@@ -244,6 +266,5 @@ try:
     sys.exit(0)
 
 except Exception as e:
-    # Never block Claude on hook failure
     print(f"[zie-framework] post-tool-use: {e}", file=sys.stderr)
     sys.exit(0)

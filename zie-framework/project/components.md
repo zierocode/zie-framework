@@ -11,9 +11,7 @@
 | /plan | slug(s) | approved plan in Ready; auto-approves on reviewer ✅ APPROVED | write-plan skill |
 | /implement | (reads ROADMAP Now) | feature tasks | tdd-loop, test-pyr |
 | /fix | bug description | regression test + fix | debug, verify |
-| /hotfix | issue description | minimal fix, drift log open+close, release via /release | none |
 | /spike | exploration slug | sandbox in `spike-<slug>/`, FINDINGS.md, no ROADMAP write | none |
-| /chore | task description | Done entry, no spec/plan, direct commit | none |
 | /release | (ROADMAP Now) | release tag + ADRs; parallel gates 2-4; haiku model | verify, make release |
 | /status | (reads files) | status snapshot | none |
 | /resync | (codebase scan) | updated knowledge docs | Agent(Explore) |

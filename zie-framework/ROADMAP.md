@@ -91,7 +91,7 @@
 
 ## Done — v1.23.0 (2026-04-12) — Sprint A+B
 
-- [x] sprint-a-b — 10 items: self-awareness, context-efficiency, intent-intelligence, brainstorming, conversation-capture, /rescue, /health, /next, quality-gate, adaptive-learning
+- [x] sprint-a-b — 10 items: self-awareness, context-efficiency, intent-intelligence, brainstorming, conversation-capture, /next --rescue, /status --health, /next, quality-gate, adaptive-learning
 
 ## Done — v1.22.0 (2026-04-06) — Token Reduction
 

@@ -18,7 +18,6 @@ EXPECTED = {
     # Commands
     "commands/status.md": ("haiku", "low"),
     "commands/backlog.md": ("haiku", "low"),
-    "commands/hotfix.md": ("sonnet", "low"),
     "commands/spec.md": ("sonnet", "medium"),
     "commands/plan.md": ("sonnet", "low"),
     "commands/implement.md": ("sonnet", "medium"),
@@ -29,12 +28,7 @@ EXPECTED = {
     "commands/resync.md": ("haiku", "medium"),
     "commands/audit.md": ("sonnet", "medium"),
     "commands/sprint.md": ("sonnet", "high"),
-    "commands/guide.md": ("sonnet", "low"),
-    "commands/health.md": ("sonnet", "low"),
-    "commands/rescue.md": ("sonnet", "low"),
-    "commands/brief.md": ("sonnet", "low"),
     "commands/next.md": ("sonnet", "low"),
-    "commands/chore.md": ("haiku", "low"),
     "commands/spike.md": ("sonnet", "low"),
     # Skills
     "skills/spec-design/SKILL.md": ("sonnet", "medium"),

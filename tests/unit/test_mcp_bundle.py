@@ -115,7 +115,11 @@ class TestMcpToolNamesInCommandsAndSkills:
         assert MCP_REMEMBER in self._read("commands/backlog.md")
 
     def test_zie_spec_recall(self):
-        assert MCP_RECALL in self._read("commands/spec.md")
+        """spec.md delegates memory recall to spec-design skill."""
+        content = self._read("commands/spec.md")
+        assert "Skill(zie-framework:spec-design)" in content, (
+            "spec.md must invoke spec-design skill (which handles memory recall internally)"
+        )
 
     def test_zie_plan_recall(self):
         assert MCP_RECALL in self._read("commands/plan.md")

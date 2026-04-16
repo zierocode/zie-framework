@@ -206,14 +206,14 @@ class TestPipelineGates:
         r = run_hook({"prompt": "let's start coding now"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
         # Sprint intent may fire for "start coding"; both outcomes are valid
-        assert "/hotfix" in ctx or "no active track" in ctx or "sprint" in ctx
+        assert "/fix --hotfix" in ctx or "no active track" in ctx or "sprint" in ctx
 
     def test_implement_intent_all_done_now_suggests_tracks(self, tmp_path):
         roadmap = "## Now\n- [x] my-feature — implement\n\n## Next\n\n## Ready\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
         r = run_hook({"prompt": "continue implementing"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
-        assert "/hotfix" in ctx or "no active track" in ctx
+        assert "/fix --hotfix" in ctx or "no active track" in ctx
 
     def test_implement_intent_active_now_passes(self, tmp_path):
         roadmap = "## Now\n- [ ] my-feature — implement\n\n## Next\n\n## Ready\n"
@@ -345,14 +345,14 @@ class TestNoActiveTrackSuggestion:
         cwd = make_cwd_with_zf(tmp_path, "## Now\n\n## Next\n")
         r = run_hook({"prompt": "there is a bug in the auth module"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
-        assert "/hotfix" in ctx
+        assert "/fix --hotfix" in ctx
 
     def test_implement_intent_no_active_track_emits_track_options(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path, "## Now\n\n## Next\n")
         r = run_hook({"prompt": "start coding this task now"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
         # Sprint intent may fire for "start coding"; accept both outcomes
-        assert "/hotfix" in ctx or "sprint" in ctx
+        assert "/fix --hotfix" in ctx or "sprint" in ctx
 
     def test_no_suggestion_when_now_lane_active(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path, "## Now\n- [ ] my-feature — implement\n\n## Next\n")
@@ -375,4 +375,4 @@ class TestNoActiveTrackSuggestion:
         r = run_hook({"prompt": "implement this task"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
         assert "/spike" in ctx
-        assert "/chore" in ctx
+        assert "/fix --chore" in ctx

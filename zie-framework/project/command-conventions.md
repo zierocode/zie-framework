@@ -18,7 +18,7 @@ Every command that operates on an existing project runs these 3 steps before any
 ### Pre-flight levels
 
 - **`preflight: full`** — all 3 steps. Default for commands that modify state (backlog, spec, plan, implement, sprint, etc.).
-- **`preflight: minimal`** — existence check only (step 1). For read-only or self-contained commands: `/health`, `/brief`, `/guide`.
+- **`preflight: minimal`** — existence check only (step 1). For read-only or self-contained commands: `/status --health`, `/status --brief`, `/status --guide`.
 
 Commands declare their level in the frontmatter or first line: `preflight: minimal` or `preflight: full`.
 

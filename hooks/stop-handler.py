@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Unified Stop handler — consolidates stop-guard, stop-pipeline-guard, compact-hint.
+"""Unified Stop handler — consolidates stop-guard, stop-pipeline-guard, compact-hint, stop-capture.
 
-Single git status call, combined nudge checks, one log entry.
+Single git status call, combined nudge checks, handoff write, one log entry.
 Always exits 0 (ADR-003) — never blocks Claude.
 Infinite-loop guard: exits immediately when stop_hook_active is truthy.
+Merged: stop-capture (handoff.md write for design-mode sessions).
 """
 
+import datetime
 import fnmatch
 import json
 import os
@@ -19,6 +21,7 @@ from utils_cache import get_cache_manager
 from utils_config import load_config
 from utils_error import log_error
 from utils_event import get_cwd, read_event
+from utils_io import atomic_write
 from utils_roadmap import get_cached_git_status, parse_roadmap_items_with_dates, write_git_status_cache
 
 # Canonical implementation file patterns for zie-framework layout.
@@ -198,6 +201,73 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
         log_error("stop-handler", "context_window_nudge", _e)
 
 
+def _write_handoff(cwd, session_id):
+    """Write .zie/handoff.md for design-mode sessions (merged from stop-capture).
+
+    Only fires when brainstorm skill did NOT already run AND design-mode flag is set.
+    """
+    try:
+        cache = get_cache_manager(cwd)
+
+        # Skip if brainstorm skill already ran (it's the primary writer)
+        if cache.has_flag("brainstorm-active", session_id):
+            return
+
+        # Skip if no design conversation detected this session
+        if not cache.has_flag("design-mode", session_id):
+            return
+
+        # Create .zie/ dir if absent
+        zie_dir = cwd / ".zie"
+        try:
+            zie_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            print(f"[zf] stop-handler/handoff: cannot create .zie/: {e}", file=sys.stderr)
+            return
+
+        # Write handoff.md
+        now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        handoff_content = f"""---
+captured_at: {now}
+feature: design-session
+source: intent-sdlc
+---
+
+## Goals
+- (captured from design conversation — review and refine before running /sprint)
+
+## Key Decisions
+- (key decisions made during this session)
+
+## Constraints
+- (constraints mentioned during discussion)
+
+## Open Questions
+- (unresolved questions to address)
+
+## Context Refs
+- (relevant file paths or commands mentioned)
+
+## Next Step
+/sprint <feature-name>
+"""
+        handoff_path = zie_dir / "handoff.md"
+        try:
+            atomic_write(handoff_path, handoff_content)
+        except Exception as e:
+            print(f"[zf] stop-handler/handoff: write failed: {e}", file=sys.stderr)
+            return
+
+        # Cleanup design-mode flag
+        try:
+            cache.delete("design-mode", session_id)
+        except Exception as _e:
+            print(f"[zf] stop-handler/handoff: flag cleanup failed: {_e}", file=sys.stderr)
+
+    except Exception as e:
+        log_error("stop-handler", "handoff_write", e)
+
+
 # ---------------------------------------------------------------------------
 # Outer guard — parse stdin; never block Claude on failure
 # ---------------------------------------------------------------------------
@@ -263,6 +333,10 @@ try:
         )
         print(json.dumps({"decision": "block", "reason": reason}))
         sys.exit(0)
+
+    # ── Handoff write (merged from stop-capture) ─────────────────────────────────
+    # Only fires when brainstorm skill did NOT already run AND design-mode is set.
+    _write_handoff(cwd, session_id)
 
     # Run combined nudges (session-scoped TTL gate — 30 min)
     if not session_id:

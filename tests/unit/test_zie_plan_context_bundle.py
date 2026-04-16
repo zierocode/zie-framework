@@ -1,4 +1,4 @@
-"""Tests for context-lean-sprint Task 4: zie-plan passes context_bundle with adr_cache_path."""
+"""Tests for context-lean-sprint Task 4: zie-plan passes context_bundle via skill invocation."""
 
 from pathlib import Path
 
@@ -15,21 +15,16 @@ class TestZiePlanContextBundle:
         text = cmd_text()
         assert "context_bundle" in text and "context-load" in text, "zie-plan must have context bundle loading section"
 
-    def test_adr_cache_path_in_bundle(self):
-        """context_bundle includes adr_cache_path."""
+    def test_context_skill_invoked(self):
+        """zie-plan invokes context skill to build bundle."""
         text = cmd_text()
-        assert "adr_cache_path" in text, "zie-plan context_bundle must include adr_cache_path"
-
-    def test_write_adr_cache_called(self):
-        """write_adr_cache is called to build the cache."""
-        text = cmd_text()
-        assert "write_adr_cache" in text, "zie-plan must call write_adr_cache"
+        assert "Skill(zie-framework:context" in text, "zie-plan must invoke context skill"
 
     def test_bundle_passed_to_reviewer(self):
-        """context_bundle is passed to plan-review."""
+        """context_bundle is passed to reviewer."""
         text = cmd_text()
-        assert "context_bundle" in text and ("plan-review" in text or "reviewer" in text.lower()), (
-            "zie-plan must pass context_bundle to plan-review"
+        assert "context_bundle" in text and ("review" in text.lower()), (
+            "zie-plan must pass context_bundle to reviewer"
         )
 
     def test_single_load_comment(self):

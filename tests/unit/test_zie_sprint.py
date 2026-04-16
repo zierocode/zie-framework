@@ -82,8 +82,8 @@ class TestPhaseStructure:
 
     def test_phase1_uses_skill_chain(self):
         text = _text()
-        assert "spec-review" in text and "write-plan" in text and "plan-review" in text, (
-            "Phase 1 must use skill chain (spec-review, write-plan, plan-review)"
+        assert "spec-design" in text and "write-plan" in text and "review" in text, (
+            "Phase 1 must use skill chain (spec-design, write-plan, review)"
         )
 
     def test_phase2_sequential_wip1(self):

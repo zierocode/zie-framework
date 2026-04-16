@@ -47,8 +47,7 @@ Tasks without `depends_on` run in parallel (max 4 concurrent). Tasks with `<!-- 
 <!-- context-load: adrs + project context -->
 
 Extract keywords from plan (Goal + Architecture sections — split on whitespace, remove stop words, take top 6 unique terms).
-Invoke `Skill(zie-framework:context, '<keywords>')` → result available as `context_bundle`
-(calls `write_adr_cache`, bundles `adr_cache_path` + `decisions/` + `project/context.md`).
+Invoke `Skill(zie-framework:context, '<keywords>')` → result available as `context_bundle`.
 Pass `context_bundle` to every impl-review call.
 
 **TDD:** Every task uses RED → GREEN → REFACTOR via `Skill(zie-framework:tdd-loop)`.
@@ -94,8 +93,8 @@ Test level selection (print once before task loop, not per task):
 
 ## When All Tasks Complete
 
-1. Run `make test-unit 2>&1 | tail -30` → capture output as `last_test_output`. **Run once — never re-run just to grep differently.** Fail → `Skill(zie-framework:debug)`. Also run `make test-int` (if available).
-2. `TaskCreate` verify task → `Skill(zie-framework:verify)` with `$ARGUMENTS={"test_output": "<last_test_output>", "scope": "tests-only"}` — passes captured output so verify skips re-running tests. → `TaskUpdate` completed.
+1. Run `make test-unit 2>&1 | tail -30` → capture as `last_test_output`. Fail → `Skill(zie-framework:debug)`.
+2. `TaskCreate` verify task → `Skill(zie-framework:verify)` with `scope=tests-only` and `test_output=<last_test_output>` → `TaskUpdate` completed.
 3. Update ROADMAP.md Now lane: `[ ]` → `[x]`.
 4. `git add -A` → collect verify result:
    - ✅ APPROVED → commit

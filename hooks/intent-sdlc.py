@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""UserPromptSubmit hook — detect SDLC intent and inject current SDLC state.
+"""UserPromptSubmit hook — detect SDLC intent + design signals and inject SDLC state.
 
-Merged replacement for intent-detect.py + sdlc-context.py.
+Merged replacement for intent-detect.py + sdlc-context.py + design-tracker.py.
 Reads ROADMAP.md once (via session cache) and produces a single
 additionalContext payload combining intent suggestion + SDLC state.
+Also detects design-intent signals and writes design-mode flag for stop-handler handoff.
 """
 
 import json
@@ -121,10 +122,27 @@ NEW_INTENT_PATTERNS = {
         re.IGNORECASE | re.VERBOSE,
     ),
 }
+
+# Design-intent signal detection (merged from design-tracker.py).
+# ≥2 hits → set "design-mode" flag for stop-handler handoff.
+DESIGN_SIGNALS = [
+    r"\bdesign\b",
+    r"\bspec\b",
+    r"\bfeature\b",
+    r"\bimprove\b",
+    r"discuss.*sprint",
+    r"let.*s build",
+    r"what if",
+    r"\barchitect",
+    r"สร้าง.*ใหม่",
+    r"ออกแบบ",
+    r"วางแผน.*สร้าง",
+]
+_COMPILED_DESIGN = [re.compile(p, re.IGNORECASE) for p in DESIGN_SIGNALS]
 NEW_INTENT_HINTS = {
     "sprint": "confirm backlog→spec→plan before implementing",
-    "fix": "invoke /fix or /hotfix track",
-    "chore": "use /chore to track this maintenance task",
+    "fix": "invoke /fix (or /fix --hotfix for emergencies)",
+    "chore": "use /fix --chore to track this maintenance task",
 }
 
 # Suggestion mapping for intent → command
@@ -139,8 +157,8 @@ SUGGESTIONS = {
     "retro": "/retro",
     "sprint": "/sprint",
     "status": "/status",
-    "hotfix": "/hotfix",
-    "chore": "/chore",
+    "hotfix": "/fix --hotfix",
+    "chore": "/fix --chore",
     "spike": "/spike",
     "brainstorm": "invoke zie-framework:brainstorm skill",
 }
@@ -432,6 +450,14 @@ try:
                         log_error("intent-sdlc", "sprint_flag_set", e)
                 sys.exit(0)
 
+    # ── Design-intent signal detection (merged from design-tracker.py) ──────────
+    design_hits = sum(1 for p in _COMPILED_DESIGN if p.search(message))
+    if design_hits >= 2:
+        try:
+            cache.set_flag("design-mode", session_id)
+        except Exception as e:
+            log_error("intent-sdlc", "design_flag_set", e)
+
     # ── Pipeline gate check ───────────────────────────────────────────────────
     gate_msg = None
     if best and best == "plan":
@@ -441,7 +467,7 @@ try:
     no_track_msg = None
     if gate_msg is None and best in ("implement", "fix"):
         if not is_track_active(cwd):
-            no_track_msg = "no track — /backlog→/spec→/plan→/implement | /hotfix | /spike | /chore"
+            no_track_msg = "no track — /backlog→/spec→/plan→/implement | /fix --hotfix | /spike | /fix --chore"
 
     # ── Positional guidance (only when no gate and no dominant intent) ────────
     guidance_msg = None

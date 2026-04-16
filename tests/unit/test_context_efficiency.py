@@ -155,8 +155,8 @@ class TestSubagentContextBudgetTable:
         assert r.returncode == 0
 
 
-class TestSessionCleanup:
-    """session-cleanup.py clears session-context cache via CacheManager."""
+class TestSessionEnd:
+    """session-end.py (merged from session-stop+learn+cleanup) clears session-context cache via CacheManager."""
 
     def test_cleanup_clears_context_flag(self, tmp_path):
         _make_zf(tmp_path)
@@ -164,22 +164,22 @@ class TestSessionCleanup:
         cache.set_flag("session-context-injected", "test-session")
         assert cache.has_flag("session-context-injected", "test-session")
 
-        cleanup_hook = HOOKS_DIR / "session-cleanup.py"
+        end_hook = HOOKS_DIR / "session-end.py"
         env = os.environ.copy()
         env["CLAUDE_CWD"] = str(tmp_path)
+        env["ZIE_MEMORY_API_KEY"] = ""
+        env["ZIE_MEMORY_API_URL"] = ""
         r = subprocess.run(
-            [sys.executable, str(cleanup_hook)],
+            [sys.executable, str(end_hook)],
             input=json.dumps({"session_id": "test-session", "stop_reason": "end_turn"}),
             capture_output=True,
             text=True,
             env=env,
         )
         assert r.returncode == 0
-        # Use a fresh CacheManager to verify disk state (in-memory cache won't
-        # reflect subprocess changes)
         fresh_cache = CacheManager(tmp_path / ".zie" / "cache")
         assert not fresh_cache.has_flag("session-context-injected", "test-session"), (
-            "session-cleanup must clear the session-context cache flag"
+            "session-end must clear the session-context cache flag"
         )
 
     def test_cleanup_handles_missing_flag_gracefully(self, tmp_path):
@@ -187,11 +187,13 @@ class TestSessionCleanup:
         cache = CacheManager(tmp_path / ".zie" / "cache")
         cache.delete("session-context-injected", "test-session")
 
-        cleanup_hook = HOOKS_DIR / "session-cleanup.py"
+        end_hook = HOOKS_DIR / "session-end.py"
         env = os.environ.copy()
         env["CLAUDE_CWD"] = str(tmp_path)
+        env["ZIE_MEMORY_API_KEY"] = ""
+        env["ZIE_MEMORY_API_URL"] = ""
         r = subprocess.run(
-            [sys.executable, str(cleanup_hook)],
+            [sys.executable, str(end_hook)],
             input=json.dumps({"session_id": "test-session", "stop_reason": "end_turn"}),
             capture_output=True,
             text=True,

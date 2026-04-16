@@ -73,7 +73,7 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | ADR-060 | Autonomous Sprint Mode | autonomous_mode=true: clarity scoring, inline reviewers, auto-fix, auto-retro; only 3 interrupt cases. | Accepted |
 | — | v1.22.0 | shipper, context_bundle, compact-hint thresholds | Accepted |
 | ADR-063 | Effort Routing Strategy | low (status), medium (design), high (sprint) | Accepted |
-| — | v1.23.0 | Sprint A+B: compact-hint, brainstorm, /rescue /health /next, quality-gate | Accepted |
+| — | v1.23.0 | Sprint A+B: compact-hint, brainstorm, /next --rescue, /status --health, /next, quality-gate | Accepted |
 | — | v1.24.0 | Sprint C+D: WIP=1, event caps, effort routing, parallel retro | Accepted |
 | ADR-064 | Release Command Upgraded to Sonnet/Medium | haiku/low → sonnet/medium; prevents context-limit failures | Accepted |
 | — | v1.25.0 | All-items enforcement, approve.py upfront, semver minor bias, ADR-064 | Accepted |

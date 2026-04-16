@@ -32,15 +32,6 @@
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/intent-sdlc.py\""
         }
       ]
-    },
-    {
-      "hooks": [
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/design-tracker.py\"",
-          "background": true
-        }
-      ]
     }
   ],
   "ConfigChange": [
@@ -56,16 +47,7 @@
   ],
   "SubagentStart": [
     {
-      "matcher": "Explore",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-context.py\""
-        }
-      ]
-    },
-    {
-      "matcher": "Plan",
+      "matcher": "Explore|Plan",
       "hooks": [
         {
           "type": "command",
@@ -84,23 +66,13 @@
         },
         {
           "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/wip-checkpoint.py\"",
-          "background": true
-        }
-      ]
-    },
-    {
-      "matcher": "Bash",
-      "hooks": [
-        {
-          "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/post-tool-use.py\"",
           "background": true
         }
       ]
     },
     {
-      "matcher": "Write|Edit",
+      "matcher": "Bash",
       "hooks": [
         {
           "type": "command",
@@ -117,19 +89,6 @@
         {
           "type": "command",
           "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/safety-check.py\""
-        },
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/quality-gate.py\""
-        }
-      ]
-    },
-    {
-      "matcher": "Write|Edit",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/reviewer-gate.py\""
         }
       ]
     }
@@ -166,21 +125,7 @@
         },
         {
           "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-capture.py\""
-        },
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-stop.py\"",
-          "background": true
-        },
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-learn.py\"",
-          "background": true
-        },
-        {
-          "type": "command",
-          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-cleanup.py\"",
+          "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-end.py\"",
           "background": true
         }
       ]

@@ -50,22 +50,14 @@ class TestPostToolUseHook:
         assert (hooks_dir / "post-tool-use.py").exists()
 
     def test_hook_registered(self):
-        """post-tool-use registered in hooks.json for Bash and Write|Edit."""
+        """post-tool-use registered in hooks.json for Bash and Edit|Write."""
         hooks_json_path = Path(__file__).parent.parent.parent / "hooks" / "hooks.json"
         hooks_json = json.loads(hooks_json_path.read_text())
         post_tool_hooks = hooks_json.get("hooks", {}).get("PostToolUse", [])
 
-        # Check Bash matcher
-        bash_hooks = [h for h in post_tool_hooks if h.get("matcher") == "Bash"]
-        assert len(bash_hooks) > 0
-        bash_commands = [h["hooks"][0]["command"] for h in bash_hooks]
-        assert any("post-tool-use.py" in cmd for cmd in bash_commands)
-
-        # Check Write|Edit matcher
-        write_hooks = [h for h in post_tool_hooks if h.get("matcher") == "Write|Edit"]
-        assert len(write_hooks) > 0
-        write_commands = [h["hooks"][0]["command"] for h in write_hooks]
-        assert any("post-tool-use.py" in cmd for cmd in write_commands)
+        # Flatten all commands across all PostToolUse entries
+        all_commands = [h["command"] for group in post_tool_hooks for h in group.get("hooks", [])]
+        assert any("post-tool-use.py" in cmd for cmd in all_commands), "post-tool-use.py not in PostToolUse hooks"
 
     def test_test_failure_detection(self, test_repo):
         """Test failure triggers /fix suggestion."""

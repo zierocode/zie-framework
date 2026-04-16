@@ -21,19 +21,19 @@ class TestWritePlanAutonomousMode:
         assert "--no-memory" in skill_text(), "existing --no-memory flag must remain (standalone behavior unchanged)"
 
     def test_sprint_handles_inline_plan_review(self):
-        """Sprint Phase 1 must invoke plan-review inline (no agent spawn)."""
+        """Sprint Phase 1 must invoke review inline (no agent spawn)."""
         t = sprint_text()
         phase1_idx = t.index("PHASE 1")
         phase2_idx = t.index("PHASE 2")
         phase1 = t[phase1_idx:phase2_idx]
-        assert "plan-review" in phase1, "Sprint Phase 1 must invoke plan-review inline for autonomous mode"
+        assert "review" in phase1.lower(), "Sprint Phase 1 must invoke review inline for autonomous mode"
 
     def test_sprint_phase1_no_agent_for_plan_review(self):
-        """Sprint Phase 1 uses Skill calls not Agent spawns for plan-review."""
+        """Sprint Phase 1 uses Skill calls not Agent spawns for review."""
         t = sprint_text()
         phase1_idx = t.index("PHASE 1")
         phase2_idx = t.index("PHASE 2")
         phase1 = t[phase1_idx:phase2_idx]
-        assert "Skill(zie-framework:plan-review" in phase1, (
-            "Sprint Phase 1 must call plan-review via Skill (not Agent spawn)"
+        assert "Skill(zie-framework:review" in phase1, (
+            "Sprint Phase 1 must call review via Skill (not Agent spawn)"
         )

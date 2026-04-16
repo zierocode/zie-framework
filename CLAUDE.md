@@ -64,18 +64,12 @@ See ADR-066 for full details.
 | `/release` | Release gate — merge dev→main, version bump |
 | `/retro` | Post-release retrospective + ADRs |
 | `/sprint` | Sprint clear — batch all items: spec + plan + implement + release + retro |
-| `/chore` | Maintenance task track — no spec required |
-| `/hotfix` | Emergency fix track — describe → fix → ship without full pipeline |
 | `/spike` | Time-boxed exploration in an isolated sandbox |
-| `/fix` | Debug and fix failing tests or broken features |
-| `/status` | Show current SDLC state |
+| `/fix` | Debug and fix failing tests or broken features (`--hotfix` for emergencies, `--chore` for maintenance) |
+| `/status` | Show current SDLC state (`--guide` for walkthrough, `--health` for hook check, `--brief` for design brief) |
 | `/audit` | Project audit across 9 dimensions |
 | `/resync` | Rescan codebase + update knowledge docs |
-| `/next` | Rank backlog items by impact, age, and dependencies — recommend top 3 |
-| `/rescue` | Pipeline diagnosis — show stuck items + recovery actions |
-| `/health` | Hook health + config validation check |
-| `/guide` | On-demand framework walkthrough + pipeline position |
-| `/brief` | Display `.zie/handoff.md` session brief |
+| `/next` | Rank backlog items (`--rescue` for pipeline diagnosis) |
 
 ## Development Commands
 

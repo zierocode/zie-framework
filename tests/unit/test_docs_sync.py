@@ -31,11 +31,11 @@ class TestProjectMd:
     def test_commands_table_has_sprint(self):
         assert "/sprint" in self._content(), "PROJECT.md Commands table missing /sprint"
 
-    def test_commands_table_has_chore(self):
-        assert "/chore" in self._content(), "PROJECT.md Commands table missing /chore"
+    def test_commands_table_has_fix_chore(self):
+        assert "--chore" in self._content(), "PROJECT.md Commands table missing --chore flag"
 
-    def test_commands_table_has_hotfix(self):
-        assert "/hotfix" in self._content(), "PROJECT.md Commands table missing /hotfix"
+    def test_commands_table_has_fix_hotfix(self):
+        assert "--hotfix" in self._content(), "PROJECT.md Commands table missing --hotfix flag"
 
     def test_commands_table_has_spike(self):
         assert "/spike" in self._content(), "PROJECT.md Commands table missing /spike"
@@ -105,11 +105,11 @@ class TestClaudeMd:
     def _content(self):
         return (REPO_ROOT / "CLAUDE.md").read_text()
 
-    def test_sdlc_commands_has_chore(self):
-        assert "/chore" in self._content(), "CLAUDE.md SDLC Commands table missing /chore"
+    def test_sdlc_commands_has_fix_chore(self):
+        assert "--chore" in self._content(), "CLAUDE.md SDLC Commands table missing --chore flag"
 
-    def test_sdlc_commands_has_hotfix(self):
-        assert "/hotfix" in self._content(), "CLAUDE.md SDLC Commands table missing /hotfix"
+    def test_sdlc_commands_has_fix_hotfix(self):
+        assert "--hotfix" in self._content(), "CLAUDE.md SDLC Commands table missing --hotfix flag"
 
     def test_sdlc_commands_has_spike(self):
         assert "/spike" in self._content(), "CLAUDE.md SDLC Commands table missing /spike"

@@ -37,8 +37,8 @@ def test_project(cache_dir):
 - `/spec` - Write design spec
 - `/plan` - Draft implementation plan
 - `/implement` - TDD implementation
-- `/health` - Hook health check (guarded)
-- `/rescue` - Pipeline recovery (guarded)
+- `/status` - SDLC state (guarded)
+- `/next` - Backlog ranking (guarded)
 
 ## Other content
 """)
@@ -62,7 +62,7 @@ class TestCommandMapCache:
         """Commands are parsed correctly from SKILL.md."""
         skill_path = test_project / "skills" / "context" / "SKILL.md"
         commands_dir = test_project / "commands"
-        guarded = ["/health", "/rescue"]
+        guarded = ["/status", "/next"]
 
         skill_text = skill_path.read_text()
         in_cmd_map = False
@@ -92,8 +92,8 @@ class TestCommandMapCache:
         assert "/spec" in final_cmds
         assert "/plan" in final_cmds
         assert "/implement" in final_cmds
-        assert "/health" not in final_cmds  # Guarded, file missing
-        assert "/rescue" not in final_cmds  # Guarded, file missing
+        assert "/status" not in final_cmds  # Guarded, file missing
+        assert "/next" not in final_cmds  # Guarded, file missing
 
     def test_cache_key_includes_mtime(self, test_project, cache_dir):
         """Cache key includes SKILL.md mtime for invalidation."""

@@ -48,7 +48,7 @@ class TestPreflightFullGuards:
             if PREFLIGHT_MINIMAL_RE.search(text):
                 minimal_commands.append(cmd_file.name)
 
-        expected_minimal = {"health.md", "brief.md", "guide.md", "next.md", "status.md"}
+        expected_minimal = {"next.md", "status.md"}
         found = set(minimal_commands)
         missing = expected_minimal - found
         assert not missing, f"Expected minimal preflight in: {missing}\nFound minimal in: {found}"

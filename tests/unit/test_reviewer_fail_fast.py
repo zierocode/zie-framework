@@ -29,7 +29,7 @@ class TestCommandIterationLogic:
 
     def test_zie_plan_single_reviewer_pass(self):
         text = (ROOT / "commands" / "plan.md").read_text()
-        assert "no re-invocation" in text.lower() or "inline verification" in text.lower(), (
+        assert "fix ALL issues inline" in text or "inline verification" in text, (
             "zie-plan must describe single reviewer pass with inline fixes"
         )
 
