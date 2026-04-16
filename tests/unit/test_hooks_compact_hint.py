@@ -1,4 +1,5 @@
 """Tests for hooks/stop-handler.py — compact-hint merged into stop-handler (v1.29.0)."""
+
 import json
 import os
 import re
@@ -13,8 +14,8 @@ HOOK = os.path.join(REPO_ROOT, "hooks", "stop-handler.py")
 
 def _clean_tier_flags(cwd_path: Path, session_id: str = "nosid") -> None:
     """Delete any stale compact tier flags for this project + session."""
-    safe_project = re.sub(r'[^a-zA-Z0-9]', '-', cwd_path.name)
-    safe_sid = re.sub(r'[^a-zA-Z0-9]', '-', session_id) if session_id else "nosid"
+    safe_project = re.sub(r"[^a-zA-Z0-9]", "-", cwd_path.name)
+    safe_sid = re.sub(r"[^a-zA-Z0-9]", "-", session_id) if session_id else "nosid"
     tmp = Path(tempfile.gettempdir())
     for tier in ("advisory", "mandatory"):
         flag = tmp / f"zie-{safe_project}-compact-tier-{tier}-{safe_sid}"
@@ -46,6 +47,23 @@ def run_hook(tmp_cwd, event=None, config=None, env_overrides=None):
 def make_cwd(tmp_path):
     zf = tmp_path / "zie-framework"
     zf.mkdir(parents=True, exist_ok=True)
+    # Initialize as a git repo so stop-handler's uncommitted-file check
+    # sees an empty repo instead of the real repo's uncommitted files.
+    subprocess.run(["git", "init"], cwd=str(tmp_path), capture_output=True, timeout=5)
+    subprocess.run(["git", "add", "."], cwd=str(tmp_path), capture_output=True, timeout=5)
+    subprocess.run(
+        ["git", "commit", "-m", "init"],
+        cwd=str(tmp_path),
+        capture_output=True,
+        timeout=5,
+        env={
+            **os.environ,
+            "GIT_AUTHOR_NAME": "test",
+            "GIT_AUTHOR_EMAIL": "test@test.com",
+            "GIT_COMMITTER_NAME": "test",
+            "GIT_COMMITTER_EMAIL": "test@test.com",
+        },
+    )
     return tmp_path
 
 
@@ -56,7 +74,7 @@ class TestAdvisoryHint:
         event = {"context_window": {"current_tokens": 800, "max_tokens": 1000}}
         r = run_hook(cwd, event=event)
         assert r.returncode == 0
-        assert "[zie-framework] compact" in r.stdout.lower() or "Context at 80%" in r.stdout
+        assert "[zf] compact" in r.stdout.lower() or "Context at 80%" in r.stdout
 
     def test_advisory_hint_at_exactly_threshold(self, tmp_path):
         """Boundary: event at exactly 75% → advisory hint printed (>= not >)."""
@@ -64,7 +82,7 @@ class TestAdvisoryHint:
         event = {"context_window": {"current_tokens": 750, "max_tokens": 1000}}
         r = run_hook(cwd, event=event)
         assert r.returncode == 0
-        assert "[zie-framework] compact" in r.stdout.lower() or "Context at 75%" in r.stdout
+        assert "[zf] compact" in r.stdout.lower() or "Context at 75%" in r.stdout
 
 
 class TestNoHint:
@@ -120,7 +138,7 @@ class TestThresholdConfig:
         event_91 = {"context_window": {"current_tokens": 910, "max_tokens": 1000}}
         r91 = run_hook(cwd, event=event_91, config=config)
         assert r91.returncode == 0
-        assert "[zie-framework] Context at 91%" in r91.stdout
+        assert "[zf] Context at 91%" in r91.stdout
 
 
 class TestAlwaysExitsZero:
@@ -133,7 +151,7 @@ class TestAlwaysExitsZero:
 
     def test_always_exits_zero_on_malformed_stdin(self, tmp_path):
         """Malformed JSON stdin → outer guard exits 0."""
-        cwd = make_cwd(tmp_path)
+        make_cwd(tmp_path)
         env = {**os.environ, "CLAUDE_CWD": str(tmp_path)}
         r = subprocess.run(
             [sys.executable, HOOK],
@@ -153,13 +171,8 @@ class TestHooksJsonRegistration:
         data = json.loads(hooks_json.read_text())
         stop_entries = data.get("hooks", {}).get("Stop", [])
         commands = [
-            h["command"]
-            for entry in stop_entries
-            for h in entry.get("hooks", [])
-            if h.get("type") == "command"
+            h["command"] for entry in stop_entries for h in entry.get("hooks", []) if h.get("type") == "command"
         ]
         # stop-handler.py must be first (fires before stop-capture, session-learn, etc.)
         assert len(commands) > 0, "Stop event must have at least one hook"
-        assert "stop-handler.py" in commands[0], (
-            "stop-handler.py must be the first Stop hook; got: " + commands[0]
-        )
+        assert "stop-handler.py" in commands[0], "stop-handler.py must be the first Stop hook; got: " + commands[0]

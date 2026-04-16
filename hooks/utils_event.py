@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Hook event I/O and session utilities for zie-framework hooks."""
+
 from __future__ import annotations
+
 import json
 import os
 import re
 import sys
 import tempfile
-import time
 import urllib.request
 from pathlib import Path
 
@@ -42,7 +43,7 @@ def sanitize_log_field(value: object, max_len: int = 10240) -> str:
     s = str(value)
     if len(s) > max_len:
         s = s[:max_len]
-    return re.sub(r'[\x00-\x1f\x7f]', '?', s)
+    return re.sub(r"[\x00-\x1f\x7f]", "?", s)
 
 
 def log_hook_timing(
@@ -59,15 +60,18 @@ def log_hook_timing(
         return
     try:
         from datetime import datetime, timezone
-        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+
+        safe_id = re.sub(r"[^a-zA-Z0-9_-]", "-", session_id)
         log_dir = Path(tempfile.gettempdir()) / f"zie-{safe_id}"
         log_dir.mkdir(parents=True, exist_ok=True)
-        entry = json.dumps({
-            "hook": hook_name,
-            "duration_ms": duration_ms,
-            "exit_code": exit_code,
-            "ts": datetime.now(timezone.utc).isoformat(),
-        })
+        entry = json.dumps(
+            {
+                "hook": hook_name,
+                "duration_ms": duration_ms,
+                "exit_code": exit_code,
+                "ts": datetime.now(timezone.utc).isoformat(),
+            }
+        )
         with open(log_dir / "timing.log", "a") as f:
             f.write(entry + "\n")
     except OSError as e:

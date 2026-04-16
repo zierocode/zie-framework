@@ -32,9 +32,7 @@ def test_invalid_json_config(tmp_path, run_hook):
 @pytest.mark.error_path
 def test_unrecognized_keys_config(tmp_path, run_hook):
     cwd = _make_zf_dir(tmp_path)
-    (cwd / "zie-framework" / ".config").write_text(
-        '{"unknown_key": "value", "another_unknown": 42}'
-    )
+    (cwd / "zie-framework" / ".config").write_text('{"unknown_key": "value", "another_unknown": 42}')
     r = run_hook("intent-sdlc.py", {"prompt": "implement feature X"}, tmp_cwd=cwd)
     assert r.returncode == 0
 

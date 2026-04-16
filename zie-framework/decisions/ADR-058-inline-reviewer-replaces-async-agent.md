@@ -1,11 +1,11 @@
 ---
 adr: 058
-title: Inline Reviewer Replaces Async impl-reviewer Agent
+title: Inline Reviewer Replaces Async impl-review Agent
 status: Accepted
 date: 2026-04-06
 ---
 
-# ADR-058 — Inline Reviewer Replaces Async impl-reviewer Agent
+# ADR-058 — Inline Reviewer Replaces Async impl-review Agent
 
 ## Status
 
@@ -13,7 +13,7 @@ Accepted
 
 ## Context
 
-ADR-014 introduced async impl-reviewer: spawn background agent after REFACTOR,
+ADR-014 introduced async impl-review: spawn background agent after REFACTOR,
 poll at next iteration start. This created a deferred polling loop, reviewer_status
 state tracking, and background wait before final commit.
 
@@ -31,7 +31,7 @@ Agent spawn. Faster per-task cycle. Simpler implement.md with no async coordinat
 **Negative:** Reviews no longer run in parallel with the next task. Acceptable
 because haiku/low reviews are fast (~seconds).
 
-**Neutral:** ADR-014 is now superseded for impl-reviewer behavior.
+**Neutral:** ADR-014 is now superseded for impl-review behavior.
 
 ## Alternatives
 

@@ -1,4 +1,5 @@
 """Tests for hooks/task-completed-gate.py"""
+
 import json
 import os
 import subprocess
@@ -8,8 +9,7 @@ from pathlib import Path
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "task-completed-gate.py")
-IMPL_EXTS = (".py", ".ts", ".tsx", ".js", ".jsx", ".go", ".rs", ".rb", ".java",
-             ".kt", ".swift", ".c", ".cpp", ".h")
+IMPL_EXTS = (".py", ".ts", ".tsx", ".js", ".jsx", ".go", ".rs", ".rb", ".java", ".kt", ".swift", ".c", ".cpp", ".h")
 
 
 def run_hook(title, cwd=None, env_extra=None):
@@ -38,17 +38,21 @@ def make_lastfailed(cwd: Path, data: dict):
 # Outer guard — bad input
 # ---------------------------------------------------------------------------
 
+
 class TestOuterGuard:
     def test_invalid_json_exits_zero(self):
-        r = subprocess.run([sys.executable, HOOK], input="not json",
-                           capture_output=True, text=True)
+        r = subprocess.run([sys.executable, HOOK], input="not json", capture_output=True, text=True)
         assert r.returncode == 0
 
     def test_missing_title_exits_zero(self, tmp_path):
         event = {"tool_name": "TaskUpdate", "tool_input": {"id": "t1", "status": "completed"}}
-        r = subprocess.run([sys.executable, HOOK], input=json.dumps(event),
-                           capture_output=True, text=True,
-                           env={**os.environ, "CLAUDE_CWD": str(tmp_path)})
+        r = subprocess.run(
+            [sys.executable, HOOK],
+            input=json.dumps(event),
+            capture_output=True,
+            text=True,
+            env={**os.environ, "CLAUDE_CWD": str(tmp_path)},
+        )
         assert r.returncode == 0
 
     def test_empty_title_exits_zero(self, tmp_path):
@@ -59,6 +63,7 @@ class TestOuterGuard:
 # ---------------------------------------------------------------------------
 # Advisory mode — non-implement/fix tasks are passed through
 # ---------------------------------------------------------------------------
+
 
 class TestAdvisoryMode:
     def test_docs_task_is_skipped(self, tmp_path):
@@ -102,10 +107,10 @@ class TestAdvisoryMode:
 # Check 1 — pytest last-failed cache
 # ---------------------------------------------------------------------------
 
+
 class TestPytestCacheCheck:
     def test_failing_tests_block(self, tmp_path):
-        make_lastfailed(tmp_path, {"tests/test_foo.py::test_bar": True,
-                                   "tests/test_foo.py::test_baz": True})
+        make_lastfailed(tmp_path, {"tests/test_foo.py::test_bar": True, "tests/test_foo.py::test_baz": True})
         r = run_hook("Implement feature X", cwd=tmp_path)
         assert r.returncode == 2
         assert "BLOCKED" in r.stderr
@@ -155,6 +160,7 @@ class TestPytestCacheCheck:
 # Check 2 — uncommitted implementation files (git status)
 # ---------------------------------------------------------------------------
 
+
 class TestGitStatusCheck:
     def test_no_git_repo_exits_zero(self, tmp_path):
         # tmp_path is not a git repo — git status returns non-zero
@@ -166,18 +172,19 @@ class TestGitStatusCheck:
         env = os.environ.copy()
         env["PATH"] = "/nonexistent"
         env["CLAUDE_CWD"] = str(tmp_path)
-        event = {"tool_name": "TaskUpdate", "tool_input": {
-            "id": "t1", "status": "completed", "title": "Implement feature X"}}
-        r = subprocess.run([sys.executable, HOOK], input=json.dumps(event),
-                           capture_output=True, text=True, env=env)
+        event = {
+            "tool_name": "TaskUpdate",
+            "tool_input": {"id": "t1", "status": "completed", "title": "Implement feature X"},
+        }
+        r = subprocess.run([sys.executable, HOOK], input=json.dumps(event), capture_output=True, text=True, env=env)
         assert r.returncode == 0
 
     def _make_git_repo_with_uncommitted(self, tmp_path):
         """Create a git repo with an uncommitted .py impl file, no pytest cache."""
         import subprocess as sp
+
         sp.run(["git", "init"], cwd=tmp_path, capture_output=True)
-        sp.run(["git", "config", "user.email", "test@test.com"],
-               cwd=tmp_path, capture_output=True)
+        sp.run(["git", "config", "user.email", "test@test.com"], cwd=tmp_path, capture_output=True)
         sp.run(["git", "config", "user.name", "Test"], cwd=tmp_path, capture_output=True)
         (tmp_path / "new_hook.py").write_text("# uncommitted impl file")
         return tmp_path
@@ -201,12 +208,14 @@ class TestGitStatusCheck:
 # Extension and test-file filter logic
 # ---------------------------------------------------------------------------
 
+
 class TestFileFilter:
     """Import the hook module and test is_impl_file directly."""
 
     def _import_filter(self):
         import importlib.machinery
         import types
+
         loader = importlib.machinery.SourceFileLoader("task_completed_gate", str(HOOK))
         mod = types.ModuleType("task_completed_gate")
         mod.__file__ = str(HOOK)
@@ -254,6 +263,7 @@ class TestFileFilter:
 # Performance
 # ---------------------------------------------------------------------------
 
+
 class TestPerformance:
     def test_advisory_task_completes_quickly(self, tmp_path):
         start = time.time()
@@ -276,6 +286,7 @@ class TestGitTimeout:
     def test_git_timeout_exits_zero(self, tmp_path):
         """task-completed-gate.py must exit 0 when git hangs."""
         import stat
+
         bin_dir = tmp_path / "fakebin"
         bin_dir.mkdir()
         fake_git = bin_dir / "git"
@@ -291,7 +302,10 @@ class TestGitTimeout:
         r = subprocess.run(
             [sys.executable, HOOK],
             input=json.dumps(event),
-            capture_output=True, text=True, env=env, timeout=10,
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=10,
         )
         assert r.returncode == 0
         assert "Traceback" not in r.stderr

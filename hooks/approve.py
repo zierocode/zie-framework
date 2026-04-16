@@ -12,6 +12,7 @@ Usage:
     python3 hooks/approve.py zie-framework/specs/YYYY-MM-DD-<slug>-design.md
     python3 hooks/approve.py zie-framework/plans/YYYY-MM-DD-<slug>.md
 """
+
 import datetime
 import os
 import re
@@ -27,6 +28,7 @@ def _reviewer_marker(file_path: str) -> Path:
     safe = re.sub(r"[^a-zA-Z0-9]", "-", project)
     return Path(tempfile.gettempdir()) / f"zie-{safe}-reviewer-approved-{kind}"
 
+
 _APPROVED_FALSE_RE = re.compile(r"^approved:\s*(false)?\s*$", re.MULTILINE)
 _APPROVED_AT_BLANK_RE = re.compile(r"^approved_at:\s*$", re.MULTILINE)
 
@@ -40,7 +42,7 @@ def approve(file_path: str) -> None:
     # Warn if reviewer-pass marker is absent (subagent-stop writes it on ✅ APPROVED)
     marker = _reviewer_marker(file_path)
     if not marker.exists():
-        kind = "spec-reviewer" if "specs/" in file_path else "plan-reviewer"
+        kind = "spec-review" if "specs/" in file_path else "plan-review"
         print(
             f"[approve.py] WARNING: no reviewer-pass marker found.\n"
             f"Run Skill('{kind}') first and wait for \u2705 APPROVED before approving.\n"

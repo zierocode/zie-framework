@@ -1,4 +1,5 @@
 """Unit tests for _is_safe_for_confirmation_wrapper in safety-check.py."""
+
 import importlib.util
 import sys
 import types
@@ -6,12 +7,14 @@ from pathlib import Path
 
 HOOKS_DIR = Path(__file__).parent.parent.parent / "hooks"
 
+
 # Stub side-effectful modules so safety-check.py can be imported without running hooks
 def _stub_module(name, **attrs):
     m = types.ModuleType(name)
     for k, v in attrs.items():
         setattr(m, k, v)
     sys.modules.setdefault(name, m)
+
 
 _stub_module("utils_safety", COMPILED_BLOCKS=[], COMPILED_WARNS=[], normalize_command=lambda x: x)
 _stub_module("utils_event", get_cwd=lambda: Path("."), read_event=lambda: {})

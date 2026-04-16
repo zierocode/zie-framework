@@ -1,4 +1,5 @@
 """Tests for JSON protocol fix in sdlc-compact.py and auto-test.py."""
+
 import json
 import subprocess
 import sys
@@ -32,6 +33,7 @@ def test_sdlc_compact_no_hookspecificoutput():
 def test_auto_test_no_hookspecificoutput(tmp_path):
     """auto-test must emit flat additionalContext, not hookSpecificOutput wrapper."""
     import os
+
     (tmp_path / "foo.py").write_text("x = 1")
     (tmp_path / "test_foo.py").write_text("def test_x(): pass")
     event = {

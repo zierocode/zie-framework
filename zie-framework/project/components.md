@@ -19,23 +19,23 @@
 | /resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
 | /retro | (reads git log) | ADRs + brain memories | retro-format skill |
 | /sprint | (reads ROADMAP Next/Ready) | batch pipeline: spec+plan→implement→release→retro; Phase 1 as Skill() chain (ADR-060); autonomous_mode=true for unattended run; Phase 4 auto-retro (v1.21.0) | Agent, Skill |
-| /audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | thin dispatcher → zie-audit skill (canonical); audit report + backlog (v1.19.0) | zie-audit skill |
+| /audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | thin dispatcher → audit skill (canonical); audit report + backlog (v1.19.0) | audit skill |
 
 ## Skills
 
 | Skill | ทำอะไร | Invoked by |
 | --- | --- | --- |
-| spec-design | Brainstorm → design spec + spec-reviewer loop | /spec |
-| spec-reviewer | Phase 1-3 review with context bundle | spec-design |
-| write-plan | Spec → task plan + plan-reviewer loop | /plan, spec-design |
-| plan-reviewer | Phase 1-3 review with context bundle | write-plan |
+| spec-design | Brainstorm → design spec + spec-review loop | /spec |
+| spec-review | Phase 1-3 review with context bundle | spec-design |
+| write-plan | Spec → task plan + plan-review loop | /plan, spec-design |
+| plan-review | Phase 1-3 review with context bundle | write-plan |
 | tdd-loop | RED/GREEN/REFACTOR guide; enforces "run tests once per phase" (never re-run for different grep — capture once, grep the capture) (v1.18.1) | /implement |
-| impl-reviewer | Phase 1-3 review with context bundle; `model: haiku` with sonnet escalation for security/arch changes | /implement |
+| impl-review | Phase 1-3 review with context bundle; `model: haiku` with sonnet escalation for security/arch changes | /implement |
 | test-pyramid | Choose test level (unit/int/e2e) | /implement (RED phase) |
 | debug | Reproduce → isolate → fix | /implement, /fix |
 | verify | Pre-release verification checklist; `context: fork` with optional captured `test_output` | /fix, /release, /implement |
 | load-context | Load shared context bundle (ADRs + project/context.md) once per session; Step 0 cache-check via get_cached_adrs before disk read (v1.18.1) | /plan, /implement, /sprint |
-| docs-sync-check | Verify CLAUDE.md/README.md match commands/skills/hooks on disk; `context: fork` | /retro, /release |
+| docs-sync | Verify CLAUDE.md/README.md match commands/skills/hooks on disk; `context: fork` | /retro, /release |
 
 ## Hooks
 
@@ -77,11 +77,11 @@ invoke the corresponding skill.
 
 | Agent | Frontmatter | Invoked by | Purpose |
 | --- | --- | --- | --- |
-| `agents/spec-reviewer.md` | `isolation: worktree` | `spec-design` skill | Review spec from clean committed snapshot |
-| `agents/plan-reviewer.md` | `isolation: worktree` | `write-plan` skill | Review plan from clean committed snapshot |
-| `agents/impl-reviewer.md` | `background: true` | `/implement` step 6 | Review task impl asynchronously; deferred-check on next iteration |
-| `agents/implement-mode.md` | `permissionMode: acceptEdits`, `tools: all` | `--agent zie-framework:zie-implement-mode` | TDD session agent — SDLC context, WIP=1, tdd-loop + test-pyramid preload |
-| `agents/audit-mode.md` | `permissionMode: plan`, `tools: [Read, Grep, Glob, WebSearch]` | `--agent zie-framework:zie-audit-mode` | Read-only analysis session; findings surfaced as backlog candidates |
+| `agents/spec-review.md` | `isolation: worktree` | `spec-design` skill | Review spec from clean committed snapshot |
+| `agents/plan-review.md` | `isolation: worktree` | `write-plan` skill | Review plan from clean committed snapshot |
+| `agents/impl-review.md` | `background: true` | `/implement` step 6 | Review task impl asynchronously; deferred-check on next iteration |
+| `agents/implement-mode.md` | `permissionMode: acceptEdits`, `tools: all` | `--agent zie-framework:builder` | TDD session agent — SDLC context, WIP=1, tdd-loop + test-pyramid preload |
+| `agents/audit-mode.md` | `permissionMode: plan`, `tools: [Read, Grep, Glob, WebSearch]` | `--agent zie-framework:auditor` | Read-only analysis session; findings surfaced as backlog candidates |
 
 ### Field reference
 

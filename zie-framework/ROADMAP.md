@@ -24,6 +24,10 @@
 
 ---
 
+## Done — v1.32.1 (2026-04-16)
+
+- [x] chore: rename-skills-agents — Remove redundant zie- prefix from skills/agents, align naming (audit, impl-review, plan-review, spec-review, docs-sync, context-map, auditor, builder, shipper)
+
 ## Done — v1.31.0 (2026-04-15)
 
 - [x] Optimize Review Loop Token Waste — ADR keyword filter, inline verification, scoped Grep/Glob

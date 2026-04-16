@@ -1,4 +1,5 @@
 """Tests for hooks/safety-check.py"""
+
 import json
 import os
 import subprocess
@@ -14,8 +15,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 def run_hook(tool_name, command):
     hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
     event = {"tool_name": tool_name, "tool_input": {"command": command}}
-    return subprocess.run([sys.executable, hook], input=json.dumps(event),
-                          capture_output=True, text=True)
+    return subprocess.run([sys.executable, hook], input=json.dumps(event), capture_output=True, text=True)
 
 
 def run_hook_timed(tool_name, command, timeout=10):
@@ -117,8 +117,7 @@ class TestSafetyCheckPassThrough:
 
     def test_invalid_json_exits_zero(self):
         hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
-        r = subprocess.run([sys.executable, hook], input="not json",
-                           capture_output=True, text=True)
+        r = subprocess.run([sys.executable, hook], input="not json", capture_output=True, text=True)
         assert r.returncode == 0
 
 
@@ -236,7 +235,9 @@ class TestSafetyCheckModeDispatch:
         return subprocess.run(
             [sys.executable, os.path.join(REPO_ROOT, "hooks", "safety-check.py")],
             input=json.dumps({"tool_name": "Bash", "tool_input": {"command": command}}),
-            capture_output=True, text=True, env=env,
+            capture_output=True,
+            text=True,
+            env=env,
         )
 
     def test_agent_mode_handles_command_inline(self, tmp_path):
@@ -248,22 +249,20 @@ class TestSafetyCheckModeDispatch:
         # blocked (exit 2) or allowed (exit 0) — either is valid depending on CLI availability.
         # Key assertion: safety-check.py handles it; returncode must not be 1 (script error).
         assert r.returncode in (0, 2), (
-            f"safety-check.py agent mode must exit 0 or 2, got {r.returncode}\n"
-            f"stderr: {r.stderr}"
+            f"safety-check.py agent mode must exit 0 or 2, got {r.returncode}\nstderr: {r.stderr}"
         )
 
     def test_both_mode_still_blocks_dangerous_command(self, tmp_path):
         """In both mode, regex evaluation still runs and can block."""
         cwd = self._make_config(tmp_path, "both")
         r = self._run(cwd, "rm -rf /")
-        assert r.returncode == 2, (
-            "safety-check.py must block (exit 2) in both mode for dangerous commands"
-        )
+        assert r.returncode == 2, "safety-check.py must block (exit 2) in both mode for dangerous commands"
 
     def test_both_mode_writes_ab_log(self, tmp_path):
         """In both mode, an A/B record must be written after evaluation."""
         import re
         import tempfile
+
         cwd = self._make_config(tmp_path, "both")
         safe = re.sub(r"[^a-zA-Z0-9]", "-", tmp_path.name)
         log_path = Path(tempfile.gettempdir()) / f"zie-{safe}-safety-ab"
@@ -278,6 +277,7 @@ class TestSafetyCheckModeDispatch:
         """In regex mode (default), no A/B log must be written."""
         import re
         import tempfile
+
         cwd = self._make_config(tmp_path, "regex")
         safe = re.sub(r"[^a-zA-Z0-9]", "-", tmp_path.name)
         log_path = Path(tempfile.gettempdir()) / f"zie-{safe}-safety-ab"
@@ -291,51 +291,54 @@ class TestSafetyCheckPassThroughMalformed:
         """Event with no tool_name key must exit 0."""
         hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
         event = {"tool_input": {"command": "echo hello"}}
-        r = subprocess.run([sys.executable, hook], input=json.dumps(event),
-                          capture_output=True, text=True)
+        r = subprocess.run([sys.executable, hook], input=json.dumps(event), capture_output=True, text=True)
         assert r.returncode == 0
 
     def test_malformed_event_not_dict_exits_zero(self):
         """stdin containing a JSON string (not a dict) must exit 0."""
         hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
-        r = subprocess.run([sys.executable, hook], input='"just a string"',
-                          capture_output=True, text=True)
+        r = subprocess.run([sys.executable, hook], input='"just a string"', capture_output=True, text=True)
         assert r.returncode == 0
 
     def test_none_tool_input_exits_zero(self):
         """Event with tool_input: null must exit 0."""
         hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
         event = {"tool_name": "Bash", "tool_input": None}
-        r = subprocess.run([sys.executable, hook], input=json.dumps(event),
-                          capture_output=True, text=True)
+        r = subprocess.run([sys.executable, hook], input=json.dumps(event), capture_output=True, text=True)
         assert r.returncode == 0
 
 
 class TestSafetyCheckPatternCoverage:
     """Parametrized sweep of canonical BLOCKS and WARNS patterns."""
 
-    @pytest.mark.parametrize("cmd", [
-        "rm -rf ~",
-        "rm -rf .",
-        "DROP DATABASE mydb",
-        "DROP TABLE users",
-        "TRUNCATE TABLE events",
-        "git push --force",
-        "git push -f origin dev",
-        "git push origin main",
-        "git push origin master",
-        "git reset --hard HEAD~1",
-        "git commit --no-verify -m skip",
-    ])
+    @pytest.mark.parametrize(
+        "cmd",
+        [
+            "rm -rf ~",
+            "rm -rf .",
+            "DROP DATABASE mydb",
+            "DROP TABLE users",
+            "TRUNCATE TABLE events",
+            "git push --force",
+            "git push -f origin dev",
+            "git push origin main",
+            "git push origin master",
+            "git reset --hard HEAD~1",
+            "git commit --no-verify -m skip",
+        ],
+    )
     def test_blocks_pattern_exits_2(self, cmd):
         r = run_hook("Bash", cmd)
         assert r.returncode == 2, f"Expected returncode 2 for {cmd!r}, got {r.returncode}"
         assert "BLOCKED" in r.stdout
 
-    @pytest.mark.parametrize("cmd", [
-        "docker compose down --volumes",
-        "alembic downgrade base",
-    ])
+    @pytest.mark.parametrize(
+        "cmd",
+        [
+            "docker compose down --volumes",
+            "alembic downgrade base",
+        ],
+    )
     def test_warns_pattern_exits_0_with_warning(self, cmd):
         r = run_hook("Bash", cmd)
         assert r.returncode == 0, f"Expected returncode 0 for {cmd!r}, got {r.returncode}"
@@ -359,8 +362,7 @@ class TestSafetyCheckWriteEditMerged:
         env = os.environ.copy()
         if cwd_override:
             env["CLAUDE_CWD"] = cwd_override
-        return subprocess.run([sys.executable, hook], input=json.dumps(event),
-                              capture_output=True, text=True, env=env)
+        return subprocess.run([sys.executable, hook], input=json.dumps(event), capture_output=True, text=True, env=env)
 
     def test_write_relative_path_resolved(self, tmp_path):
         r = self._run("Write", {"file_path": "src/main.py"}, cwd_override=str(tmp_path))
@@ -402,8 +404,7 @@ class TestSafetyCheckConfirmWrapMerged:
     def _run(self, command):
         hook = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
         event = {"tool_name": "Bash", "tool_input": {"command": command}}
-        return subprocess.run([sys.executable, hook], input=json.dumps(event),
-                              capture_output=True, text=True)
+        return subprocess.run([sys.executable, hook], input=json.dumps(event), capture_output=True, text=True)
 
     def test_rm_rf_dotslash_rewritten(self):
         r = self._run("rm -rf ./dist/")
@@ -525,10 +526,7 @@ class TestHooksJsonMergedRegistration:
     def test_safety_check_single_entry(self):
         data = self._load()
         pre_tool = data.get("hooks", {}).get("PreToolUse", [])
-        sc_entries = [
-            e for e in pre_tool
-            if any("safety-check.py" in h.get("command", "") for h in e.get("hooks", []))
-        ]
+        sc_entries = [e for e in pre_tool if any("safety-check.py" in h.get("command", "") for h in e.get("hooks", []))]
         assert len(sc_entries) == 1
 
     def test_safety_check_agent_not_standalone_hook(self):

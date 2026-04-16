@@ -1,4 +1,5 @@
 """Tests for tdd-loop/SKILL.md — verifies new make test-fast/test-ci references."""
+
 from pathlib import Path
 
 SKILL = Path(__file__).parents[2] / "skills" / "tdd-loop" / "SKILL.md"

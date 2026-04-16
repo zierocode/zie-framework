@@ -33,5 +33,5 @@ steps).
 - `/release` no longer fails with context-limit errors after long sprint sessions.
 - Slightly higher token cost per release invocation (sonnet vs haiku), accepted
   because release runs at most once per sprint cycle.
-- Mirrors ADR-017 (impl-reviewer upgraded from haiku to sonnet for the same
+- Mirrors ADR-017 (impl-review upgraded from haiku to sonnet for the same
   reasoning-quality rationale).

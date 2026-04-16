@@ -4,6 +4,7 @@ Policy: every command and skill must have both model and effort pinned.
 Valid model values: haiku | sonnet | opus
 Valid effort values: low | medium | high
 """
+
 import re
 from pathlib import Path
 
@@ -15,38 +16,38 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 # Format: relative_path -> (model, effort)
 EXPECTED = {
     # Commands
-    "commands/status.md":    ("haiku",  "low"),
-    "commands/backlog.md":   ("haiku",  "low"),
-    "commands/hotfix.md":    ("sonnet", "low"),
-    "commands/spec.md":      ("sonnet", "medium"),
-    "commands/plan.md":      ("sonnet", "low"),
+    "commands/status.md": ("haiku", "low"),
+    "commands/backlog.md": ("haiku", "low"),
+    "commands/hotfix.md": ("sonnet", "low"),
+    "commands/spec.md": ("sonnet", "medium"),
+    "commands/plan.md": ("sonnet", "low"),
     "commands/implement.md": ("sonnet", "medium"),
-    "commands/fix.md":       ("sonnet", "low"),
-    "commands/release.md":   ("sonnet", "medium"),
-    "commands/retro.md":     ("sonnet", "low"),
-    "commands/init.md":      ("haiku",  "medium"),
-    "commands/resync.md":    ("haiku",  "medium"),
-    "commands/audit.md":     ("sonnet", "medium"),
-    "commands/sprint.md":    ("sonnet", "high"),
-    "commands/guide.md":     ("sonnet", "low"),
-    "commands/health.md":    ("sonnet", "low"),
-    "commands/rescue.md":    ("sonnet", "low"),
-    "commands/brief.md":     ("sonnet", "low"),
-    "commands/next.md":      ("sonnet", "low"),
-    "commands/chore.md":     ("haiku",  "low"),
-    "commands/spike.md":     ("sonnet", "low"),
+    "commands/fix.md": ("sonnet", "low"),
+    "commands/release.md": ("sonnet", "medium"),
+    "commands/retro.md": ("sonnet", "low"),
+    "commands/init.md": ("haiku", "medium"),
+    "commands/resync.md": ("haiku", "medium"),
+    "commands/audit.md": ("sonnet", "medium"),
+    "commands/sprint.md": ("sonnet", "high"),
+    "commands/guide.md": ("sonnet", "low"),
+    "commands/health.md": ("sonnet", "low"),
+    "commands/rescue.md": ("sonnet", "low"),
+    "commands/brief.md": ("sonnet", "low"),
+    "commands/next.md": ("sonnet", "low"),
+    "commands/chore.md": ("haiku", "low"),
+    "commands/spike.md": ("sonnet", "low"),
     # Skills
-    "skills/spec-design/SKILL.md":   ("sonnet", "medium"),
-    "skills/write-plan/SKILL.md":    ("sonnet", "low"),
-    "skills/debug/SKILL.md":         ("sonnet", "low"),
-    "skills/spec-reviewer/SKILL.md": ("haiku",  "low"),
-    "skills/plan-reviewer/SKILL.md": ("haiku",  "low"),
-    "skills/impl-reviewer/SKILL.md": ("haiku",  "low"),
-    "skills/verify/SKILL.md":        ("haiku",  "low"),
-    "skills/tdd-loop/SKILL.md":      ("haiku",  "low"),
-    "skills/test-pyramid/SKILL.md":  ("haiku",  "low"),
-    "skills/zie-audit/SKILL.md":         ("sonnet", "medium"),
-    "skills/docs-sync-check/SKILL.md":  ("haiku",  "low"),
+    "skills/spec-design/SKILL.md": ("sonnet", "medium"),
+    "skills/write-plan/SKILL.md": ("sonnet", "low"),
+    "skills/debug/SKILL.md": ("sonnet", "low"),
+    "skills/spec-review/SKILL.md": ("haiku", "low"),
+    "skills/plan-review/SKILL.md": ("haiku", "low"),
+    "skills/impl-review/SKILL.md": ("haiku", "low"),
+    "skills/verify/SKILL.md": ("haiku", "low"),
+    "skills/tdd-loop/SKILL.md": ("haiku", "low"),
+    "skills/test-pyramid/SKILL.md": ("haiku", "low"),
+    "skills/audit/SKILL.md": ("sonnet", "medium"),
+    "skills/docs-sync/SKILL.md": ("haiku", "low"),
 }
 
 VALID_MODELS = {"haiku", "sonnet", "opus"}
@@ -78,8 +79,7 @@ class TestAllFilesHaveBothKeys:
             fm = parse_frontmatter(rel_path)
             if "type" in fm:
                 unofficial.append(rel_path)
-        assert unofficial == [], \
-            "Unofficial 'type' field found in:\n" + "\n".join(unofficial)
+        assert unofficial == [], "Unofficial 'type' field found in:\n" + "\n".join(unofficial)
 
     def test_all_have_effort_key(self):
         missing = []
@@ -117,9 +117,7 @@ class TestExpectedValues:
             fm = parse_frontmatter(rel_path)
             actual = fm.get("model")
             if actual != expected_model:
-                errors.append(
-                    f"{rel_path}: expected model={expected_model!r}, got {actual!r}"
-                )
+                errors.append(f"{rel_path}: expected model={expected_model!r}, got {actual!r}")
         assert errors == [], "Wrong model values:\n" + "\n".join(errors)
 
     def test_correct_effort_values(self):
@@ -128,28 +126,24 @@ class TestExpectedValues:
             fm = parse_frontmatter(rel_path)
             actual = fm.get("effort")
             if actual != expected_effort:
-                errors.append(
-                    f"{rel_path}: expected effort={expected_effort!r}, got {actual!r}"
-                )
+                errors.append(f"{rel_path}: expected effort={expected_effort!r}, got {actual!r}")
         assert errors == [], "Wrong effort values:\n" + "\n".join(errors)
 
 
 class TestAuditFiles:
-    """zie-audit uses sonnet+medium per ADR-021 (supersedes ADR-012)."""
+    """audit uses sonnet+medium per ADR-021 (supersedes ADR-012)."""
 
     def test_zie_audit_command_is_sonnet(self):
         fm = parse_frontmatter("commands/audit.md")
         assert fm.get("model") == "sonnet", "commands/audit.md must use sonnet (ADR-021)"
 
     def test_zie_audit_skill_is_sonnet(self):
-        fm = parse_frontmatter("skills/zie-audit/SKILL.md")
-        assert fm.get("model") == "sonnet", "skills/zie-audit/SKILL.md must use sonnet (ADR-021)"
+        fm = parse_frontmatter("skills/audit/SKILL.md")
+        assert fm.get("model") == "sonnet", "skills/audit/SKILL.md must use sonnet (ADR-021)"
 
     def test_no_opus_files_in_expected(self):
         """ADR-021: opus reservation removed — no file should use opus."""
-        opus_files = [
-            rel for rel, (model, _) in EXPECTED.items() if model == "opus"
-        ]
+        opus_files = [rel for rel, (model, _) in EXPECTED.items() if model == "opus"]
         assert opus_files == [], f"Unexpected opus files: {opus_files}"
 
 
@@ -159,9 +153,9 @@ class TestHaikuFiles:
     EXPECTED_HAIKU = [
         "commands/status.md",
         "commands/backlog.md",
-        "skills/spec-reviewer/SKILL.md",
-        "skills/plan-reviewer/SKILL.md",
-        "skills/impl-reviewer/SKILL.md",
+        "skills/spec-review/SKILL.md",
+        "skills/plan-review/SKILL.md",
+        "skills/impl-review/SKILL.md",
         "skills/verify/SKILL.md",
         "skills/tdd-loop/SKILL.md",
         "skills/test-pyramid/SKILL.md",

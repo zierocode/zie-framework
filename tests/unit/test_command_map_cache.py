@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Unit tests for command-map-pre-load caching."""
-import json
-import os
+
 import shutil
 import tempfile
 import time
@@ -9,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from hooks.utils_cache import CacheManager, get_cache_manager
+from hooks.utils_cache import CacheManager
 
 
 @pytest.fixture
@@ -26,8 +25,8 @@ def test_project(cache_dir):
     project = cache_dir / "test-project"
     project.mkdir()
 
-    # Create skills/using-zie-framework/SKILL.md
-    skills_dir = project / "skills" / "using-zie-framework"
+    # Create skills/context-map/SKILL.md
+    skills_dir = project / "skills" / "context-map"
     skills_dir.mkdir(parents=True)
     skill_file = skills_dir / "SKILL.md"
     skill_file.write_text("""# Using zie-framework
@@ -61,7 +60,7 @@ class TestCommandMapCache:
 
     def test_parse_commands_from_skill(self, test_project, cache_dir):
         """Commands are parsed correctly from SKILL.md."""
-        skill_path = test_project / "skills" / "using-zie-framework" / "SKILL.md"
+        skill_path = test_project / "skills" / "context-map" / "SKILL.md"
         commands_dir = test_project / "commands"
         guarded = ["/health", "/rescue"]
 
@@ -76,7 +75,8 @@ class TestCommandMapCache:
                 break
             if in_cmd_map and line.strip().startswith("- `/"):
                 import re
-                m = re.search(r'`(/[a-z]+)`', line)
+
+                m = re.search(r"`(/[a-z]+)`", line)
                 if m:
                     cmd_names.append(m.group(1))
 
@@ -97,7 +97,7 @@ class TestCommandMapCache:
 
     def test_cache_key_includes_mtime(self, test_project, cache_dir):
         """Cache key includes SKILL.md mtime for invalidation."""
-        skill_path = test_project / "skills" / "using-zie-framework" / "SKILL.md"
+        skill_path = test_project / "skills" / "context-map" / "SKILL.md"
         mtime = skill_path.stat().st_mtime
 
         cache_key = f"command_map:{mtime}"
@@ -106,7 +106,7 @@ class TestCommandMapCache:
 
     def test_cache_invalidates_on_mtime_change(self, test_project, cache_dir):
         """Cache is invalidated when SKILL.md mtime changes."""
-        skill_path = test_project / "skills" / "using-zie-framework" / "SKILL.md"
+        skill_path = test_project / "skills" / "context-map" / "SKILL.md"
         cache = CacheManager(cache_dir / ".zie" / "cache")
         session_id = "test_session"
 
@@ -131,6 +131,7 @@ class TestCommandMapCache:
     def test_ttl_is_1800_seconds(self, test_project, cache_dir):
         """Command map cache TTL is 1800s (30 minutes)."""
         from hooks.utils_config import CACHE_TTLS
+
         assert CACHE_TTLS.get("command_map") == 1800
 
 
@@ -146,7 +147,7 @@ class TestCommandMapIntegration:
         session_id = "test_session"
 
         # Pre-populate cache
-        skill_path = test_project / "skills" / "using-zie-framework" / "SKILL.md"
+        skill_path = test_project / "skills" / "context-map" / "SKILL.md"
         mtime = skill_path.stat().st_mtime
         cache_key = f"command_map:{mtime}"
         cache.set(cache_key, "[zie-framework] framework: commands — /cached", session_id, ttl=1800)

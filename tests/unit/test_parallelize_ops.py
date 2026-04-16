@@ -1,4 +1,5 @@
 """Tests for Sprint D: parallelize-framework-ops — parallel ADR writes and ROADMAP update."""
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
@@ -8,9 +9,7 @@ class TestRetroParallelADRAndRoadmap:
     def test_retro_launches_adr_and_roadmap_in_parallel(self):
         """retro.md must instruct parallel ADR writes + ROADMAP update."""
         content = (REPO_ROOT / "commands" / "retro.md").read_text()
-        assert "parallel" in content.lower(), (
-            "retro.md must instruct parallel ADR writes and ROADMAP update"
-        )
+        assert "parallel" in content.lower(), "retro.md must instruct parallel ADR writes and ROADMAP update"
 
     def test_retro_parallel_note_explains_no_race(self):
         """retro.md parallel note must confirm different target files (no race condition)."""
@@ -33,8 +32,6 @@ class TestRetroParallelADRAndRoadmap:
 
 class TestAuditAlreadyParallel:
     def test_zie_audit_skill_uses_parallel_agents(self):
-        """zie-audit skill must already spawn parallel agents for dimensions."""
-        content = (REPO_ROOT / "skills" / "zie-audit" / "SKILL.md").read_text()
-        assert "parallel" in content.lower(), (
-            "zie-audit skill must use parallel agents for audit dimensions"
-        )
+        """audit skill must already spawn parallel agents for dimensions."""
+        content = (REPO_ROOT / "skills" / "audit" / "SKILL.md").read_text()
+        assert "parallel" in content.lower(), "audit skill must use parallel agents for audit dimensions"

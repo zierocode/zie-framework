@@ -1,4 +1,5 @@
 """Tests for per-task checkpoint commit in implement.md."""
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
@@ -24,9 +25,7 @@ class TestPerTaskCheckpoint:
         task_done_idx = text.find("TaskUpdate")
         checkpoint_idx = text.find("checkpoint commit")
         assert task_done_idx > 0, "must have TaskUpdate step"
-        assert checkpoint_idx > task_done_idx, (
-            "checkpoint commit must come after TaskUpdate (marking task complete)"
-        )
+        assert checkpoint_idx > task_done_idx, "checkpoint commit must come after TaskUpdate (marking task complete)"
 
     def test_commit_in_task_loop(self):
         """Per-task commit must be inside the Task Loop, not just at the end."""
@@ -43,7 +42,7 @@ class TestPerTaskCheckpoint:
     def test_commit_includes_task_number(self):
         """Commit message must include task number for traceability."""
         text = _text()
-        checkpoint_section = text[text.find("Per-task checkpoint"):]
+        checkpoint_section = text[text.find("Per-task checkpoint") :]
         # Find the commit message pattern - should reference T{N}
         assert "T{" in checkpoint_section or "T{N}" in checkpoint_section, (
             "per-task commit message must include task number (T{N})"

@@ -1,4 +1,5 @@
 """Tests for backlog auto-tag keyword matching and duplicate detection logic."""
+
 import os
 import sys
 

@@ -1,4 +1,5 @@
 """Tests for hooks/auto-test.py"""
+
 import json
 import os
 import re as _re
@@ -17,14 +18,12 @@ HOOK = os.path.join(REPO_ROOT, "hooks", "auto-test.py")
 
 
 def run_hook(event, tmp_cwd=None, env_overrides=None):
-    env = {**os.environ, "ZIE_MEMORY_API_KEY": "",
-           "ZIE_AUTO_TEST_DEBOUNCE_MS": "", "ZIE_TEST_RUNNER": ""}
+    env = {**os.environ, "ZIE_MEMORY_API_KEY": "", "ZIE_AUTO_TEST_DEBOUNCE_MS": "", "ZIE_TEST_RUNNER": ""}
     if tmp_cwd:
         env["CLAUDE_CWD"] = str(tmp_cwd)
     if env_overrides:
         env.update(env_overrides)
-    return subprocess.run([sys.executable, HOOK], input=json.dumps(event),
-                          capture_output=True, text=True, env=env)
+    return subprocess.run([sys.executable, HOOK], input=json.dumps(event), capture_output=True, text=True, env=env)
 
 
 def make_cwd(tmp_path, config=None):
@@ -37,27 +36,23 @@ def make_cwd(tmp_path, config=None):
 
 class TestAutoTestGuardrails:
     def test_no_action_when_no_zf_dir(self, tmp_path):
-        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
-                     tmp_cwd=tmp_path)
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}}, tmp_cwd=tmp_path)
         assert r.stdout.strip() == ""
         assert r.returncode == 0
 
     def test_no_action_when_no_test_runner_in_config(self, tmp_path):
         cwd = make_cwd(tmp_path, config={})  # test_runner key absent
-        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
-                     tmp_cwd=cwd)
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}}, tmp_cwd=cwd)
         assert r.stdout.strip() == ""
 
     def test_no_action_for_non_edit_tool(self, tmp_path):
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
-        r = run_hook({"tool_name": "Bash", "tool_input": {"command": "ls"}},
-                     tmp_cwd=cwd)
+        r = run_hook({"tool_name": "Bash", "tool_input": {"command": "ls"}}, tmp_cwd=cwd)
         assert r.stdout.strip() == ""
 
     def test_invalid_json_exits_zero(self, tmp_path):
         env = {**os.environ, "CLAUDE_CWD": str(tmp_path)}
-        r = subprocess.run([sys.executable, HOOK], input="not json",
-                           capture_output=True, text=True, env=env)
+        r = subprocess.run([sys.executable, HOOK], input="not json", capture_output=True, text=True, env=env)
         assert r.returncode == 0
         assert r.stdout.strip() == ""
 
@@ -81,8 +76,7 @@ class TestAutoTestDebounce:
         debounce = project_tmp_path("last-test", cwd.name)
         debounce.write_text("some_file.py")
         # Manually set mtime to NOW so debounce window is active
-        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
-                     tmp_cwd=cwd)
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}}, tmp_cwd=cwd)
         # Should be suppressed — no test runner output expected
         assert "[zie-framework] Tests" not in r.stdout
 
@@ -95,6 +89,7 @@ class TestFindMatchingTest:
         """Import auto-test.py without triggering hook execution."""
         import importlib.machinery
         import types
+
         loader = importlib.machinery.SourceFileLoader("auto_test", str(HOOK))
         mod = types.ModuleType("auto_test")
         mod.__file__ = str(HOOK)
@@ -136,8 +131,7 @@ class TestAutoTestRunnerSelection:
 
     def test_unknown_test_runner_exits_zero(self, tmp_path):
         cwd = make_cwd(tmp_path, config={"test_runner": "mocha"})
-        r = run_hook({"tool_name": "Write", "tool_input": {"file_path": "/some/component.ts"}},
-                     tmp_cwd=cwd)
+        r = run_hook({"tool_name": "Write", "tool_input": {"file_path": "/some/component.ts"}}, tmp_cwd=cwd)
         # mocha is not in the supported runners — hook exits 0 silently
         assert r.returncode == 0
         assert "BLOCKED" not in r.stdout
@@ -156,8 +150,7 @@ class TestAutoTestDebounceBoundary:
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest", "auto_test_debounce_ms": 0})
         debounce = project_tmp_path("last-test", cwd.name)
         debounce.write_text("previous_file.py")
-        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
-                     tmp_cwd=cwd)
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}}, tmp_cwd=cwd)
         # Hook should NOT be suppressed — either runs tests or exits for other reason
         # Key assertion: the debounce guard did not suppress (no silent early exit)
         assert "Tests" in r.stdout or r.returncode == 0
@@ -167,8 +160,7 @@ class TestAutoTestDebounceBoundary:
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest", "auto_test_debounce_ms": 999999})
         debounce = project_tmp_path("last-test", cwd.name)
         debounce.write_text("recent_file.py")
-        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
-                     tmp_cwd=cwd)
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}}, tmp_cwd=cwd)
         assert "[zie-framework] Tests" not in r.stdout
         assert r.returncode == 0
 
@@ -190,14 +182,11 @@ class TestAutoTestAtomicDebounceWrite:
             elif p.is_symlink() or p.exists():
                 p.unlink(missing_ok=True)
 
-    def test_debounce_write_uses_safe_write_tmp(self):
-        """Source must delegate debounce write to safe_write_tmp, not bare write_text."""
+    def test_debounce_uses_cache_manager(self):
+        """Source must delegate debounce state to CacheManager, not bare file writes."""
         source = Path(HOOK).read_text()
-        assert "safe_write_tmp" in source, \
-            "safe_write_tmp call missing from hook source"
-        assert "debounce_file.write_text" not in source, \
-            "bare debounce_file.write_text found — must use safe_write_tmp"
-
+        assert "CacheManager" in source or "get_cache_manager" in source, "CacheManager usage missing from hook source"
+        assert "debounce_file.write_text" not in source, "bare debounce_file.write_text found — must use CacheManager"
 
     def test_debounce_write_oserror_does_not_crash_hook(self, tmp_path):
         """If the debounce write raises OSError, hook must exit 0 (no crash)."""
@@ -325,6 +314,7 @@ class TestFindMatchingTestEdgeCases:
         """Import auto-test.py without triggering hook execution (same as TestFindMatchingTest)."""
         import importlib.machinery
         import types
+
         loader = importlib.machinery.SourceFileLoader("auto_test", str(HOOK))
         mod = types.ModuleType("auto_test")
         mod.__file__ = str(HOOK)
@@ -531,9 +521,7 @@ class TestAdditionalContextInjection:
         changed = str(cwd / "src" / "billing.py")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
         ctx = parse_additional_context(r.stdout)
-        assert ctx is None, (
-            f"additionalContext must be suppressed when no test file found, got: {ctx!r}"
-        )
+        assert ctx is None, f"additionalContext must be suppressed when no test file found, got: {ctx!r}"
 
     def test_no_context_write_one_message_suppressed(self, tmp_path):
         """'write one' message is suppressed — no additionalContext emitted when no test."""
@@ -542,17 +530,15 @@ class TestAdditionalContextInjection:
         changed = str(cwd / "src" / "stripe.py")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
         ctx = parse_additional_context(r.stdout)
-        assert ctx is None, (
-            f"additionalContext must not fire when no test file exists, got: {ctx!r}"
-        )
+        assert ctx is None, f"additionalContext must not fire when no test file exists, got: {ctx!r}"
 
     # --- debounce suppresses context (context only fires when tests actually run) ---
 
     def test_context_suppressed_when_debounced(self, tmp_path):
         """Context injection is gated behind debounce — no duplicate hints on rapid edits."""
         import time as _time
-        cwd = make_cwd(tmp_path, config={"test_runner": "pytest",
-                                         "auto_test_debounce_ms": 999999})
+
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest", "auto_test_debounce_ms": 999999})
         tests_dir = cwd / "tests" / "unit"
         tests_dir.mkdir(parents=True)
         test_file = tests_dir / "test_payments.py"
@@ -563,12 +549,12 @@ class TestAdditionalContextInjection:
         cache_file = cache_dir / "session-cache.json"
         sid = "test-debounce-session"
         now = _time.time()
-        safe_path = _re.sub(r'[^a-zA-Z0-9]', '-', str(cwd / "src" / "payments.py"))
+        safe_path = _re.sub(r"[^a-zA-Z0-9]", "-", str(cwd / "src" / "payments.py"))
         cache_data = {
             f"session:{sid}:test_debounce:{safe_path}": {
                 "value": {"last_tested": now, "path": "payments.py"},
                 "expires_at": now + 60,
-                "created_at": now
+                "created_at": now,
             }
         }
         cache_file.write_text(json.dumps(cache_data))
@@ -586,8 +572,8 @@ class TestAdditionalContextInjection:
     def test_no_match_context_suppressed_when_debounced(self, tmp_path):
         """'write one' context is also suppressed when debounced."""
         import time as _time
-        cwd = make_cwd(tmp_path, config={"test_runner": "pytest",
-                                         "auto_test_debounce_ms": 999999})
+
+        cwd = make_cwd(tmp_path, config={"test_runner": "pytest", "auto_test_debounce_ms": 999999})
         (cwd / "tests").mkdir()
         # Write debounce state to unified cache
         cache_dir = cwd / ".zie" / "cache"
@@ -595,12 +581,12 @@ class TestAdditionalContextInjection:
         cache_file = cache_dir / "session-cache.json"
         sid = "test-debounce-session-2"
         now = _time.time()
-        safe_path = _re.sub(r'[^a-zA-Z0-9]', '-', str(cwd / "src" / "billing.py"))
+        safe_path = _re.sub(r"[^a-zA-Z0-9]", "-", str(cwd / "src" / "billing.py"))
         cache_data = {
             f"session:{sid}:test_debounce:{safe_path}": {
                 "value": {"last_tested": now, "path": "billing.py"},
                 "expires_at": now + 60,
-                "created_at": now
+                "created_at": now,
             }
         }
         cache_file.write_text(json.dumps(cache_data))
@@ -618,8 +604,7 @@ class TestAdditionalContextInjection:
     def test_no_context_when_no_test_runner(self, tmp_path):
         """No context emitted when test_runner is absent — hook exits early."""
         cwd = make_cwd(tmp_path, config={})
-        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}},
-                     tmp_cwd=cwd)
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}}, tmp_cwd=cwd)
         assert parse_additional_context(r.stdout) is None
 
     def test_no_context_when_not_edit_or_write(self, tmp_path):
@@ -631,8 +616,7 @@ class TestAdditionalContextInjection:
     def test_no_context_when_path_outside_cwd(self, tmp_path):
         """No context emitted when file_path is outside cwd."""
         cwd = make_cwd(tmp_path, config={"test_runner": "pytest"})
-        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/etc/passwd"}},
-                     tmp_cwd=cwd)
+        r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": "/etc/passwd"}}, tmp_cwd=cwd)
         assert parse_additional_context(r.stdout) is None
 
     # --- JSON structure ---
@@ -657,8 +641,7 @@ class TestAdditionalContextInjection:
             except json.JSONDecodeError:
                 pass
         assert len(json_lines) == 1, (
-            f"Expected exactly one additionalContext JSON line, found {len(json_lines)}: "
-            f"{r.stdout!r}"
+            f"Expected exactly one additionalContext JSON line, found {len(json_lines)}: {r.stdout!r}"
         )
         assert "additionalContext" in json_lines[0]
 
@@ -671,9 +654,7 @@ class TestAdditionalContextInjection:
         changed = str(cwd / "src" / "auth.py")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
         ctx = parse_additional_context(r.stdout)
-        assert isinstance(ctx, str), (
-            f"additionalContext must be str, got {type(ctx)}: {ctx!r}"
-        )
+        assert isinstance(ctx, str), f"additionalContext must be str, got {type(ctx)}: {ctx!r}"
 
     # --- vitest runner ---
 
@@ -697,15 +678,14 @@ class TestAdditionalContextInjection:
         changed = str(cwd / "src" / "modal.tsx")
         r = run_hook({"tool_name": "Edit", "tool_input": {"file_path": changed}}, tmp_cwd=cwd)
         ctx = parse_additional_context(r.stdout)
-        assert ctx is None, (
-            f"additionalContext must be suppressed when no test file found, got: {ctx!r}"
-        )
+        assert ctx is None, f"additionalContext must be suppressed when no test file found, got: {ctx!r}"
 
 
 class TestAutoTestGitTimeout:
     def test_git_timeout_exits_zero(self, tmp_path):
         """auto-test.py must exit 0 when git hangs (TimeoutExpired caught by hook)."""
         import stat
+
         bin_dir = tmp_path / "fakebin"
         bin_dir.mkdir()
         fake_git = bin_dir / "git"
@@ -723,7 +703,10 @@ class TestAutoTestGitTimeout:
         r = subprocess.run(
             [sys.executable, HOOK],
             input=json.dumps({"tool_name": "Edit", "tool_input": {"file_path": "/some/file.py"}}),
-            capture_output=True, text=True, env=env, timeout=10,
+            capture_output=True,
+            text=True,
+            env=env,
+            timeout=10,
         )
         assert r.returncode == 0
         assert "Traceback" not in r.stderr
@@ -750,13 +733,11 @@ class TestAutoTestWallClockGuard:
 
     def test_timer_cancel_in_source(self):
         source = Path(HOOK).read_text()
-        assert "timer.cancel()" in source, \
-            "threading.Timer must be cancelled in finally block"
+        assert "timer.cancel()" in source, "threading.Timer must be cancelled in finally block"
 
     def test_uses_process_group_kill(self):
         source = Path(HOOK).read_text()
-        assert "os.killpg" in source, \
-            "auto-test.py must use os.killpg to kill hanging process group"
+        assert "os.killpg" in source, "auto-test.py must use os.killpg to kill hanging process group"
 
     def test_zero_max_wait_does_not_arm_timer(self):
         source = Path(HOOK).read_text()
@@ -767,6 +748,7 @@ class TestAutoTestWallClockGuard:
 def _load_truncate():
     """Import truncate_test_output from auto-test.py via importlib."""
     import importlib.util
+
     spec = importlib.util.spec_from_file_location(
         "auto_test_hook",
         os.path.join(HOOKS_DIR, "auto-test.py"),
@@ -796,11 +778,7 @@ class TestTruncateTestOutput:
 
     def test_first_failed_block_extracted(self):
         """AC-5: first FAILED block present."""
-        raw = (
-            "FAILED test_foo.py::test_bar - AssertionError: expected 1\n"
-            "E   assert 0 == 1\n\n"
-            "2 failed in 0.5s\n"
-        )
+        raw = "FAILED test_foo.py::test_bar - AssertionError: expected 1\nE   assert 0 == 1\n\n2 failed in 0.5s\n"
         result = self.fn(raw)
         assert "FAILED test_foo.py::test_bar" in result
         assert "assert 0 == 1" in result

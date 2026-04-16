@@ -1,4 +1,5 @@
 """Verify no hook file has config.get() calls with inline default arguments."""
+
 import re
 from pathlib import Path
 
@@ -26,6 +27,5 @@ def test_no_inline_config_defaults():
             if pattern.search(line):
                 violations.append(f"{filename}:{lineno}: {line.strip()}")
     assert not violations, (
-        "Inline config.get() defaults found — remove second arg, rely on CONFIG_DEFAULTS:\n"
-        + "\n".join(violations)
+        "Inline config.get() defaults found — remove second arg, rely on CONFIG_DEFAULTS:\n" + "\n".join(violations)
     )

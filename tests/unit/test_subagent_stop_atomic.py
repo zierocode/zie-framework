@@ -1,4 +1,5 @@
 """Tests verifying atomic append behavior in hooks/subagent-stop.py."""
+
 import json
 import os
 import sys
@@ -14,6 +15,7 @@ from utils_io import project_tmp_path  # noqa: E402
 def _run_subagent_stop(tmp_path, agent_id="agent-1", agent_type="reviewer"):
     """Run subagent-stop.py with injected project root."""
     import subprocess
+
     hook = REPO_ROOT / "hooks" / "subagent-stop.py"
     event = {"agent_id": agent_id, "agent_type": agent_type, "last_assistant_message": "done"}
     env = {**os.environ, "CLAUDE_CWD": str(tmp_path)}
@@ -35,6 +37,7 @@ def _make_cwd(tmp_path):
 class TestSubagentStopAtomicWrite:
     def _cleanup_log(self, cwd):
         import shutil
+
         log = project_tmp_path("subagent-log", cwd.name)
         if log.is_dir():
             shutil.rmtree(log, ignore_errors=True)
@@ -103,9 +106,10 @@ class TestSubagentStopAtomicWrite:
         log = project_tmp_path("subagent-log", cwd.name)
         log.mkdir(parents=True, exist_ok=True)
 
-        event = {"agent_id": "x", "agent_type": "spec-reviewer", "last_assistant_message": ""}
+        event = {"agent_id": "x", "agent_type": "spec-review", "last_assistant_message": ""}
         env = {**os.environ, "CLAUDE_CWD": str(cwd)}
         import subprocess
+
         result = subprocess.run(
             [sys.executable, str(hook)],
             input=json.dumps(event),

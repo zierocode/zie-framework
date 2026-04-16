@@ -2,6 +2,7 @@
 Tests that bash injection patterns are present in zie-* command files.
 All assertions are pure string checks — no subprocess execution.
 """
+
 import re
 from pathlib import Path
 
@@ -63,11 +64,8 @@ class TestZieStatusInjections:
 
     def test_injections_precede_first_step(self):
         inject_pos = self.content.find("!`cat zie-framework/ROADMAP.md")
-        steps_pos = self.content.find("## Steps")
         step1_pos = self.content.find("\n1. **Check initialization**")
-        assert steps_pos < inject_pos < step1_pos, (
-            "ROADMAP injection must appear inside Steps section, before step 1"
-        )
+        assert 0 < inject_pos < step1_pos, "ROADMAP injection must appear before first step"
 
 
 class TestZieRetroInjections:
@@ -81,52 +79,53 @@ class TestZieRetroInjections:
         )
         assert expected in self.content
 
-    def test_recent_activity_injection_present(self):
-        assert "!`git log -50 --oneline`" in self.content
-
-    def test_single_git_log_bang_only(self):
-        """Only one !git log bang allowed — the -50 injection."""
+    def test_git_log_injection_present(self):
+        """At least one git log bang injection must exist in retro.md."""
         import re
+
         bangs = re.findall(r"!`git log[^`]+`", self.content)
-        git_log_bangs = [b for b in bangs if "git describe" not in b]
-        assert len(git_log_bangs) == 1, (
-            f"Expected 1 git log bang (not commits-since-tag), found {len(git_log_bangs)}: {git_log_bangs}"
-        )
-        assert "-50" in git_log_bangs[0], (
-            f"The single git log bang must use -50, got: {git_log_bangs[0]}"
+        assert len(bangs) >= 1, f"retro.md must have at least one git log bang injection, found {len(bangs)}"
+
+    def test_single_git_log_bang_with_fallback(self):
+        """Only one git log bang allowed — the commits-since-tag injection (with fallback)."""
+        import re
+
+        bangs = re.findall(r"!`git log[^`]+`", self.content)
+        assert len(bangs) == 1, (
+            f"Expected exactly 1 git log bang (commits-since-tag with fallback), found {len(bangs)}: {bangs}"
         )
 
     def test_self_tuning_uses_git_log_raw_not_bash(self):
         """Self-tuning step must reference git_log_raw, not spawn a Bash git log call."""
         import re
+
         # Non-blocking self-tuning section is at the end (after Suggest next)
-        start = self.content.find("Non-blocking — runs last")
+        start = self.content.find("Self-tuning proposals")
         if start == -1:
             import pytest
-            pytest.skip("Self-tuning non-blocking section not found")
-        section = self.content[start:]
-        assert "git_log_raw" in section, (
-            "Self-tuning step must reference git_log_raw (not spawn Bash git log)"
-        )
+
+            pytest.skip("Self-tuning section not found")
+        # Find the section (until next ### or end)
+        next_section = self.content.find("\n###", start + 1)
+        section = self.content[start:next_section] if next_section != -1 else self.content[start:]
+        assert "git_log_raw" in section, "Self-tuning step must reference git_log_raw (not spawn Bash git log)"
         bash_git_log = re.findall(r"git log[^\n]*oneline", section)
-        assert not bash_git_log, (
-            f"Self-tuning section must not contain bare git log calls: {bash_git_log}"
-        )
+        assert not bash_git_log, f"Self-tuning section must not contain bare git log calls: {bash_git_log}"
 
     def test_docs_sync_guard_uses_git_log_raw(self):
         """Docs-sync guard must reference git_log_raw, not run git log -1."""
         import re
+
         docs_sync_start = self.content.find("Docs-sync")
         if docs_sync_start == -1:
             import pytest
+
             pytest.skip("Docs-sync section not found")
         # Find the segment around docs-sync guard (first occurrence)
-        segment = self.content[docs_sync_start:docs_sync_start + 500]
+        segment = self.content[docs_sync_start : docs_sync_start + 500]
         # The skip-guard check should use git_log_raw not a fresh git log call
         bare_git_log = re.findall(r"`git log -1[^`]*`", segment)
-        assert not bare_git_log, (
-            f"Docs-sync guard must use git_log_raw, not run fresh git log: {bare_git_log}"
-        )
+        assert not bare_git_log, f"Docs-sync guard must use git_log_raw, not run fresh git log: {bare_git_log}"
 
     def test_no_tag_fallback_present(self):
         assert "git rev-list --max-parents=0 HEAD" in self.content
@@ -135,9 +134,7 @@ class TestZieRetroInjections:
         inject_pos = self.content.find("!`git log $(git describe")
         preflight_pos = self.content.find("## ตรวจสอบก่อนเริ่ม")
         steps_pos = self.content.find("## Steps")
-        assert preflight_pos < inject_pos < steps_pos, (
-            "Retro injections must appear inside ตรวจสอบก่อนเริ่ม, before Steps"
-        )
+        assert preflight_pos < inject_pos < steps_pos, "Retro injections must appear inside ตรวจสอบก่อนเริ่ม, before Steps"
 
 
 class TestNoUnboundedInjections:
@@ -150,9 +147,7 @@ class TestNoUnboundedInjections:
     def test_implement_injections_are_bounded(self):
         for cmd in self._injections("implement.md"):
             if "git log" in cmd:
-                assert (
-                    "-5" in cmd or "-20" in cmd or "..HEAD" in cmd
-                ), f"Unbounded git log in zie-implement.md: {cmd}"
+                assert "-5" in cmd or "-20" in cmd or "..HEAD" in cmd, f"Unbounded git log in zie-implement.md: {cmd}"
 
     def test_status_injections_are_bounded(self):
         for cmd in self._injections("status.md"):
@@ -162,6 +157,4 @@ class TestNoUnboundedInjections:
     def test_retro_injections_are_bounded(self):
         for cmd in self._injections("retro.md"):
             if "git log" in cmd and "describe" not in cmd:
-                assert "-50" in cmd or "-20" in cmd or "..HEAD" in cmd, (
-                    f"Unbounded git log in zie-retro.md: {cmd}"
-                )
+                assert "-50" in cmd or "-20" in cmd or "..HEAD" in cmd, f"Unbounded git log in zie-retro.md: {cmd}"

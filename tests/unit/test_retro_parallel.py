@@ -1,4 +1,5 @@
 """Tests for zie-retro.md ADR + ROADMAP inline writes."""
+
 from pathlib import Path
 
 RETRO_MD = Path(__file__).parents[2] / "commands" / "retro.md"
@@ -7,12 +8,8 @@ RETRO_MD = Path(__file__).parents[2] / "commands" / "retro.md"
 def test_retro_writes_adrs_inline():
     """zie-retro.md must document inline ADR writes (not agent-based)."""
     text = RETRO_MD.read_text()
-    assert "Write" in text and "ADR" in text, (
-        "zie-retro.md must document inline Write for ADR files"
-    )
-    assert "run_in_background" not in text, (
-        "zie-retro.md must NOT use run_in_background for ADR/ROADMAP writes"
-    )
+    assert "Write" in text and "ADR" in text, "zie-retro.md must document inline Write for ADR files"
+    assert "run_in_background" not in text, "zie-retro.md must NOT use run_in_background for ADR/ROADMAP writes"
 
 
 def test_retro_brain_store_after_writes():
@@ -23,9 +20,7 @@ def test_retro_brain_store_after_writes():
     assert brain_pos != -1, "brain store section not found"
     # write_adr_pos may be -1 if phrasing changed — just verify brain store is present
     if write_adr_pos != -1:
-        assert write_adr_pos < brain_pos, (
-            "Brain store must appear after inline ADR write section"
-        )
+        assert write_adr_pos < brain_pos, "Brain store must appear after inline ADR write section"
 
 
 def test_retro_failure_mode_documented():
@@ -40,6 +35,4 @@ class TestRetroLeanContextExtension:
     def test_retro_compact_bundle_has_done_section_current(self):
         """Compact bundle must include done_section_current for lean agent context."""
         text = RETRO_MD.read_text()
-        assert "done_section_current" in text, (
-            "zie-retro.md compact JSON bundle must include 'done_section_current'"
-        )
+        assert "done_section_current" in text, "zie-retro.md compact JSON bundle must include 'done_section_current'"

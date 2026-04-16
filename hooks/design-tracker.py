@@ -5,21 +5,29 @@ Async (background: true in hooks.json) — never blocks Claude.
 Checks for design signals in the user's message; writes a session flag that
 stop-capture.py reads at Stop time to write .zie/handoff.md.
 """
+
 import json
 import os
 import re
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
+from utils_cache import get_cache_manager
 from utils_error import log_error
 from utils_event import get_cwd, read_event
-from utils_cache import get_cache_manager
 
 DESIGN_SIGNALS = [
-    r"\bdesign\b", r"\bspec\b", r"\bfeature\b", r"\bimprove\b",
-    r"discuss.*sprint", r"let.*s build", r"what if", r"\barchitect",
-    r"สร้าง.*ใหม่", r"ออกแบบ", r"วางแผน.*สร้าง",
+    r"\bdesign\b",
+    r"\bspec\b",
+    r"\bfeature\b",
+    r"\bimprove\b",
+    r"discuss.*sprint",
+    r"let.*s build",
+    r"what if",
+    r"\barchitect",
+    r"สร้าง.*ใหม่",
+    r"ออกแบบ",
+    r"วางแผน.*สร้าง",
 ]
 
 _COMPILED = [re.compile(p, re.IGNORECASE) for p in DESIGN_SIGNALS]

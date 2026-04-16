@@ -1,4 +1,5 @@
 """Tests for brainstorming SKILL.md structure and handoff.md template (Area 0)."""
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
@@ -11,7 +12,7 @@ def _skill_text():
 
 class TestBrainstormSkillExists:
     def test_skill_file_exists(self):
-        assert SKILL_PATH.exists(), f"Expected skills/brainstorm/SKILL.md to exist"
+        assert SKILL_PATH.exists(), "Expected skills/brainstorm/SKILL.md to exist"
 
     def test_skill_has_four_phases(self):
         text = _skill_text()
@@ -24,9 +25,7 @@ class TestBrainstormSkillExists:
 
     def test_skill_references_brainstorm_active_flag(self):
         text = _skill_text()
-        assert "brainstorm-active" in text, (
-            "SKILL.md must instruct writing brainstorm-active flag"
-        )
+        assert "brainstorm-active" in text, "SKILL.md must instruct writing brainstorm-active flag"
 
     def test_skill_references_zie_dir(self):
         text = _skill_text()

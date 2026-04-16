@@ -4,7 +4,7 @@ AI-native SDLC framework plugin for Claude Code. ติดตั้ง structure
 workflow เข้าไปในทุก project: spec-first TDD, intent detection, memory
 integration, safety guardrails.
 
-**Version**: 1.31.0  **Status**: active
+**Version**: 1.32.1  **Status**: active
 
 ---
 
@@ -15,7 +15,7 @@ integration, safety guardrails.
 | /backlog | Capture new backlog item (problem + motivation) |
 | /spec | Backlog item → design spec with reviewer loop |
 | /plan | Approved spec → draft plan → approval → Ready lane |
-| /implement | Ready → TDD implementation + impl-reviewer gate |
+| /implement | Ready → TDD implementation + impl-review gate |
 | /fix | Bug → regression test → fix → verify. Non-urgent bugs; no immediate release. |
 | /release | Release gate → readiness check → `make release` → retro |
 | /status | Snapshot สถานะปัจจุบัน |
@@ -40,19 +40,19 @@ integration, safety guardrails.
 | Skill | Purpose |
 | --- | --- |
 | spec-design | Draft design spec from backlog item |
-| spec-reviewer | Review spec for completeness and correctness |
+| spec-review | Review spec for completeness and correctness |
 | write-plan | Convert approved spec into implementation plan |
-| plan-reviewer | Review plan for feasibility and test coverage |
+| plan-review | Review plan for feasibility and test coverage |
 | tdd-loop | RED/GREEN/REFACTOR loop for a single task |
-| impl-reviewer | Review implementation against spec and plan |
+| impl-review | Review implementation against spec and plan |
 | verify | Post-implementation verification gate |
 | test-pyramid | Test strategy advisor |
 | debug | Systematic bug diagnosis and fix path |
-| zie-audit | 9-dimension audit analysis (invoked by /audit command) |
-| docs-sync-check | Verify CLAUDE.md and README.md are in sync with repo state |
+| audit | 9-dimension audit analysis (invoked by /audit command) |
+| docs-sync | Verify CLAUDE.md and README.md are in sync with repo state |
 | load-context | Load shared context bundle (ADRs + project context) for reviewer skills |
 | brainstorm | Discovery skill — read project context, research, generate ideas |
-| using-zie-framework | Command map, workflow map, and anti-patterns reference |
+| context-map | Command map, workflow map, and anti-patterns reference |
 
 ## Agents
 
@@ -60,8 +60,8 @@ integration, safety guardrails.
 
 | Agent | permissionMode | Purpose |
 | --- | --- | --- |
-| zie-implement-mode | acceptEdits | TDD session — SDLC context, WIP=1, full tool access |
-| zie-audit-mode | plan | Read-only analysis — findings surfaced as backlog candidates |
+| builder | acceptEdits | TDD session — SDLC context, WIP=1, full tool access |
+| auditor | plan | Read-only analysis — findings surfaced as backlog candidates |
 
 ## Knowledge
 

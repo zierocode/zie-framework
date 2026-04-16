@@ -2,6 +2,7 @@
 Tests for /init: CLAUDE.md template + zie-memory seeding
 Acceptance criteria from: zie-framework/specs/init-claude-md-memory.md
 """
+
 import os
 import re
 
@@ -14,6 +15,7 @@ def read(rel_path: str) -> str:
 
 
 # ── AC1: CLAUDE.md template exists with all required placeholders ────────────
+
 
 class TestClaudeMdTemplate:
     TEMPLATE_PATH = "templates/CLAUDE.md.template"
@@ -32,12 +34,11 @@ class TestClaudeMdTemplate:
     def test_template_has_all_placeholders(self):
         content = read(self.TEMPLATE_PATH)
         for placeholder in self.REQUIRED_PLACEHOLDERS:
-            assert placeholder in content, (
-                f"Placeholder '{placeholder}' missing from {self.TEMPLATE_PATH}"
-            )
+            assert placeholder in content, f"Placeholder '{placeholder}' missing from {self.TEMPLATE_PATH}"
 
 
 # ── AC2: zie-init.md contains a CLAUDE.md step that skips if file exists ─────
+
 
 class TestZieInitClaudeMdStep:
     COMMAND_PATH = "commands/init.md"
@@ -56,29 +57,25 @@ class TestZieInitClaudeMdStep:
 
 # ── AC3: zie-memory step stores structured context ────────────────────────────
 
+
 class TestZieInitMemoryStep:
     COMMAND_PATH = "commands/init.md"
 
     def test_memory_step_stores_project_type(self):
         content = read(self.COMMAND_PATH)
-        assert "project_type" in content or "Type:" in content, (
-            "zie-memory step must store project type"
-        )
+        assert "project_type" in content or "Type:" in content, "zie-memory step must store project type"
 
     def test_memory_step_stores_test_runner(self):
         content = read(self.COMMAND_PATH)
-        assert "test_runner" in content or "Test runner:" in content, (
-            "zie-memory step must store test runner"
-        )
+        assert "test_runner" in content or "Test runner:" in content, "zie-memory step must store test runner"
 
     def test_memory_step_uses_tags(self):
         content = read(self.COMMAND_PATH)
-        assert "tags=" in content or "tags=[" in content, (
-            "zie-memory step must use tags for categorization"
-        )
+        assert "tags=" in content or "tags=[" in content, "zie-memory step must use tags for categorization"
 
 
 # ── AC4: zie-init.md must NOT reference local ~/.claude path manipulation ─────
+
 
 class TestNoLocalMemoryPath:
     COMMAND_PATH = "commands/init.md"
@@ -92,6 +89,4 @@ class TestNoLocalMemoryPath:
     def test_no_encoded_path_logic(self):
         content = read(self.COMMAND_PATH)
         # Should not contain the path encoding logic we removed
-        assert "every `/` replaced by `-`" not in content, (
-            "zie-init.md must not contain local path encoding logic"
-        )
+        assert "every `/` replaced by `-`" not in content, "zie-init.md must not contain local path encoding logic"

@@ -1,4 +1,5 @@
 """Structural tests: /spike must add spike-*/ to .gitignore."""
+
 from pathlib import Path
 
 SPIKE_CMD = Path(__file__).parents[2] / "commands" / "spike.md"

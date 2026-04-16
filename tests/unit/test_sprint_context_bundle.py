@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Unit tests for sprint context bundle passthrough (Phase 1→2→3)."""
+
 import json
 import shutil
 import tempfile
@@ -258,8 +259,8 @@ class TestSprintContextBundle:
 
     def test_bundle_token_savings(self, test_project):
         """Bundle eliminates redundant disk reads."""
-        zf = test_project / "zie-framework"
-        zie_dir = test_project / ".zie"
+        test_project / "zie-framework"
+        test_project / ".zie"
 
         # Without bundle: read each file from disk (3 phases × 2 items × 2 files)
         # = 12 disk reads

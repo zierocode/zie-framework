@@ -1,9 +1,10 @@
 """Tests for status pipeline detail: problem excerpts and spec/plan status."""
+
 import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
-from utils_roadmap import extract_problem_excerpt, check_spec_plan_status
+from utils_roadmap import check_spec_plan_status, extract_problem_excerpt
 
 
 class TestExtractProblemExcerpt:
@@ -39,9 +40,7 @@ class TestExtractProblemExcerpt:
     def test_multiline_problem_collapsed(self, tmp_path):
         backlog = tmp_path / "backlog"
         backlog.mkdir()
-        (backlog / "multi.md").write_text(
-            "# Multi\n\n## Problem\n\nLine one.\nLine two.\nLine three.\n\n## Scope"
-        )
+        (backlog / "multi.md").write_text("# Multi\n\n## Problem\n\nLine one.\nLine two.\nLine three.\n\n## Scope")
         result = extract_problem_excerpt("multi", backlog)
         assert "\n" not in result
         assert "Line one. Line two. Line three." in result

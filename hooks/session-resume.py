@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """SessionStart hook — inject current SDLC state for instant session orientation."""
+
 import json
 import os
 import re
@@ -11,13 +12,13 @@ from pathlib import Path
 _hook_start = _time.monotonic()
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
-from utils_config import load_config, CACHE_TTLS
 from utils_cache import get_cache_manager, get_playwright_version_cached  # noqa: E402
-from utils_roadmap import parse_roadmap_now, is_mtime_fresh, parse_roadmap_section, parse_roadmap_section_content
-from utils_error import log_error
+from utils_config import CACHE_TTLS, load_config  # noqa: E402
+from utils_error import log_error  # noqa: E402
+from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
+from utils_roadmap import is_mtime_fresh, parse_roadmap_section, parse_roadmap_section_content  # noqa: E402
+from utils_skill_inject import inject_skill_context  # noqa: E402
 from zie_context_loader import get_cached_context  # noqa: E402
-from utils_skill_inject import inject_skill_context
 
 # Minimum safe Playwright version — derived from CVE-2025-59288.
 # CVE-2025-59288: arbitrary code execution via malicious CDP response.
@@ -41,8 +42,7 @@ def _check_playwright_version(config: dict, session_id: str, cwd: Path) -> None:
     if not version_str:
         # Empty string means playwright not installed or subprocess failed
         print(
-            "[zf] WARNING: playwright not found."
-            " playwright_enabled disabled for this session.",
+            "[zf] WARNING: playwright not found. playwright_enabled disabled for this session.",
             file=sys.stderr,
         )
         config["playwright_enabled"] = False
@@ -54,7 +54,7 @@ def _check_playwright_version(config: dict, session_id: str, cwd: Path) -> None:
             raise ValueError("empty version")
     except ValueError:
         print(
-            f"[zf] session-resume: could not parse playwright version from: \"{version_str}\"",
+            f'[zf] session-resume: could not parse playwright version from: "{version_str}"',
             file=sys.stderr,
         )
         return
@@ -92,9 +92,7 @@ try:
     roadmap_file = zf / "ROADMAP.md"
     cache = get_cache_manager(cwd)
     roadmap_ttl = CACHE_TTLS.get("roadmap", 600)
-    roadmap_content = cache.get_or_compute(
-        "roadmap", session_id, lambda: roadmap_file.read_text(), roadmap_ttl
-    )
+    roadmap_content = cache.get_or_compute("roadmap", session_id, lambda: roadmap_file.read_text(), roadmap_ttl)
     now_items = parse_roadmap_section_content(roadmap_content, "now") if roadmap_content else []
 
     # Read VERSION
@@ -125,8 +123,7 @@ try:
             _p = Path(_env_file_path)
             if os.path.islink(_p):
                 print(
-                    f"[zf] WARNING: CLAUDE_ENV_FILE is a symlink,"
-                    f" skipping write: {_p}",
+                    f"[zf] WARNING: CLAUDE_ENV_FILE is a symlink, skipping write: {_p}",
                     file=sys.stderr,
                 )
                 sys.exit(0)
@@ -207,9 +204,7 @@ try:
     try:
         project_md_mtime = (zf / "PROJECT.md").stat().st_mtime
         git_commit_mtime = float(
-            subprocess.check_output(
-                ["git", "log", "-1", "--format=%ct"], cwd=str(cwd)
-            ).decode().strip()
+            subprocess.check_output(["git", "log", "-1", "--format=%ct"], cwd=str(cwd)).decode().strip()
         )
         # is_mtime_fresh(max_mtime, written_at): True when max_mtime <= written_at
         # max_mtime=git_commit_mtime, written_at=project_md_mtime → True = fresh
@@ -228,15 +223,14 @@ try:
     try:
         next_items = parse_roadmap_section(roadmap_file, "next")
         if next_items:
-            print(
-                f"[zf] backlog: {len(next_items)} pending — /spec {next_items[0]}"
-            )
+            print(f"[zf] backlog: {len(next_items)} pending — /spec {next_items[0]}")
     except Exception as _e:
         print(f"[zf] session-resume: backlog nudge skipped: {_e}", file=sys.stderr)
 
     # Drift detection — fire-and-forget background check
     try:
         import subprocess as _sp
+
         _kh_script = os.environ.get(
             "ZIE_KNOWLEDGE_HASH_SCRIPT",
             os.path.join(os.path.dirname(__file__), "knowledge-hash.py"),
@@ -287,18 +281,25 @@ try:
             content = memory_path.read_text()
             if pattern["description"] in content:
                 return True
-            patterns_section = re.search(r'^## Patterns\s*$', content, re.MULTILINE)
+            patterns_section = re.search(r"^## Patterns\s*$", content, re.MULTILINE)
             if patterns_section:
                 insert_pos = patterns_section.end()
                 pattern_entry = f"\n- [{pattern['category'].upper()}] {pattern['description']} (confidence: {pattern['confidence']})\n"
                 new_content = content[:insert_pos] + pattern_entry + content[insert_pos:]
             else:
-                references_section = re.search(r'^## References\s*$', content, re.MULTILINE)
+                references_section = re.search(r"^## References\s*$", content, re.MULTILINE)
                 if references_section:
                     insert_pos = references_section.start()
-                    new_content = content[:insert_pos] + f"\n## Patterns\n\n- [{pattern['category'].upper()}] {pattern['description']} (confidence: {pattern['confidence']})\n\n" + content[insert_pos:]
+                    new_content = (
+                        content[:insert_pos]
+                        + f"\n## Patterns\n\n- [{pattern['category'].upper()}] {pattern['description']} (confidence: {pattern['confidence']})\n\n"
+                        + content[insert_pos:]
+                    )
                 else:
-                    new_content = content + f"\n\n## Patterns\n\n- [{pattern['category'].upper()}] {pattern['description']} (confidence: {pattern['confidence']})\n"
+                    new_content = (
+                        content
+                        + f"\n\n## Patterns\n\n- [{pattern['category'].upper()}] {pattern['description']} (confidence: {pattern['confidence']})\n"
+                    )
             try:
                 atomic_write(memory_path, new_content)
                 return True
@@ -318,8 +319,8 @@ try:
                 lines = marker.read_text().strip().splitlines()
                 data = {}
                 for line in lines:
-                    if '=' in line:
-                        key, value = line.split('=', 1)
+                    if "=" in line:
+                        key, value = line.split("=", 1)
                         data[key.strip()] = value.strip()
                 return data
             except OSError as e:

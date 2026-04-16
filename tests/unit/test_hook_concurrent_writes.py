@@ -2,6 +2,7 @@
 Error-path tests: concurrent hook execution must not corrupt state or crash.
 Simulates session-cleanup deleting /tmp/zie-<session> while notification-log writes.
 """
+
 import os
 import shutil
 import threading

@@ -1,8 +1,8 @@
 """Tests for hooks/utils_drift.py — drift log helpers."""
+
 import json
 import os
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 from utils_drift import append_drift_event, close_drift_track, read_drift_count
@@ -79,7 +79,7 @@ class TestCloseDriftTrack:
         append_drift_event(cwd, {"track": "hotfix", "slug": "my-fix", "closed_at": None})
         close_drift_track(cwd, "my-fix")
         log = tmp_path / "zie-framework" / ".drift-log"
-        events = [json.loads(l) for l in log.read_text().splitlines() if l.strip()]
+        events = [json.loads(line) for line in log.read_text().splitlines() if line.strip()]
         closed = [e for e in events if e["slug"] == "my-fix"]
         assert len(closed) == 1
         assert closed[-1]["closed_at"] is not None

@@ -1,4 +1,5 @@
 """Integration tests: verify hook output convention is documented."""
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
@@ -16,6 +17,7 @@ def read_hook_conventions() -> str:
 
 # ── T5: Hook Output Convention ────────────────────────────────────────────────
 
+
 def test_claude_md_hook_output_convention_section():
     content = read_claude_md()
     assert "Hook Output Convention" in content, (
@@ -25,9 +27,7 @@ def test_claude_md_hook_output_convention_section():
 
 def test_hook_conventions_info_level_scope():
     content = read_hook_conventions()
-    assert "INFO" in content or "INFO-level" in content, (
-        "hook-conventions.md must specify INFO-level scope"
-    )
+    assert "INFO" in content or "INFO-level" in content, "hook-conventions.md must specify INFO-level scope"
 
 
 def test_hook_conventions_compliant_hooks_named():

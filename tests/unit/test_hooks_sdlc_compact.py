@@ -1,11 +1,10 @@
 """Tests for hooks/sdlc-compact.py"""
+
 import json
 import os
 import subprocess
 import sys
 from pathlib import Path
-
-import pytest
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "sdlc-compact.py")
@@ -74,6 +73,7 @@ def write_snapshot(tmp_path, session_id, data):
 # Outer guard — both events
 # ---------------------------------------------------------------------------
 
+
 class TestSdlcCompactOuterGuard:
     def test_invalid_json_exits_zero(self):
         r = subprocess.run(
@@ -114,6 +114,7 @@ class TestSdlcCompactOuterGuard:
 # ---------------------------------------------------------------------------
 # PreCompact — snapshot writing
 # ---------------------------------------------------------------------------
+
 
 class TestSdlcCompactPreCompact:
     def test_writes_snapshot_to_cache(self, tmp_path):
@@ -228,6 +229,7 @@ class TestSdlcCompactPreCompact:
 # PostCompact — context restoration
 # ---------------------------------------------------------------------------
 
+
 class TestSdlcCompactPostCompact:
     def _session_id(self, cwd):
         return f"test-sc-{abs(hash(str(cwd) + 'PostCompact')) % 999999}"
@@ -238,13 +240,16 @@ class TestSdlcCompactPostCompact:
 
     def test_emits_valid_json_to_stdout(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        self._write_snapshot(tmp_path, {
-            "active_task": "Implement sdlc-compact hook",
-            "now_items": ["Implement sdlc-compact hook", "Register in hooks.json"],
-            "git_branch": "dev",
-            "changed_files": ["hooks/sdlc-compact.py"],
-            "tdd_phase": "GREEN",
-        })
+        self._write_snapshot(
+            tmp_path,
+            {
+                "active_task": "Implement sdlc-compact hook",
+                "now_items": ["Implement sdlc-compact hook", "Register in hooks.json"],
+                "git_branch": "dev",
+                "changed_files": ["hooks/sdlc-compact.py"],
+                "tdd_phase": "GREEN",
+            },
+        )
         r = run_hook("PostCompact", tmp_cwd=cwd)
         assert r.returncode == 0
         out = json.loads(r.stdout)  # must not raise
@@ -252,52 +257,64 @@ class TestSdlcCompactPostCompact:
 
     def test_context_contains_active_task(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        self._write_snapshot(tmp_path, {
-            "active_task": "Implement sdlc-compact hook",
-            "now_items": ["Implement sdlc-compact hook"],
-            "git_branch": "dev",
-            "changed_files": [],
-            "tdd_phase": "",
-        })
+        self._write_snapshot(
+            tmp_path,
+            {
+                "active_task": "Implement sdlc-compact hook",
+                "now_items": ["Implement sdlc-compact hook"],
+                "git_branch": "dev",
+                "changed_files": [],
+                "tdd_phase": "",
+            },
+        )
         r = run_hook("PostCompact", tmp_cwd=cwd)
         ctx = json.loads(r.stdout)["additionalContext"]
         assert "Implement sdlc-compact hook" in ctx
 
     def test_context_contains_git_branch(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        self._write_snapshot(tmp_path, {
-            "active_task": "task",
-            "now_items": ["task"],
-            "git_branch": "feature/compact",
-            "changed_files": [],
-            "tdd_phase": "",
-        })
+        self._write_snapshot(
+            tmp_path,
+            {
+                "active_task": "task",
+                "now_items": ["task"],
+                "git_branch": "feature/compact",
+                "changed_files": [],
+                "tdd_phase": "",
+            },
+        )
         r = run_hook("PostCompact", tmp_cwd=cwd)
         ctx = json.loads(r.stdout)["additionalContext"]
         assert "feature/compact" in ctx
 
     def test_context_contains_tdd_phase_when_set(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        self._write_snapshot(tmp_path, {
-            "active_task": "task",
-            "now_items": ["task"],
-            "git_branch": "dev",
-            "changed_files": [],
-            "tdd_phase": "RED",
-        })
+        self._write_snapshot(
+            tmp_path,
+            {
+                "active_task": "task",
+                "now_items": ["task"],
+                "git_branch": "dev",
+                "changed_files": [],
+                "tdd_phase": "RED",
+            },
+        )
         r = run_hook("PostCompact", tmp_cwd=cwd)
         ctx = json.loads(r.stdout)["additionalContext"]
         assert "RED" in ctx
 
     def test_context_omits_tdd_phase_line_when_empty(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        self._write_snapshot(tmp_path, {
-            "active_task": "task",
-            "now_items": ["task"],
-            "git_branch": "dev",
-            "changed_files": [],
-            "tdd_phase": "",
-        })
+        self._write_snapshot(
+            tmp_path,
+            {
+                "active_task": "task",
+                "now_items": ["task"],
+                "git_branch": "dev",
+                "changed_files": [],
+                "tdd_phase": "",
+            },
+        )
         r = run_hook("PostCompact", tmp_cwd=cwd)
         ctx = json.loads(r.stdout)["additionalContext"]
         # No blank "TDD phase: " line emitted
@@ -305,26 +322,32 @@ class TestSdlcCompactPostCompact:
 
     def test_context_contains_changed_files(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        self._write_snapshot(tmp_path, {
-            "active_task": "task",
-            "now_items": ["task"],
-            "git_branch": "dev",
-            "changed_files": ["hooks/sdlc-compact.py", "hooks/hooks.json"],
-            "tdd_phase": "",
-        })
+        self._write_snapshot(
+            tmp_path,
+            {
+                "active_task": "task",
+                "now_items": ["task"],
+                "git_branch": "dev",
+                "changed_files": ["hooks/sdlc-compact.py", "hooks/hooks.json"],
+                "tdd_phase": "",
+            },
+        )
         r = run_hook("PostCompact", tmp_cwd=cwd)
         ctx = json.loads(r.stdout)["additionalContext"]
         assert "hooks/sdlc-compact.py" in ctx
 
     def test_context_omits_active_task_line_when_empty(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        self._write_snapshot(tmp_path, {
-            "active_task": "",
-            "now_items": [],
-            "git_branch": "dev",
-            "changed_files": [],
-            "tdd_phase": "",
-        })
+        self._write_snapshot(
+            tmp_path,
+            {
+                "active_task": "",
+                "now_items": [],
+                "git_branch": "dev",
+                "changed_files": [],
+                "tdd_phase": "",
+            },
+        )
         r = run_hook("PostCompact", tmp_cwd=cwd)
         ctx = json.loads(r.stdout)["additionalContext"]
         assert "Active task: \n" not in ctx
@@ -359,7 +382,6 @@ class TestSdlcCompactPostCompact:
         ctx = out["additionalContext"]
         assert "sdlc-compact hook" in ctx
 
-
     def test_postcompact_git_unavailable_exits_zero(self, tmp_path):
         """PostCompact must exit 0 even when git is not on PATH."""
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
@@ -379,34 +401,23 @@ class TestSdlcCompactPostCompact:
 # Error handling convention
 # ---------------------------------------------------------------------------
 
+
 class TestSdlcCompactHooksJsonRegistration:
     def test_precompact_registered(self):
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         config = json.loads(hooks_json.read_text())
         hooks = config.get("hooks", {})
         assert "PreCompact" in hooks, "PreCompact event not registered in hooks.json"
-        commands = [
-            entry.get("command", "")
-            for block in hooks["PreCompact"]
-            for entry in block.get("hooks", [])
-        ]
-        assert any("sdlc-compact.py" in cmd for cmd in commands), (
-            "sdlc-compact.py not registered under PreCompact"
-        )
+        commands = [entry.get("command", "") for block in hooks["PreCompact"] for entry in block.get("hooks", [])]
+        assert any("sdlc-compact.py" in cmd for cmd in commands), "sdlc-compact.py not registered under PreCompact"
 
     def test_postcompact_registered(self):
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         config = json.loads(hooks_json.read_text())
         hooks = config.get("hooks", {})
         assert "PostCompact" in hooks, "PostCompact event not registered in hooks.json"
-        commands = [
-            entry.get("command", "")
-            for block in hooks["PostCompact"]
-            for entry in block.get("hooks", [])
-        ]
-        assert any("sdlc-compact.py" in cmd for cmd in commands), (
-            "sdlc-compact.py not registered under PostCompact"
-        )
+        commands = [entry.get("command", "") for block in hooks["PostCompact"] for entry in block.get("hooks", [])]
+        assert any("sdlc-compact.py" in cmd for cmd in commands), "sdlc-compact.py not registered under PostCompact"
 
     def test_existing_hooks_unchanged(self):
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
@@ -435,6 +446,7 @@ class TestSdlcCompactErrorHandlingConvention:
     def test_no_nonzero_exit_code(self):
         """Hook must never call sys.exit with a non-zero argument."""
         import ast
+
         src = Path(HOOK).read_text()
         tree = ast.parse(src)
         for node in ast.walk(tree):
@@ -450,8 +462,7 @@ class TestSdlcCompactErrorHandlingConvention:
                         arg = node.args[0]
                         if isinstance(arg, ast.Constant) and arg.value != 0:
                             raise AssertionError(
-                                f"sys.exit({arg.value}) found at line {node.lineno} — "
-                                "hooks must only exit 0"
+                                f"sys.exit({arg.value}) found at line {node.lineno} — hooks must only exit 0"
                             )
 
 
@@ -465,6 +476,7 @@ class TestSubprocessTimeouts:
           - Hook has no timeout (RED) -> hangs 60s -> outer test fires at 15s -> TimeoutExpired (FAIL).
         """
         import stat
+
         # Create a fake git that hangs
         fake_bin = tmp_path / "fake_bin"
         fake_bin.mkdir()

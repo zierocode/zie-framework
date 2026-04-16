@@ -1,4 +1,5 @@
 """Unit tests for hooks/quality-gate.py (Sprint B — Code Quality Gates)."""
+
 import json
 import os
 import subprocess
@@ -11,8 +12,7 @@ REPO_ROOT = Path(__file__).parents[2]
 HOOK = REPO_ROOT / "hooks" / "quality-gate.py"
 
 
-def _run(command: str, tmp_path: Path,
-         session_id: str = "test-qg") -> subprocess.CompletedProcess:
+def _run(command: str, tmp_path: Path, session_id: str = "test-qg") -> subprocess.CompletedProcess:
     env = os.environ.copy()
     env["CLAUDE_CWD"] = str(tmp_path)
     event = {
@@ -80,11 +80,13 @@ class TestQualityGateSkipsUnavailableTools:
         env = os.environ.copy()
         env["CLAUDE_CWD"] = str(tmp_path)
         env["PATH"] = "/nonexistent"  # bandit not available
-        event = json.dumps({
-            "tool_name": "Bash",
-            "tool_input": {"command": "git commit -m 'test'"},
-            "session_id": "test-qg-nobandit",
-        })
+        event = json.dumps(
+            {
+                "tool_name": "Bash",
+                "tool_input": {"command": "git commit -m 'test'"},
+                "session_id": "test-qg-nobandit",
+            }
+        )
         r = subprocess.run(
             [sys.executable, str(HOOK)],
             input=event,

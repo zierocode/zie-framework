@@ -1,4 +1,5 @@
 """Structural tests for hooks/hooks.json."""
+
 import json
 import os
 from pathlib import Path
@@ -14,9 +15,7 @@ class TestHooksJsonStructure:
 
     def test_posttoolusefailure_key_exists(self):
         data = self._load()
-        assert "PostToolUseFailure" in data["hooks"], (
-            "PostToolUseFailure entry missing from hooks.json"
-        )
+        assert "PostToolUseFailure" in data["hooks"], "PostToolUseFailure entry missing from hooks.json"
 
     def test_posttoolusefailure_matcher(self):
         data = self._load()
@@ -33,9 +32,7 @@ class TestHooksJsonStructure:
     def test_hook_output_protocol_documents_posttoolusefailure(self):
         data = self._load()
         protocol = data.get("_hook_output_protocol", {})
-        assert "PostToolUseFailure" in protocol, (
-            "_hook_output_protocol must document PostToolUseFailure"
-        )
+        assert "PostToolUseFailure" in protocol, "_hook_output_protocol must document PostToolUseFailure"
 
     def test_existing_hooks_unchanged(self):
         data = self._load()
@@ -51,8 +48,7 @@ class TestHooksJsonTaskCompleted:
 
     def test_taskcompleted_key_present(self):
         data = self._load()
-        assert "TaskCompleted" in data["hooks"], \
-            "TaskCompleted entry missing from hooks.json"
+        assert "TaskCompleted" in data["hooks"], "TaskCompleted entry missing from hooks.json"
 
     def test_taskcompleted_command_uses_plugin_root(self):
         data = self._load()
@@ -97,18 +93,14 @@ class TestHooksJsonSubagentStop:
 
     def test_subagent_stop_key_present(self):
         data = self._load()
-        assert "SubagentStop" in data["hooks"], (
-            "hooks.json must contain a SubagentStop entry"
-        )
+        assert "SubagentStop" in data["hooks"], "hooks.json must contain a SubagentStop entry"
 
     def test_subagent_stop_has_background_true(self):
         data = self._load()
         entries = data["hooks"]["SubagentStop"]
         assert len(entries) == 1
         hook = entries[0]["hooks"][0]
-        assert hook.get("background") is True, (
-            "SubagentStop hook must have background: true"
-        )
+        assert hook.get("background") is True, "SubagentStop hook must have background: true"
 
     def test_subagent_stop_command_references_correct_script(self):
         data = self._load()
@@ -129,9 +121,7 @@ class TestHooksJsonSubagentStop:
         assert "_matcher_note" in entry, (
             "SubagentStop entry must have _matcher_note documenting that matchers are unsupported"
         )
-        assert "matcher" in entry["_matcher_note"].lower(), (
-            "_matcher_note must explain the matcher limitation"
-        )
+        assert "matcher" in entry["_matcher_note"].lower(), "_matcher_note must explain the matcher limitation"
 
     def test_subagent_stop_project_guard_in_hook(self):
         """subagent-stop.py must have a project guard (not rely on matcher)."""
@@ -144,6 +134,7 @@ class TestHooksJsonSubagentStop:
 
 class TestHooksJsonSessionLearnCleanup:
     """Test async→background fix for Stop hooks."""
+
     def _load(self):
         with open(HOOKS_JSON) as f:
             return json.load(f)
@@ -151,42 +142,24 @@ class TestHooksJsonSessionLearnCleanup:
     def test_session_learn_has_background_true(self):
         data = self._load()
         entries = data["hooks"]["Stop"]
-        learn_entries = [
-            h for e in entries
-            for h in e["hooks"]
-            if "session-learn.py" in h["command"]
-        ]
+        learn_entries = [h for e in entries for h in e["hooks"] if "session-learn.py" in h["command"]]
         assert len(learn_entries) == 1, "session-learn.py not found in Stop hooks"
-        assert learn_entries[0].get("background") is True, (
-            "session-learn.py must have background: true"
-        )
+        assert learn_entries[0].get("background") is True, "session-learn.py must have background: true"
 
     def test_session_cleanup_has_background_true(self):
         data = self._load()
         entries = data["hooks"]["Stop"]
-        cleanup_entries = [
-            h for e in entries
-            for h in e["hooks"]
-            if "session-cleanup.py" in h["command"]
-        ]
+        cleanup_entries = [h for e in entries for h in e["hooks"] if "session-cleanup.py" in h["command"]]
         assert len(cleanup_entries) == 1, "session-cleanup.py not found in Stop hooks"
-        assert cleanup_entries[0].get("background") is True, (
-            "session-cleanup.py must have background: true"
-        )
+        assert cleanup_entries[0].get("background") is True, "session-cleanup.py must have background: true"
 
     def test_no_async_true_in_stop_hooks(self):
         """async: true should not exist in Stop hooks (was replaced by background: true)."""
         data = self._load()
         entries = data["hooks"]["Stop"]
-        async_keys = [
-            h.get("async")
-            for e in entries
-            for h in e["hooks"]
-        ]
+        async_keys = [h.get("async") for e in entries for h in e["hooks"]]
         # None of them should be True
-        assert not any(async_keys), (
-            "Found async: true in Stop hooks - should be background: true"
-        )
+        assert not any(async_keys), "Found async: true in Stop hooks - should be background: true"
 
 
 class TestHooksJsonSafetyCheckAgent:
@@ -198,11 +171,7 @@ class TestHooksJsonSafetyCheckAgent:
 
     def _pretooluse_commands(self, data):
         """Return all command strings from PreToolUse hooks."""
-        return [
-            hook["command"]
-            for entry in data["hooks"].get("PreToolUse", [])
-            for hook in entry.get("hooks", [])
-        ]
+        return [hook["command"] for entry in data["hooks"].get("PreToolUse", []) for hook in entry.get("hooks", [])]
 
     def test_safety_check_agent_not_in_pretooluse(self):
         """safety_check_agent.py must NOT be registered as a standalone PreToolUse hook."""
@@ -216,13 +185,8 @@ class TestHooksJsonSafetyCheckAgent:
     def test_only_one_pretooluse_entry_for_bash(self):
         """Only one PreToolUse hook entry fires on Bash events."""
         data = self._load()
-        bash_entries = [
-            e for e in data["hooks"].get("PreToolUse", [])
-            if "Bash" in e.get("matcher", "")
-        ]
-        assert len(bash_entries) == 1, (
-            f"Expected exactly 1 PreToolUse entry matching Bash, found {len(bash_entries)}"
-        )
+        bash_entries = [e for e in data["hooks"].get("PreToolUse", []) if "Bash" in e.get("matcher", "")]
+        assert len(bash_entries) == 1, f"Expected exactly 1 PreToolUse entry matching Bash, found {len(bash_entries)}"
 
     def test_safety_check_agent_script_exists(self):
         script = os.path.join(REPO_ROOT, "hooks", "safety_check_agent.py")
@@ -244,11 +208,7 @@ class TestHooksJsonWipCheckpointBackground:
     def test_wip_checkpoint_is_background(self):
         data = self._load()
         post_tool_hooks = data["hooks"]["PostToolUse"]
-        wip_entries = [
-            h for group in post_tool_hooks
-            for h in group["hooks"]
-            if "wip-checkpoint" in h["command"]
-        ]
+        wip_entries = [h for group in post_tool_hooks for h in group["hooks"] if "wip-checkpoint" in h["command"]]
         assert len(wip_entries) == 1, "Expected exactly one wip-checkpoint PostToolUse entry"
         assert wip_entries[0].get("background") is True, (
             "wip-checkpoint must have background: true to avoid blocking Claude on every file save"

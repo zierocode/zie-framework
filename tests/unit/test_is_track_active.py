@@ -1,8 +1,8 @@
 """Tests for utils_roadmap.is_track_active."""
+
 import json
 import os
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 from utils_roadmap import is_track_active

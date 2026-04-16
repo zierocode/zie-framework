@@ -1,4 +1,5 @@
 """Verify hook config keys are documented in config-reference.md (canonical location)."""
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]

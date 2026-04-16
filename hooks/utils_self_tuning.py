@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Self-tuning proposal helpers for /retro."""
+
 import re
 
 # Pattern: commit mentions "RED" + numeric day count
 _RED_DURATION_RE = re.compile(
-    r'\bRED\b.*?(\d+)\s*day',
+    r"\bRED\b.*?(\d+)\s*day",
     re.IGNORECASE,
 )
 
@@ -17,7 +18,7 @@ def parse_red_cycle_durations_from_log(log: str) -> list:
     """
     durations = []
     for line in log.splitlines():
-        if not re.search(r'\bRED\b', line, re.IGNORECASE):
+        if not re.search(r"\bRED\b", line, re.IGNORECASE):
             continue
         m = _RED_DURATION_RE.search(line)
         if m:
@@ -43,21 +44,25 @@ def build_tuning_proposals(config: dict, red_durations: list, recent_log: str) -
         avg_days = sum(red_durations) / len(red_durations)
         if avg_days > 3:
             current = config.get("auto_test_max_wait_s", 15)
-            proposals.append({
-                "key": "auto_test_max_wait_s",
-                "from_val": current,
-                "to_val": 30,
-                "reason": f"RED cycles averaged {avg_days:.1f} days across last {len(red_durations)} cycles",
-            })
+            proposals.append(
+                {
+                    "key": "auto_test_max_wait_s",
+                    "from_val": current,
+                    "to_val": 30,
+                    "reason": f"RED cycles averaged {avg_days:.1f} days across last {len(red_durations)} cycles",
+                }
+            )
 
     # Proposal 2: safety_check_mode — if "agent" and no BLOCKs in recent log
     if config.get("safety_check_mode") == "agent":
         if "BLOCK" not in recent_log:
-            proposals.append({
-                "key": "safety_check_mode",
-                "from_val": "agent",
-                "to_val": "regex",
-                "reason": "no agent-level blocks in last 10 sessions",
-            })
+            proposals.append(
+                {
+                    "key": "safety_check_mode",
+                    "from_val": "agent",
+                    "to_val": "regex",
+                    "reason": "no agent-level blocks in last 10 sessions",
+                }
+            )
 
     return proposals[:3]

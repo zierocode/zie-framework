@@ -1,22 +1,23 @@
 """Tests for skill auto-inject: phase-to-skill mapping and context injection."""
+
 import json
 import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
-from utils_skill_inject import inject_skill_context, DEFAULT_SKILL_MAPPING, MAX_INJECT_CHARS
-from pathlib import Path
+
+from utils_skill_inject import DEFAULT_SKILL_MAPPING, MAX_INJECT_CHARS, inject_skill_context
 
 
 class TestDefaultMapping:
     def test_spec_maps_to_spec_reviewer(self):
-        assert DEFAULT_SKILL_MAPPING["spec"] == "spec-reviewer"
+        assert DEFAULT_SKILL_MAPPING["spec"] == "spec-review"
 
     def test_plan_maps_to_write_plan(self):
         assert DEFAULT_SKILL_MAPPING["plan"] == "write-plan"
 
     def test_implement_maps_to_impl_reviewer(self):
-        assert DEFAULT_SKILL_MAPPING["implement"] == "impl-reviewer"
+        assert DEFAULT_SKILL_MAPPING["implement"] == "impl-review"
 
 
 class TestInjectSkillContext:
@@ -39,7 +40,7 @@ class TestInjectSkillContext:
         (zf / ".config").write_text(json.dumps(config))
 
         # Create a skill file
-        skill_dir = tmp_path / "skills" / "impl-reviewer"
+        skill_dir = tmp_path / "skills" / "impl-review"
         skill_dir.mkdir(parents=True)
         (skill_dir / "SKILL.md").write_text("# Impl Reviewer\n\nReview code changes.")
 
@@ -92,7 +93,7 @@ class TestInjectSkillContext:
         (zf / ".config").write_text(json.dumps(config))
 
         # Create a long skill file
-        skill_dir = tmp_path / "skills" / "impl-reviewer"
+        skill_dir = tmp_path / "skills" / "impl-review"
         skill_dir.mkdir(parents=True)
         long_content = "# Impl Reviewer\n\n" + ("A" * 5000)
         (skill_dir / "SKILL.md").write_text(long_content)

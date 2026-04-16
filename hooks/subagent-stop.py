@@ -6,6 +6,7 @@ Two-tier error handling per zie-framework hook convention:
   Tier 1 (outer guard): parse + project check — bare except → sys.exit(0)
   Tier 2 (inner ops):   file I/O — except Exception as e → stderr + exit(0)
 """
+
 import fcntl
 import json
 import os
@@ -14,7 +15,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from utils_error import log_error
 from utils_event import get_cwd, read_event
 from utils_io import atomic_write, project_tmp_path
 
@@ -36,7 +36,7 @@ try:
 
     # Write a session marker when a reviewer agent returns ✅ APPROVED.
     # approve.py reads these markers to confirm the reviewer ran.
-    _REVIEWER_KINDS = {"spec-reviewer": "spec", "plan-reviewer": "plan"}
+    _REVIEWER_KINDS = {"spec-review": "spec", "plan-review": "plan"}
     if agent_type in _REVIEWER_KINDS and "\u2705 APPROVED" in last_message:
         kind = _REVIEWER_KINDS[agent_type]
         marker = project_tmp_path(f"reviewer-approved-{kind}", cwd.name)
@@ -56,8 +56,7 @@ try:
 
     if os.path.islink(log_path):
         print(
-            f"[zie-framework] subagent-stop: log path is a symlink,"
-            f" skipping write: {log_path}",
+            f"[zie-framework] subagent-stop: log path is a symlink, skipping write: {log_path}",
             file=sys.stderr,
         )
         sys.exit(0)

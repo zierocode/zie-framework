@@ -17,9 +17,9 @@ backlog: backlog/optimize-review-loop-token-waste.md
 - `commands/retro.md` — reduce git log injection (50 commits → tag-based only)
 - `skills/spec-design/SKILL.md` — reviewer loop (Step 5) + Autonomous mode section
 - `skills/brainstorm/SKILL.md` — pass relevance keywords to load-context
-- `skills/spec-reviewer/SKILL.md` — scoped Grep/Glob in Phase 3
-- `skills/plan-reviewer/SKILL.md` — scoped Grep/Glob in Phase 3
-- `skills/impl-reviewer/SKILL.md` — benefits from filtered bundle (no skill-level change needed)
+- `skills/spec-review/SKILL.md` — scoped Grep/Glob in Phase 3
+- `skills/plan-review/SKILL.md` — scoped Grep/Glob in Phase 3
+- `skills/impl-review/SKILL.md` — benefits from filtered bundle (no skill-level change needed)
 
 **Data Flow:**
 
@@ -46,16 +46,16 @@ backlog: backlog/optimize-review-loop-token-waste.md
 - **Sprint autonomous mode:** Sprint already uses inline reviewers. Update sprint's confirm-pass language from "re-check once → re-run approve.py" to "verify fixes inline → run approve.py".
 - **ADR relevance filter too aggressive:** If the filter excludes a relevant ADR, the reviewer may miss a conflict. Mitigated by always including ADR-000-summary (compressed overview of all ADRs) plus any ADRs matching keywords. If no matches, fall back to loading all ADRs (safe default).
 - **No keywords available (e.g., /sprint with mixed items):** When keywords can't be extracted, load-context falls back to loading all ADRs — current behavior preserved.
-- **impl-reviewer still gets full bundle from /implement:** After load-context supports keywords, /implement passes keywords from the plan. impl-reviewer skill itself needs no change — it receives whatever bundle the caller provides.
+- **impl-review still gets full bundle from /implement:** After load-context supports keywords, /implement passes keywords from the plan. impl-review skill itself needs no change — it receives whatever bundle the caller provides.
 - **sprint-context.json without context_bundle:** After /compact, Phase 2/3 can't read full ADR content from the JSON. They call load-context with keywords (cached — fast) instead. The JSON stores only spec/plan content and references.
 
 **Out of Scope:**
-- Changing the reviewer skills themselves (`spec-reviewer`, `plan-reviewer`, `impl-reviewer`) — they stay as `context: fork` subagents for pass 1
+- Changing the reviewer skills themselves (`spec-review`, `plan-review`, `impl-review`) — they stay as `context: fork` subagents for pass 1
 - Adding `previous_findings` parameter to reviewers — inline verification makes this unnecessary
 - Parallel review execution — that's a separate backlog item (`parallel-pipeline-stages`)
-- Changing ADR-058 (inline reviewer replaces async impl-reviewer) — this builds on that pattern
+- Changing ADR-058 (inline reviewer replaces async impl-review) — this builds on that pattern
 - Removing `context: fork` from brainstorm — fork isolation is useful for creative divergence; just reduce ADR payload
-- Removing `context: fork` from docs-sync-check — minor optimization, not worth the risk
+- Removing `context: fork` from docs-sync — minor optimization, not worth the risk
 
 ## Optimization 2: Context Bundle Reduction
 
@@ -66,14 +66,14 @@ Current state: `load-context` loads ALL 67 ADRs (10KB summary + individual files
 | Consumer | Token Waste | What It Reads That It Shouldn't |
 |----------|------------|----------------------------------|
 | load-context | HIGH (source) | Always bundles ALL ADRs — no subset mechanism |
-| /implement | HIGH | Passes full bundle to every impl-reviewer fork per HIGH-risk task |
+| /implement | HIGH | Passes full bundle to every impl-review fork per HIGH-risk task |
 | /sprint | HIGH | Persists full bundle in sprint-context.json across all phases |
-| /plan | MEDIUM | Loads ALL ADRs, passes full bundle to plan-reviewer fork |
-| /spec | MEDIUM | Loads ALL ADRs, passes full bundle to spec-reviewer fork |
+| /plan | MEDIUM | Loads ALL ADRs, passes full bundle to plan-review fork |
+| /spec | MEDIUM | Loads ALL ADRs, passes full bundle to spec-review fork |
 | brainstorm | MEDIUM | Fork + full ADR content for title-only "skip already-decided" check |
-| impl-reviewer | MEDIUM | ALL ADRs via context_bundle for conflict check |
-| plan-reviewer | MEDIUM | ALL ADRs via context_bundle for conflict check |
-| spec-reviewer | MEDIUM | ALL ADRs via context_bundle for conflict check |
+| impl-review | MEDIUM | ALL ADRs via context_bundle for conflict check |
+| plan-review | MEDIUM | ALL ADRs via context_bundle for conflict check |
+| spec-review | MEDIUM | ALL ADRs via context_bundle for conflict check |
 | /retro | LOW | 50-commit git log redundant when tag-based log already loaded |
 
 **Changes:**

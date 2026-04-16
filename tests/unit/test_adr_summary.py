@@ -1,4 +1,5 @@
 """Assert ADR-000-summary.md covers all ADRs in the decisions/ directory."""
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]

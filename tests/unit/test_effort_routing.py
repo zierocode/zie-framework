@@ -1,4 +1,5 @@
 """Tests for Sprint D: medium-effort-optimization — effort field audit."""
+
 from pathlib import Path
 
 import pytest
@@ -33,9 +34,7 @@ class TestSkillEffortFields:
         for skill_file in SKILLS_DIR.rglob("SKILL.md"):
             if _effort(skill_file) == "high":
                 high_skills.append(skill_file.parent.name)
-        assert high_skills == [], (
-            f"Skills with effort:high (should be medium or low): {high_skills}"
-        )
+        assert high_skills == [], f"Skills with effort:high (should be medium or low): {high_skills}"
 
 
 class TestCommandEffortFields:

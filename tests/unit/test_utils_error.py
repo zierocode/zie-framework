@@ -1,4 +1,5 @@
 """Tests for utils_error.log_error helper."""
+
 import sys
 
 sys.path.insert(0, "hooks")

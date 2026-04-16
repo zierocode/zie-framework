@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """PermissionRequest:Bash hook — auto-approve safe SDLC operations."""
+
 import json
 import os
 import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_safety import normalize_command
 from utils_event import read_event
+from utils_safety import normalize_command
 
 # Ordered allowlist.
 # The metachar guard below blocks injection via &&, ||, ;, |, `, $(
@@ -63,9 +64,7 @@ try:
                 "behavior": "allow",
                 "updatedPermissions": {
                     "destination": "session",
-                    "permissions": [
-                        {"tool": "Bash", "command": matched_pattern}
-                    ],
+                    "permissions": [{"tool": "Bash", "command": matched_pattern}],
                 },
             }
         }

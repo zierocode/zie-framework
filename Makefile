@@ -78,7 +78,7 @@ ship: ## Run tests then prompt for /zie-release
 
 # ── Implement / Release ───────────────────────────────────────────────────────
 zie-implement: ## Run /implement in a fresh agent context — processes Now lane item (usage: make zie-implement)
-	claude --agent zie-framework:zie-implement-mode
+	claude --agent zie-framework:builder
 
 implement-local: ## Run /implement in current session (no --agent, works on non-Claude providers)
 	@echo "[zie-framework] Running /implement in current session (no agent mode)"
@@ -89,7 +89,7 @@ release-local: ## Run /release directly in current session (non-Claude fallback)
 	@echo "[zie-framework] Do NOT use 'make zie-release' on non-Claude providers."
 
 zie-release: ## Run /release in a fresh agent context — avoids context overflow (usage: make zie-release)
-	claude --agent zie-framework:zie-release-mode
+	claude --agent zie-framework:shipper
 
 bump: ## Bump VERSION + PROJECT.md + _bump-extra (usage: make bump NEW=1.2.3)
 ifndef NEW

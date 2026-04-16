@@ -1,4 +1,5 @@
 """Smoke tests: each sub-module is independently importable."""
+
 import re
 import subprocess
 import sys
@@ -8,13 +9,8 @@ REPO_ROOT = str(Path(__file__).parent.parent.parent)
 
 
 def _import_ok(module, symbols):
-    cmd = (
-        f"import sys; sys.path.insert(0, 'hooks'); "
-        f"from {module} import {', '.join(symbols)}; print('ok')"
-    )
-    r = subprocess.run([sys.executable, "-c", cmd],
-                      capture_output=True, text=True,
-                      cwd=REPO_ROOT)
+    cmd = f"import sys; sys.path.insert(0, 'hooks'); from {module} import {', '.join(symbols)}; print('ok')"
+    r = subprocess.run([sys.executable, "-c", cmd], capture_output=True, text=True, cwd=REPO_ROOT)
     assert r.returncode == 0 and "ok" in r.stdout, r.stderr
 
 
@@ -23,17 +19,41 @@ def test_utils_config_importable():
 
 
 def test_utils_io_importable():
-    _import_ok("utils_io", ["atomic_write", "safe_write_tmp", "safe_write_persistent",
-                            "project_tmp_path", "get_plugin_data_dir", "persistent_project_path",
-                            "is_zie_initialized", "get_project_name", "safe_project_name"])
+    _import_ok(
+        "utils_io",
+        [
+            "atomic_write",
+            "safe_write_tmp",
+            "safe_write_persistent",
+            "project_tmp_path",
+            "get_plugin_data_dir",
+            "persistent_project_path",
+            "is_zie_initialized",
+            "get_project_name",
+            "safe_project_name",
+        ],
+    )
 
 
 def test_utils_roadmap_importable():
-    _import_ok("utils_roadmap", ["SDLC_STAGES", "parse_roadmap_section", "parse_roadmap_section_content",
-                                 "parse_roadmap_now", "parse_roadmap_ready", "read_roadmap_cached",
-                                 "compact_roadmap_done",
-                                 "get_cached_git_status", "write_git_status_cache",
-                                 "get_cached_adrs", "write_adr_cache", "compute_max_mtime", "is_mtime_fresh"])
+    _import_ok(
+        "utils_roadmap",
+        [
+            "SDLC_STAGES",
+            "parse_roadmap_section",
+            "parse_roadmap_section_content",
+            "parse_roadmap_now",
+            "parse_roadmap_ready",
+            "read_roadmap_cached",
+            "compact_roadmap_done",
+            "get_cached_git_status",
+            "write_git_status_cache",
+            "get_cached_adrs",
+            "write_adr_cache",
+            "compute_max_mtime",
+            "is_mtime_fresh",
+        ],
+    )
 
 
 def test_utils_safety_importable():
@@ -41,8 +61,7 @@ def test_utils_safety_importable():
 
 
 def test_utils_event_importable():
-    _import_ok("utils_event", ["read_event", "get_cwd", "sanitize_log_field",
-                               "log_hook_timing", "call_zie_memory_api"])
+    _import_ok("utils_event", ["read_event", "get_cwd", "sanitize_log_field", "log_hook_timing", "call_zie_memory_api"])
 
 
 def test_no_import_from_utils_in_hooks():
@@ -50,8 +69,14 @@ def test_no_import_from_utils_in_hooks():
     hooks_dir = Path(REPO_ROOT) / "hooks"
     violations = []
     for f in sorted(hooks_dir.glob("*.py")):
-        if f.name in {"utils.py", "utils_config.py", "utils_io.py",
-                      "utils_roadmap.py", "utils_safety.py", "utils_event.py"}:
+        if f.name in {
+            "utils.py",
+            "utils_config.py",
+            "utils_io.py",
+            "utils_roadmap.py",
+            "utils_safety.py",
+            "utils_event.py",
+        }:
             continue
         content = f.read_text()
         if re.search(r"from utils import|import utils\b", content):
@@ -72,9 +97,7 @@ def test_group_a_hooks_no_bare_utils_import():
 
 
 def test_group_b_hooks_no_bare_utils_import():
-    import os
-    group_b = ["stopfailure-log.py", "notification-log.py",
-               "subagent-stop.py", "session-cleanup.py"]
+    group_b = ["stopfailure-log.py", "notification-log.py", "subagent-stop.py", "session-cleanup.py"]
     hooks_dir = Path(REPO_ROOT) / "hooks"
     violations = []
     for name in group_b:
@@ -99,9 +122,15 @@ def test_group_c_hooks_no_bare_utils_import():
 
 
 def test_group_d_hooks_no_bare_utils_import():
-    group_d = ["session-resume.py", "failure-context.py", "sdlc-compact.py",
-               "wip-checkpoint.py", "intent-sdlc.py", "subagent-context.py",
-               "session-learn.py"]
+    group_d = [
+        "session-resume.py",
+        "failure-context.py",
+        "sdlc-compact.py",
+        "wip-checkpoint.py",
+        "intent-sdlc.py",
+        "subagent-context.py",
+        "session-learn.py",
+    ]
     hooks_dir = Path(REPO_ROOT) / "hooks"
     violations = []
     for name in group_d:

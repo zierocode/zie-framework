@@ -1,6 +1,14 @@
 # Changelog
 
-## v1.31.0 — 2026-04-15
+## v1.32.1 — 2026-04-16
+
+### Changed
+
+- **Skill/agent rename**: Removed redundant `zie-` prefix from all skills and agents — `zie-audit` → `audit`, `docs-sync-check` → `docs-sync`, `impl-reviewer` → `impl-review`, `plan-reviewer` → `plan-review`, `spec-reviewer` → `spec-review`, `using-zie-framework` → `context-map`, `zie-audit-mode` → `auditor`, `zie-implement-mode` → `builder`, `zie-release-mode` → `shipper`
+- **Lint cleanup**: Fixed all ruff lint violations (E402, E741, F811, F841) across hooks and tests; reformatted 265+ files with `ruff format`
+- **Test fixups**: Updated stale test assertions for CacheManager migration, `get_cwd()` adoption, and INTENT_PATTERN regex extraction after ruff format changes
+
+## v1.32.0 — 2026-04-15
 
 ### Added
 

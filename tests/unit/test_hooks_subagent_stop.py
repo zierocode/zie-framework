@@ -1,4 +1,5 @@
 """Tests for hooks/subagent-stop.py"""
+
 import json
 import os
 import subprocess
@@ -35,7 +36,7 @@ def make_cwd(tmp_path):
 
 VALID_EVENT = {
     "agent_id": "abc-123",
-    "agent_type": "spec-reviewer",
+    "agent_type": "spec-review",
     "last_assistant_message": "Looks good overall.",
 }
 
@@ -43,6 +44,7 @@ VALID_EVENT = {
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(autouse=True)
 def _cleanup_log(tmp_path):
@@ -55,6 +57,7 @@ def _cleanup_log(tmp_path):
 # ---------------------------------------------------------------------------
 # TestSubagentStopNormalWrite
 # ---------------------------------------------------------------------------
+
 
 class TestSubagentStopNormalWrite:
     def test_log_file_created_on_valid_event(self, tmp_path):
@@ -90,7 +93,7 @@ class TestSubagentStopNormalWrite:
         run_hook(VALID_EVENT, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
         record = json.loads(log.read_text().strip().splitlines()[0])
-        assert record["agent_type"] == "spec-reviewer"
+        assert record["agent_type"] == "spec-review"
 
     def test_last_message_field(self, tmp_path):
         cwd = make_cwd(tmp_path)
@@ -116,6 +119,7 @@ class TestSubagentStopNormalWrite:
 # ---------------------------------------------------------------------------
 # TestSubagentStopTruncation
 # ---------------------------------------------------------------------------
+
 
 class TestSubagentStopTruncation:
     def test_long_message_truncated_to_500(self, tmp_path):
@@ -147,6 +151,7 @@ class TestSubagentStopTruncation:
 # TestSubagentStopMissingFields
 # ---------------------------------------------------------------------------
 
+
 class TestSubagentStopMissingFields:
     def test_empty_event_writes_unknown_placeholders(self, tmp_path):
         cwd = make_cwd(tmp_path)
@@ -168,7 +173,7 @@ class TestSubagentStopMissingFields:
 
     def test_missing_agent_id_defaults_to_unknown(self, tmp_path):
         cwd = make_cwd(tmp_path)
-        event = {"agent_type": "plan-reviewer", "last_assistant_message": "ok"}
+        event = {"agent_type": "plan-review", "last_assistant_message": "ok"}
         run_hook(event, tmp_cwd=cwd)
         log = project_tmp_path("subagent-log", tmp_path.name)
         record = json.loads(log.read_text().strip().splitlines()[0])
@@ -183,6 +188,7 @@ class TestSubagentStopMissingFields:
 # ---------------------------------------------------------------------------
 # TestSubagentStopGuardrails
 # ---------------------------------------------------------------------------
+
 
 class TestSubagentStopGuardrails:
     def test_no_write_when_no_zf_dir(self, tmp_path):
@@ -215,6 +221,7 @@ class TestSubagentStopGuardrails:
 # TestSubagentStopSymlinkGuard
 # ---------------------------------------------------------------------------
 
+
 class TestSubagentStopSymlinkGuard:
     def test_symlink_at_log_path_skips_write(self, tmp_path):
         cwd = make_cwd(tmp_path)
@@ -226,9 +233,7 @@ class TestSubagentStopSymlinkGuard:
         r = run_hook(VALID_EVENT, tmp_cwd=cwd)
 
         assert r.returncode == 0
-        assert real_target.read_text() == "do not overwrite", (
-            "symlink target must not be overwritten"
-        )
+        assert real_target.read_text() == "do not overwrite", "symlink target must not be overwritten"
 
     def test_symlink_guard_prints_warning_to_stderr(self, tmp_path):
         cwd = make_cwd(tmp_path)
@@ -248,13 +253,14 @@ class TestSubagentStopSymlinkGuard:
 # TestSubagentStopMultipleEvents
 # ---------------------------------------------------------------------------
 
+
 class TestSubagentStopMultipleEvents:
     def test_three_events_produce_three_lines(self, tmp_path):
         cwd = make_cwd(tmp_path)
         events = [
-            {"agent_id": "a1", "agent_type": "spec-reviewer", "last_assistant_message": "msg1"},
-            {"agent_id": "a2", "agent_type": "plan-reviewer", "last_assistant_message": "msg2"},
-            {"agent_id": "a3", "agent_type": "impl-reviewer", "last_assistant_message": "msg3"},
+            {"agent_id": "a1", "agent_type": "spec-review", "last_assistant_message": "msg1"},
+            {"agent_id": "a2", "agent_type": "plan-review", "last_assistant_message": "msg2"},
+            {"agent_id": "a3", "agent_type": "impl-review", "last_assistant_message": "msg3"},
         ]
         for ev in events:
             run_hook(ev, tmp_cwd=cwd)
@@ -266,8 +272,7 @@ class TestSubagentStopMultipleEvents:
         cwd = make_cwd(tmp_path)
         for i in range(3):
             run_hook(
-                {"agent_id": f"id-{i}", "agent_type": "reviewer",
-                 "last_assistant_message": f"msg{i}"},
+                {"agent_id": f"id-{i}", "agent_type": "reviewer", "last_assistant_message": f"msg{i}"},
                 tmp_cwd=cwd,
             )
         log = project_tmp_path("subagent-log", tmp_path.name)
@@ -276,7 +281,7 @@ class TestSubagentStopMultipleEvents:
 
     def test_multiple_events_order_preserved(self, tmp_path):
         cwd = make_cwd(tmp_path)
-        types = ["spec-reviewer", "plan-reviewer", "impl-reviewer"]
+        types = ["spec-review", "plan-review", "impl-review"]
         for t in types:
             run_hook(
                 {"agent_id": "x", "agent_type": t, "last_assistant_message": ""},

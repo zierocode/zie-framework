@@ -2,6 +2,7 @@
 Skills must invoke reviewers via Skill() directly.
 @agent- syntax is reserved for commands/ that spawn subagent worktrees.
 """
+
 from pathlib import Path
 
 SKILLS_DIR = Path(__file__).parents[2] / "skills"
@@ -19,7 +20,5 @@ class TestNoAgentSyntaxInSkills:
                     if "@agent-" in line:
                         violations.append(f"{skill_file.name} (line {lineno}): {line.strip()}")
         assert not violations, (
-            "Skills must not use @agent- syntax. "
-            "Use Skill(zie-framework:<name>) instead.\n"
-            + "\n".join(violations)
+            "Skills must not use @agent- syntax. Use Skill(zie-framework:<name>) instead.\n" + "\n".join(violations)
         )

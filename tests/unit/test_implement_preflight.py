@@ -1,4 +1,5 @@
 """Tests for zie-implement.md pre-flight guard requirements."""
+
 from pathlib import Path
 
 IMPLEMENT_MD = Path(__file__).parents[2] / "commands" / "implement.md"
@@ -24,31 +25,21 @@ def test_implement_has_ready_lane_guard():
 def test_implement_has_missing_roadmap_guard():
     """zie-implement.md must handle missing ROADMAP.md gracefully."""
     text = IMPLEMENT_MD.read_text()
-    assert "not found" in text.lower() or "missing" in text.lower(), (
-        "zie-implement.md must handle missing ROADMAP.md"
-    )
-    assert "/init" in text, (
-        "zie-implement.md must reference /init when ROADMAP.md missing"
-    )
+    assert "not found" in text.lower() or "missing" in text.lower(), "zie-implement.md must handle missing ROADMAP.md"
+    assert "/init" in text, "zie-implement.md must reference /init when ROADMAP.md missing"
 
 
 def test_implement_has_wip1_guard():
     """zie-implement.md must check Now lane and stop if already occupied (WIP=1)."""
     text = IMPLEMENT_MD.read_text()
-    assert "WIP=1" in text, (
-        "zie-implement.md must have a WIP=1 guard section"
-    )
-    assert "Now lane" in text or "Now" in text, (
-        "zie-implement.md WIP=1 guard must reference the Now lane"
-    )
+    assert "WIP=1" in text, "zie-implement.md must have a WIP=1 guard section"
+    assert "Now lane" in text or "Now" in text, "zie-implement.md WIP=1 guard must reference the Now lane"
 
 
 def test_implement_wip1_stop_message():
     """WIP=1 guard STOP message must name the active task."""
     text = IMPLEMENT_MD.read_text()
-    assert "WIP=1 active" in text, (
-        "WIP=1 STOP message must include 'WIP=1 active' to name the blocking task"
-    )
+    assert "WIP=1 active" in text, "WIP=1 STOP message must include 'WIP=1 active' to name the blocking task"
     assert "Finish or release" in text, (
         "WIP=1 STOP message must instruct user to finish or release before starting new work"
     )

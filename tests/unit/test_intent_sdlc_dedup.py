@@ -3,6 +3,7 @@
 The hook should skip re-injection when the emitted context is identical
 to the last emission within the same session (keyed by session_id).
 """
+
 import json
 import os
 import subprocess
@@ -53,9 +54,7 @@ class TestDedupCache:
 
         r2 = run_hook(SDLC_PROMPT, cwd, session)
         assert r2.returncode == 0
-        assert r2.stdout.strip() == "", (
-            "Second identical call in same session must be deduped (no output)"
-        )
+        assert r2.stdout.strip() == "", "Second identical call in same session must be deduped (no output)"
 
     def test_different_session_not_deduped(self, tmp_path):
         """Different session_id must not share the dedup cache."""
@@ -65,9 +64,7 @@ class TestDedupCache:
         assert r1.stdout.strip() != "", "Session A first call must emit"
 
         r2 = run_hook(SDLC_PROMPT, cwd, "test-dedup-session-b")
-        assert r2.stdout.strip() != "", (
-            "Different session must not be deduped — fresh session gets full context"
-        )
+        assert r2.stdout.strip() != "", "Different session must not be deduped — fresh session gets full context"
 
     def test_context_change_triggers_reemit(self, tmp_path):
         """When SDLC state changes (different active task), hook re-emits."""
@@ -79,11 +76,7 @@ class TestDedupCache:
         assert r1.stdout.strip() != "", "First call must emit"
 
         # Change ROADMAP state (add active Now task)
-        (tmp_path / "zie-framework" / "ROADMAP.md").write_text(
-            "## Now\n\n- [ ] my-feature\n\n## Next\n"
-        )
+        (tmp_path / "zie-framework" / "ROADMAP.md").write_text("## Now\n\n- [ ] my-feature\n\n## Next\n")
         # Dedup cache is based on content; new active task → different context → re-emits
         r2 = run_hook(SDLC_PROMPT, cwd, session)
-        assert r2.stdout.strip() != "", (
-            "Changed ROADMAP state must trigger re-emission despite same session"
-        )
+        assert r2.stdout.strip() != "", "Changed ROADMAP state must trigger re-emission despite same session"

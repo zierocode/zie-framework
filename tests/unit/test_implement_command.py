@@ -1,4 +1,5 @@
 """Tests for the conditional simplify step in commands/implement.md."""
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]

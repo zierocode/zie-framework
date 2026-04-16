@@ -1,4 +1,5 @@
 """Verify .coveragerc exists and has required keys for subprocess coverage measurement."""
+
 import configparser
 from pathlib import Path
 
@@ -9,33 +10,25 @@ COVERAGERC = REPO_ROOT / ".coveragerc"
 class TestCoverageRc:
     def test_coveragerc_exists(self):
         """Project root must have a .coveragerc file."""
-        assert COVERAGERC.exists(), (
-            f".coveragerc not found at {COVERAGERC} — create it to enable subprocess coverage"
-        )
+        assert COVERAGERC.exists(), f".coveragerc not found at {COVERAGERC} — create it to enable subprocess coverage"
 
     def test_coveragerc_run_source(self):
         """[run] source must be set to hooks."""
         cfg = configparser.ConfigParser()
         cfg.read(COVERAGERC)
-        assert cfg.get("run", "source", fallback=None) == "hooks", (
-            "[run] source must be 'hooks' in .coveragerc"
-        )
+        assert cfg.get("run", "source", fallback=None) == "hooks", "[run] source must be 'hooks' in .coveragerc"
 
     def test_coveragerc_run_parallel(self):
         """[run] parallel must be True for subprocess measurement."""
         cfg = configparser.ConfigParser()
         cfg.read(COVERAGERC)
-        assert cfg.get("run", "parallel", fallback=None) == "True", (
-            "[run] parallel must be 'True' in .coveragerc"
-        )
+        assert cfg.get("run", "parallel", fallback=None) == "True", "[run] parallel must be 'True' in .coveragerc"
 
     def test_coveragerc_run_sigterm(self):
         """[run] sigterm must be True to flush data on SIGTERM."""
         cfg = configparser.ConfigParser()
         cfg.read(COVERAGERC)
-        assert cfg.get("run", "sigterm", fallback=None) == "True", (
-            "[run] sigterm must be 'True' in .coveragerc"
-        )
+        assert cfg.get("run", "sigterm", fallback=None) == "True", "[run] sigterm must be 'True' in .coveragerc"
 
     def test_coveragerc_report_show_missing(self):
         """[report] show_missing must be True."""
@@ -57,12 +50,8 @@ class TestCoverageRc:
         """[paths] section must contain a hooks key mapping to hooks/."""
         cfg = configparser.ConfigParser()
         cfg.read(COVERAGERC)
-        assert cfg.has_option("paths", "hooks"), (
-            "[paths] hooks key not found in .coveragerc"
-        )
-        assert "hooks/" in cfg.get("paths", "hooks"), (
-            "[paths] hooks value must include 'hooks/' in .coveragerc"
-        )
+        assert cfg.has_option("paths", "hooks"), "[paths] hooks key not found in .coveragerc"
+        assert "hooks/" in cfg.get("paths", "hooks"), "[paths] hooks value must include 'hooks/' in .coveragerc"
 
 
 class TestMakefileTestUnit:
@@ -70,17 +59,13 @@ class TestMakefileTestUnit:
         """test-unit target must call coverage erase for a clean slate."""
         makefile = REPO_ROOT / "Makefile"
         content = makefile.read_text()
-        assert "coverage erase" in content, (
-            "test-unit target must call 'coverage erase' in Makefile"
-        )
+        assert "coverage erase" in content, "test-unit target must call 'coverage erase' in Makefile"
 
     def test_makefile_test_unit_has_coverage_process_start(self):
         """test-unit target must set COVERAGE_PROCESS_START before pytest."""
         makefile = REPO_ROOT / "Makefile"
         content = makefile.read_text()
-        assert "COVERAGE_PROCESS_START" in content, (
-            "test-unit target must set COVERAGE_PROCESS_START in Makefile"
-        )
+        assert "COVERAGE_PROCESS_START" in content, "test-unit target must set COVERAGE_PROCESS_START in Makefile"
 
     def test_makefile_test_unit_no_cov_flags(self):
         """test-unit target must NOT use --cov flags (coverage report is the authority)."""
@@ -101,15 +86,14 @@ class TestMakefileTestUnit:
         """test-unit target must run coverage combine after pytest."""
         makefile = REPO_ROOT / "Makefile"
         content = makefile.read_text()
-        assert "coverage combine" in content, (
-            "test-unit target must call 'coverage combine' in Makefile"
-        )
+        assert "coverage combine" in content, "test-unit target must call 'coverage combine' in Makefile"
 
     def test_makefile_test_unit_has_coverage_report_fail_under(self):
         """test-unit target must run coverage report with a --fail-under threshold."""
         makefile = REPO_ROOT / "Makefile"
         content = makefile.read_text()
         import re
+
         assert "coverage report" in content and re.search(r"--fail-under=\d+", content), (
             "test-unit target must call 'coverage report --fail-under=N' in Makefile"
         )

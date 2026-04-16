@@ -7,16 +7,16 @@ closes so /sprint can read it in the next session.
 Secondary write path: only fires when brainstorm skill did NOT already run.
 Brainstorm skill sets the 'brainstorm-active' flag; this hook skips if set.
 """
+
 import datetime
 import os
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_event import get_cwd, read_event
-from utils_io import atomic_write
 from utils_cache import get_cache_manager
 from utils_error import log_error
+from utils_event import get_cwd, read_event
+from utils_io import atomic_write
 
 try:
     event = read_event()

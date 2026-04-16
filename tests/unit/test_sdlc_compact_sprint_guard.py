@@ -1,12 +1,10 @@
 """Tests for PostCompact sprint guard in hooks/sdlc-compact.py."""
+
 import json
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
-
-import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
 HOOK = REPO_ROOT / "hooks" / "sdlc-compact.py"

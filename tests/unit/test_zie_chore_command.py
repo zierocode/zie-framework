@@ -1,4 +1,5 @@
 """Structural tests for commands/chore.md."""
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]

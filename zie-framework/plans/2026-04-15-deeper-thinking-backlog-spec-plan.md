@@ -19,8 +19,8 @@ backlog: backlog/deeper-thinking-backlog-spec-plan.md
 | Modify | `commands/backlog.md` | Add "Considerations" section to backlog output template |
 | Modify | `skills/spec-design/SKILL.md` | Add "Blind Spots" check between draft and reviewer |
 | Modify | `skills/write-plan/SKILL.md` | Add "Risk Review" step before file map |
-| Modify | `skills/spec-reviewer/SKILL.md` | Extend YAGNI check to flag unquestioned assumptions |
-| Modify | `skills/plan-reviewer/SKILL.md` | Add missing-rollback and hidden-dependency checks |
+| Modify | `skills/spec-review/SKILL.md` | Extend YAGNI check to flag unquestioned assumptions |
+| Modify | `skills/plan-review/SKILL.md` | Add missing-rollback and hidden-dependency checks |
 
 ---
 
@@ -160,20 +160,20 @@ backlog: backlog/deeper-thinking-backlog-spec-plan.md
 
   Run: `make test-unit` — not applicable (Markdown-only change)
 
-## Task 4: Extend spec-reviewer with unquestioned assumptions check
+## Task 4: Extend spec-review with unquestioned assumptions check
 
 <!-- depends_on: none -->
 
 **Acceptance Criteria:**
-- spec-reviewer Phase 2 checklist has a new item: "Unquestioned assumptions — things the spec takes for granted without evidence"
+- spec-review Phase 2 checklist has a new item: "Unquestioned assumptions — things the spec takes for granted without evidence"
 - The check is advisory (non-blocking) — flags items but doesn't block APPROVED
 - Output format updated to include assumption flags
 
 **Files:**
-- Modify: `skills/spec-reviewer/SKILL.md`
+- Modify: `skills/spec-review/SKILL.md`
 
-- [ ] **Step 1: Read current spec-reviewer Phase 2 checklist**
-  Read `skills/spec-reviewer/SKILL.md` lines ~39-49 to get exact Phase 2 checklist.
+- [ ] **Step 1: Read current spec-review Phase 2 checklist**
+  Read `skills/spec-review/SKILL.md` lines ~39-49 to get exact Phase 2 checklist.
 
 - [ ] **Step 2: Add unquestioned assumptions check**
   After item 7 (YAGNI), add:
@@ -184,26 +184,26 @@ backlog: backlog/deeper-thinking-backlog-spec-plan.md
 
 - [ ] **Step 3: Verify unquestioned assumptions check was added**
   ```bash
-  grep -n "Unquestioned assumption" skills/spec-reviewer/SKILL.md
+  grep -n "Unquestioned assumption" skills/spec-review/SKILL.md
   ```
   Expected: at least one match for "Unquestioned assumptions" checklist item
 
   Run: `make test-unit` — not applicable (Markdown-only change)
 
-## Task 5: Extend plan-reviewer with missing-rollback and hidden-dependency checks
+## Task 5: Extend plan-review with missing-rollback and hidden-dependency checks
 
 <!-- depends_on: Task 1, Task 2, Task 3, Task 4 -->
 
 **Acceptance Criteria:**
-- plan-reviewer Phase 2 checklist has two new items: "Missing rollback" and "Hidden dependencies"
+- plan-review Phase 2 checklist has two new items: "Missing rollback" and "Hidden dependencies"
 - Both are advisory (non-blocking) — flags items but doesn't block APPROVED
 - The "dependency hints" step (item 10) now cross-references with the new "Hidden dependencies" check
 
 **Files:**
-- Modify: `skills/plan-reviewer/SKILL.md`
+- Modify: `skills/plan-review/SKILL.md`
 
-- [ ] **Step 1: Read current plan-reviewer Phase 2 checklist**
-  Read `skills/plan-reviewer/SKILL.md` lines ~39-53 to get exact Phase 2 checklist.
+- [ ] **Step 1: Read current plan-review Phase 2 checklist**
+  Read `skills/plan-review/SKILL.md` lines ~39-53 to get exact Phase 2 checklist.
 
 - [ ] **Step 2: Add missing-rollback and hidden-dependency checks**
   After item 9 (YAGNI), add:
@@ -218,7 +218,7 @@ backlog: backlog/deeper-thinking-backlog-spec-plan.md
 - [ ] **Step 3: Verify all 5 files are consistent**
   After Tasks 1-4 are complete, check that the "think deeper" theme is consistent across all modified files:
   ```bash
-  grep -n "Considerations\|Blind Spot\|Risk Review\|Unquestioned assumption\|Missing rollback\|Hidden dependenc" commands/backlog.md skills/spec-design/SKILL.md skills/write-plan/SKILL.md skills/spec-reviewer/SKILL.md skills/plan-reviewer/SKILL.md
+  grep -n "Considerations\|Blind Spot\|Risk Review\|Unquestioned assumption\|Missing rollback\|Hidden dependenc" commands/backlog.md skills/spec-design/SKILL.md skills/write-plan/SKILL.md skills/spec-review/SKILL.md skills/plan-review/SKILL.md
   ```
   Expected: each file has at least one match for its respective addition
 

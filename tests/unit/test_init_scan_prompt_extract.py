@@ -1,9 +1,10 @@
 """Tests for init-scan-prompt-extract: template extraction from init.md."""
+
 import os
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-INIT_MD   = os.path.join(REPO_ROOT, "commands", "init.md")
-TEMPLATE  = os.path.join(REPO_ROOT, "templates", "init-scan-prompt.md")
+INIT_MD = os.path.join(REPO_ROOT, "commands", "init.md")
+TEMPLATE = os.path.join(REPO_ROOT, "templates", "init-scan-prompt.md")
 
 
 class TestTemplateExists:

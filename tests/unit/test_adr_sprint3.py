@@ -1,4 +1,5 @@
 """Tests for ADR-022 and ADR-023 existence and structure."""
+
 from pathlib import Path
 
 DECISIONS_DIR = Path(__file__).parents[2] / "zie-framework" / "decisions"

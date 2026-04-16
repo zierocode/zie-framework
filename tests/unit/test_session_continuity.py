@@ -1,4 +1,5 @@
 """Tests for session continuity snapshot in hooks/session-resume.py (Sprint B)."""
+
 import json
 import os
 import subprocess

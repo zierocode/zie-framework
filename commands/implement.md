@@ -15,8 +15,8 @@ effort: medium
 !`git log -5 --oneline`
 !`git status --short`
 
-0. **Pre-flight: Agent mode advisory** — if not running with `--agent zie-framework:zie-implement-mode`:
-   print `ℹ️ Tip: run inside \`claude --agent zie-framework:zie-implement-mode\` for best results. On non-Claude models, /implement works directly in the current session.`
+0. **Pre-flight: Agent mode advisory** — if not running with `--agent zie-framework:builder`:
+   print `ℹ️ Tip: run inside \`claude --agent zie-framework:builder\` for best results. On non-Claude models, /implement works directly in the current session.`
    (advisory only — do not block, continue immediately)
 
 See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
@@ -49,7 +49,7 @@ Tasks without `depends_on` run in parallel (max 4 concurrent). Tasks with `<!-- 
 Extract keywords from plan (Goal + Architecture sections — split on whitespace, remove stop words, take top 6 unique terms).
 Invoke `Skill(zie-framework:load-context, '<keywords>')` → result available as `context_bundle`
 (calls `write_adr_cache`, bundles `adr_cache_path` + `decisions/` + `project/context.md`).
-Pass `context_bundle` to every impl-reviewer call.
+Pass `context_bundle` to every impl-review call.
 
 **TDD:** Every task uses RED → GREEN → REFACTOR via `Skill(zie-framework:tdd-loop)`.
 
@@ -80,11 +80,11 @@ Test level selection (print once before task loop, not per task):
 3. **Risk Classification** — set `risk_level = HIGH` or `LOW`:
    - HIGH: new function/class, changed behavior, external API call, file I/O, subprocess, non-test production code changed, or `<!-- review: required -->`
    - LOW: test-only, docs/config, rename/reformat, minor constant addition
-4. **impl-reviewer** (HIGH only): <!-- BLOCKING: do not mark task complete until all checks pass -->
-   Invoke `Skill(zie-framework:impl-reviewer)` with `context_bundle`.
+4. **impl-review** (HIGH only): <!-- BLOCKING: do not mark task complete until all checks pass -->
+   Invoke `Skill(zie-framework:impl-review)` with `context_bundle`.
    - ✅ APPROVED → continue
    - ❌ Issues Found → auto-fix inline → `make test-unit` → if pass continue; if fail after 1 retry → surface to Zie
-5. **→ LOW risk:** `make test-unit` + print `[risk: LOW] Skipping impl-reviewer`.
+5. **→ LOW risk:** `make test-unit` + print `[risk: LOW] Skipping impl-review`.
 6. `TaskUpdate` → completed. Mark `[x]` in plan. Print `✓ T{N} done — {remaining} remaining`.
    - Checkpoint every 3 tasks. If `zie_memory_enabled=true`: Brain write every 5: `mcp__plugin_zie-memory_zie-memory__remember` `tags=[wip] supersedes=[wip, <project>, <slug>]`. Friction: `tags=[build-learning]`.
 7. **Per-task checkpoint commit** — after marking task complete:

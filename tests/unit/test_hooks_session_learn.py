@@ -1,4 +1,5 @@
 """Tests for hooks/session-learn.py"""
+
 import json
 import os
 import subprocess
@@ -26,8 +27,7 @@ def run_hook(tmp_cwd, env_overrides=None):
     env = {**os.environ, "ZIE_MEMORY_API_KEY": "", "CLAUDE_CWD": str(tmp_cwd)}
     if env_overrides:
         env.update(env_overrides)
-    return subprocess.run([sys.executable, HOOK], input=json.dumps({}),
-                          capture_output=True, text=True, env=env)
+    return subprocess.run([sys.executable, HOOK], input=json.dumps({}), capture_output=True, text=True, env=env)
 
 
 def make_cwd(tmp_path, roadmap=None):
@@ -91,10 +91,13 @@ class TestSessionLearnGuardrails:
 
     def test_no_crash_when_api_url_unreachable(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        r = run_hook(cwd, env_overrides={
-            "ZIE_MEMORY_API_KEY": "fake-key",
-            "ZIE_MEMORY_API_URL": "http://localhost:19999",
-        })
+        r = run_hook(
+            cwd,
+            env_overrides={
+                "ZIE_MEMORY_API_KEY": "fake-key",
+                "ZIE_MEMORY_API_URL": "http://localhost:19999",
+            },
+        )
         assert r.returncode == 0  # must never crash
 
     def test_skips_api_call_without_key(self, tmp_path):
@@ -108,27 +111,26 @@ class TestSessionLearnUsesSharedHelper:
     def test_uses_call_zie_memory_api(self):
         """session-learn.py must use call_zie_memory_api, not inline urllib."""
         source = Path(HOOK).read_text()
-        assert "call_zie_memory_api" in source, (
-            "session-learn.py must import and use call_zie_memory_api from utils"
-        )
+        assert "call_zie_memory_api" in source, "session-learn.py must import and use call_zie_memory_api from utils"
 
     def test_no_inline_urlopen(self):
         """session-learn.py must not contain inline urlopen calls."""
         source = Path(HOOK).read_text()
-        assert "urlopen" not in source, (
-            "session-learn.py must not call urlopen directly — use call_zie_memory_api"
-        )
+        assert "urlopen" not in source, "session-learn.py must not call urlopen directly — use call_zie_memory_api"
 
 
 class TestSessionLearnMemoryEnabledFastPath:
     def test_skips_api_call_when_zie_memory_enabled_is_zero(self, tmp_path):
         """ZIE_MEMORY_ENABLED=0 must skip the API call; pending_learn still written."""
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        r = run_hook(cwd, env_overrides={
-            "ZIE_MEMORY_ENABLED": "0",
-            "ZIE_MEMORY_API_KEY": "real-key",
-            "ZIE_MEMORY_API_URL": "https://example.com",
-        })
+        r = run_hook(
+            cwd,
+            env_overrides={
+                "ZIE_MEMORY_ENABLED": "0",
+                "ZIE_MEMORY_API_KEY": "real-key",
+                "ZIE_MEMORY_API_URL": "https://example.com",
+            },
+        )
         assert r.returncode == 0
         pending = persistent_project_path("pending_learn.txt", tmp_path.name)
         assert pending.exists(), "pending_learn.txt must be written regardless of ZIE_MEMORY_ENABLED"
@@ -137,36 +139,40 @@ class TestSessionLearnMemoryEnabledFastPath:
     def test_proceeds_to_api_when_zie_memory_enabled_is_one(self, tmp_path):
         """ZIE_MEMORY_ENABLED=1 with no valid key must fall through to api_key guard."""
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        r = run_hook(cwd, env_overrides={
-            "ZIE_MEMORY_ENABLED": "1",
-            "ZIE_MEMORY_API_KEY": "",
-            "ZIE_MEMORY_API_URL": "",
-        })
+        r = run_hook(
+            cwd,
+            env_overrides={
+                "ZIE_MEMORY_ENABLED": "1",
+                "ZIE_MEMORY_API_KEY": "",
+                "ZIE_MEMORY_API_URL": "",
+            },
+        )
         assert r.returncode == 0
 
     def test_absent_env_var_falls_back_to_normal_flow(self, tmp_path):
         """ZIE_MEMORY_ENABLED absent — hook must proceed normally."""
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
-        r = run_hook(cwd, env_overrides={
-            "ZIE_MEMORY_API_KEY": "",
-            "ZIE_MEMORY_API_URL": "",
-        })
+        r = run_hook(
+            cwd,
+            env_overrides={
+                "ZIE_MEMORY_API_KEY": "",
+                "ZIE_MEMORY_API_URL": "",
+            },
+        )
         assert r.returncode == 0
 
 
-class TestSessionLearnUsesPersistentPath:
-    def test_uses_persistent_project_path(self):
-        """session-learn.py must use persistent_project_path, not hardcoded ~/.claude path."""
+class TestSessionLearnUsesGetCwd:
+    def test_uses_get_cwd(self):
+        """session-learn.py must use get_cwd() for project root, not hardcoded paths."""
         source = Path(HOOK).read_text()
-        assert "persistent_project_path" in source, (
-            "session-learn.py must use persistent_project_path from utils"
-        )
+        assert "get_cwd" in source, "session-learn.py must use get_cwd() from utils"
 
     def test_no_hardcoded_dot_claude_path(self):
         """session-learn.py must not manually construct ~/.claude/projects path."""
         source = Path(HOOK).read_text()
         assert '".claude"' not in source and "'.claude'" not in source, (
-            "session-learn.py must not hardcode .claude path — use persistent_project_path"
+            "session-learn.py must not hardcode .claude path — use get_cwd()"
         )
 
 
@@ -185,7 +191,9 @@ class TestSessionLearnUrlSafety:
         r = subprocess.run(
             [sys.executable, hook],
             input=json.dumps({}),
-            capture_output=True, text=True, env=env,
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0
         assert r.stdout.strip() == ""
@@ -195,8 +203,11 @@ class TestSessionLearnOuterGuard:
     def test_empty_stdin_exits_zero(self, tmp_path):
         env = {**os.environ, "ZIE_MEMORY_API_KEY": "", "CLAUDE_CWD": str(tmp_path)}
         r = subprocess.run(
-            [sys.executable, HOOK], input="",
-            capture_output=True, text=True, env=env,
+            [sys.executable, HOOK],
+            input="",
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0
         assert "Traceback" not in r.stderr
@@ -204,8 +215,11 @@ class TestSessionLearnOuterGuard:
     def test_invalid_json_exits_zero(self, tmp_path):
         env = {**os.environ, "ZIE_MEMORY_API_KEY": "", "CLAUDE_CWD": str(tmp_path)}
         r = subprocess.run(
-            [sys.executable, HOOK], input="not json",
-            capture_output=True, text=True, env=env,
+            [sys.executable, HOOK],
+            input="not json",
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0
         assert "Traceback" not in r.stderr

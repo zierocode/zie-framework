@@ -89,7 +89,7 @@ For each Next-lane item, determine its state:
 | State | Condition | Recommended action |
 |-------|-----------|-------------------|
 | no-spec | No `*<item-slug>-design.md` in specs/ | `/spec <item>` |
-| spec-unapproved | Spec file exists but `approved: true` absent | Run `Skill('spec-reviewer')` then `python3 hooks/approve.py <spec-path>` |
+| spec-unapproved | Spec file exists but `approved: true` absent | Run `Skill('spec-review')` then `python3 hooks/approve.py <spec-path>` |
 | spec-approved-no-plan | Approved spec but no plan file | `/plan <item>` |
 | plan-approved | Both spec + plan approved | `/implement` or `/sprint <item>` |
 
@@ -101,7 +101,7 @@ Print recommended next 1-3 actions with exact commands.
 ## Recommended Next Actions
 
 1. **Design** — run `/spec my-feature` to write the design spec
-2. **Review** — after writing spec, run `Skill('spec-reviewer')` to validate
+2. **Review** — after writing spec, run `Skill('spec-review')` to validate
 3. **Plan** — once approved, run `/plan my-feature`
 ```
 

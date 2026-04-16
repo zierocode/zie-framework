@@ -9,30 +9,28 @@ events for the same project skip inject to avoid redundant context.
 Content-hash cache: SHA-256 of (ADR summary + project context) with 1800s TTL.
 Uses unified CacheManager with session-id salt for cross-session dedup.
 """
-import hashlib
+
 import json
 import os
 import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_error import log_error
-from utils_event import get_cwd, read_event
-from utils_io import atomic_write
-from utils_config import CACHE_TTLS
 from utils_cache import get_cache_manager, get_content_hash_cached
+from utils_config import CACHE_TTLS
+from utils_event import get_cwd, read_event
 from utils_roadmap import parse_roadmap_section_content
 
 # Per-agent context budget table (supersedes ADR-046 Explore/Plan guard).
 # Value: True = inject context; False = skip inject entirely.
 AGENT_BUDGETS = {
-    "spec-reviewer":  True,   # receives spec file + ADR summary
-    "plan-reviewer":  True,   # receives plan + spec + ADR summary
-    "impl-reviewer":  True,   # receives changed files + plan
-    "resync":         True,   # receives git log + file structure
-    "Explore":        True,
-    "Plan":           True,
-    "brainstorm":     False,  # skill has own Phase 1 discovery — no injection
+    "spec-review": True,  # receives spec file + ADR summary
+    "plan-review": True,  # receives plan + spec + ADR summary
+    "impl-review": True,  # receives changed files + plan
+    "resync": True,  # receives git log + file structure
+    "Explore": True,
+    "Plan": True,
+    "brainstorm": False,  # skill has own Phase 1 discovery — no injection
 }
 _DEFAULT_INJECT = False  # conservative default: don't inject unknown agent types
 
@@ -95,16 +93,14 @@ adr_count = "unknown"
 try:
     roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
     roadmap_ttl = CACHE_TTLS.get("roadmap", 600)
-    roadmap_content = cache.get_or_compute(
-        "roadmap", session_id, lambda: roadmap_path.read_text(), roadmap_ttl
-    )
+    roadmap_content = cache.get_or_compute("roadmap", session_id, lambda: roadmap_path.read_text(), roadmap_ttl)
     now_items = parse_roadmap_section_content(roadmap_content, "now") if roadmap_content else []
     if now_items:
         raw = now_items[0]
         slug = raw.lower()
-        slug = re.sub(r'[^a-z0-9\s-]', '', slug)
-        slug = re.sub(r'\s+', '-', slug.strip())
-        slug = re.sub(r'-+', '-', slug).strip('-')
+        slug = re.sub(r"[^a-z0-9\s-]", "", slug)
+        slug = re.sub(r"\s+", "-", slug.strip())
+        slug = re.sub(r"-+", "-", slug).strip("-")
         feature_slug = slug if slug else "none"
     else:
         feature_slug = "none"
@@ -117,7 +113,7 @@ if feature_slug == "none" and active_task in ("none", "n/a", "unknown"):
     sys.exit(0)
 
 # Find most-recent plan file and extract first incomplete task (Plan agents only)
-if re.search(r'Plan', agent_type, re.IGNORECASE):
+if re.search(r"Plan", agent_type, re.IGNORECASE):
     if feature_slug != "none" or active_task == "unknown":
         try:
             plans_dir = cwd / "zie-framework" / "plans"
@@ -130,12 +126,12 @@ if re.search(r'Plan', agent_type, re.IGNORECASE):
                 plan_text = plan_files[0].read_text()
                 found = None
                 for line in plan_text.splitlines():
-                    if re.search(r'- \[ \]', line):
+                    if re.search(r"- \[ \]", line):
                         found = line
                         break
                 if found is not None:
-                    task = re.sub(r'^\s*-\s*\[\s*\]\s*', '', found)
-                    task = re.sub(r'\*\*', '', task).strip()
+                    task = re.sub(r"^\s*-\s*\[\s*\]\s*", "", found)
+                    task = re.sub(r"\*\*", "", task).strip()
                     active_task = task if task else "unknown"
                 else:
                     active_task = "all tasks complete"
@@ -151,7 +147,7 @@ try:
     context_file = cwd / "zie-framework" / "project" / "context.md"
     if context_file.exists():
         text = context_file.read_text()
-        adr_count = str(len(re.findall(r'^## ADR-\d+', text, re.MULTILINE)))
+        adr_count = str(len(re.findall(r"^## ADR-\d+", text, re.MULTILINE)))
     else:
         adr_count = "unknown"
 except Exception as e:
@@ -161,11 +157,7 @@ except Exception as e:
 if active_task == "n/a":
     payload = f"[zie-framework] Active: {feature_slug} | ADRs: {adr_count}"
 else:
-    payload = (
-        f"[zie-framework] Active: {feature_slug} | "
-        f"Task: {active_task} | "
-        f"ADRs: {adr_count}"
-    )
+    payload = f"[zie-framework] Active: {feature_slug} | Task: {active_task} | ADRs: {adr_count}"
 print(json.dumps({"additionalContext": payload}))
 
 # Write session cache flag so subsequent SubagentStart events skip inject

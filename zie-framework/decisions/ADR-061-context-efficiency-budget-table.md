@@ -24,9 +24,9 @@ that explicitly maps each agent type to an inject/skip decision:
 
 ```python
 AGENT_BUDGETS = {
-    "spec-reviewer": True,
-    "plan-reviewer": True,
-    "impl-reviewer": True,
+    "spec-review": True,
+    "plan-review": True,
+    "impl-review": True,
     "resync":        True,
     "Explore":       True,
     "Plan":          True,

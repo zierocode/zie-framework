@@ -7,7 +7,7 @@ backlog: backlog/parallel-pipeline-stages.md
 # Parallel Pipeline Stages — Implementation Plan
 
 **Goal:** Change sprint Phase 1 to spawn parallel background agents for each item's spec+plan pipeline, reducing wall-clock time for multi-item sprints.
-**Architecture:** Replace sequential Skill calls in Phase 1 with Agent tool spawning (context: fork, run_in_background). Each agent runs spec-design → spec-reviewer → write-plan → plan-reviewer → approve.py independently. Concurrency cap of 4 limits token explosion. Single-item sprint falls back to Skill call (no agent overhead). ROADMAP and sprint-context.json are written once after all agents complete.
+**Architecture:** Replace sequential Skill calls in Phase 1 with Agent tool spawning (context: fork, run_in_background). Each agent runs spec-design → spec-review → write-plan → plan-review → approve.py independently. Concurrency cap of 4 limits token explosion. Single-item sprint falls back to Skill call (no agent overhead). ROADMAP and sprint-context.json are written once after all agents complete.
 **Tech Stack:** Markdown (commands/sprint.md), no new Python code
 
 **Risk Review:** No hidden dependencies — Agent tool is a core Claude Code feature. Ordering risk: all Phase 1 changes are in one file, so tasks must be serialized. Rollback: revert changes to sprint.md.
@@ -56,8 +56,8 @@ backlog: backlog/parallel-pipeline-stages.md
   **Concurrency cap:** `min(4, number of items in needs_spec)`. Excess items queue until slots open.
 
   **Single-item fast path:** If only 1 item needs spec+plan, use Skill calls directly (no Agent spawn overhead):
-  1. `Skill(zie-framework:spec-design, '<slug> autonomous')` → spec-reviewer inline → approve
-  2. `Skill(zie-framework:write-plan, '<slug>')` → plan-reviewer inline → approve.py
+  1. `Skill(zie-framework:spec-design, '<slug> autonomous')` → spec-review inline → approve
+  2. `Skill(zie-framework:write-plan, '<slug>')` → plan-review inline → approve.py
   3. Skip to Phase 1 completion below.
 
   **Multi-item parallel path:** For each item in needs_spec (up to `cap` concurrent):
@@ -66,9 +66,9 @@ backlog: backlog/parallel-pipeline-stages.md
 
       You are running the spec+plan pipeline for backlog item "<slug>".
 
-      1. Invoke `Skill(zie-framework:spec-design, '<slug> autonomous')` — this writes the spec, runs spec-reviewer inline, and auto-approves.
+      1. Invoke `Skill(zie-framework:spec-design, '<slug> autonomous')` — this writes the spec, runs spec-review inline, and auto-approves.
       2. Invoke `Skill(zie-framework:write-plan, '<slug>')` — this writes the plan.
-      3. Invoke `Skill(zie-framework:plan-reviewer)` inline — verify the plan.
+      3. Invoke `Skill(zie-framework:plan-review)` inline — verify the plan.
          - ✅ APPROVED → run `python3 hooks/approve.py <plan-file>` via Bash
          - ❌ Issues Found → fix all issues inline → verify each fix against issue list → run approve.py
          - Any issue unfixable → return failure with details

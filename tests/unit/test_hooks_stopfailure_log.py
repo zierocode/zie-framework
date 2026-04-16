@@ -1,4 +1,5 @@
 """Tests for hooks/stopfailure-log.py"""
+
 import json
 import os
 import subprocess
@@ -45,6 +46,7 @@ def failure_log_path(cwd):
     """Mirror the hook's log path calculation."""
     import re
     import tempfile
+
     safe = re.sub(r"[^a-zA-Z0-9]", "-", cwd.name)
     return Path(tempfile.gettempdir()) / f"zie-{safe}-failure-log"
 
@@ -116,9 +118,7 @@ class TestWipInLogEntry:
         log.unlink(missing_ok=True)
         run_hook(cwd, event={"error_type": "api_error"})
         content = log.read_text()
-        assert "login flow" in content or "wip=" in content, (
-            "log entry must include Now-lane WIP context"
-        )
+        assert "login flow" in content or "wip=" in content, "log entry must include Now-lane WIP context"
 
     def test_wip_empty_when_no_roadmap(self, tmp_path):
         cwd = make_cwd(tmp_path)  # no ROADMAP.md
@@ -164,6 +164,7 @@ class TestGuardrails:
     def test_no_crash_on_tmp_write_failure(self, tmp_path):
         """Hook must exit 0 even when the log path is unwritable."""
         import shutil
+
         cwd = make_cwd(tmp_path)
         log = failure_log_path(cwd)
         # Clean up any prior state (file or directory)
@@ -184,23 +185,18 @@ class TestHooksJsonRegistration:
     def test_stopfailure_registered_in_hooks_json(self):
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         import json as _json
+
         data = _json.loads(hooks_json.read_text())
         hooks_block = data.get("hooks", {})
-        assert "StopFailure" in hooks_block, (
-            "hooks/hooks.json must register a StopFailure event block"
-        )
+        assert "StopFailure" in hooks_block, "hooks/hooks.json must register a StopFailure event block"
 
     def test_stopfailure_command_references_correct_script(self):
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         import json as _json
+
         data = _json.loads(hooks_json.read_text())
         entries = data["hooks"]["StopFailure"]
-        commands = [
-            h["command"]
-            for entry in entries
-            for h in entry.get("hooks", [])
-            if h.get("type") == "command"
-        ]
+        commands = [h["command"] for entry in entries for h in entry.get("hooks", []) if h.get("type") == "command"]
         assert any("stopfailure-log.py" in cmd for cmd in commands), (
             "StopFailure hook must reference stopfailure-log.py"
         )

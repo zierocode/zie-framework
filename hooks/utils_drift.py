@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Drift log helpers — append, read count, close track."""
+
 import json
 import sys
 from datetime import datetime, timezone
@@ -66,9 +67,7 @@ def close_drift_track(cwd, slug: str) -> None:
                 events[i]["closed_at"] = datetime.now(timezone.utc).isoformat()
                 break
 
-        new_content = "\n".join(
-            e.get("_raw", json.dumps(e, ensure_ascii=False)) for e in events
-        ) + "\n"
+        new_content = "\n".join(e.get("_raw", json.dumps(e, ensure_ascii=False)) for e in events) + "\n"
         log_path.write_text(new_content, encoding="utf-8")
     except Exception as e:
         print(f"[zie-framework] utils_drift.close_drift_track: {e}", file=sys.stderr)

@@ -1,4 +1,5 @@
 """Unit tests for hooks/utils.py::compact_roadmap_done."""
+
 import sys
 from datetime import date, timedelta
 from pathlib import Path
@@ -76,9 +77,7 @@ class TestArchiveFile:
         roadmap = zie_dir.parent / "ROADMAP.md"
         old = [f"- [x] old-{i} — v1.{i}.0 {_date_str(8)}" for i in range(5)]
         recent = [f"- [x] new-{i} — v1.{i}.0 {_date_str(1)}" for i in range(16)]
-        roadmap.write_text(
-            "# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n"
-        )
+        roadmap.write_text("# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n")
         compact_roadmap_done(str(roadmap), archive_base=str(zie_dir / "archive"))
         archive_dir = zie_dir / "archive"
         assert archive_dir.exists()
@@ -91,9 +90,7 @@ class TestArchiveFile:
         roadmap = zie_dir.parent / "ROADMAP.md"
         old = [f"- [x] special-old-feature — v1.0.0 {_date_str(8)}"]
         recent = [f"- [x] new-{i} — v1.{i}.0 {_date_str(1)}" for i in range(20)]
-        roadmap.write_text(
-            "# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n"
-        )
+        roadmap.write_text("# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n")
         compact_roadmap_done(str(roadmap), archive_base=str(zie_dir / "archive"))
         archive_files = list((zie_dir / "archive").glob("ROADMAP-*.md"))
         content = archive_files[0].read_text()
@@ -107,9 +104,7 @@ class TestRoadmapRewrite:
         roadmap = zie_dir.parent / "ROADMAP.md"
         old = [f"- [x] old-{i} — v1.{i}.0 {_date_str(8)}" for i in range(3)]
         recent = [f"- [x] new-{i} — v1.{i}.0 {_date_str(1)}" for i in range(18)]
-        roadmap.write_text(
-            "# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n"
-        )
+        roadmap.write_text("# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n")
         compact_roadmap_done(str(roadmap), archive_base=str(zie_dir / "archive"))
         content = roadmap.read_text()
         assert "[archive]" in content
@@ -123,9 +118,7 @@ class TestRoadmapRewrite:
         roadmap = zie_dir.parent / "ROADMAP.md"
         old = [f"- [x] old-{i} — v1.{i}.0 {_date_str(8)}" for i in range(3)]
         recent = [f"- [x] keep-this-{i} — v1.{i}.0 {_date_str(1)}" for i in range(18)]
-        roadmap.write_text(
-            "# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n"
-        )
+        roadmap.write_text("# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n")
         compact_roadmap_done(str(roadmap), archive_base=str(zie_dir / "archive"))
         content = roadmap.read_text()
         for i in range(18):
@@ -133,14 +126,13 @@ class TestRoadmapRewrite:
 
     def test_summary_line_format(self, tmp_path):
         import re
+
         zie_dir = tmp_path / "zie-framework"
         zie_dir.mkdir()
         roadmap = zie_dir.parent / "ROADMAP.md"
         old = [f"- [x] old-{i} — v1.{i}.0 {_date_str(8)}" for i in range(3)]
         recent = [f"- [x] new-{i} — v1.{i}.0 {_date_str(1)}" for i in range(18)]
-        roadmap.write_text(
-            "# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n"
-        )
+        roadmap.write_text("# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n")
         compact_roadmap_done(str(roadmap), archive_base=str(zie_dir / "archive"))
         content = roadmap.read_text()
         assert re.search(r"\[archive\].*features shipped.*see", content)
@@ -156,10 +148,7 @@ class TestRoadmapRewrite:
         old = [f"- [x] old-{i} — v1.{i}.0 {_date_str(8)}" for i in range(3)]
         recent = [f"- [x] new-{i} — v1.{i}.0 {_date_str(1)}" for i in range(18)]
         roadmap.write_text(
-            "# ROADMAP\n\n## Done\n\n"
-            + existing_archive + "\n"
-            + "\n".join(old + recent)
-            + "\n\n## Icebox\n"
+            "# ROADMAP\n\n## Done\n\n" + existing_archive + "\n" + "\n".join(old + recent) + "\n\n## Icebox\n"
         )
         compact_roadmap_done(str(roadmap), archive_base=str(zie_dir / "archive"))
         content = roadmap.read_text()
@@ -174,12 +163,7 @@ class TestEdgeCases:
         malformed = "- [x] mystery feature — v1.0.0 not-a-date"
         old = [f"- [x] old-{i} — v1.{i}.0 {_date_str(8)}" for i in range(3)]
         recent = [f"- [x] new-{i} — v1.{i}.0 {_date_str(1)}" for i in range(18)]
-        roadmap.write_text(
-            "# ROADMAP\n\n## Done\n\n"
-            + malformed + "\n"
-            + "\n".join(old + recent)
-            + "\n\n## Icebox\n"
-        )
+        roadmap.write_text("# ROADMAP\n\n## Done\n\n" + malformed + "\n" + "\n".join(old + recent) + "\n\n## Icebox\n")
         result = compact_roadmap_done(str(roadmap), archive_base=str(zie_dir / "archive"))
         assert isinstance(result, tuple)
         assert len(result) == 3
@@ -190,9 +174,7 @@ class TestEdgeCases:
         roadmap = zie_dir.parent / "ROADMAP.md"
         old = [f"- [x] old-{i} — v1.{i}.0 {_date_str(8)}" for i in range(3)]
         recent = [f"- [x] new-{i} — v1.{i}.0 {_date_str(1)}" for i in range(18)]
-        roadmap.write_text(
-            "# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n"
-        )
+        roadmap.write_text("# ROADMAP\n\n## Done\n\n" + "\n".join(old + recent) + "\n\n## Icebox\n")
         compact_roadmap_done(str(roadmap), archive_base=str(zie_dir / "archive"))
         result2 = compact_roadmap_done(str(roadmap), archive_base=str(zie_dir / "archive"))
         assert result2 == (False, 0, "")

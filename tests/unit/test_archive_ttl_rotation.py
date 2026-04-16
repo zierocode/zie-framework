@@ -1,4 +1,5 @@
 """Tests for archive TTL rotation (archive-prune Makefile target)."""
+
 import os
 import subprocess
 import time
@@ -13,23 +14,19 @@ class TestMakefileArchivePruneTarget:
 
     def test_makefile_has_archive_prune_target(self):
         text = MAKEFILE.read_text()
-        assert "archive-prune:" in text, \
-            "Makefile must have an archive-prune target"
+        assert "archive-prune:" in text, "Makefile must have an archive-prune target"
 
     def test_archive_prune_target_has_docstring(self):
         text = MAKEFILE.read_text()
-        assert "archive-prune" in text and "##" in text, \
-            "archive-prune target must have a help comment (##)"
+        assert "archive-prune" in text and "##" in text, "archive-prune target must have a help comment (##)"
 
     def test_makefile_archive_prune_references_90_days(self):
         text = MAKEFILE.read_text()
-        assert "90" in text, \
-            "archive-prune must reference 90-day TTL"
+        assert "90" in text, "archive-prune must reference 90-day TTL"
 
     def test_makefile_archive_prune_guard_threshold(self):
         text = MAKEFILE.read_text()
-        assert "20" in text, \
-            "archive-prune must enforce a 20-file minimum guard"
+        assert "20" in text, "archive-prune must enforce a 20-file minimum guard"
 
 
 class TestArchivePruneGuard:
@@ -46,12 +43,12 @@ class TestArchivePruneGuard:
                 os.utime(f, (old_time, old_time))
 
         result = _run_prune_logic(tmp_path)
-        assert "skipping prune" in result.lower() or "too young" in result.lower(), \
+        assert "skipping prune" in result.lower() or "too young" in result.lower(), (
             f"Guard must skip prune for young projects. Got: {result}"
+        )
 
         remaining = list(tmp_path.rglob("*.md"))
-        assert len(remaining) == 6, \
-            f"Guard must not delete any files for young projects. Got {len(remaining)}"
+        assert len(remaining) == 6, f"Guard must not delete any files for young projects. Got {len(remaining)}"
 
     def test_guard_allows_prune_when_archive_mature(self, tmp_path):
         """When archive has >= 20 files, prune proceeds."""
@@ -64,8 +61,9 @@ class TestArchivePruneGuard:
                 os.utime(f, (old_time, old_time))
 
         result = _run_prune_logic(tmp_path)
-        assert "skipping prune" not in result.lower(), \
+        assert "skipping prune" not in result.lower(), (
             f"Mature archive (21 files) must not trigger guard. Got: {result}"
+        )
 
 
 class TestArchivePruneLogic:
@@ -113,22 +111,21 @@ class TestArchivePruneLogic:
             os.utime(f, (old_time, old_time))
 
         result = _run_prune_logic(tmp_path)
-        assert "removed" in result.lower(), \
-            f"Output must report number of files removed. Got: {result}"
+        assert "removed" in result.lower(), f"Output must report number of files removed. Got: {result}"
 
     def test_prune_zero_files_removed(self, tmp_path):
         """When no files are stale, output still reports 0 removed."""
         _make_mature_archive(tmp_path)
         result = _run_prune_logic(tmp_path)
-        assert "0" in result or "zero" in result.lower() or "removed" in result.lower(), \
+        assert "0" in result or "zero" in result.lower() or "removed" in result.lower(), (
             f"Must report 0 files removed when nothing is stale. Got: {result}"
+        )
 
     def test_prune_output_format(self, tmp_path):
         """Output must match '[zie-framework] Archive prune: removed N file(s)'."""
         _make_mature_archive(tmp_path)
         result = _run_prune_logic(tmp_path)
-        assert "[zie-framework]" in result and "Archive prune" in result, \
-            f"Output format mismatch. Got: {result}"
+        assert "[zie-framework]" in result and "Archive prune" in result, f"Output format mismatch. Got: {result}"
 
 
 class TestArchivePruneMissingDir:
@@ -145,17 +142,18 @@ class TestRetroIntegration:
 
     def test_retro_calls_archive_prune(self):
         text = (REPO_ROOT / "commands" / "retro.md").read_text()
-        assert "make archive-prune" in text, \
-            "zie-retro.md must call 'make archive-prune'"
+        assert "make archive-prune" in text, "zie-retro.md must call 'make archive-prune'"
 
     def test_retro_archive_prune_is_non_blocking(self):
         """The prune call must be noted as non-blocking or best-effort."""
         text = (REPO_ROOT / "commands" / "retro.md").read_text()
-        context_window = text[text.find("archive-prune") - 200:text.find("archive-prune") + 200] \
-            if "archive-prune" in text else ""
+        context_window = (
+            text[text.find("archive-prune") - 200 : text.find("archive-prune") + 200] if "archive-prune" in text else ""
+        )
         non_blocking_markers = ["|| true", "non-blocking", "best-effort", "skip", "failure"]
-        assert any(m in context_window.lower() for m in non_blocking_markers), \
+        assert any(m in context_window.lower() for m in non_blocking_markers), (
             "archive-prune call in zie-retro.md must be annotated as non-blocking"
+        )
 
 
 class TestClaudeMdDocs:
@@ -163,11 +161,11 @@ class TestClaudeMdDocs:
 
     def test_claude_md_documents_archive_prune(self):
         text = (REPO_ROOT / "CLAUDE.md").read_text()
-        assert "archive-prune" in text, \
-            "CLAUDE.md must document the archive-prune Makefile target"
+        assert "archive-prune" in text, "CLAUDE.md must document the archive-prune Makefile target"
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 def _make_mature_archive(tmp_path: Path, n: int = 21) -> None:
     """Populate tmp_path with n recent files across 3 subdirs (guard satisfied)."""
@@ -218,8 +216,5 @@ for d in subdirs:
 
 print(f'[zie-framework] Archive prune: removed {{removed}} file(s)')
 """
-    result = subprocess.run(
-        ["python3", "-c", script],
-        capture_output=True, text=True
-    )
+    result = subprocess.run(["python3", "-c", script], capture_output=True, text=True)
     return result.stdout + result.stderr

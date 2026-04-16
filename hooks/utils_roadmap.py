@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """ROADMAP parsing, caching, ADR caching, and mtime gate helpers."""
+
 from __future__ import annotations
+
 import json
 import os
 import re
@@ -10,12 +12,18 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_io import atomic_write, safe_write_tmp
 from utils_error import log_error
+from utils_io import atomic_write, safe_write_tmp
 
 SDLC_STAGES: list = [
-    "init", "backlog", "spec", "plan",
-    "implement", "fix", "release", "retro",
+    "init",
+    "backlog",
+    "spec",
+    "plan",
+    "implement",
+    "fix",
+    "release",
+    "retro",
 ]
 
 
@@ -85,7 +93,7 @@ def parse_roadmap_section_content(content: str, section_name: str) -> list:
         if line.startswith("##") and in_section:
             break
         if in_section and line.strip().startswith("- "):
-            clean = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', line.strip())
+            clean = re.sub(r"\[([^\]]+)\]\([^\)]+\)", r"\1", line.strip())
             clean = clean.lstrip("- ").lstrip("[ ]").lstrip("[x]").strip()
             if clean:
                 lines.append(clean)
@@ -99,6 +107,7 @@ def read_roadmap_cached(roadmap_path, session_id: str, cwd=None) -> str:
     Falls back to empty string on any read error.
     """
     from utils_cache import get_cache_manager
+
     if cwd is None:
         cwd = Path(roadmap_path).parent.parent
     cache = get_cache_manager(cwd)
@@ -115,8 +124,12 @@ def read_roadmap_cached(roadmap_path, session_id: str, cwd=None) -> str:
             return ""
 
     return cache.get_or_compute(
-        "roadmap", session_id, _read, ttl=600,
-        invalidation="mtime", source_path=roadmap_str,
+        "roadmap",
+        session_id,
+        _read,
+        ttl=600,
+        invalidation="mtime",
+        source_path=roadmap_str,
     )
 
 
@@ -127,8 +140,8 @@ def get_cached_git_status(session_id: str, key: str, ttl: int = 5) -> str | None
     Returns None on cache miss, expiry, or any read error.
     """
     try:
-        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
-        safe_key = re.sub(r'[^a-zA-Z0-9_-]', '-', key)
+        safe_id = re.sub(r"[^a-zA-Z0-9_-]", "-", session_id)
+        safe_key = re.sub(r"[^a-zA-Z0-9_-]", "-", key)
         cache_path = Path(tempfile.gettempdir()) / f"zie-{safe_id}" / f"git-{safe_key}.cache"
         if cache_path.exists():
             age = time.time() - cache_path.stat().st_mtime
@@ -149,8 +162,8 @@ def write_git_status_cache(session_id: str, key: str, content: str) -> None:
     key identifies the git command (e.g. 'log', 'branch', 'diff').
     """
     try:
-        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
-        safe_key = re.sub(r'[^a-zA-Z0-9_-]', '-', key)
+        safe_id = re.sub(r"[^a-zA-Z0-9_-]", "-", session_id)
+        safe_key = re.sub(r"[^a-zA-Z0-9_-]", "-", key)
         cache_dir = Path(tempfile.gettempdir()) / f"zie-{safe_id}"
         cache_dir.mkdir(parents=True, exist_ok=True)
         (cache_dir / f"git-{safe_key}.cache").write_text(content)
@@ -176,7 +189,7 @@ def get_cached_adrs(
             return None
         current_max_mtime = max(f.stat().st_mtime for f in adr_files)
         base = Path(tmp_dir) if tmp_dir else Path(tempfile.gettempdir())
-        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        safe_id = re.sub(r"[^a-zA-Z0-9_-]", "-", session_id)
         cache_path = base / f"zie-{safe_id}" / "adr-cache.json"
         if not cache_path.exists():
             return None
@@ -212,7 +225,7 @@ def write_adr_cache(
             return (False, None)
         max_mtime = max(f.stat().st_mtime for f in adr_files)
         base = Path(tmp_dir) if tmp_dir else Path(tempfile.gettempdir())
-        safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+        safe_id = re.sub(r"[^a-zA-Z0-9_-]", "-", session_id)
         cache_dir = base / f"zie-{safe_id}"
         cache_dir.mkdir(parents=True, exist_ok=True)
         cache_path = cache_dir / "adr-cache.json"
@@ -355,36 +368,23 @@ def compact_roadmap_done(
     archive_content = (
         f"# ROADMAP Archive \u2014 {label} ({date_range_label})\n\n"
         f"Archived by compact_roadmap_done on {today.isoformat()}.\n"
-        f"{n_old} entries older than {cutoff_months} months.\n\n"
-        + "\n".join(line for line, _ in old_entries)
-        + "\n"
+        f"{n_old} entries older than {cutoff_months} months.\n\n" + "\n".join(line for line, _ in old_entries) + "\n"
     )
     atomic_write(archive_path, archive_content)
 
     # 7. Build summary line
     archive_rel = str(archive_path).replace(str(path.parent) + "/", "")
-    summary_line = (
-        f"- [archive] {label} ({date_range_label}): "
-        f"{n_old} features shipped \u2014 see {archive_rel}"
-    )
+    summary_line = f"- [archive] {label} ({date_range_label}): {n_old} features shipped \u2014 see {archive_rel}"
 
     # 8. Rebuild Done section
     old_entry_lines = {line for line, _ in old_entries}
     kept_normal = [line for line, d in normal_entries if line not in old_entry_lines]
 
     new_done_lines = (
-        [summary_line + "\n"]
-        + [ln + "\n" for ln in existing_archive_lines]
-        + [ln + "\n" for ln in kept_normal]
+        [summary_line + "\n"] + [ln + "\n" for ln in existing_archive_lines] + [ln + "\n" for ln in kept_normal]
     )
 
-    new_lines = (
-        lines[:done_start]
-        + ["\n"]
-        + new_done_lines
-        + ["\n"]
-        + lines[done_end:]
-    )
+    new_lines = lines[:done_start] + ["\n"] + new_done_lines + ["\n"] + lines[done_end:]
 
     atomic_write(path, "".join(new_lines))
     return (True, n_old, version_range)
@@ -393,6 +393,7 @@ def compact_roadmap_done(
 # ---------------------------------------------------------------------------
 # mtime gate helpers
 # ---------------------------------------------------------------------------
+
 
 def compute_max_mtime(base_dir: Path, pattern: str = "*.md") -> float:
     """Return max mtime (float) of files matching pattern (glob) under base_dir.
@@ -416,6 +417,7 @@ def parse_roadmap_items_with_dates(roadmap_path, section_name: str) -> list:
     Returns [] if file missing, section absent, or empty.
     """
     import datetime as _dt
+
     _DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
     try:
         path = Path(roadmap_path)
@@ -431,7 +433,7 @@ def parse_roadmap_items_with_dates(roadmap_path, section_name: str) -> list:
             if line.startswith("##") and in_section:
                 break
             if in_section and line.strip().startswith("- "):
-                clean = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', line.strip())
+                clean = re.sub(r"\[([^\]]+)\]\([^\)]+\)", r"\1", line.strip())
                 clean = clean.lstrip("- ").lstrip("[ ]").lstrip("[x]").strip()
                 if not clean:
                     continue
@@ -476,7 +478,7 @@ def is_track_active(cwd) -> bool:
                     continue
                 if line.startswith("##") and in_now:
                     break
-                if in_now and re.search(r'-\s*\[\s*\]', line):
+                if in_now and re.search(r"-\s*\[\s*\]", line):
                     return True
     except OSError as e:
         log_error("utils_roadmap", "is_track_active_roadmap", e)

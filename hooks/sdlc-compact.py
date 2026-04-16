@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 """PreCompact/PostCompact hook — persist and restore SDLC state across context compaction."""
+
 import json
 import os
 import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_event import get_cwd, read_event
-from utils_config import load_config
-from utils_io import persistent_project_path, safe_write_persistent
 from utils_cache import get_cache_manager
+from utils_config import load_config
+from utils_error import log_error
+from utils_event import get_cwd, read_event
+from utils_io import persistent_project_path, safe_write_persistent
 from utils_roadmap import (
     get_cached_git_status,
     parse_roadmap_section_content,
     read_roadmap_cached,
     write_git_status_cache,
 )
-from utils_error import log_error
 
 # ---------------------------------------------------------------------------
 # Outer guard — parse event; exit 0 on any failure; never block Claude
@@ -207,4 +208,3 @@ elif hook_event_name == "PostCompact":
     except Exception as e:
         print(f"[zie-framework] sdlc-compact: context build failed: {e}", file=sys.stderr)
         print(json.dumps({"additionalContext": ""}))
-

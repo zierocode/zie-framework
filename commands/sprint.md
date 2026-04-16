@@ -85,8 +85,8 @@ For `[clarity: ask]` items: ask 1 question per item first, then proceed.
 **Concurrency cap:** `min(4, number of items in needs_spec)`. Excess items queue until slots open.
 
 **Single-item fast path:** If only 1 item needs spec+plan, use Skill calls directly (no Agent spawn overhead):
-1. `Skill(zie-framework:spec-design, '<slug> autonomous')` → spec-reviewer inline → approve
-2. `Skill(zie-framework:write-plan, '<slug>')` → plan-reviewer inline → approve.py
+1. `Skill(zie-framework:spec-design, '<slug> autonomous')` → spec-review inline → approve
+2. `Skill(zie-framework:write-plan, '<slug>')` → plan-review inline → approve.py
 3. Skip to Phase 1 completion below.
 
 **Multi-item parallel path:** For each item in needs_spec (up to `cap` concurrent):
@@ -95,9 +95,9 @@ Spawn background Agent with prompt:
 
     You are running the spec+plan pipeline for backlog item "<slug>".
 
-    1. Invoke `Skill(zie-framework:spec-design, '<slug> autonomous')` — this writes the spec, runs spec-reviewer inline, and auto-approves.
+    1. Invoke `Skill(zie-framework:spec-design, '<slug> autonomous')` — this writes the spec, runs spec-review inline, and auto-approves.
     2. Invoke `Skill(zie-framework:write-plan, '<slug>')` — this writes the plan.
-    3. Invoke `Skill(zie-framework:plan-reviewer)` inline — verify the plan.
+    3. Invoke `Skill(zie-framework:plan-review)` inline — verify the plan.
        - ✅ APPROVED → run `python3 hooks/approve.py <plan-file>` via Bash
        - ❌ Issues Found → fix all issues inline → verify each fix against issue list → run approve.py
        - Any issue unfixable → return failure with details

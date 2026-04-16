@@ -1,4 +1,5 @@
 """Tests for log field sanitization in stopfailure-log.py and notification-log.py."""
+
 import json
 import os
 import subprocess

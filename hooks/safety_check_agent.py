@@ -8,21 +8,22 @@ Run directly only for manual testing: python3 safety_check_agent.py
 Named with underscores (safety_check_agent.py) to allow Python importlib
 to load it cleanly from tests and other hooks.
 """
+
 import os
-import re
 import shutil
 import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_safety import BLOCKS, COMPILED_BLOCKS, COMPILED_INJECTION_BLOCKS, normalize_command
-from utils_event import get_cwd, read_event
 from utils_config import load_config
+from utils_event import get_cwd, read_event
+from utils_safety import COMPILED_BLOCKS, COMPILED_INJECTION_BLOCKS, normalize_command
 
 MAX_CMD_CHARS = 4096
 
+import re as _re  # noqa: E402
+
 # Agent-specific additions beyond the shared BLOCKS list — pre-compiled for performance
-import re as _re
 _AGENT_EXTRA_BLOCKS = [
     (_re.compile(r"curl\s+.*\|\s*bash\b", _re.IGNORECASE), "curl pipe to bash blocked — potential code injection"),
     (_re.compile(r"curl\s+.*\|\s*sh\b", _re.IGNORECASE), "curl pipe to sh blocked — potential code injection"),
@@ -73,8 +74,7 @@ def invoke_subagent(command: str, timeout: int = 30) -> str:
     """Call claude CLI to evaluate the command. Returns agent response text."""
     if not _check_claude_cli_exists():
         print(
-            "[zie-framework] safety_check_agent: claude CLI not found, "
-            "falling back to regex mode",
+            "[zie-framework] safety_check_agent: claude CLI not found, falling back to regex mode",
             file=sys.stderr,
         )
         raise RuntimeError("claude CLI not found")
@@ -119,8 +119,7 @@ def evaluate(command: str, mode: str, timeout: int = 30) -> int:
     # Check if claude CLI exists first - if not, skip agent mode entirely
     if not _check_claude_cli_exists():
         print(
-            "[zie-framework] safety_check_agent: claude CLI not found, "
-            "skipping agent mode — using regex only",
+            "[zie-framework] safety_check_agent: claude CLI not found, skipping agent mode — using regex only",
             file=sys.stderr,
         )
         return _regex_evaluate(command)

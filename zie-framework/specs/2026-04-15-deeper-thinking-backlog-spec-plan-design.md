@@ -12,8 +12,8 @@ backlog: backlog/deeper-thinking-backlog-spec-plan.md
 - `commands/backlog.md` — add "Considerations" section after Rough Scope with 2-3 auto-suggested edge cases/risks
 - `skills/spec-design/SKILL.md` — add "Blind Spots" check between Step 3 (draft) and Step 5 (reviewer): explicitly list what the spec doesn't cover, failure modes, and alternatives considered
 - `skills/write-plan/SKILL.md` — add "Risk Review" step before file map: check for hidden dependencies, ordering risks, and rollback strategies
-- `skills/spec-reviewer/SKILL.md` — extend YAGNI check to also flag "unquestioned assumptions" (things the spec takes for granted without evidence)
-- `skills/plan-reviewer/SKILL.md` — extend review to flag "missing rollback" and "hidden dependency" patterns
+- `skills/spec-review/SKILL.md` — extend YAGNI check to also flag "unquestioned assumptions" (things the spec takes for granted without evidence)
+- `skills/plan-review/SKILL.md` — extend review to flag "missing rollback" and "hidden dependency" patterns
 **Data Flow:**
 
 *Current flow:*

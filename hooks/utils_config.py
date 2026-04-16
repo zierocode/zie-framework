@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Config loading and validation for zie-framework hooks."""
+
 import json
 import sys
 from pathlib import Path
@@ -25,21 +26,21 @@ CONFIG_DEFAULTS: dict = {
     "skill_auto_inject": {
         "enabled": True,
         "mapping": {
-            "spec": "spec-reviewer",
+            "spec": "spec-review",
             "plan": "write-plan",
-            "implement": "impl-reviewer",
+            "implement": "impl-review",
         },
     },
 }
 
 # Cache TTLs in seconds for unified-context-cache
 CACHE_TTLS = {
-    "roadmap": 600,       # 10 min
-    "adrs": 3600,         # 1 hour
-    "project_md": 300,    # 5 min
+    "roadmap": 600,  # 10 min
+    "adrs": 3600,  # 1 hour
+    "project_md": 300,  # 5 min
     "command_map": 1800,  # 30 min
-    "test_map": 300,      # 5 min
-    "content_hash": 1800, # 30 min (increased from 600s)
+    "test_map": 300,  # 5 min
+    "content_hash": 1800,  # 30 min (increased from 600s)
 }
 
 

@@ -1,4 +1,5 @@
 """Unit tests for commands/guide.md acceptance criteria (Area 4)."""
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
@@ -15,18 +16,14 @@ class TestGuideExists:
 
     def test_guide_mentions_init_when_no_zf(self):
         text = _guide_text()
-        assert "/init" in text, (
-            "/guide must include /init instructions for when zie-framework/ absent"
-        )
+        assert "/init" in text, "/guide must include /init instructions for when zie-framework/ absent"
 
     def test_guide_explains_zie_framework_when_no_zf(self):
         text = _guide_text()
         # Must have at least 2 sentences explaining what zie-framework is
         # when zee-framework/ is absent — count sentence endings near /init
         sentences_near_init = text.count(".")
-        assert sentences_near_init >= 2, (
-            "/guide must have at least 2 sentences explaining zie-framework"
-        )
+        assert sentences_near_init >= 2, "/guide must have at least 2 sentences explaining zie-framework"
 
     def test_guide_shows_command_list(self):
         text = _guide_text()
@@ -41,9 +38,7 @@ class TestGuideExists:
 
     def test_guide_recommends_spec_for_next_items(self):
         text = _guide_text()
-        assert "/spec" in text, (
-            "/guide must recommend /spec when Next lane items exist without approved spec"
-        )
+        assert "/spec" in text, "/guide must recommend /spec when Next lane items exist without approved spec"
 
     def test_guide_recommends_implement_when_ready(self):
         text = _guide_text()
@@ -61,6 +56,4 @@ class TestGuideExists:
 
     def test_guide_shows_workflow_map(self):
         text = _guide_text()
-        assert "backlog" in text.lower() and "retro" in text.lower(), (
-            "/guide must show the full workflow map"
-        )
+        assert "backlog" in text.lower() and "retro" in text.lower(), "/guide must show the full workflow map"

@@ -1,4 +1,5 @@
 """Structural tests: /implement step 0 must show advisory (non-blocking) for non-agent mode."""
+
 import os
 from pathlib import Path
 
@@ -20,13 +21,9 @@ class TestAgentModeConfirm:
     def test_step0_is_advisory(self):
         """Step 0 must say it is advisory and non-blocking."""
         src = self._src()
-        assert "advisory" in src.lower() or "Tip" in src, (
-            "zie-implement.md step 0 must be labeled as advisory"
-        )
+        assert "advisory" in src.lower() or "Tip" in src, "zie-implement.md step 0 must be labeled as advisory"
 
     def test_agent_mode_command_referenced(self):
         """Recommended agent mode command is documented."""
         src = self._src()
-        assert "zie-implement-mode" in src, (
-            "zie-implement.md step 0 must mention the recommended agent mode"
-        )
+        assert "builder" in src, "zie-implement.md step 0 must mention the recommended agent mode"

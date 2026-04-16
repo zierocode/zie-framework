@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Backlog intelligence helpers — auto-tag and duplicate detection."""
+
 import re
 from pathlib import Path
 
@@ -69,8 +70,7 @@ def find_roadmap_overlaps(new_title: str, roadmap_path) -> list:
         return []
     content = roadmap.read_text()
     overlaps = []
-    sections = [("Ready", r"## Ready.*?\n(.*?)(?=\n---|\n## )"),
-                ("Done", r"## Done.*?\n(.*?)(?=\n---|\n## |\Z)")]
+    sections = [("Ready", r"## Ready.*?\n(.*?)(?=\n---|\n## )"), ("Done", r"## Done.*?\n(.*?)(?=\n---|\n## |\Z)")]
     for section_name, pattern in sections:
         match = re.search(pattern, content, re.DOTALL)
         if not match:

@@ -1,10 +1,10 @@
 from pathlib import Path
 
-SKILL_PATH = Path(__file__).parents[2] / "skills" / "zie-audit" / "SKILL.md"
+SKILL_PATH = Path(__file__).parents[2] / "skills" / "audit" / "SKILL.md"
 
 
 def _phase_text(n: int) -> str:
-    """Extract Phase N section from zie-audit skill."""
+    """Extract Phase N section from audit skill."""
     text = SKILL_PATH.read_text()
     header = f"## Phase {n}"
     next_header = f"## Phase {n + 1}"
@@ -31,6 +31,6 @@ class TestAuditParallelResearch:
 
     def test_synthesis_agent_has_no_websearch(self):
         phase4 = _phase_text(4)
-        assert "no WebSearch" in phase4 or "0 WebSearch" in phase4, (
-            "Phase 4 synthesis must explicitly have no WebSearch"
+        assert "No WebSearch" in phase4 or "no WebSearch" in phase4 or "0 WebSearch" in phase4, (
+            "Phase 4 synthesis must explicitly state no WebSearch"
         )

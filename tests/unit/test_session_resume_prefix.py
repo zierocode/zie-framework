@@ -1,13 +1,14 @@
 """Regression test: no bare [zie] log prefix in any hook file."""
+
 import re
 from pathlib import Path
 
 HOOKS_DIR = Path(__file__).parents[2] / "hooks"
 
 # Valid prefixes: [zie-framework] (full) or [zf] (compact)
-_VALID_PREFIX_RE = re.compile(r'\[(zie-framework|zf)\]')
+_VALID_PREFIX_RE = re.compile(r"\[(zie-framework|zf)\]")
 # Bare [zie] without -framework or f suffix
-_BARE_ZIE_RE = re.compile(r'\[zie\](?![\w-])')
+_BARE_ZIE_RE = re.compile(r"\[zie\](?![\w-])")
 
 
 def test_no_bare_zie_prefix_in_hooks():
@@ -18,7 +19,6 @@ def test_no_bare_zie_prefix_in_hooks():
         for lineno, line in enumerate(text.splitlines(), 1):
             if _BARE_ZIE_RE.search(line) and not _VALID_PREFIX_RE.search(line):
                 violations.append(f"{hook_py.name}:{lineno}: {line.strip()}")
-    assert not violations, (
-        "Bare [zie] log prefix found (use [zie-framework] or [zf] instead):\n"
-        + "\n".join(violations)
+    assert not violations, "Bare [zie] log prefix found (use [zie-framework] or [zf] instead):\n" + "\n".join(
+        violations
     )

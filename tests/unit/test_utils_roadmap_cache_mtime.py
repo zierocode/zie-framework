@@ -1,16 +1,14 @@
 """Tests for read_roadmap_cached delegating to CacheManager (mtime invalidation)."""
+
 import os
 import sys
 import time
-from pathlib import Path
-
-import pytest
 
 sys_path = os.path.join(os.path.dirname(__file__), "../../hooks")
 if sys_path not in sys.path:
     sys.path.insert(0, sys_path)
-from utils_roadmap import read_roadmap_cached
 from utils_cache import CacheManager, get_cache_manager
+from utils_roadmap import read_roadmap_cached
 
 
 class TestReadRoadmapCached:
@@ -22,16 +20,17 @@ class TestReadRoadmapCached:
         cache = get_cache_manager(tmp_path)
         # Reset singleton so we get fresh state
         import utils_cache
+
         utils_cache._cache_manager = CacheManager(tmp_path / ".zie" / "cache")
         cache = utils_cache._cache_manager
-        cache.set("roadmap", "cached content", "sess1", ttl=600,
-                  invalidation="mtime", source_path=str(roadmap))
+        cache.set("roadmap", "cached content", "sess1", ttl=600, invalidation="mtime", source_path=str(roadmap))
         result = read_roadmap_cached(roadmap, "sess1", cwd=tmp_path)
         assert result == "cached content"
 
     def test_miss_reads_disk(self, tmp_path):
         """Cold cache — reads disk and caches via CacheManager."""
         import utils_cache
+
         utils_cache._cache_manager = None  # Reset singleton
         roadmap = tmp_path / "ROADMAP.md"
         roadmap.write_text("## Now\n- [ ] feature\n")
@@ -44,6 +43,7 @@ class TestReadRoadmapCached:
     def test_missing_roadmap_returns_empty(self, tmp_path):
         """ROADMAP.md absent — returns empty string."""
         import utils_cache
+
         utils_cache._cache_manager = None  # Reset singleton
         roadmap = tmp_path / "ROADMAP.md"
         result = read_roadmap_cached(roadmap, "sess3", cwd=tmp_path)
@@ -52,6 +52,7 @@ class TestReadRoadmapCached:
     def test_mtime_invalidation(self, tmp_path):
         """Cache invalidated when ROADMAP.md mtime changes."""
         import utils_cache
+
         utils_cache._cache_manager = None  # Reset singleton
         roadmap = tmp_path / "ROADMAP.md"
         roadmap.write_text("original content")

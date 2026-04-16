@@ -7,19 +7,17 @@ scores confidence, and writes session memory JSON to .zie/memory/session-*.json.
 Triggered on Stop event. Runs async (background: true in hooks.json).
 Always exits 0 — never blocks Claude.
 """
-import hashlib
+
 import json
 import os
 import re
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_event import get_cwd, read_event
-from utils_io import project_tmp_path
-from utils_roadmap import parse_roadmap_now, SDLC_STAGES
 from utils_error import log_error
+from utils_event import get_cwd, read_event
+from utils_roadmap import SDLC_STAGES, parse_roadmap_now
 
 # Pattern detection thresholds
 _MIN_PATTERN_FREQUENCY = 3  # Min occurrences to be a pattern
@@ -45,7 +43,7 @@ _CATEGORY_KEYWORDS = {
 def _extract_session_summary(transcript_lines):
     """Generate a 1-2 sentence summary from transcript."""
     # Simple extractive summary: first and last meaningful lines
-    meaningful = [l for l in transcript_lines if len(l.strip()) > 20 and not l.strip().startswith("#")]
+    meaningful = [line for line in transcript_lines if len(line.strip()) > 20 and not line.strip().startswith("#")]
     if len(meaningful) >= 2:
         return f"{meaningful[0][:100]}... {meaningful[-1][:100]}..."
     elif meaningful:
@@ -98,31 +96,35 @@ def _extract_patterns_heuristic(transcript_lines, tool_stats):
     for seq_name, seq_pattern in _TOOL_SEQUENCES.items():
         matches = re.findall(seq_pattern, transcript_text, re.IGNORECASE)
         if len(matches) >= _MIN_PATTERN_FREQUENCY:
-            patterns.append({
-                "id": f"workflow-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{len(patterns)+1:03d}",
-                "category": "workflow",
-                "description": f"Repeated {seq_name.replace('_', ' ')} sequence",
-                "frequency": len(matches),
-                "evidence": [f"{seq_name} detected {len(matches)} times"],
-            })
+            patterns.append(
+                {
+                    "id": f"workflow-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{len(patterns) + 1:03d}",
+                    "category": "workflow",
+                    "description": f"Repeated {seq_name.replace('_', ' ')} sequence",
+                    "frequency": len(matches),
+                    "evidence": [f"{seq_name} detected {len(matches)} times"],
+                }
+            )
 
     # Detect repeated keywords/phrases
     word_freq = {}
     for line in transcript_lines:
-        words = re.findall(r'\b\w{4,}\b', line.lower())
+        words = re.findall(r"\b\w{4,}\b", line.lower())
         for word in words:
             word_freq[word] = word_freq.get(word, 0) + 1
 
     for word, freq in word_freq.items():
         if freq >= _MIN_PATTERN_FREQUENCY and word not in {"the", "and", "that", "with", "this"}:
             category = _detect_pattern_category(word)
-            patterns.append({
-                "id": f"{category}-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{len(patterns)+1:03d}",
-                "category": category,
-                "description": f"Frequent term: {word}",
-                "frequency": freq,
-                "evidence": [f"'{word}' appeared {freq} times"],
-            })
+            patterns.append(
+                {
+                    "id": f"{category}-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{len(patterns) + 1:03d}",
+                    "category": category,
+                    "description": f"Frequent term: {word}",
+                    "frequency": freq,
+                    "evidence": [f"'{word}' appeared {freq} times"],
+                }
+            )
 
     return patterns
 
@@ -147,7 +149,7 @@ def _extract_context_keywords(transcript_lines, roadmap_now):
     text = " ".join(transcript_lines) + " " + " ".join(roadmap_now or [])
 
     # Extract meaningful keywords
-    words = re.findall(r'\b[a-z]{4,20}\b', text.lower())
+    words = re.findall(r"\b[a-z]{4,20}\b", text.lower())
 
     # Filter common words
     stop_words = {"that", "with", "this", "from", "have", "been", "were", "would", "could", "should"}

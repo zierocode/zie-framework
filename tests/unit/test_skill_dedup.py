@@ -1,6 +1,7 @@
 """Structural test: no verbatim duplicate paragraph blocks in any SKILL.md."""
-import os
+
 import glob
+import os
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 MIN_PARAGRAPH_CHARS = 80
@@ -56,11 +57,8 @@ class TestSkillDedupNoDuplicateParagraphs:
                 rel = os.path.relpath(path, REPO_ROOT)
                 for para, count in duplicates.items():
                     preview = para[:120].replace("\n", " ")
-                    violations.append(
-                        f"{rel}: paragraph appears {count}x — '{preview}...'"
-                    )
+                    violations.append(f"{rel}: paragraph appears {count}x — '{preview}...'")
 
-        assert not violations, (
-            "Verbatim duplicate paragraphs found in SKILL.md files:\n"
-            + "\n".join(f"  - {v}" for v in violations)
+        assert not violations, "Verbatim duplicate paragraphs found in SKILL.md files:\n" + "\n".join(
+            f"  - {v}" for v in violations
         )

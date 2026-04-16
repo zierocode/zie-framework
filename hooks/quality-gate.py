@@ -8,7 +8,7 @@ Fires on `git commit` commands. Runs warn-only checks:
 
 Always exits 0 — this hook informs, never blocks.
 """
-import json
+
 import os
 import re
 import shutil
@@ -74,9 +74,7 @@ try:
                 else:
                     consecutive = 0
             if max_consecutive >= 3:
-                warnings.append(
-                    f"dead-code: {max_consecutive} consecutive commented lines in staged diff"
-                )
+                warnings.append(f"dead-code: {max_consecutive} consecutive commented lines in staged diff")
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
         pass  # git not available or timed out — skip
 
@@ -95,10 +93,8 @@ try:
                 staged_py = [
                     str(cwd / f)
                     for f in result_diff.stdout.splitlines()
-                    if f.endswith(".py") and not any(
-                        part in Path(f).parts
-                        for part in ("venv", ".venv", "node_modules", "__pycache__")
-                    )
+                    if f.endswith(".py")
+                    and not any(part in Path(f).parts for part in ("venv", ".venv", "node_modules", "__pycache__"))
                 ]
             if staged_py:
                 result = subprocess.run(

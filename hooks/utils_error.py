@@ -4,6 +4,7 @@
 All hooks should use log_error() to report exceptions to stderr.
 This ensures debugging is possible even when hooks swallow errors (ADR-003).
 """
+
 import sys
 
 

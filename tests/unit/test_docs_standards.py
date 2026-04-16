@@ -1,4 +1,5 @@
 """Tests for Feature D — Docs + Standards Sprint"""
+
 import json
 import re
 from pathlib import Path
@@ -10,9 +11,7 @@ class TestPluginJsonVersion:
     def test_plugin_json_version_matches_version_file(self):
         plugin = json.loads((REPO_ROOT / ".claude-plugin" / "plugin.json").read_text())
         version = (REPO_ROOT / "VERSION").read_text().strip()
-        assert plugin["version"] == version, (
-            f"plugin.json version '{plugin['version']}' != VERSION '{version}'"
-        )
+        assert plugin["version"] == version, f"plugin.json version '{plugin['version']}' != VERSION '{version}'"
 
     def test_makefile_has_sync_version_target(self):
         makefile = (REPO_ROOT / "Makefile").read_text()
@@ -35,12 +34,8 @@ class TestPreCommitHook:
 class TestReadmeReferences:
     def test_no_decisions_md_in_readme(self):
         readme = (REPO_ROOT / "README.md").read_text()
-        lines_with_decisions = [
-            line for line in readme.splitlines() if "decisions.md" in line
-        ]
-        assert lines_with_decisions == [], (
-            f"Found 'decisions.md' in README.md: {lines_with_decisions}"
-        )
+        lines_with_decisions = [line for line in readme.splitlines() if "decisions.md" in line]
+        assert lines_with_decisions == [], f"Found 'decisions.md' in README.md: {lines_with_decisions}"
 
     def test_context_md_referenced_in_readme(self):
         readme = (REPO_ROOT / "README.md").read_text()
@@ -65,21 +60,13 @@ class TestArchitectureMd:
 class TestContextMdAdrNumbering:
     def test_no_d_prefix_headers_remain(self):
         context = (REPO_ROOT / "zie-framework" / "project" / "context.md").read_text()
-        bad_lines = [
-            line for line in context.splitlines()
-            if re.match(r'^## D-\d+', line)
-        ]
+        bad_lines = [line for line in context.splitlines() if re.match(r"^## D-\d+", line)]
         assert bad_lines == [], f"Found D- prefixed headers: {bad_lines}"
 
     def test_adr_prefix_headers_present(self):
         context = (REPO_ROOT / "zie-framework" / "project" / "context.md").read_text()
-        adr_headers = [
-            line for line in context.splitlines()
-            if re.match(r'^## ADR-\d+', line)
-        ]
-        assert len(adr_headers) >= 9, (
-            f"Expected at least 9 ADR-NNN headers, found {len(adr_headers)}: {adr_headers}"
-        )
+        adr_headers = [line for line in context.splitlines() if re.match(r"^## ADR-\d+", line)]
+        assert len(adr_headers) >= 9, f"Expected at least 9 ADR-NNN headers, found {len(adr_headers)}: {adr_headers}"
 
 
 class TestChangelogTranslation:
@@ -100,9 +87,7 @@ class TestChangelogTranslation:
         assert section_lines, "v1.1.0 section not found"
         section_text = "\n".join(section_lines)
         thai_chars = [c for c in section_text if 0x0E00 < ord(c) < 0x0E80]
-        assert thai_chars == [], (
-            f"Thai characters found in v1.1.0 section: {''.join(thai_chars[:20])}"
-        )
+        assert thai_chars == [], f"Thai characters found in v1.1.0 section: {''.join(thai_chars[:20])}"
 
 
 class TestSecurityMd:

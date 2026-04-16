@@ -16,7 +16,7 @@ zie-framework/              # SDLC state (this repo uses itself)
 
 ## Key Rules
 
-- **Agent mode**: `claude --agent zie-framework:zie-implement-mode` (TDD) · `zie-audit-mode` (read-only)
+- **Agent mode**: `claude --agent zie-framework:builder` (TDD) · `auditor` (read-only)
 - **Never commit secrets** — hooks, templates, commands are all public
 - **Idempotent commands** — all commands must be safe to re-run
 - **Graceful degradation** — every feature must work without optional
@@ -40,7 +40,7 @@ Running on `glm-5.1:cloud`, Ollama, or other non-Claude providers:
 **Fallback pattern:**
 ```bash
 # Claude Code: use agent mode
-claude --agent zie-framework:zie-implement-mode
+claude --agent zie-framework:builder
 
 # Non-Claude: run /implement directly in current session
 /implement

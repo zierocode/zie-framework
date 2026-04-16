@@ -22,7 +22,7 @@ Effort levels follow this routing table:
 | Level | When to use | Examples |
 |-------|-------------|---------|
 | `low` | Single-step reads, status checks, simple edits | debug, tdd-loop, verify, status |
-| `medium` | Multi-step with branching, requires synthesis | implement, spec-design, brainstorm, zie-audit |
+| `medium` | Multi-step with branching, requires synthesis | implement, spec-design, brainstorm, audit |
 | `high` | Reserved for orchestrators spanning full SDLC cycles | sprint (only) |
 
 `brainstorm` and `spec-design` lowered from `high` → `medium`: both complete correctly at medium

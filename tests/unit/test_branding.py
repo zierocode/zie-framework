@@ -55,9 +55,7 @@ class TestNoAsciiBoxes:
         """zie-status.md ต้องไม่มี ASCII box — ใช้ markdown table แทน."""
         content = read_command("status")
         for char in ASCII_BOX_CHARS:
-            assert char not in content, (
-                f"zie-status.md ยังมี ASCII box char '{char}' — ต้องใช้ markdown table"
-            )
+            assert char not in content, f"zie-status.md ยังมี ASCII box char '{char}' — ต้องใช้ markdown table"
 
 
 class TestPhaseLabelsRenamed:
@@ -83,9 +81,7 @@ class TestPhaseLabelsRenamed:
         """commands ที่ควรเปลี่ยน Pre-flight → ตรวจสอบก่อนเริ่ม."""
         for cmd in ["implement", "fix", "release", "backlog", "plan", "retro"]:
             content = read_command(cmd)
-            assert "## Pre-flight" not in content, (
-                f"zie-{cmd}.md ยังมี '## Pre-flight' — ต้องเปลี่ยนเป็น '## ตรวจสอบก่อนเริ่ม'"
-            )
+            assert "## Pre-flight" not in content, f"zie-{cmd}.md ยังมี '## Pre-flight' — ต้องเปลี่ยนเป็น '## ตรวจสอบก่อนเริ่ม'"
 
 
 class TestHandoffBlocks:

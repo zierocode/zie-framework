@@ -1,4 +1,5 @@
 """Structural tests: /implement must document the resume-subagent pattern."""
+
 import os
 from pathlib import Path
 
@@ -12,9 +13,7 @@ class TestImplementResumePattern:
 
     def test_subagent_usage_documented(self):
         """zie-implement.md must document async agent/subagent usage."""
-        assert "agent" in self._src().lower(), (
-            "zie-implement.md must mention agent usage"
-        )
+        assert "agent" in self._src().lower(), "zie-implement.md must mention agent usage"
 
     def test_failure_recovery_documented(self):
         src = self._src()

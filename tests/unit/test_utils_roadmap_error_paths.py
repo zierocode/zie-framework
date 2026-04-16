@@ -2,10 +2,9 @@
 
 Validates that all public functions return empty/default on error, never raise.
 """
-import json
+
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 import pytest
 

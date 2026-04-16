@@ -19,7 +19,7 @@ claude plugin install zierocode/zie-framework
 | `/backlog` | 1 — Capture | Capture a new backlog item |
 | `/spec` | 2 — Design | Write a design spec with reviewer loop |
 | `/plan` | 3 — Plan | Draft implementation plan + approval |
-| `/implement` | 4 — Build | TDD feature loop with impl-reviewer |
+| `/implement` | 4 — Build | TDD feature loop with impl-review |
 | `/release` | 5 — Release | Test gates → readiness → `make release` |
 | `/retro` | 6 — Learn | Retrospective + ADRs + brain storage |
 | `/sprint` | Sprint | Batch all items: spec + plan + implement + release + retro |
@@ -42,24 +42,24 @@ Skills are invoked automatically by commands as subagents — not called directl
 | --- | --- |
 | `brainstorm` | Discovery skill — research context, synthesize opportunities, write handoff |
 | `spec-design` | Draft design spec from backlog item |
-| `spec-reviewer` | Review spec for completeness and correctness |
+| `spec-review` | Review spec for completeness and correctness |
 | `write-plan` | Convert approved spec into implementation plan |
-| `plan-reviewer` | Review plan for feasibility and test coverage |
+| `plan-review` | Review plan for feasibility and test coverage |
 | `tdd-loop` | RED/GREEN/REFACTOR loop for a single task |
-| `impl-reviewer` | Review implementation against spec and plan |
+| `impl-review` | Review implementation against spec and plan |
 | `verify` | Post-implementation verification gate |
 | `test-pyramid` | Test strategy advisor |
 | `debug` | Systematic bug diagnosis and fix path |
 | `load-context` | Load shared ADR and project context bundle |
-| `zie-audit` | 9-dimension audit analysis (invoked by /audit) |
-| `docs-sync-check` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
-| `using-zie-framework` | Command map, workflow map, and anti-patterns guide for the framework |
+| `audit` | 9-dimension audit analysis (invoked by /audit) |
+| `docs-sync` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
+| `context-map` | Command map, workflow map, and anti-patterns guide for the framework |
 
 ## Pipeline
 
 ```text
-/backlog → /spec ──[spec-reviewer]──► /plan ──[plan-reviewer]──►
-/implement ──[impl-reviewer per task]──► /release ──[test gates]──► /retro
+/backlog → /spec ──[spec-review]──► /plan ──[plan-review]──►
+/implement ──[impl-review per task]──► /release ──[test gates]──► /retro
 ```
 
 Each stage has a single responsibility. Quality gates run automatically as
@@ -68,9 +68,9 @@ subagents at every handoff — max 3 iterations before surfacing to human.
 | Stage | Command | Gate |
 | --- | --- | --- |
 | 1 — Capture | `/backlog` | — |
-| 2 — Design | `/spec` | spec-reviewer loop |
-| 3 — Plan | `/plan` | plan-reviewer loop |
-| 4 — Build | `/implement` | impl-reviewer after each task |
+| 2 — Design | `/spec` | spec-review loop |
+| 3 — Plan | `/plan` | plan-review loop |
+| 4 — Build | `/implement` | impl-review after each task |
 | 5 — Release | `/release` | unit → integration → e2e → verify |
 | 6 — Learn | `/retro` | — |
 
@@ -176,14 +176,14 @@ Start a fully configured session without per-operation approval prompts:
 
 | Agent | Mode | Tools | Invocation |
 | --- | --- | --- | --- |
-| `zie-implement-mode` | TDD-focused, full access | all | `claude --plugin-dir <path> --agent zie-framework:zie-implement-mode` |
-| `zie-audit-mode` | Read-only analysis | Read, Grep, Glob, WebSearch | `claude --plugin-dir <path> --agent zie-framework:zie-audit-mode` |
+| `builder` | TDD-focused, full access | all | `claude --plugin-dir <path> --agent zie-framework:builder` |
+| `auditor` | Read-only analysis | Read, Grep, Glob, WebSearch | `claude --plugin-dir <path> --agent zie-framework:auditor` |
 
-**`zie-implement-mode`** — `permissionMode: acceptEdits`. File writes and shell
+**`builder`** — `permissionMode: acceptEdits`. File writes and shell
 commands run without confirmation. Session system prompt injects SDLC pipeline
 context, WIP=1 rule, and skill preload hints for `tdd-loop` and `test-pyramid`.
 
-**`zie-audit-mode`** — `permissionMode: plan`. Tool restriction hard-blocks any
+**`auditor`** — `permissionMode: plan`. Tool restriction hard-blocks any
 write or shell mutation at the Claude Code runtime layer. Findings are surfaced
 as backlog candidates; no changes are applied.
 
@@ -191,10 +191,10 @@ Run from any host project directory where the plugin is available:
 
 ```bash
 # Active development session — TDD mode, no confirmation prompts
-claude --plugin-dir /path/to/zie-framework --agent zie-framework:zie-implement-mode
+claude --plugin-dir /path/to/zie-framework --agent zie-framework:builder
 
 # Codebase audit — read-only, analysis focused
-claude --plugin-dir /path/to/zie-framework --agent zie-framework:zie-audit-mode
+claude --plugin-dir /path/to/zie-framework --agent zie-framework:auditor
 ```
 
 ## Troubleshooting

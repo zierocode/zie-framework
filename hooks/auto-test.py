@@ -6,6 +6,7 @@ Features:
 - Per-file debounce (not global)
 - Cache invalidation on test file change
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -23,13 +24,12 @@ from typing import Optional
 _hook_start = time.monotonic()
 
 sys.path.insert(0, os.path.dirname(__file__))
+from utils_cache import get_cache_manager  # noqa: E402
+from utils_config import CACHE_TTLS, load_config  # noqa: E402
+from utils_error import log_error  # noqa: E402
 from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
-from utils_error import log_error
-from utils_config import load_config, CACHE_TTLS
-from utils_cache import get_cache_manager
-from utils_io import project_tmp_path, safe_write_tmp
 
-_SUMMARY_RE = _re.compile(r'\d+\s+(passed|failed|error|skipped|xfailed|xpassed)')
+_SUMMARY_RE = _re.compile(r"\d+\s+(passed|failed|error|skipped|xfailed|xpassed)")
 _SKIP_EXTENSIONS = {".md", ".json", ".yaml", ".yml", ".toml", ".cfg", ".ini", ".txt"}
 
 
@@ -45,6 +45,7 @@ class TestLookupCache:
 
     Note: __test__ = False prevents pytest from collecting this class as a test.
     """
+
     __test__ = False
 
     def __init__(self, session_id: str, cwd: Path):
@@ -61,17 +62,17 @@ class TestLookupCache:
 
     def _source_key(self, source_path: str) -> str:
         """Return cache key for source→test mapping."""
-        safe_path = _re.sub(r'[^a-zA-Z0-9]', '-', source_path)
+        safe_path = _re.sub(r"[^a-zA-Z0-9]", "-", source_path)
         return f"test_source:{safe_path}"
 
     def _debounce_key(self, source_path: str) -> str:
         """Return cache key for per-file debounce state."""
-        safe_path = _re.sub(r'[^a-zA-Z0-9]', '-', source_path)
+        safe_path = _re.sub(r"[^a-zA-Z0-9]", "-", source_path)
         return f"test_debounce:{safe_path}"
 
     def _test_hash_key(self, test_path: str) -> str:
         """Return cache key for test file content hash."""
-        safe_path = _re.sub(r'[^a-zA-Z0-9]', '-', test_path)
+        safe_path = _re.sub(r"[^a-zA-Z0-9]", "-", test_path)
         return f"test_hash:{safe_path}"
 
     def get_test_for_source(self, source_path: str) -> Optional[str]:
@@ -177,10 +178,10 @@ def truncate_test_output(raw: str) -> str:
     failed_block: list[str] = []
     in_block = False
     for line in lines:
-        if not in_block and _re.match(r'^(FAILED|E   |_ )', line):
+        if not in_block and _re.match(r"^(FAILED|E   |_ )", line):
             in_block = True
         if in_block:
-            if not line.strip() or line.startswith('='):
+            if not line.strip() or line.startswith("="):
                 break
             failed_block.append(line)
 
@@ -318,8 +319,18 @@ if __name__ == "__main__":
         if matching_test:
             cmd = ["python3", "-m", "pytest", matching_test, "-x", "-q", "--tb=short", "--no-header"]
         else:
-            cmd = ["python3", "-m", "pytest", "tests/", "-x", "-q", "--tb=short", "--no-header",
-                   "-m", "not integration"]
+            cmd = [
+                "python3",
+                "-m",
+                "pytest",
+                "tests/",
+                "-x",
+                "-q",
+                "--tb=short",
+                "--no-header",
+                "-m",
+                "not integration",
+            ]
     elif test_runner == "vitest":
         cmd = ["npx", "vitest", "run", "--reporter=dot"]
     elif test_runner == "jest":
