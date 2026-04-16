@@ -1,5 +1,5 @@
 ---
-name: impl-review
+name: zie-framework:impl-review
 description: Review a completed task implementation against its acceptance criteria. Returns APPROVED or Issues Found with specific feedback.
 user-invocable: false
 context: fork

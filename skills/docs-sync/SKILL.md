@@ -1,5 +1,5 @@
 ---
-name: docs-sync
+name: zie-framework:docs-sync
 description: Verify CLAUDE.md and README.md are in sync with actual commands/skills/hooks on disk. Returns JSON verdict.
 user-invocable: false
 context: fork

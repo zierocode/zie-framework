@@ -45,7 +45,7 @@ def approve(file_path: str) -> None:
         kind = "spec-review" if "specs/" in file_path else "plan-review"
         print(
             f"[approve.py] WARNING: no reviewer-pass marker found.\n"
-            f"Run Skill('{kind}') first and wait for \u2705 APPROVED before approving.\n"
+            f"Run Skill('zie-framework:{kind}') first and wait for \u2705 APPROVED before approving.\n"
             f"Proceeding anyway — remove this file to re-gate: {marker}",
             file=sys.stderr,
         )

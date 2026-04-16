@@ -1,5 +1,5 @@
 ---
-name: audit
+name: zie-framework:audit
 description: Deep project audit — 9-dimension analysis with external research. Produces scored findings for backlog.
 argument-hint: "[--focus <dimension>]"
 metadata:

@@ -40,20 +40,20 @@ Skills are invoked automatically by commands as subagents — not called directl
 
 | Skill | Purpose |
 | --- | --- |
-| `brainstorm` | Discovery skill — research context, synthesize opportunities, write handoff |
-| `spec-design` | Draft design spec from backlog item |
-| `spec-review` | Review spec for completeness and correctness |
-| `write-plan` | Convert approved spec into implementation plan |
-| `plan-review` | Review plan for feasibility and test coverage |
-| `tdd-loop` | RED/GREEN/REFACTOR loop for a single task |
-| `impl-review` | Review implementation against spec and plan |
-| `verify` | Post-implementation verification gate |
-| `test-pyramid` | Test strategy advisor |
-| `debug` | Systematic bug diagnosis and fix path |
-| `load-context` | Load shared ADR and project context bundle |
-| `audit` | 9-dimension audit analysis (invoked by /audit) |
-| `docs-sync` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
-| `context-map` | Command map, workflow map, and anti-patterns guide for the framework |
+| `zie-framework:brainstorm` | Discovery skill — research context, synthesize opportunities, write handoff |
+| `zie-framework:spec-design` | Draft design spec from backlog item |
+| `zie-framework:spec-review` | Review spec for completeness and correctness |
+| `zie-framework:write-plan` | Convert approved spec into implementation plan |
+| `zie-framework:plan-review` | Review plan for feasibility and test coverage |
+| `zie-framework:tdd-loop` | RED/GREEN/REFACTOR loop for a single task |
+| `zie-framework:impl-review` | Review implementation against spec and plan |
+| `zie-framework:verify` | Post-implementation verification gate |
+| `zie-framework:test-pyramid` | Test strategy advisor |
+| `zie-framework:debug` | Systematic bug diagnosis and fix path |
+| `zie-framework:load-context` | Load shared ADR and project context bundle |
+| `zie-framework:audit` | 9-dimension audit analysis (invoked by /audit) |
+| `zie-framework:docs-sync` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
+| `zie-framework:context-map` | Command map, workflow map, and anti-patterns guide for the framework |
 
 ## Pipeline
 

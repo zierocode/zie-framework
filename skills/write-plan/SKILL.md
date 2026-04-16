@@ -1,5 +1,5 @@
 ---
-name: write-plan
+name: zie-framework:write-plan
 description: Write a detailed implementation plan from an approved spec. Saves to zie-framework/plans/.
 argument-hint: "<slug> [--no-memory]"
 metadata:

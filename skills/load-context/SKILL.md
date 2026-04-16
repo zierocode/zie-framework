@@ -1,5 +1,5 @@
 ---
-name: load-context
+name: zie-framework:load-context
 description: Load shared context bundle (ADRs + project context) once per session. Returns context_bundle for downstream reviewers.
 user-invocable: false
 context: fork

@@ -1,5 +1,5 @@
 ---
-name: tdd-loop
+name: zie-framework:tdd-loop
 description: TDD RED-GREEN-REFACTOR loop guide for zie-framework builds
 user-invocable: false
 argument-hint: ""

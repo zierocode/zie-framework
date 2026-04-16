@@ -1,5 +1,5 @@
 ---
-name: context-map
+name: zie-framework:context-map
 description: Command map, workflow map, and anti-patterns for zie-framework. Read as static data by session-resume.py — NOT a callable skill.
 user-invocable: false
 argument-hint: ""
