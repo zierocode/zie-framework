@@ -1,4 +1,5 @@
 """Tests for make test-fast and make test-ci Makefile targets."""
+
 import subprocess
 
 
@@ -47,20 +48,17 @@ def test_test_target_unchanged():
 
 def test_clean_removes_coverage_file():
     result = _make("clean")
-    assert ".coverage" in result.stdout, \
-        "make clean must remove .coverage files"
+    assert ".coverage" in result.stdout, "make clean must remove .coverage files"
 
 
 def test_clean_removes_htmlcov():
     result = _make("clean")
-    assert "htmlcov" in result.stdout, \
-        "make clean must remove htmlcov/ directory"
+    assert "htmlcov" in result.stdout, "make clean must remove htmlcov/ directory"
 
 
 def test_clean_removes_coverage_xml():
     result = _make("clean")
-    assert "coverage.xml" in result.stdout, \
-        "make clean must remove coverage.xml"
+    assert "coverage.xml" in result.stdout, "make clean must remove coverage.xml"
 
 
 def test_zie_implement_target_exists():
@@ -72,8 +70,7 @@ def test_zie_implement_target_exists():
 def test_zie_implement_invokes_agent_mode():
     """make zie-implement must run claude --agent zie-framework:builder."""
     result = _make("zie-implement")
-    assert "builder" in result.stdout, \
-        "make zie-implement must invoke claude --agent zie-framework:builder"
+    assert "builder" in result.stdout, "make zie-implement must invoke claude --agent zie-framework:builder"
 
 
 def test_zie_release_target_still_exists():

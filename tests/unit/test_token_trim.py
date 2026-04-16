@@ -1,4 +1,5 @@
 """Tests for token trim — command files must be under word-count thresholds."""
+
 from pathlib import Path
 
 COMMANDS = Path(__file__).parents[2] / "commands"

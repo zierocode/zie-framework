@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Skill auto-injection: inject SKILL.md content based on SDLC stage."""
+
 from __future__ import annotations
 
 import json
@@ -43,7 +44,9 @@ def inject_skill_context(stage: str, cwd: Path) -> str | None:
         return None
 
     # Resolve mapping: user config overrides default
-    mapping = auto_config.get("mapping", DEFAULT_SKILL_MAPPING) if isinstance(auto_config, dict) else DEFAULT_SKILL_MAPPING
+    mapping = (
+        auto_config.get("mapping", DEFAULT_SKILL_MAPPING) if isinstance(auto_config, dict) else DEFAULT_SKILL_MAPPING
+    )
     skill_name = mapping.get(stage)
     if not skill_name:
         return None

@@ -8,10 +8,10 @@ Cache location: .zie/cache/session-cache.json
 Session isolation: keyed by session_id to prevent cross-session pollution.
 Invalidation modes: ttl (time-based), mtime (file-change), session (clear_session).
 """
+
 import hashlib
 import json
 import os
-import re
 import sys
 import time
 from pathlib import Path
@@ -70,9 +70,8 @@ class CacheManager:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
             # Atomic write: temp file + rename
             import tempfile
-            with tempfile.NamedTemporaryFile(
-                mode='w', dir=self.cache_dir, delete=False, suffix='.tmp'
-            ) as f:
+
+            with tempfile.NamedTemporaryFile(mode="w", dir=self.cache_dir, delete=False, suffix=".tmp") as f:
                 f.write(json.dumps(self._cache, indent=2))
                 tmp_name = f.name
             os.replace(tmp_name, self.cache_file)
@@ -233,8 +232,7 @@ class CacheManager:
 
         # Compute and cache
         value = compute_fn()
-        self.set(key, value, session_id, ttl=ttl,
-                 invalidation=invalidation, source_path=source_path)
+        self.set(key, value, session_id, ttl=ttl, invalidation=invalidation, source_path=source_path)
         return value
 
     def set_flag(self, key: str, session_id: str) -> None:
@@ -286,6 +284,7 @@ def get_cache_manager(cwd: Path) -> CacheManager:
 
 # ── Convenience helpers for common cache operations ───────────────────────────
 
+
 def read_roadmap_unified(
     roadmap_path: Path,
     session_id: str,
@@ -313,8 +312,12 @@ def read_roadmap_unified(
             return ""
 
     return cache.get_or_compute(
-        "roadmap", session_id, _read, ttl,
-        invalidation="mtime", source_path=str(roadmap_path),
+        "roadmap",
+        session_id,
+        _read,
+        ttl,
+        invalidation="mtime",
+        source_path=str(roadmap_path),
     )
 
 
@@ -497,6 +500,7 @@ def get_content_hash_cached(
     Returns:
         SHA-256 hex digest string, or empty string if files don't exist
     """
+
     def compute_fn() -> str:
         hasher = hashlib.sha256()
         found = False

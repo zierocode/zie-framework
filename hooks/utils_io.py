@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """File I/O helpers (tmp + persistent storage tiers) for zie-framework hooks."""
+
 import os
 import re
 import sys
@@ -13,7 +14,7 @@ def safe_project_name(project: str) -> str:
     Single source of truth for the sanitization rule used in tmp paths and
     session-cleanup globs. Replaces any non-alphanumeric character with '-'.
     """
-    return re.sub(r'[^a-zA-Z0-9]', '-', project)
+    return re.sub(r"[^a-zA-Z0-9]", "-", project)
 
 
 def project_tmp_path(name: str, project: str) -> Path:
@@ -73,9 +74,7 @@ def atomic_write(path: Path, content: str) -> None:
     eliminate the TOCTOU window. Sets owner-only (0o600) permissions on the
     final file after rename.
     """
-    with tempfile.NamedTemporaryFile(
-        mode='w', dir=path.parent, delete=False, suffix='.tmp'
-    ) as f:
+    with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, delete=False, suffix=".tmp") as f:
         f.write(content)
         tmp_name = f.name
     try:
@@ -103,9 +102,7 @@ def safe_write_tmp(path: Path, content: str) -> bool:
         )
         return False
     try:
-        with tempfile.NamedTemporaryFile(
-            mode='w', dir=path.parent, delete=False, suffix='.tmp'
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, delete=False, suffix=".tmp") as f:
             f.write(content)
             tmp_name = f.name
         os.replace(tmp_name, path)
@@ -133,9 +130,7 @@ def safe_write_persistent(path: Path, content: str) -> bool:
         )
         return False
     try:
-        with tempfile.NamedTemporaryFile(
-            mode='w', dir=path.parent, delete=False, suffix='.tmp'
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, delete=False, suffix=".tmp") as f:
             f.write(content)
             tmp_name = f.name
         os.replace(tmp_name, path)

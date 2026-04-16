@@ -12,19 +12,13 @@ class TestBatchApprovalStructure:
         assert SKILL_PATH.exists()
 
     def test_section_by_section_approval_removed(self):
-        assert "get approval after each" not in skill_text(), (
-            "section-by-section approval phrase must be removed"
-        )
+        assert "get approval after each" not in skill_text(), "section-by-section approval phrase must be removed"
 
     def test_single_review_prompt_present(self):
-        assert "Review the complete draft" in skill_text(), (
-            "single full-draft review prompt must be present"
-        )
+        assert "Does this look right" in skill_text(), "single full-draft review prompt must be present"
 
     def test_batch_edit_language_present(self):
-        assert "apply all requested changes" in skill_text(), (
-            "batch edit language must be present"
-        )
+        assert "apply all in one batch" in skill_text(), "batch edit language must be present"
 
     def test_all_sections_still_present(self):
         text = skill_text()
@@ -38,6 +32,4 @@ class TestBatchApprovalStructure:
             assert section in text, f"section must remain: {section}"
 
     def test_spec_reviewer_invocation_still_present(self):
-        assert "spec-review" in skill_text(), (
-            "spec-review invocation must remain intact"
-        )
+        assert "spec-review" in skill_text(), "spec-review invocation must remain intact"

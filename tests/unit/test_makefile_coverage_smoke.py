@@ -1,4 +1,5 @@
 """Tests for Makefile coverage-smoke target."""
+
 import subprocess
 from pathlib import Path
 

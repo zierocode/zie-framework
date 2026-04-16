@@ -1,4 +1,5 @@
 """Tests for hooks/config-drift.py"""
+
 import json
 import os
 import subprocess
@@ -176,8 +177,7 @@ class TestConfigDriftHooksJsonRegistration:
         hooks_path = os.path.join(REPO_ROOT, "hooks", "hooks.json")
         with open(hooks_path) as f:
             data = json.load(f)
-        assert "ConfigChange" in data["hooks"], \
-            "ConfigChange key missing from hooks.json"
+        assert "ConfigChange" in data["hooks"], "ConfigChange key missing from hooks.json"
 
     def test_configchange_has_matcher(self):
         hooks_path = os.path.join(REPO_ROOT, "hooks", "hooks.json")
@@ -194,8 +194,7 @@ class TestConfigDriftHooksJsonRegistration:
             data = json.load(f)
         entry = data["hooks"]["ConfigChange"]
         commands = [h["command"] for h in entry[0]["hooks"] if "command" in h]
-        assert any("config-drift.py" in cmd for cmd in commands), \
-            "No hook command pointing to config-drift.py found"
+        assert any("config-drift.py" in cmd for cmd in commands), "No hook command pointing to config-drift.py found"
 
     def test_existing_entries_unchanged(self):
         hooks_path = os.path.join(REPO_ROOT, "hooks", "hooks.json")
@@ -208,19 +207,13 @@ class TestConfigDriftHooksJsonRegistration:
 
 class TestConfigDriftComponentsDoc:
     def test_config_drift_in_components_md(self):
-        components_path = os.path.join(
-            REPO_ROOT, "zie-framework", "project", "components.md"
-        )
+        components_path = os.path.join(REPO_ROOT, "zie-framework", "project", "components.md")
         with open(components_path) as f:
             content = f.read()
-        assert "config-drift.py" in content, \
-            "config-drift.py row missing from components.md Hooks table"
+        assert "config-drift.py" in content, "config-drift.py row missing from components.md Hooks table"
 
     def test_configchange_event_documented(self):
-        components_path = os.path.join(
-            REPO_ROOT, "zie-framework", "project", "components.md"
-        )
+        components_path = os.path.join(REPO_ROOT, "zie-framework", "project", "components.md")
         with open(components_path) as f:
             content = f.read()
-        assert "ConfigChange" in content, \
-            "ConfigChange event not documented in components.md"
+        assert "ConfigChange" in content, "ConfigChange event not documented in components.md"

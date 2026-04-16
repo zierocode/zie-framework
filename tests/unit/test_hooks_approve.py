@@ -1,9 +1,8 @@
 """Tests for hooks/approve.py — sets approved:true in spec/plan frontmatter."""
+
 import subprocess
 import sys
 from pathlib import Path
-
-import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
 APPROVE = str(REPO_ROOT / "hooks" / "approve.py")
@@ -29,6 +28,7 @@ class TestApproveScript:
 
     def test_sets_approved_at_today(self, tmp_path):
         import datetime
+
         today = datetime.date.today().isoformat()
         f = tmp_path / "plan.md"
         f.write_text("---\napproved: false\napproved_at:\n---\n# Plan\n")

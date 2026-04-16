@@ -5,6 +5,7 @@ Execution order:
 1. Write|Edit → relative path resolution (emits updatedInput + exit 0).
 2. Bash → evaluate() first; if exit 2, stop. If exit 0, run confirm-wrap.
 """
+
 import json
 import os
 import re
@@ -14,11 +15,11 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_safety import COMPILED_BLOCKS, COMPILED_WARNS, normalize_command
+import safety_check_agent
+from utils_config import load_config
 from utils_event import get_cwd, read_event
 from utils_io import project_tmp_path
-from utils_config import load_config
-import safety_check_agent
+from utils_safety import COMPILED_BLOCKS, COMPILED_WARNS, normalize_command
 
 # Bash commands that warrant interactive confirmation.
 # Must NOT overlap with BLOCKS — those are hard stops.
@@ -30,7 +31,7 @@ CONFIRM_PATTERNS = [
     r"truncate\s+--size\s+0",
 ]
 
-_DANGEROUS_COMPOUND_RE = re.compile(r'(?:;|&&|\|\||`|\$\(|[{}>|<\n])')
+_DANGEROUS_COMPOUND_RE = re.compile(r"(?:;|&&|\|\||`|\$\(|[{}>|<\n])")
 
 
 def _is_safe_for_confirmation_wrapper(command: str) -> bool:
@@ -73,8 +74,7 @@ if tool_name in {"Write", "Edit"}:
         abs_path = (cwd / p).resolve()
         if not abs_path.is_relative_to(cwd):
             print(
-                f"[zie-framework] safety-check: relative path escapes cwd,"
-                f" skipping rewrite: {file_path}",
+                f"[zie-framework] safety-check: relative path escapes cwd, skipping rewrite: {file_path}",
                 file=sys.stderr,
             )
             sys.exit(0)

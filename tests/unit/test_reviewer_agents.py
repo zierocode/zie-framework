@@ -1,4 +1,5 @@
 """Tests for agents/spec-review.md, agents/plan-review.md, agents/impl-review.md"""
+
 from pathlib import Path
 
 import yaml
@@ -25,8 +26,7 @@ class TestSpecReviewerAgent:
 
     def test_has_isolation_worktree(self):
         fm = load_agent_frontmatter("spec-review.md")
-        assert fm.get("isolation") == "worktree", \
-            "spec-review must declare isolation: worktree"
+        assert fm.get("isolation") == "worktree", "spec-review must declare isolation: worktree"
 
     def test_has_allowed_tools(self):
         fm = load_agent_frontmatter("spec-review.md")
@@ -49,8 +49,7 @@ class TestPlanReviewerAgent:
 
     def test_has_isolation_worktree(self):
         fm = load_agent_frontmatter("plan-review.md")
-        assert fm.get("isolation") == "worktree", \
-            "plan-review must declare isolation: worktree"
+        assert fm.get("isolation") == "worktree", "plan-review must declare isolation: worktree"
 
     def test_has_allowed_tools(self):
         fm = load_agent_frontmatter("plan-review.md")
@@ -73,13 +72,11 @@ class TestImplReviewerAgent:
 
     def test_has_background_true(self):
         fm = load_agent_frontmatter("impl-review.md")
-        assert fm.get("background") is True, \
-            "impl-review must declare background: true"
+        assert fm.get("background") is True, "impl-review must declare background: true"
 
     def test_no_isolation_worktree(self):
         fm = load_agent_frontmatter("impl-review.md")
-        assert "isolation" not in fm, \
-            "impl-review must NOT have isolation: worktree"
+        assert "isolation" not in fm, "impl-review must NOT have isolation: worktree"
 
     def test_has_allowed_tools_with_bash(self):
         fm = load_agent_frontmatter("impl-review.md")
@@ -96,8 +93,9 @@ class TestImplReviewerAgent:
 class TestCallerUpdates:
     def test_zie_implement_uses_skill_reviewer(self):
         text = (Path(__file__).parents[2] / "commands" / "implement.md").read_text()
-        assert "Skill(zie-framework:impl-review)" in text, \
+        assert "Skill(zie-framework:impl-review)" in text, (
             "zie-implement.md must invoke impl-review via Skill for HIGH-risk tasks"
+        )
 
 
 class TestComponentsRegistry:

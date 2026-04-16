@@ -1,4 +1,5 @@
 """Tests for 2-tier context window health in hooks/stop-handler.py (compact-hint merged v1.29.0)."""
+
 import json
 import os
 import re
@@ -7,20 +8,18 @@ import sys
 import tempfile
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).parents[2]
 HOOK = REPO_ROOT / "hooks" / "stop-handler.py"
 
 
 def _flag(project: str, name: str) -> Path:
-    safe = re.sub(r'[^a-zA-Z0-9]', '-', project)
+    safe = re.sub(r"[^a-zA-Z0-9]", "-", project)
     return Path(tempfile.gettempdir()) / f"zie-{safe}-{name}"
 
 
 def _clean_nudge_cache(session_id: str) -> None:
     """Clean nudge-check cache for a session."""
-    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+    safe_id = re.sub(r"[^a-zA-Z0-9_-]", "-", session_id)
     cache_dir = Path(tempfile.gettempdir()) / f"zie-{safe_id}"
     if cache_dir.exists():
         for cache_file in cache_dir.glob("git-*.cache"):
@@ -28,8 +27,9 @@ def _clean_nudge_cache(session_id: str) -> None:
         cache_dir.rmdir()  # Remove dir if empty
 
 
-def run_hook(tmp_path: Path, current: int, maximum: int = 1000,
-             session_id: str = "test-tiers") -> subprocess.CompletedProcess:
+def run_hook(
+    tmp_path: Path, current: int, maximum: int = 1000, session_id: str = "test-tiers"
+) -> subprocess.CompletedProcess:
     env = os.environ.copy()
     env["CLAUDE_CWD"] = str(tmp_path)
     env["CLAUDE_SESSION_ID"] = session_id

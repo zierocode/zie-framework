@@ -1,4 +1,5 @@
 """Tests for effort: frontmatter in skills and commands."""
+
 from pathlib import Path
 
 SKILLS_DIR = Path(__file__).parents[2] / "skills"

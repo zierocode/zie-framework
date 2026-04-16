@@ -1,4 +1,5 @@
 """Tests for Sprint C: unsanitized-event-fields — length caps on event-controlled log values."""
+
 import json
 import os
 import subprocess
@@ -21,7 +22,9 @@ def _run_stopfailure(tmp_path: Path, event: dict) -> subprocess.CompletedProcess
     return subprocess.run(
         [sys.executable, str(STOPFAILURE)],
         input=json.dumps(event),
-        capture_output=True, text=True, env=env,
+        capture_output=True,
+        text=True,
+        env=env,
     )
 
 
@@ -32,7 +35,9 @@ def _run_notification(tmp_path: Path, event: dict) -> subprocess.CompletedProces
     return subprocess.run(
         [sys.executable, str(NOTIFICATION)],
         input=json.dumps(event),
-        capture_output=True, text=True, env=env,
+        capture_output=True,
+        text=True,
+        env=env,
     )
 
 
@@ -41,6 +46,7 @@ class TestSanitizeLogFieldLengthCap:
         """sanitize_log_field must truncate values exceeding max_len."""
         sys.path.insert(0, str(REPO_ROOT / "hooks"))
         from utils_event import sanitize_log_field  # noqa: PLC0415
+
         long_value = "A" * 20_000
         result = sanitize_log_field(long_value, max_len=10240)
         assert len(result) <= 10240, "sanitize_log_field must cap at max_len"
@@ -49,6 +55,7 @@ class TestSanitizeLogFieldLengthCap:
         """sanitize_log_field must not truncate short values."""
         sys.path.insert(0, str(REPO_ROOT / "hooks"))
         from utils_event import sanitize_log_field  # noqa: PLC0415
+
         short = "hello world"
         result = sanitize_log_field(short)
         assert result == short
@@ -57,6 +64,7 @@ class TestSanitizeLogFieldLengthCap:
         """sanitize_log_field must still strip control characters (existing behavior)."""
         sys.path.insert(0, str(REPO_ROOT / "hooks"))
         from utils_event import sanitize_log_field  # noqa: PLC0415
+
         value = "hello\x00\x0a\x1fworld"
         result = sanitize_log_field(value)
         assert "\x00" not in result
@@ -67,6 +75,7 @@ class TestSanitizeLogFieldLengthCap:
         """sanitize_log_field default max_len must cap unbounded input."""
         sys.path.insert(0, str(REPO_ROOT / "hooks"))
         from utils_event import sanitize_log_field  # noqa: PLC0415
+
         huge = "X" * 100_000
         result = sanitize_log_field(huge)
         assert len(result) <= 10240, "default max_len must be enforced"
@@ -76,10 +85,13 @@ class TestStopfailureLogFieldCaps:
     def test_oversized_error_details_capped(self, tmp_path):
         """error_details field larger than limit must not cause crash."""
         big_details = "E" * 50_000
-        r = _run_stopfailure(tmp_path, {
-            "error_type": "api_error",
-            "error_details": big_details,
-        })
+        r = _run_stopfailure(
+            tmp_path,
+            {
+                "error_type": "api_error",
+                "error_details": big_details,
+            },
+        )
         assert r.returncode == 0
 
     def test_oversized_error_type_capped(self, tmp_path):
@@ -93,19 +105,25 @@ class TestNotificationLogFieldCaps:
     def test_oversized_message_capped(self, tmp_path):
         """message field larger than limit must not cause crash or disk fill."""
         big_msg = "M" * 50_000
-        r = _run_notification(tmp_path, {
-            "notification_type": "permission_prompt",
-            "message": big_msg,
-        })
+        r = _run_notification(
+            tmp_path,
+            {
+                "notification_type": "permission_prompt",
+                "message": big_msg,
+            },
+        )
         assert r.returncode == 0
 
     def test_message_cap_prevents_context_injection(self, tmp_path):
         """Oversized message must not appear verbatim in additionalContext output."""
         big_msg = "I" * 50_000
-        r = _run_notification(tmp_path, {
-            "notification_type": "permission_prompt",
-            "message": big_msg,
-        })
+        r = _run_notification(
+            tmp_path,
+            {
+                "notification_type": "permission_prompt",
+                "message": big_msg,
+            },
+        )
         assert r.returncode == 0
         if r.stdout.strip():
             data = json.loads(r.stdout.strip())
@@ -123,6 +141,8 @@ class TestUnsanitizedFieldsErrorPath:
         r = subprocess.run(
             [sys.executable, str(STOPFAILURE)],
             input="not json {{",
-            capture_output=True, text=True, env=env,
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0

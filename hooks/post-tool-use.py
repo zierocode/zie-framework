@@ -7,12 +7,12 @@ Non-blocking: users can skip suggestions easily.
 Triggered on PostToolUse event for Bash (test runs) and Write/Edit (file changes).
 Always exits 0 — never blocks Claude.
 """
+
 import json
 import os
 import re
 import sys
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
+from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_error import log_error
@@ -46,7 +46,6 @@ _SUGGESTION_TEMPLATES = {
 **Why:** Failing tests block progress to next phase
 
 > Skip: type "skip" or continue with another command""",
-
     "multiple_errors": """## Suggestion
 
 **Detected:** {error_count} similar errors in output
@@ -56,7 +55,6 @@ _SUGGESTION_TEMPLATES = {
 **Why:** Multiple similar errors suggest a common underlying issue
 
 > Skip: type "skip" or continue with another command""",
-
     "spec_complete": """## Suggestion
 
 **Detected:** Spec file written ({spec_name})
@@ -66,7 +64,6 @@ _SUGGESTION_TEMPLATES = {
 **Why:** Plan required before implementation can begin
 
 > Skip: type "skip" or continue with another command""",
-
     "plan_complete": """## Suggestion
 
 **Detected:** Plan file written ({plan_name})

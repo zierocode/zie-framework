@@ -1,4 +1,5 @@
 """Tests for context-lean-sprint Tasks 2+3: plan-review and impl-review context_bundle."""
+
 from pathlib import Path
 
 PLAN_REVIEWER_PATH = Path(__file__).parents[2] / "skills" / "plan-review" / "SKILL.md"
@@ -8,8 +9,7 @@ IMPL_REVIEWER_PATH = Path(__file__).parents[2] / "skills" / "impl-review" / "SKI
 class TestPlanReviewerContextBundle:
     def test_context_bundle_phase_present(self):
         text = PLAN_REVIEWER_PATH.read_text()
-        assert "context_bundle" in text, \
-            "plan-review must document context_bundle parameter"
+        assert "context_bundle" in text, "plan-review must document context_bundle parameter"
 
     def test_uses_bundle_adrs_when_provided(self):
         text = PLAN_REVIEWER_PATH.read_text()
@@ -17,20 +17,17 @@ class TestPlanReviewerContextBundle:
 
     def test_fallback_present(self):
         text = PLAN_REVIEWER_PATH.read_text()
-        assert "absent" in text.lower() or "fallback" in text.lower() or \
-               "backward-compatible" in text.lower()
+        assert "absent" in text.lower() or "fallback" in text.lower() or "backward-compatible" in text.lower()
 
     def test_review_checklist_unchanged(self):
         text = PLAN_REVIEWER_PATH.read_text()
-        assert "TDD structure" in text and "Task granularity" in text, \
-            "plan-review Phase 2 checklist must be unchanged"
+        assert "TDD structure" in text and "Task granularity" in text, "plan-review Phase 2 checklist must be unchanged"
 
 
 class TestImplReviewerContextBundle:
     def test_context_bundle_phase_present(self):
         text = IMPL_REVIEWER_PATH.read_text()
-        assert "context_bundle" in text, \
-            "impl-review must document context_bundle parameter"
+        assert "context_bundle" in text, "impl-review must document context_bundle parameter"
 
     def test_phase1_validates_bundle(self):
         """impl-review Phase 1 validates context_bundle presence."""
@@ -40,5 +37,9 @@ class TestImplReviewerContextBundle:
     def test_disk_fallback_present(self):
         """If context_bundle absent, fall back to disk reads."""
         text = IMPL_REVIEWER_PATH.read_text()
-        assert "fallback" in text.lower() or "absent" in text.lower() or \
-               "backward-compatible" in text.lower() or "disk" in text.lower()
+        assert (
+            "fallback" in text.lower()
+            or "absent" in text.lower()
+            or "backward-compatible" in text.lower()
+            or "disk" in text.lower()
+        )

@@ -10,11 +10,10 @@ def read_skill(name):
 
 # ── spec-review ────────────────────────────────────────────────────────────
 
+
 def test_spec_reviewer_has_context_bundle():
     content = read_skill("spec-review")
-    assert "context_bundle" in content, (
-        "spec-review must reference context_bundle"
-    )
+    assert "context_bundle" in content, "spec-review must reference context_bundle"
 
 
 def test_spec_reviewer_phase1_validates_bundle():
@@ -27,18 +26,15 @@ def test_spec_reviewer_phase1_validates_bundle():
 def test_spec_reviewer_has_disk_fallback():
     content = read_skill("spec-review")
     # Must have disk fallback documented when bundle unavailable
-    assert "decisions/" in content or "disk" in content.lower(), (
-        "spec-review must document disk fallback path"
-    )
+    assert "decisions/" in content or "disk" in content.lower(), "spec-review must document disk fallback path"
 
 
 # ── plan-review ────────────────────────────────────────────────────────────
 
+
 def test_plan_reviewer_has_context_bundle():
     content = read_skill("plan-review")
-    assert "context_bundle" in content, (
-        "plan-review must reference context_bundle"
-    )
+    assert "context_bundle" in content, "plan-review must reference context_bundle"
 
 
 def test_plan_reviewer_phase1_validates_bundle():
@@ -50,9 +46,7 @@ def test_plan_reviewer_phase1_validates_bundle():
 
 def test_plan_reviewer_has_disk_fallback():
     content = read_skill("plan-review")
-    assert "decisions/" in content or "disk" in content.lower(), (
-        "plan-review must document disk fallback path"
-    )
+    assert "decisions/" in content or "disk" in content.lower(), "plan-review must document disk fallback path"
 
 
 def test_plan_reviewer_checks_pattern_match():
@@ -62,11 +56,10 @@ def test_plan_reviewer_checks_pattern_match():
 
 # ── impl-review ────────────────────────────────────────────────────────────
 
+
 def test_impl_reviewer_has_context_bundle():
     content = read_skill("impl-review")
-    assert "context_bundle" in content, (
-        "impl-review must reference context_bundle"
-    )
+    assert "context_bundle" in content, "impl-review must reference context_bundle"
 
 
 def test_impl_reviewer_phase1_validates_bundle():

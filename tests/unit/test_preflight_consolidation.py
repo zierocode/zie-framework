@@ -15,6 +15,7 @@ def _preflight_body(cmd: str) -> str:
 
 # T2: spec.md, plan.md, resync.md
 
+
 def test_spec_preflight_is_reference():
     body = _preflight_body("spec")
     assert REFERENCE_LINE in body, "spec.md pre-flight must reference command-conventions.md#pre-flight"
@@ -35,6 +36,7 @@ def test_resync_preflight_is_reference():
 
 # T3: fix.md, backlog.md
 
+
 def test_fix_preflight_is_reference():
     body = _preflight_body("fix")
     assert REFERENCE_LINE in body, "fix.md pre-flight must reference command-conventions.md#pre-flight"
@@ -49,6 +51,7 @@ def test_backlog_preflight_is_reference():
 
 
 # T4: implement.md
+
 
 def test_implement_preflight_is_reference():
     body = _preflight_body("implement")

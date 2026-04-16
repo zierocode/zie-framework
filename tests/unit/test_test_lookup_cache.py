@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Unit tests for TestLookupCache in hooks/auto-test.py."""
+
 import importlib.util
-import json
-import os
 import shutil
 import sys
 import tempfile
@@ -36,6 +35,7 @@ def cache_dir():
 @pytest.fixture
 def test_lookup_cache(cache_dir, monkeypatch):
     """Create a TestLookupCache instance with temp directory."""
+
     # Patch get_cache_manager to use our temp cache_dir
     def mock_get_cache_manager(cwd):
         return utils_cache.CacheManager(cache_dir)
@@ -50,6 +50,7 @@ class TestTestLookupCacheInit:
 
     def test_init_creates_cache_manager(self, cache_dir, monkeypatch):
         """CacheManager is initialized correctly."""
+
         def mock_get_cache_manager(cwd):
             return utils_cache.CacheManager(cache_dir)
 

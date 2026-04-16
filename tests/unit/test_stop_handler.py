@@ -1,4 +1,5 @@
 """Tests for hooks/stop-handler.py (stop-guard merged v1.29.0 stop-handler-merge)"""
+
 import json
 import os
 import subprocess
@@ -28,6 +29,7 @@ def run_hook(event: dict, cwd: str = "/tmp", env_overrides: dict = None):
 # Infinite-loop guard
 # ---------------------------------------------------------------------------
 
+
 class TestStopHookActiveGuard:
     def test_exits_zero_when_stop_hook_active_true(self, tmp_path):
         """Must exit 0 immediately when stop_hook_active is truthy."""
@@ -48,6 +50,7 @@ class TestStopHookActiveGuard:
 # ---------------------------------------------------------------------------
 # Outer guard — bad stdin
 # ---------------------------------------------------------------------------
+
 
 class TestOuterGuard:
     def test_exits_zero_on_empty_stdin(self, tmp_path):
@@ -84,7 +87,9 @@ class TestOuterGuard:
         r = subprocess.run(
             [sys.executable, HOOK],
             input='"just a string"',
-            capture_output=True, text=True, env=env,
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0
 
@@ -93,31 +98,44 @@ class TestOuterGuard:
 # Clean git tree — no block
 # ---------------------------------------------------------------------------
 
+
 class TestCleanTree:
     def test_no_block_on_clean_tree(self, tmp_path):
         """A git repo with no uncommitted implementation files must not block."""
-        subprocess.run(["git", "init"], cwd=str(tmp_path), check=True,
-                       capture_output=True)
-        subprocess.run(["git", "commit", "--allow-empty", "-m", "init"],
-                       cwd=str(tmp_path), check=True, capture_output=True,
-                       env={**os.environ, "GIT_AUTHOR_NAME": "t",
-                            "GIT_AUTHOR_EMAIL": "t@t.com",
-                            "GIT_COMMITTER_NAME": "t",
-                            "GIT_COMMITTER_EMAIL": "t@t.com"})
+        subprocess.run(["git", "init"], cwd=str(tmp_path), check=True, capture_output=True)
+        subprocess.run(
+            ["git", "commit", "--allow-empty", "-m", "init"],
+            cwd=str(tmp_path),
+            check=True,
+            capture_output=True,
+            env={
+                **os.environ,
+                "GIT_AUTHOR_NAME": "t",
+                "GIT_AUTHOR_EMAIL": "t@t.com",
+                "GIT_COMMITTER_NAME": "t",
+                "GIT_COMMITTER_EMAIL": "t@t.com",
+            },
+        )
         r = run_hook({}, cwd=str(tmp_path))
         assert r.returncode == 0
         assert "block" not in r.stdout
 
     def test_no_block_on_docs_only_changes(self, tmp_path):
         """Changes only to ROADMAP.md must not trigger a block."""
-        subprocess.run(["git", "init"], cwd=str(tmp_path), check=True,
-                       capture_output=True)
-        subprocess.run(["git", "commit", "--allow-empty", "-m", "init"],
-                       cwd=str(tmp_path), check=True, capture_output=True,
-                       env={**os.environ, "GIT_AUTHOR_NAME": "t",
-                            "GIT_AUTHOR_EMAIL": "t@t.com",
-                            "GIT_COMMITTER_NAME": "t",
-                            "GIT_COMMITTER_EMAIL": "t@t.com"})
+        subprocess.run(["git", "init"], cwd=str(tmp_path), check=True, capture_output=True)
+        subprocess.run(
+            ["git", "commit", "--allow-empty", "-m", "init"],
+            cwd=str(tmp_path),
+            check=True,
+            capture_output=True,
+            env={
+                **os.environ,
+                "GIT_AUTHOR_NAME": "t",
+                "GIT_AUTHOR_EMAIL": "t@t.com",
+                "GIT_COMMITTER_NAME": "t",
+                "GIT_COMMITTER_EMAIL": "t@t.com",
+            },
+        )
         (tmp_path / "ROADMAP.md").write_text("## Now\n- [ ] thing\n")
         r = run_hook({}, cwd=str(tmp_path))
         assert r.returncode == 0
@@ -128,16 +146,23 @@ class TestCleanTree:
 # Block on uncommitted implementation files
 # ---------------------------------------------------------------------------
 
+
 class TestBlockOnUncommittedFiles:
     def _init_repo(self, tmp_path):
-        subprocess.run(["git", "init"], cwd=str(tmp_path), check=True,
-                       capture_output=True)
-        subprocess.run(["git", "commit", "--allow-empty", "-m", "init"],
-                       cwd=str(tmp_path), check=True, capture_output=True,
-                       env={**os.environ, "GIT_AUTHOR_NAME": "t",
-                            "GIT_AUTHOR_EMAIL": "t@t.com",
-                            "GIT_COMMITTER_NAME": "t",
-                            "GIT_COMMITTER_EMAIL": "t@t.com"})
+        subprocess.run(["git", "init"], cwd=str(tmp_path), check=True, capture_output=True)
+        subprocess.run(
+            ["git", "commit", "--allow-empty", "-m", "init"],
+            cwd=str(tmp_path),
+            check=True,
+            capture_output=True,
+            env={
+                **os.environ,
+                "GIT_AUTHOR_NAME": "t",
+                "GIT_AUTHOR_EMAIL": "t@t.com",
+                "GIT_COMMITTER_NAME": "t",
+                "GIT_COMMITTER_EMAIL": "t@t.com",
+            },
+        )
 
     def test_block_on_unstaged_hook_py(self, tmp_path):
         self._init_repo(tmp_path)
@@ -224,8 +249,7 @@ class TestBlockOnUncommittedFiles:
         hooks_dir.mkdir()
         staged_file = hooks_dir / "staged-hook.py"
         staged_file.write_text("# staged\n")
-        subprocess.run(["git", "add", str(staged_file)], cwd=str(tmp_path),
-                       check=True, capture_output=True)
+        subprocess.run(["git", "add", str(staged_file)], cwd=str(tmp_path), check=True, capture_output=True)
         r = run_hook({}, cwd=str(tmp_path))
         output = json.loads(r.stdout)
         assert output["decision"] == "block"
@@ -235,6 +259,7 @@ class TestBlockOnUncommittedFiles:
 # ---------------------------------------------------------------------------
 # Git error resilience
 # ---------------------------------------------------------------------------
+
 
 class TestGitErrorResilience:
     def test_exits_zero_when_not_a_git_repo(self, tmp_path):
@@ -266,6 +291,7 @@ class TestGitErrorResilience:
 # Source-level invariants
 # ---------------------------------------------------------------------------
 
+
 class TestSourceInvariants:
     def test_uses_read_event_from_utils(self):
         source = Path(HOOK).read_text()
@@ -279,7 +305,8 @@ class TestSourceInvariants:
         """Hook must not contain sys.exit(1) or any non-zero exit code."""
         source = Path(HOOK).read_text()
         import re
-        bad_exits = re.findall(r'sys\.exit\(([^0\)][^)]*)\)', source)
+
+        bad_exits = re.findall(r"sys\.exit\(([^0\)][^)]*)\)", source)
         assert not bad_exits, f"Non-zero exit codes found: {bad_exits}"
 
     def test_checks_stop_hook_active(self):
@@ -304,9 +331,7 @@ class TestSourceInvariants:
     def test_git_log_uses_list_form(self):
         """git log must be called with a list arg (shell=False) to prevent injection."""
         source = Path(HOOK).read_text()
-        assert '"git", "log"' in source or "'git', 'log'" in source, (
-            "git log must be called with shell=False list form"
-        )
+        assert '"git", "log"' in source or "'git', 'log'" in source, "git log must be called with shell=False list form"
 
     def test_nudge_gate_uses_cache_helpers(self):
         """stop-handler.py must use get_cached_git_status for the nudge TTL gate."""
@@ -329,6 +354,7 @@ class TestSourceInvariants:
 # hooks.json registration
 # ---------------------------------------------------------------------------
 
+
 class TestHooksJsonRegistration:
     def test_stop_handler_registered_first_in_stop_hooks(self):
         """stop-handler.py must be the first command in the Stop hooks list (merged v1.29.0)."""
@@ -341,9 +367,7 @@ class TestHooksJsonRegistration:
                 all_commands.append(hook.get("command", ""))
         assert all_commands, "Stop hooks list must not be empty"
         first_cmd = all_commands[0]
-        assert "stop-handler.py" in first_cmd, (
-            f"stop-handler.py must be the first Stop hook; got: {first_cmd}"
-        )
+        assert "stop-handler.py" in first_cmd, f"stop-handler.py must be the first Stop hook; got: {first_cmd}"
 
     def test_session_learn_still_registered(self):
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
@@ -382,26 +406,31 @@ class TestHooksJsonRegistration:
 # components.md documentation
 # ---------------------------------------------------------------------------
 
+
 class TestComponentsDocumented:
     def test_stop_handler_in_components_md(self):
         components = Path(REPO_ROOT) / "zie-framework" / "project" / "components.md"
         content = components.read_text()
-        assert "stop-handler.py" in content, (
-            "stop-handler.py must be documented in zie-framework/project/components.md"
-        )
+        assert "stop-handler.py" in content, "stop-handler.py must be documented in zie-framework/project/components.md"
 
 
 class TestRenameArrowInFilename:
     """stop-guard must not crash or misclassify a file whose name contains ' -> '."""
 
     def _init_repo(self, tmp_path):
-        subprocess.run(["git", "init"], cwd=str(tmp_path), check=True,
-                       capture_output=True)
+        subprocess.run(["git", "init"], cwd=str(tmp_path), check=True, capture_output=True)
         subprocess.run(
             ["git", "commit", "--allow-empty", "-m", "init"],
-            cwd=str(tmp_path), check=True, capture_output=True,
-            env={**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t.com",
-                 "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t.com"},
+            cwd=str(tmp_path),
+            check=True,
+            capture_output=True,
+            env={
+                **os.environ,
+                "GIT_AUTHOR_NAME": "t",
+                "GIT_AUTHOR_EMAIL": "t@t.com",
+                "GIT_COMMITTER_NAME": "t",
+                "GIT_COMMITTER_EMAIL": "t@t.com",
+            },
         )
 
     def test_arrow_in_filename_does_not_crash(self, tmp_path):
@@ -420,8 +449,9 @@ class TestStopHandlerTimeoutFromConfig:
     def test_subprocess_timeout_s_read_from_config(self):
         """stop-handler.py must read subprocess_timeout_s from validated config."""
         from pathlib import Path
+
         source = Path(HOOK).read_text()
-        assert 'config["subprocess_timeout_s"]' in source, \
+        assert 'config["subprocess_timeout_s"]' in source, (
             "stop-handler.py must use config['subprocess_timeout_s'], not hardcoded timeout"
-        assert "timeout=5" not in source, \
-            "hardcoded timeout=5 must be removed from stop-handler.py"
+        )
+        assert "timeout=5" not in source, "hardcoded timeout=5 must be removed from stop-handler.py"

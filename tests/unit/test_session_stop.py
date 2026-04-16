@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Unit tests for session-stop hook (auto-learn pattern extraction)."""
+
 import json
 import os
 import shutil
@@ -63,13 +64,15 @@ class TestSessionStopHook:
         session_stop = Path(__file__).parent.parent.parent / "hooks" / "session-stop.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-session-001"
-        event_data = json.dumps({
-            "conversation_history": [
-                "Called the Read tool",
-                "Called the Write tool",
-                "Called the Bash tool with test",
-            ]
-        })
+        event_data = json.dumps(
+            {
+                "conversation_history": [
+                    "Called the Read tool",
+                    "Called the Write tool",
+                    "Called the Bash tool with test",
+                ]
+            }
+        )
         result = subprocess.run(
             ["python3", str(session_stop)],
             capture_output=True,
@@ -105,11 +108,13 @@ class TestSessionStopHook:
         # Simulate TDD loop repeated 5 times
         transcript = []
         for _ in range(5):
-            transcript.extend([
-                "Called the Read tool",
-                "Called the Write tool",
-                "Called the Bash tool with pytest",
-            ])
+            transcript.extend(
+                [
+                    "Called the Read tool",
+                    "Called the Write tool",
+                    "Called the Bash tool with pytest",
+                ]
+            )
 
         event_data = json.dumps({"conversation_history": transcript})
         result = subprocess.run(
@@ -229,7 +234,16 @@ class TestSessionStopHook:
         session_data = json.loads(session_files[0].read_text())
 
         assert "sdlc_stage" in session_data
-        assert session_data["sdlc_stage"] in ["idle", "spec", "plan", "implement", "fix", "release", "retro", "in-progress"]
+        assert session_data["sdlc_stage"] in [
+            "idle",
+            "spec",
+            "plan",
+            "implement",
+            "fix",
+            "release",
+            "retro",
+            "in-progress",
+        ]
 
     def test_pending_learn_marker(self, test_repo):
         """pending_learn.txt written for next session."""

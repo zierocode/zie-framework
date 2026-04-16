@@ -3,6 +3,7 @@
 Verifies that atomic_write, safe_write_tmp, and safe_write_persistent all
 set owner-only (0o600) permissions on the output file.
 """
+
 import os
 import sys
 from pathlib import Path
@@ -24,9 +25,7 @@ def test_safe_write_tmp_produces_0o600_file(tmp_path):
     result = safe_write_tmp(target, "hello")
     assert result is True, "safe_write_tmp returned False — write failed"
     assert target.exists(), "file was not created"
-    assert _mode(target) == "600", (
-        f"expected 0o600, got {oct(target.stat().st_mode)}"
-    )
+    assert _mode(target) == "600", f"expected 0o600, got {oct(target.stat().st_mode)}"
 
 
 def test_safe_write_persistent_produces_0o600_file(tmp_path):
@@ -35,9 +34,7 @@ def test_safe_write_persistent_produces_0o600_file(tmp_path):
     result = safe_write_persistent(target, "world")
     assert result is True, "safe_write_persistent returned False — write failed"
     assert target.exists(), "file was not created"
-    assert _mode(target) == "600", (
-        f"expected 0o600, got {oct(target.stat().st_mode)}"
-    )
+    assert _mode(target) == "600", f"expected 0o600, got {oct(target.stat().st_mode)}"
 
 
 def test_atomic_write_produces_0o600_file(tmp_path):
@@ -45,6 +42,4 @@ def test_atomic_write_produces_0o600_file(tmp_path):
     target = tmp_path / "atomic_output.txt"
     atomic_write(target, "atomic content")
     assert target.exists(), "file was not created"
-    assert _mode(target) == "600", (
-        f"expected 0o600, got {oct(target.stat().st_mode)}"
-    )
+    assert _mode(target) == "600", f"expected 0o600, got {oct(target.stat().st_mode)}"

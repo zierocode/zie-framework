@@ -1,7 +1,8 @@
 """Acceptance tests for make test-fast and make test-ci."""
-from pathlib import Path
+
 import os
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -15,10 +16,7 @@ def test_test_fast_no_changes_exits_zero():
         env={**os.environ, "_FAST_CHANGED": "", "_FAST_DRY_RUN": "1"},
     )
     # With no changed files: runs --lf with no test paths; dry-run exits 0
-    assert result.returncode == 0, (
-        f"test-fast with no changes should exit 0, got {result.returncode}\n"
-        f"{result.stderr}"
-    )
+    assert result.returncode == 0, f"test-fast with no changes should exit 0, got {result.returncode}\n{result.stderr}"
     # Should not trigger full-suite fallback
     assert "make test-unit" not in result.stdout
 
@@ -28,6 +26,7 @@ def test_test_ci_exits_zero_on_passing_suite():
     """Skip if sitecustomize.py not available (subprocess hook coverage disabled)."""
     sitecustomize = Path(__file__).parent.parent / ".venv" / "lib" / "python3.*" / "sitecustomize.py"
     import glob
+
     sitecustomize_paths = glob.glob(str(sitecustomize))
 
     # If no sitecustomize.py, subprocess hooks won't run → coverage < 48%
@@ -36,9 +35,7 @@ def test_test_ci_exits_zero_on_passing_suite():
         pytest.skip("sitecustomize.py not found - subprocess hook coverage not available")
 
     result = subprocess.run(["make", "test-ci"], capture_output=True, text=True)
-    assert result.returncode == 0, (
-        f"make test-ci failed:\n{result.stdout[-2000:]}\n{result.stderr[-1000:]}"
-    )
+    assert result.returncode == 0, f"make test-ci failed:\n{result.stdout[-2000:]}\n{result.stderr[-1000:]}"
 
 
 def test_test_fast_exits_nonzero_on_pytest_failure(tmp_path):

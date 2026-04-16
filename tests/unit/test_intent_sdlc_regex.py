@@ -1,4 +1,5 @@
 """Regression tests for module-level pattern compilation in intent-sdlc.py."""
+
 import ast
 from pathlib import Path
 
@@ -32,25 +33,19 @@ def test_hotfix_pattern_in_patterns():
     """NEW_INTENT_REGEXES must include 'hotfix' or intent-sdlc must handle hotfix."""
     text = HOOK_PATH.read_text()
     # hotfix is handled via INTENT_PATTERN regex with ?P<hotfix> named group
-    assert "?P<hotfix>" in text or '"hotfix"' in text, (
-        "intent-sdlc.py must include 'hotfix' pattern"
-    )
+    assert "?P<hotfix>" in text or '"hotfix"' in text, "intent-sdlc.py must include 'hotfix' pattern"
 
 
 def test_chore_pattern_in_patterns():
     """NEW_INTENT_REGEXES must include 'chore' category."""
     text = HOOK_PATH.read_text()
-    assert '"chore"' in text or "'chore'" in text or "?P<chore>" in text, (
-        "intent-sdlc.py must include 'chore' pattern"
-    )
+    assert '"chore"' in text or "'chore'" in text or "?P<chore>" in text, "intent-sdlc.py must include 'chore' pattern"
 
 
 def test_spike_pattern_in_patterns():
     """INTENT_PATTERN must include 'spike' category."""
     text = HOOK_PATH.read_text()
-    assert "?P<spike>" in text, (
-        "intent-sdlc.py INTENT_PATTERN must include 'spike' named group"
-    )
+    assert "?P<spike>" in text, "intent-sdlc.py INTENT_PATTERN must include 'spike' named group"
 
 
 def test_new_intent_patterns_at_module_level():

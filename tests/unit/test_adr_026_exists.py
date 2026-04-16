@@ -1,4 +1,5 @@
 """Verify ADR-026 exists for the roadmap-done-compaction decision."""
+
 import sys
 from pathlib import Path
 
@@ -22,4 +23,5 @@ def test_adr_026_has_required_sections():
 def test_compact_roadmap_done_importable():
     sys.path.insert(0, str(Path(__file__).parents[2] / "hooks"))
     from utils_roadmap import compact_roadmap_done
+
     assert callable(compact_roadmap_done)

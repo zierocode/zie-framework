@@ -1,4 +1,5 @@
 """Tests for hooks/sdlc-permissions.py"""
+
 import json
 import os
 import subprocess
@@ -43,6 +44,7 @@ def assert_passthrough(r):
 # ---------------------------------------------------------------------------
 # Allowlist — commands that MUST be auto-approved
 # ---------------------------------------------------------------------------
+
 
 class TestAllowlistApproved:
     def test_git_add_dot_approved(self):
@@ -122,6 +124,7 @@ class TestAllowlistApproved:
 # Commands explicitly NOT in the allowlist — must pass through (empty stdout)
 # ---------------------------------------------------------------------------
 
+
 class TestDenylistPassthrough:
     def test_git_push_not_approved(self):
         assert_passthrough(run_hook("git push origin dev"))
@@ -145,6 +148,7 @@ class TestDenylistPassthrough:
 # ---------------------------------------------------------------------------
 # Guard cases — tool_name, empty command, malformed JSON
 # ---------------------------------------------------------------------------
+
 
 class TestGuardPassthrough:
     def test_non_bash_tool_passthrough(self):
@@ -176,6 +180,7 @@ class TestGuardPassthrough:
 # ---------------------------------------------------------------------------
 # Output schema — session destination and permissions list shape
 # ---------------------------------------------------------------------------
+
 
 class TestOutputSchema:
     def test_session_destination_in_output(self):
@@ -210,6 +215,7 @@ class TestOutputSchema:
 # Anchoring — compound commands must not spoof a safe prefix
 # ---------------------------------------------------------------------------
 
+
 class TestAnchoringBehaviour:
     def test_compound_push_first_not_approved(self):
         # git push comes first — re.match on full string must NOT match git add\b
@@ -230,14 +236,13 @@ class TestAnchoringBehaviour:
 # hooks.json registration
 # ---------------------------------------------------------------------------
 
+
 class TestHooksJsonRegistration:
     def test_permission_request_stanza_exists(self):
         hooks_path = os.path.join(REPO_ROOT, "hooks", "hooks.json")
         with open(hooks_path) as f:
             hooks = json.load(f)
-        assert "PermissionRequest" in hooks["hooks"], (
-            "PermissionRequest stanza missing from hooks.json"
-        )
+        assert "PermissionRequest" in hooks["hooks"], "PermissionRequest stanza missing from hooks.json"
 
     def test_permission_request_matcher_is_bash(self):
         hooks_path = os.path.join(REPO_ROOT, "hooks", "hooks.json")
@@ -268,6 +273,4 @@ class TestHooksJsonRegistration:
         with open(hooks_path) as f:
             hooks = json.load(f)
         for key in ("SessionStart", "UserPromptSubmit", "PostToolUse", "PreToolUse", "Stop"):
-            assert key in hooks["hooks"], (
-                f"Existing stanza '{key}' was removed from hooks.json"
-            )
+            assert key in hooks["hooks"], f"Existing stanza '{key}' was removed from hooks.json"

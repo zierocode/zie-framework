@@ -1,9 +1,10 @@
 """Standards compliance tests: log prefixes, documentation, notification-log."""
+
 import re
 from pathlib import Path
 
 HOOKS_DIR = Path(__file__).parents[2] / "hooks"
-BAD_PREFIX = re.compile(r'\[zie\] warning:')
+BAD_PREFIX = re.compile(r"\[zie\] warning:")
 
 
 class TestHookLogPrefix:
@@ -46,6 +47,5 @@ class TestNotificationLogProjectName:
         root = Path(__file__).parents[2]
         text = (root / "hooks" / "notification-log.py").read_text()
         assert "safe_project_name" in text, (
-            "notification-log.py must import and use safe_project_name() "
-            "for consistency with other hooks"
+            "notification-log.py must import and use safe_project_name() for consistency with other hooks"
         )

@@ -8,20 +8,21 @@ class TestRetroLivingDocsSync:
         return (COMMANDS_DIR / "retro.md").read_text()
 
     def test_docs_sync_check_skill_invoked(self):
-        assert "docs-sync" in self._retro_text(), \
-            "zie-retro.md must invoke docs-sync skill for docs sync"
+        assert "docs-sync" in self._retro_text(), "zie-retro.md must invoke docs-sync skill for docs sync"
 
     def test_docs_sync_check_skill_call_present(self):
-        assert "Skill(zie-framework:docs-sync)" in self._retro_text(), \
+        assert "Skill(zie-framework:docs-sync)" in self._retro_text(), (
             "zie-retro.md must use Skill(zie-framework:docs-sync)"
+        )
 
     def test_docs_sync_verdict_printed(self):
         text = self._retro_text()
-        assert "verdict" in text.lower() or "details" in text.lower() or \
-               "docs-sync" in text.lower(), \
+        assert "verdict" in text.lower() or "details" in text.lower() or "docs-sync" in text.lower(), (
             "zie-retro.md must print docs-sync check result"
+        )
 
     def test_docs_sync_skip_guard_present(self):
         text = self._retro_text()
-        assert "release:" in text or "skipped" in text.lower(), \
+        assert "release:" in text or "skipped" in text.lower(), (
             "zie-retro.md must have docs-sync skip guard for release commits"
+        )

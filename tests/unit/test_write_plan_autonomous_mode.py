@@ -15,12 +15,10 @@ def sprint_text():
 class TestWritePlanAutonomousMode:
     def test_plan_reviewer_not_in_write_plan_skill(self):
         """ADR: reviewer gate belongs in plan.md, not write-plan skill."""
-        assert "plan-review" not in skill_text(), \
-            "write-plan skill must NOT reference plan-review (belongs in plan.md)"
+        assert "plan-review" not in skill_text(), "write-plan skill must NOT reference plan-review (belongs in plan.md)"
 
     def test_standalone_behavior_documented(self):
-        assert "--no-memory" in skill_text(), \
-            "existing --no-memory flag must remain (standalone behavior unchanged)"
+        assert "--no-memory" in skill_text(), "existing --no-memory flag must remain (standalone behavior unchanged)"
 
     def test_sprint_handles_inline_plan_review(self):
         """Sprint Phase 1 must invoke plan-review inline (no agent spawn)."""
@@ -28,8 +26,7 @@ class TestWritePlanAutonomousMode:
         phase1_idx = t.index("PHASE 1")
         phase2_idx = t.index("PHASE 2")
         phase1 = t[phase1_idx:phase2_idx]
-        assert "plan-review" in phase1, \
-            "Sprint Phase 1 must invoke plan-review inline for autonomous mode"
+        assert "plan-review" in phase1, "Sprint Phase 1 must invoke plan-review inline for autonomous mode"
 
     def test_sprint_phase1_no_agent_for_plan_review(self):
         """Sprint Phase 1 uses Skill calls not Agent spawns for plan-review."""
@@ -37,5 +34,6 @@ class TestWritePlanAutonomousMode:
         phase1_idx = t.index("PHASE 1")
         phase2_idx = t.index("PHASE 2")
         phase1 = t[phase1_idx:phase2_idx]
-        assert "Skill(zie-framework:plan-review" in phase1, \
+        assert "Skill(zie-framework:plan-review" in phase1, (
             "Sprint Phase 1 must call plan-review via Skill (not Agent spawn)"
+        )

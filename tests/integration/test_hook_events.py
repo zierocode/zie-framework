@@ -10,6 +10,7 @@ Environment:
   CLAUDE_CWD is set to the repo root so hooks that check for zie-framework/ find it.
   No live Claude Code process is required.
 """
+
 import json
 import os
 import subprocess
@@ -20,7 +21,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
 HOOKS_DIR = REPO_ROOT / "hooks"
-FIXTURES   = Path(__file__).parent / "fixtures"
+FIXTURES = Path(__file__).parent / "fixtures"
 
 
 def run_hook(hook_name: str, fixture_name: str, extra_env: dict = None) -> subprocess.CompletedProcess:
@@ -55,18 +56,15 @@ def run_hook(hook_name: str, fixture_name: str, extra_env: dict = None) -> subpr
 def assert_clean_exit(result: subprocess.CompletedProcess) -> None:
     """Assert exit code == 0 and no unhandled Python traceback in stderr."""
     assert result.returncode == 0, (
-        f"Hook exited {result.returncode}\n"
-        f"stdout: {result.stdout!r}\n"
-        f"stderr: {result.stderr!r}"
+        f"Hook exited {result.returncode}\nstdout: {result.stdout!r}\nstderr: {result.stderr!r}"
     )
-    assert "Traceback (most recent call last)" not in result.stderr, (
-        f"Unhandled traceback in stderr:\n{result.stderr}"
-    )
+    assert "Traceback (most recent call last)" not in result.stderr, f"Unhandled traceback in stderr:\n{result.stderr}"
 
 
 # ---------------------------------------------------------------------------
 # Fixture existence canary
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestFixturesExist:
@@ -123,6 +121,7 @@ class TestFixturesExist:
 # SessionStart
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestSessionResumeHook:
     def test_exits_zero_with_session_start_event(self):
@@ -137,6 +136,7 @@ class TestSessionResumeHook:
 # ---------------------------------------------------------------------------
 # UserPromptSubmit — intent-detect.py
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestIntentSdlcHook:
@@ -160,6 +160,7 @@ class TestIntentSdlcHook:
 # PreToolUse — safety-check.py (Bash event)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestSafetyCheckHook:
     def test_exits_zero_for_safe_bash_command(self):
@@ -179,6 +180,7 @@ class TestSafetyCheckHook:
 # PostToolUse — auto-test.py (Edit event)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestAutoTestHook:
     def test_exits_zero_for_edit_event(self):
@@ -193,6 +195,7 @@ class TestAutoTestHook:
 # ---------------------------------------------------------------------------
 # PostToolUse — wip-checkpoint.py (Edit event, no memory keys set)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestWipCheckpointHook:
@@ -211,6 +214,7 @@ class TestWipCheckpointHook:
 # ---------------------------------------------------------------------------
 # PostToolUseFailure — failure-context.py
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestFailureContextHook:
@@ -233,6 +237,7 @@ class TestFailureContextHook:
 # ---------------------------------------------------------------------------
 # Stop — stop-handler.py
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestStopGuardHook:
@@ -265,6 +270,7 @@ class TestStopGuardHook:
 # Stop — session-learn.py (no memory keys set)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestSessionLearnHook:
     def test_exits_zero_without_memory_keys(self):
@@ -282,6 +288,7 @@ class TestSessionLearnHook:
 # Stop — session-cleanup.py
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestSessionCleanupHookIntegration:
     def test_exits_zero_with_stop_event(self):
@@ -296,6 +303,7 @@ class TestSessionCleanupHookIntegration:
 # ---------------------------------------------------------------------------
 # Notification — notification-log.py
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestNotificationLogHook:
@@ -312,6 +320,7 @@ class TestNotificationLogHook:
 # TaskCompleted — task-completed-gate.py
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestTaskCompletedGateHook:
     def test_exits_zero_with_implement_task(self):
@@ -326,6 +335,7 @@ class TestTaskCompletedGateHook:
 # ---------------------------------------------------------------------------
 # PreToolUse/Bash — safety_check_agent.py
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestSafetyCheckAgentHook:
@@ -342,6 +352,7 @@ class TestSafetyCheckAgentHook:
 # ConfigChange — config-drift.py
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestConfigDriftHook:
     def test_exits_zero_for_config_change_event(self):
@@ -356,6 +367,7 @@ class TestConfigDriftHook:
 # ---------------------------------------------------------------------------
 # SubagentStart — subagent-context.py
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestSubagentContextHook:
@@ -372,6 +384,7 @@ class TestSubagentContextHook:
 # SubagentStop — subagent-stop.py
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestSubagentStopHook:
     def test_exits_zero_for_subagent_stop_event(self):
@@ -386,6 +399,7 @@ class TestSubagentStopHook:
 # ---------------------------------------------------------------------------
 # PreCompact + PostCompact — sdlc-compact.py
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestSdlcCompactHook:
@@ -406,6 +420,7 @@ class TestSdlcCompactHook:
 # PermissionRequest/Bash — sdlc-permissions.py
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestSdlcPermissionsHook:
     def test_exits_zero_for_permission_request_event(self):
@@ -421,6 +436,7 @@ class TestSdlcPermissionsHook:
 # StopFailure — stopfailure-log.py
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.integration
 class TestStopfailureLogHook:
     def test_exits_zero_for_stopfailure_event(self):
@@ -435,6 +451,7 @@ class TestStopfailureLogHook:
 # ---------------------------------------------------------------------------
 # knowledge-hash.py (in hooks/, tested with posttooluse event)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.integration
 class TestKnowledgeHashHook:

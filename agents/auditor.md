@@ -1,6 +1,6 @@
 ---
 model: sonnet  # hint for Claude Code; ignored by non-Claude providers
-permissionMode: plan  # read-only analysis
+# No permissionMode or tools restriction — audit needs full access for analysis + subagent spawns
 ---
 
 # auditor — Read-Only Analysis Agent

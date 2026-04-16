@@ -5,6 +5,7 @@ Merged replacement for intent-detect.py + sdlc-context.py.
 Reads ROADMAP.md once (via session cache) and produces a single
 additionalContext payload combining intent suggestion + SDLC state.
 """
+
 import json
 import os
 import re
@@ -13,18 +14,19 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_event import get_cwd, read_event
-from utils_config import CACHE_TTLS
 from utils_cache import get_cache_manager
-from utils_roadmap import is_track_active, parse_roadmap_section_content
+from utils_config import CACHE_TTLS
 from utils_error import log_error
+from utils_event import get_cwd, read_event
+from utils_roadmap import is_track_active, parse_roadmap_section_content
 from utils_skill_inject import inject_skill_context
 
 # ── Intent detection constants ────────────────────────────────────────────────
 # Single combined regex with named groups for one-pass intent detection.
 # Each group name is the intent category; match extracts intent directly.
 
-INTENT_PATTERN = re.compile(r"""
+INTENT_PATTERN = re.compile(
+    r"""
     (?P<init>
         \binit\b | เริ่มต้น.*project | ตั้งค่า.*project | setup.*project | bootstrap
     )
@@ -97,7 +99,9 @@ INTENT_PATTERN = re.compile(r"""
         อยากให้มี | ควรจะ | น่าจะเพิ่ม | ปรับอะไรดี |
         คิดว่าขาดอะไร | \bexplore\b
     )
-""", re.IGNORECASE | re.VERBOSE)
+""",
+    re.IGNORECASE | re.VERBOSE,
+)
 
 # New-intent scoring: separate patterns for overlapping detection.
 # INTENT_PATTERN uses alternation (|) so only the first matching group is
@@ -119,48 +123,48 @@ NEW_INTENT_PATTERNS = {
 }
 NEW_INTENT_HINTS = {
     "sprint": "confirm backlog→spec→plan before implementing",
-    "fix":    "invoke /fix or /hotfix track",
-    "chore":  "use /chore to track this maintenance task",
+    "fix": "invoke /fix or /hotfix track",
+    "chore": "use /chore to track this maintenance task",
 }
 
 # Suggestion mapping for intent → command
 SUGGESTIONS = {
-    "init":      "/init",
-    "backlog":   "/backlog",
-    "spec":      "/spec",
-    "plan":      "/plan",
+    "init": "/init",
+    "backlog": "/backlog",
+    "spec": "/spec",
+    "plan": "/plan",
     "implement": "/implement",
-    "fix":       "/fix",
-    "release":   "/release",
-    "retro":     "/retro",
-    "sprint":    "/sprint",
-    "status":    "/status",
-    "hotfix":    "/hotfix",
-    "chore":     "/chore",
-    "spike":     "/spike",
+    "fix": "/fix",
+    "release": "/release",
+    "retro": "/retro",
+    "sprint": "/sprint",
+    "status": "/status",
+    "hotfix": "/hotfix",
+    "chore": "/chore",
+    "spike": "/spike",
     "brainstorm": "invoke zie-framework:brainstorm skill",
 }
 
 # ── SDLC context constants ────────────────────────────────────────────────────
 
 STAGE_KEYWORDS = [
-    ("spec",      ["spec"]),
-    ("plan",      ["plan"]),
+    ("spec", ["spec"]),
+    ("plan", ["plan"]),
     ("implement", ["implement", "code", "build"]),
-    ("fix",       ["fix", "bug"]),
-    ("release",   ["release", "deploy"]),
-    ("retro",     ["retro"]),
+    ("fix", ["fix", "bug"]),
+    ("release", ["release", "deploy"]),
+    ("retro", ["retro"]),
 ]
 
 STAGE_COMMANDS = {
-    "spec":        "/spec",
-    "plan":        "/plan",
-    "implement":   "/implement",
-    "fix":         "/fix",
-    "release":     "/release",
-    "retro":       "/retro",
+    "spec": "/spec",
+    "plan": "/plan",
+    "implement": "/implement",
+    "fix": "/fix",
+    "release": "/release",
+    "retro": "/retro",
     "in-progress": "/status",
-    "idle":        "/status",
+    "idle": "/status",
 }
 
 STALE_THRESHOLD_SECS = 300
@@ -171,16 +175,14 @@ def _extract_roadmap_slugs(roadmap_content: str) -> list:
     slugs = []
     in_target = False
     for line in roadmap_content.splitlines():
-        if line.startswith("##") and any(
-            s in line.lower() for s in ("next", "ready")
-        ):
+        if line.startswith("##") and any(s in line.lower() for s in ("next", "ready")):
             in_target = True
             continue
         if line.startswith("##") and in_target:
             in_target = False
             continue
         if in_target and line.strip().startswith("- "):
-            tokens = re.findall(r'[a-z][a-z0-9]*(?:-[a-z0-9]+)+', line.lower())
+            tokens = re.findall(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)+", line.lower())
             slugs.extend(tokens)
     return list(dict.fromkeys(slugs))
 
@@ -200,7 +202,7 @@ def _spec_approved(cwd: Path, slug: str) -> bool:
         return False
     try:
         content = matches[0].read_text()
-        return bool(re.search(r'^approved:\s*true\s*$', content, re.MULTILINE))
+        return bool(re.search(r"^approved:\s*true\s*$", content, re.MULTILINE))
     except OSError as e:
         log_error("intent-sdlc", "spec_read", e)
         return False
@@ -209,9 +211,7 @@ def _spec_approved(cwd: Path, slug: str) -> bool:
         return False
 
 
-def _check_pipeline_preconditions(
-    intent: str, roadmap_content: str, cwd: Path, message: str
-) -> "str | None":
+def _check_pipeline_preconditions(intent: str, roadmap_content: str, cwd: Path, message: str) -> "str | None":
     """Return a directive block if preconditions fail, else None."""
     if intent == "plan":
         slugs = _extract_roadmap_slugs(roadmap_content)
@@ -222,10 +222,7 @@ def _check_pipeline_preconditions(
         if not blocking:
             return None
         slug_list = ", ".join(f"'{s}'" for s in blocking)
-        return (
-            f"⛔ No approved spec for {slug_list}. "
-            f"Run /spec {blocking[0]} first."
-        )
+        return f"⛔ No approved spec for {slug_list}. Run /spec {blocking[0]} first."
 
     return None
 
@@ -342,18 +339,22 @@ try:
 
     # Strong-intent groups that bypass the short-message gate even under 50 chars
     _STRONG_INTENT_GROUPS = {
-        "init", "sprint", "hotfix", "fix", "implement", "spec", "plan", "release", "retro", "status",
+        "init",
+        "sprint",
+        "hotfix",
+        "fix",
+        "implement",
+        "spec",
+        "plan",
+        "release",
+        "retro",
+        "status",
     }
-    _has_strong_intent = (
-        intent_match is not None
-        and intent_match.lastgroup in _STRONG_INTENT_GROUPS
-    )
+    _has_strong_intent = intent_match is not None and intent_match.lastgroup in _STRONG_INTENT_GROUPS
 
     if len(message) < 50:
         if not has_sdlc_keyword:
-            context = (
-                "[zf] intent: unclear — clarify before proceeding"
-            )
+            context = "[zf] intent: unclear — clarify before proceeding"
             if session_id != "default":
                 _dedup_key = f"intent-dedup-{session_id}"
                 if _read_dedup(cache, session_id, _dedup_key) == context:
@@ -384,9 +385,7 @@ try:
     # ── SDLC context (unified cache — session-scoped with TTL) ──────────
     roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
     roadmap_ttl = CACHE_TTLS.get("roadmap", 600)
-    roadmap_content = cache.get_or_compute(
-        "roadmap", session_id, lambda: roadmap_path.read_text(), roadmap_ttl
-    )
+    roadmap_content = cache.get_or_compute("roadmap", session_id, lambda: roadmap_path.read_text(), roadmap_ttl)
     now_items = parse_roadmap_section_content(roadmap_content, "now") if roadmap_content else []
     if now_items:
         raw_task = now_items[0]
@@ -442,9 +441,7 @@ try:
     no_track_msg = None
     if gate_msg is None and best in ("implement", "fix"):
         if not is_track_active(cwd):
-            no_track_msg = (
-                "no track — /backlog→/spec→/plan→/implement | /hotfix | /spike | /chore"
-            )
+            no_track_msg = "no track — /backlog→/spec→/plan→/implement | /hotfix | /spike | /chore"
 
     # ── Positional guidance (only when no gate and no dominant intent) ────────
     guidance_msg = None
@@ -464,9 +461,7 @@ try:
     # Suppress pipeline-position hint when user consistently works at implement stage
     # (they know the pipeline; don't nag with "start with /spec" on every message)
     _suppress_guidance = (
-        guidance_msg is not None
-        and _most_common_stage == "implement"
-        and best in ("implement", "status")
+        guidance_msg is not None and _most_common_stage == "implement" and best in ("implement", "status")
     )
 
     # ── Build combined context ────────────────────────────────────────────────
@@ -481,11 +476,9 @@ try:
         parts.append(guidance_msg)
     # State suffix: omit when idle + no active task + unambiguous intent (score >= 2)
     _best_score = scores.get(best, 0) if best else 0
-    _idle_unambiguous = (stage == "idle" and active_task == "none" and _best_score >= 2)
+    _idle_unambiguous = stage == "idle" and active_task == "none" and _best_score >= 2
     if not _idle_unambiguous:
-        parts.append(
-            f"now:{active_task} stage:{stage} next:{suggested_cmd} tests:{test_status}"
-        )
+        parts.append(f"now:{active_task} stage:{stage} next:{suggested_cmd} tests:{test_status}")
     context = "[zf] " + " | ".join(parts)
 
     # ── Skill auto-inject ────────────────────────────────────────────────────────

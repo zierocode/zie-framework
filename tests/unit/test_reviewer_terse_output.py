@@ -9,13 +9,11 @@ class TestSpecReviewerTerseOutput:
 
     def test_approval_line_is_exactly_approved(self):
         text = self._text()
-        assert "✅ APPROVED\n```" in text, \
-            "Approval block must end immediately after '✅ APPROVED' with no extra lines"
+        assert "✅ APPROVED\n```" in text, "Approval block must end immediately after '✅ APPROVED' with no extra lines"
 
     def test_no_verbose_approval_prose(self):
         text = self._text()
-        assert "Spec is complete, clear, and scoped correctly." not in text, \
-            "Verbose approval prose must be removed"
+        assert "Spec is complete, clear, and scoped correctly." not in text, "Verbose approval prose must be removed"
 
     def test_issues_header_present(self):
         text = self._text()
@@ -23,8 +21,7 @@ class TestSpecReviewerTerseOutput:
 
     def test_no_prose_before_bullets(self):
         text = self._text()
-        assert "❌ Issues Found\n\n1." in text, \
-            "Issues block must have no prose between header and first bullet"
+        assert "❌ Issues Found\n\n1." in text, "Issues block must have no prose between header and first bullet"
 
     def test_single_line_fix_prompt(self):
         text = self._text()
@@ -43,13 +40,13 @@ class TestPlanReviewerTerseOutput:
 
     def test_approval_line_is_exactly_approved(self):
         text = self._text()
-        assert "✅ APPROVED\n```" in text, \
-            "Approval block must end immediately after '✅ APPROVED' with no extra lines"
+        assert "✅ APPROVED\n```" in text, "Approval block must end immediately after '✅ APPROVED' with no extra lines"
 
     def test_no_verbose_approval_prose(self):
         text = self._text()
-        assert "Plan is complete, TDD-structured, and covers the spec." not in text, \
+        assert "Plan is complete, TDD-structured, and covers the spec." not in text, (
             "Verbose approval prose must be removed"
+        )
 
     def test_issues_header_present(self):
         text = self._text()
@@ -57,8 +54,7 @@ class TestPlanReviewerTerseOutput:
 
     def test_no_prose_before_bullets(self):
         text = self._text()
-        assert "❌ Issues Found\n\n1." in text, \
-            "Issues block must have no prose between header and first bullet"
+        assert "❌ Issues Found\n\n1." in text, "Issues block must have no prose between header and first bullet"
 
     def test_single_line_fix_prompt(self):
         text = self._text()
@@ -77,13 +73,13 @@ class TestImplReviewerTerseOutput:
 
     def test_approval_line_is_exactly_approved(self):
         text = self._text()
-        assert "✅ APPROVED\n```" in text, \
-            "Approval block must end immediately after '✅ APPROVED' with no extra lines"
+        assert "✅ APPROVED\n```" in text, "Approval block must end immediately after '✅ APPROVED' with no extra lines"
 
     def test_no_verbose_approval_prose(self):
         text = self._text()
-        assert "Implementation satisfies AC. Tests present and passing." not in text, \
+        assert "Implementation satisfies AC. Tests present and passing." not in text, (
             "Verbose approval prose must be removed"
+        )
 
     def test_issues_header_present(self):
         text = self._text()
@@ -91,8 +87,7 @@ class TestImplReviewerTerseOutput:
 
     def test_no_prose_before_bullets(self):
         text = self._text()
-        assert "❌ Issues Found\n\n1." in text, \
-            "Issues block must have no prose between header and first bullet"
+        assert "❌ Issues Found\n\n1." in text, "Issues block must have no prose between header and first bullet"
 
     def test_single_line_fix_prompt(self):
         text = self._text()

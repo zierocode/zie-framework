@@ -1,4 +1,5 @@
 """Tests for hooks/session-resume.py"""
+
 import json
 import os
 import subprocess
@@ -23,8 +24,7 @@ def run_hook(tmp_cwd=None):
     env = {**os.environ, "ZIE_MEMORY_API_KEY": ""}
     if tmp_cwd:
         env["CLAUDE_CWD"] = str(tmp_cwd)
-    return subprocess.run([sys.executable, HOOK], input=json.dumps({}),
-                          capture_output=True, text=True, env=env)
+    return subprocess.run([sys.executable, HOOK], input=json.dumps({}), capture_output=True, text=True, env=env)
 
 
 def make_cwd(tmp_path, config=None, roadmap=None, version=None, plans=None):
@@ -46,8 +46,7 @@ def make_cwd(tmp_path, config=None, roadmap=None, version=None, plans=None):
 
 class TestSessionResumeHappyPath:
     def test_prints_project_name(self, tmp_path):
-        cwd = make_cwd(tmp_path, config={"project_type": "python-lib"},
-                       roadmap=SAMPLE_ROADMAP, version="1.2.3")
+        cwd = make_cwd(tmp_path, config={"project_type": "python-lib"}, roadmap=SAMPLE_ROADMAP, version="1.2.3")
         r = run_hook(tmp_cwd=cwd)
         assert tmp_path.name in r.stdout
         assert "[zf]" in r.stdout
@@ -61,15 +60,12 @@ class TestSessionResumeHappyPath:
         cwd = make_cwd(tmp_path, config={}, roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
         lines = r.stdout.strip().splitlines()
-        assert any("now:" in line for line in lines), \
-            "Output must contain a line with now: key"
+        assert any("now:" in line for line in lines), "Output must contain a line with now: key"
 
     def test_output_has_at_least_2_lines(self, tmp_path):
-        cwd = make_cwd(tmp_path, config={}, roadmap=SAMPLE_ROADMAP,
-                       plans={"2026-03-22-my-feature.md": "# plan"})
+        cwd = make_cwd(tmp_path, config={}, roadmap=SAMPLE_ROADMAP, plans={"2026-03-22-my-feature.md": "# plan"})
         r = run_hook(tmp_cwd=cwd)
-        assert len(r.stdout.strip().splitlines()) >= 2, \
-            "Output must always be at least 2 lines"
+        assert len(r.stdout.strip().splitlines()) >= 2, "Output must always be at least 2 lines"
 
     def test_brain_enabled_when_config_says_so(self, tmp_path):
         cwd = make_cwd(tmp_path, config={"zie_memory_enabled": True}, roadmap=SAMPLE_ROADMAP)
@@ -110,6 +106,7 @@ class TestHookExceptionConvention:
     def test_no_bare_pass_in_session_resume_inner_ops(self):
         """session-resume.py must not contain bare except: pass in inner operations."""
         import ast
+
         repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         src = open(os.path.join(repo_root, "hooks", "session-resume.py")).read()
         tree = ast.parse(src)
@@ -175,7 +172,9 @@ def run_hook_with_env_file(tmp_cwd, env_file_path=None, extra_env=None):
     return subprocess.run(
         [sys.executable, HOOK],
         input=json.dumps({}),
-        capture_output=True, text=True, env=env,
+        capture_output=True,
+        text=True,
+        env=env,
     )
 
 
@@ -183,11 +182,15 @@ class TestSessionResumeEnvFile:
     def test_writes_four_export_lines(self, tmp_path):
         """When CLAUDE_ENV_FILE is set, four export lines must be written."""
         env_file = tmp_path / "claude_env"
-        cwd = make_cwd(tmp_path / "proj", config={
-            "test_runner": "pytest",
-            "zie_memory_enabled": True,
-            "auto_test_debounce_ms": 5000,
-        }, roadmap=SAMPLE_ROADMAP)
+        cwd = make_cwd(
+            tmp_path / "proj",
+            config={
+                "test_runner": "pytest",
+                "zie_memory_enabled": True,
+                "auto_test_debounce_ms": 5000,
+            },
+            roadmap=SAMPLE_ROADMAP,
+        )
         run_hook_with_env_file(cwd, env_file_path=env_file)
         assert env_file.exists(), "CLAUDE_ENV_FILE was not created"
         content = env_file.read_text()
@@ -200,11 +203,15 @@ class TestSessionResumeEnvFile:
         """Written values must match config entries."""
         env_file = tmp_path / "claude_env"
         proj_dir = tmp_path / "myproject"
-        cwd = make_cwd(proj_dir, config={
-            "test_runner": "pytest",
-            "zie_memory_enabled": True,
-            "auto_test_debounce_ms": 5000,
-        }, roadmap=SAMPLE_ROADMAP)
+        cwd = make_cwd(
+            proj_dir,
+            config={
+                "test_runner": "pytest",
+                "zie_memory_enabled": True,
+                "auto_test_debounce_ms": 5000,
+            },
+            roadmap=SAMPLE_ROADMAP,
+        )
         run_hook_with_env_file(cwd, env_file_path=env_file)
         content = env_file.read_text()
         assert "ZIE_PROJECT='myproject'" in content
@@ -215,9 +222,13 @@ class TestSessionResumeEnvFile:
     def test_memory_disabled_writes_zero(self, tmp_path):
         """zie_memory_enabled=False must produce ZIE_MEMORY_ENABLED='0'."""
         env_file = tmp_path / "claude_env"
-        cwd = make_cwd(tmp_path / "proj2", config={
-            "zie_memory_enabled": False,
-        }, roadmap=SAMPLE_ROADMAP)
+        cwd = make_cwd(
+            tmp_path / "proj2",
+            config={
+                "zie_memory_enabled": False,
+            },
+            roadmap=SAMPLE_ROADMAP,
+        )
         run_hook_with_env_file(cwd, env_file_path=env_file)
         content = env_file.read_text()
         assert "ZIE_MEMORY_ENABLED='0'" in content
@@ -261,9 +272,13 @@ class TestSessionResumeEnvFile:
     def test_debounce_non_integer_falls_back_to_3000(self, tmp_path):
         """Non-integer auto_test_debounce_ms must fall back to '3000' in env file."""
         env_file = tmp_path / "claude_env"
-        cwd = make_cwd(tmp_path / "proj7", config={
-            "auto_test_debounce_ms": "not-a-number",
-        }, roadmap=SAMPLE_ROADMAP)
+        cwd = make_cwd(
+            tmp_path / "proj7",
+            config={
+                "auto_test_debounce_ms": "not-a-number",
+            },
+            roadmap=SAMPLE_ROADMAP,
+        )
         run_hook_with_env_file(cwd, env_file_path=env_file)
         content = env_file.read_text()
         assert "ZIE_AUTO_TEST_DEBOUNCE_MS='3000'" in content
@@ -287,42 +302,35 @@ class TestSessionResumeEnvFile:
 # Drift detection tests (Task 2)
 # ---------------------------------------------------------------------------
 
+
 class TestSessionResumeDriftDetection:
     def test_drift_check_is_fire_and_forget(self, tmp_path):
         """Drift check runs in background — hook exits 0."""
-        cwd = make_cwd(tmp_path, config={"knowledge_hash": "deadbeef0000"},
-                       roadmap=SAMPLE_ROADMAP)
+        cwd = make_cwd(tmp_path, config={"knowledge_hash": "deadbeef0000"}, roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
         assert r.returncode == 0
         assert len(r.stdout.strip().splitlines()) >= 4
 
     def test_silent_when_hash_matches(self, tmp_path):
         """No drift warning in stdout — drift check is now background-only."""
-        cwd = make_cwd(tmp_path, config={"knowledge_hash": "any-hash"},
-                       roadmap=SAMPLE_ROADMAP)
+        cwd = make_cwd(tmp_path, config={"knowledge_hash": "any-hash"}, roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
         assert r.returncode == 0
 
     def test_exits_zero_when_knowledge_hash_crashes(self, tmp_path):
         """If knowledge-hash.py is missing/crashes, hook exits 0 and logs to stderr."""
-        cwd = make_cwd(tmp_path, config={"knowledge_hash": "abc"},
-                       roadmap=SAMPLE_ROADMAP)
-        env = {**os.environ, "CLAUDE_CWD": str(cwd),
-               "ZIE_KNOWLEDGE_HASH_SCRIPT": "/nonexistent/knowledge-hash.py"}
-        result = subprocess.run([sys.executable, HOOK],
-                                input=json.dumps({}),
-                                capture_output=True, text=True, env=env)
+        cwd = make_cwd(tmp_path, config={"knowledge_hash": "abc"}, roadmap=SAMPLE_ROADMAP)
+        env = {**os.environ, "CLAUDE_CWD": str(cwd), "ZIE_KNOWLEDGE_HASH_SCRIPT": "/nonexistent/knowledge-hash.py"}
+        result = subprocess.run([sys.executable, HOOK], input=json.dumps({}), capture_output=True, text=True, env=env)
         assert result.returncode == 0
 
     def test_output_line_count_unchanged_without_drift(self, tmp_path):
         """Without drift, output has at least 4 lines."""
         REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         kh = os.path.join(REPO, "hooks", "knowledge-hash.py")
-        result = subprocess.run([sys.executable, kh, "--root", str(tmp_path)],
-                                capture_output=True, text=True)
+        result = subprocess.run([sys.executable, kh, "--root", str(tmp_path)], capture_output=True, text=True)
         current_hash = result.stdout.strip()
-        cwd = make_cwd(tmp_path, config={"knowledge_hash": current_hash},
-                       roadmap=SAMPLE_ROADMAP)
+        cwd = make_cwd(tmp_path, config={"knowledge_hash": current_hash}, roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
         assert len(r.stdout.strip().splitlines()) >= 4
 
@@ -331,8 +339,11 @@ class TestSessionResumeOuterGuard:
     def test_empty_stdin_exits_zero(self):
         env = {**os.environ, "ZIE_MEMORY_API_KEY": ""}
         r = subprocess.run(
-            [sys.executable, HOOK], input="",
-            capture_output=True, text=True, env=env,
+            [sys.executable, HOOK],
+            input="",
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0
         assert "Traceback" not in r.stderr
@@ -340,8 +351,11 @@ class TestSessionResumeOuterGuard:
     def test_invalid_json_exits_zero(self):
         env = {**os.environ, "ZIE_MEMORY_API_KEY": ""}
         r = subprocess.run(
-            [sys.executable, HOOK], input="not json",
-            capture_output=True, text=True, env=env,
+            [sys.executable, HOOK],
+            input="not json",
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0
         assert "Traceback" not in r.stderr

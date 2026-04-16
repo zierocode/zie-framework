@@ -1,4 +1,5 @@
 """Tests for length + keyword early-exit gates in hooks/intent-sdlc.py."""
+
 from __future__ import annotations
 
 import json
@@ -75,13 +76,17 @@ class TestKeywordGate:
 
     def test_no_keyword_long_message_exits(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
-        r = run_hook("what is the weather today over there in the city please", tmp_cwd=cwd, session_id="test-kg-weather")
+        r = run_hook(
+            "what is the weather today over there in the city please", tmp_cwd=cwd, session_id="test-kg-weather"
+        )
         assert r.returncode == 0
         assert r.stdout.strip() == ""
 
     def test_url_only_exits(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
-        r = run_hook("https://example.com/some/path/here/that/is/very/long/and/detailed", tmp_cwd=cwd, session_id="test-kg-url")
+        r = run_hook(
+            "https://example.com/some/path/here/that/is/very/long/and/detailed", tmp_cwd=cwd, session_id="test-kg-url"
+        )
         assert r.returncode == 0
         assert r.stdout.strip() == ""
 
@@ -99,7 +104,9 @@ class TestKeywordGate:
 
     def test_implement_keyword_passes(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
-        r = run_hook("let us implement this new feature for the project right now", tmp_cwd=cwd, session_id="test-kg-impl")
+        r = run_hook(
+            "let us implement this new feature for the project right now", tmp_cwd=cwd, session_id="test-kg-impl"
+        )
         assert r.returncode == 0
         assert r.stdout.strip() != ""
 
@@ -139,7 +146,9 @@ class TestSlashCommandGate:
 
     def test_non_slash_implement_passes(self, tmp_path):
         cwd = make_cwd_with_zf(tmp_path)
-        r = run_hook("let us implement this new feature for the project right now", tmp_cwd=cwd, session_id="test-sc-nosl")
+        r = run_hook(
+            "let us implement this new feature for the project right now", tmp_cwd=cwd, session_id="test-sc-nosl"
+        )
         assert r.returncode == 0
         assert r.stdout.strip() != ""
 
@@ -149,6 +158,7 @@ class TestIdleStateSuffix:
 
     def _parse_context(self, stdout: str) -> str | None:
         import json as _json
+
         for line in stdout.splitlines():
             line = line.strip()
             if not line:
@@ -165,8 +175,9 @@ class TestIdleStateSuffix:
         """idle + no Now item + strong intent (score>=2) → no state suffix."""
         roadmap = "## Now\n\n## Next\n- [ ] my-feature\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
-        r = run_hook("implement this feature and start coding right now please", tmp_cwd=cwd,
-                     session_id="test-idle-unamb")
+        r = run_hook(
+            "implement this feature and start coding right now please", tmp_cwd=cwd, session_id="test-idle-unamb"
+        )
         ctx = self._parse_context(r.stdout)
         assert ctx is not None, "Expected context output"
         assert "stage:idle" not in ctx
@@ -176,8 +187,7 @@ class TestIdleStateSuffix:
         """Active Now item → state suffix always present."""
         roadmap = "## Now\n- [ ] my-feature RED phase\n## Next\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
-        r = run_hook("implement this feature and start coding now for real", tmp_cwd=cwd,
-                     session_id="test-idle-active")
+        r = run_hook("implement this feature and start coding now for real", tmp_cwd=cwd, session_id="test-idle-active")
         ctx = self._parse_context(r.stdout)
         assert ctx is not None
         assert "stage:" in ctx
@@ -187,8 +197,9 @@ class TestIdleStateSuffix:
         """idle + low intent score (< 2) → state suffix still present."""
         roadmap = "## Now\n\n## Next\n- [ ] my-feature\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
-        r = run_hook("there is a bug in the authentication module that needs fixing", tmp_cwd=cwd,
-                     session_id="test-idle-amb")
+        r = run_hook(
+            "there is a bug in the authentication module that needs fixing", tmp_cwd=cwd, session_id="test-idle-amb"
+        )
         ctx = self._parse_context(r.stdout)
         assert ctx is not None
         assert "stage:" in ctx
@@ -199,6 +210,7 @@ class TestNewIntentCombinedRegex:
 
     def _parse_context(self, stdout: str) -> str | None:
         import json as _json
+
         for line in stdout.splitlines():
             line = line.strip()
             if not line:
@@ -214,8 +226,9 @@ class TestNewIntentCombinedRegex:
     def test_sprint_intent_two_signals(self, tmp_path):
         """build + coding (new_sprint) + implement → sprint (≥2 signals)."""
         cwd = make_cwd_with_zf(tmp_path)
-        r = run_hook("let us implement and build this feature start coding right away", tmp_cwd=cwd,
-                     session_id="test-ni-sprint2")
+        r = run_hook(
+            "let us implement and build this feature start coding right away", tmp_cwd=cwd, session_id="test-ni-sprint2"
+        )
         ctx = self._parse_context(r.stdout)
         assert ctx is not None
         assert "/sprint" in ctx or "sprint" in ctx.lower()
@@ -223,8 +236,9 @@ class TestNewIntentCombinedRegex:
     def test_fix_intent_two_signals(self, tmp_path):
         """broken + crash → fix (2 signals from new_fix group + existing fix group)."""
         cwd = make_cwd_with_zf(tmp_path)
-        r = run_hook("the broken module keeps crashing and throwing errors everywhere", tmp_cwd=cwd,
-                     session_id="test-ni-fix2")
+        r = run_hook(
+            "the broken module keeps crashing and throwing errors everywhere", tmp_cwd=cwd, session_id="test-ni-fix2"
+        )
         ctx = self._parse_context(r.stdout)
         assert ctx is not None
         assert "/fix" in ctx or "/hotfix" in ctx
@@ -232,8 +246,9 @@ class TestNewIntentCombinedRegex:
     def test_chore_intent_two_signals(self, tmp_path):
         """cleanup + refactor → chore (2 signals)."""
         cwd = make_cwd_with_zf(tmp_path)
-        r = run_hook("we should cleanup the codebase and refactor the old modules", tmp_cwd=cwd,
-                     session_id="test-ni-chore2")
+        r = run_hook(
+            "we should cleanup the codebase and refactor the old modules", tmp_cwd=cwd, session_id="test-ni-chore2"
+        )
         ctx = self._parse_context(r.stdout)
         assert ctx is not None
         assert "/chore" in ctx

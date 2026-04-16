@@ -3,6 +3,7 @@
 Reviewers receive context via context_bundle from caller (not disk reads).
 Phase 1 validates bundle presence and documents fallback behavior.
 """
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
@@ -19,9 +20,7 @@ import pytest
 def test_reviewer_requires_context_bundle(skill):
     """Reviewer Phase 1 must require context_bundle from caller."""
     text = _read(f"skills/{skill}/SKILL.md")
-    assert "context_bundle" in text, (
-        f"skills/{skill}/SKILL.md must reference context_bundle"
-    )
+    assert "context_bundle" in text, f"skills/{skill}/SKILL.md must reference context_bundle"
     # Verify Phase 1 has validation
     assert "Phase 1" in text and "Validate Context Bundle" in text, (
         f"skills/{skill}/SKILL.md missing Phase 1 context bundle validation"
@@ -55,9 +54,9 @@ def test_impl_reviewer_no_skill_reviewer_context_call():
 def test_spec_reviewer_has_inline_fast_path():
     """spec-review Phase 1 must have context_bundle fast-path inline."""
     text = _read("skills/spec-review/SKILL.md")
-    assert "context_bundle" in text and ("fast" in text.lower() or "fast-path" in text.lower() or "disk" in text.lower()), (
-        "spec-review must have inline fast-path context load"
-    )
+    assert "context_bundle" in text and (
+        "fast" in text.lower() or "fast-path" in text.lower() or "disk" in text.lower()
+    ), "spec-review must have inline fast-path context load"
 
 
 def test_plan_reviewer_has_inline_fast_path():
@@ -79,17 +78,13 @@ def test_impl_reviewer_has_inline_fast_path():
 def test_spec_design_passes_context_bundle_to_reviewer():
     """spec-design must pass context_bundle when invoking spec-review."""
     text = _read("skills/spec-design/SKILL.md")
-    assert "context_bundle" in text, (
-        "spec-design must pass context_bundle to Skill(zie-framework:spec-review)"
-    )
+    assert "context_bundle" in text, "spec-design must pass context_bundle to Skill(zie-framework:spec-review)"
 
 
 def test_write_plan_passes_context_bundle_to_reviewer():
     """commands/plan.md must pass context_bundle when invoking plan-review."""
     text = _read("commands/plan.md")
-    assert "context_bundle" in text, (
-        "commands/plan.md must pass context_bundle to Skill(zie-framework:plan-review)"
-    )
+    assert "context_bundle" in text, "commands/plan.md must pass context_bundle to Skill(zie-framework:plan-review)"
 
 
 def _extract_phase1(skill_path: str) -> str:
@@ -124,7 +119,7 @@ def test_project_md_no_reviewer_context_row():
     """PROJECT.md Skills table must not list reviewer-context after deletion."""
     text = (REPO_ROOT / "zie-framework" / "PROJECT.md").read_text()
     start = text.find("## Skills") if "## Skills" in text else 0
-    end = text.find("\n## ", start + 1) if "\n## " in text[start + 1:] else len(text)
+    end = text.find("\n## ", start + 1) if "\n## " in text[start + 1 :] else len(text)
     skills_section = text[start:end]
     assert "reviewer-context" not in skills_section, (
         "PROJECT.md Skills table still lists reviewer-context — should be removed"
@@ -134,6 +129,4 @@ def test_project_md_no_reviewer_context_row():
 def test_reviewer_context_skill_deleted():
     """reviewer-context skill must be deleted — it is dead code (ADR-054)."""
     skill_path = REPO_ROOT / "skills" / "reviewer-context" / "SKILL.md"
-    assert not skill_path.exists(), (
-        "skills/reviewer-context/SKILL.md still exists — delete it (ADR-054)"
-    )
+    assert not skill_path.exists(), "skills/reviewer-context/SKILL.md still exists — delete it (ADR-054)"

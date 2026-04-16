@@ -1,13 +1,15 @@
 """Unit tests for context efficiency improvements (Area 2)."""
+
 import json
 import os
-import re
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 import pytest
+
+sys.path.insert(0, str(Path(__file__).parents[2] / "hooks"))
+from utils_cache import CacheManager
 
 REPO_ROOT = Path(__file__).parents[2]
 HOOKS_DIR = REPO_ROOT / "hooks"
@@ -16,10 +18,10 @@ HOOKS_DIR = REPO_ROOT / "hooks"
 # Rough token estimate: 1 token ≈ 4 chars for English prose.
 # These thresholds are generous to avoid false failures from minor content edits.
 FAST_PATH_BUDGETS = {
-    "spec-review": 600,   # ≤120 tokens ≈ 480 chars; 600 gives 25% margin
+    "spec-review": 600,  # ≤120 tokens ≈ 480 chars; 600 gives 25% margin
     "plan-review": 600,
-    "impl-review": 400,   # ≤80 tokens ≈ 320 chars; 400 gives 25% margin
-    "load-context":  300,   # ≤60 tokens ≈ 240 chars; 300 gives 25% margin
+    "impl-review": 400,  # ≤80 tokens ≈ 320 chars; 400 gives 25% margin
+    "load-context": 300,  # ≤60 tokens ≈ 240 chars; 300 gives 25% margin
 }
 
 
@@ -31,9 +33,7 @@ class TestFastPathPresent:
         assert path.exists(), f"skills/{skill_name}/SKILL.md must exist"
         content = path.read_text()
         marker = "<!-- FAST PATH -->"
-        assert marker in content, (
-            f"skills/{skill_name}/SKILL.md must contain '<!-- FAST PATH -->' marker"
-        )
+        assert marker in content, f"skills/{skill_name}/SKILL.md must contain '<!-- FAST PATH -->' marker"
         # Extract text between FAST PATH and DETAIL markers
         parts = content.split(marker, 1)
         if len(parts) < 2:
@@ -87,6 +87,8 @@ class TestFastPathPresent:
 
 HOOK = HOOKS_DIR / "subagent-context.py"
 
+SESSION_ID = "test-session"
+
 
 def _make_zf(tmp_path: Path) -> None:
     zf = tmp_path / "zie-framework"
@@ -95,52 +97,43 @@ def _make_zf(tmp_path: Path) -> None:
     (zf / "ROADMAP.md").write_text("## Now\n\n- active-feature\n\n## Next\n\n## Done\n")
 
 
-def _run_hook(tmp_path: Path, agent_type: str,
-              session_id: str = "test-session") -> subprocess.CompletedProcess:
+def _run_hook(tmp_path: Path, agent_type: str, session_id: str = SESSION_ID) -> subprocess.CompletedProcess:
     env = os.environ.copy()
     env["CLAUDE_CWD"] = str(tmp_path)
     event = json.dumps({"agentType": agent_type, "session_id": session_id})
     return subprocess.run(
         [sys.executable, str(HOOK)],
-        input=event, capture_output=True, text=True, env=env,
+        input=event,
+        capture_output=True,
+        text=True,
+        env=env,
     )
-
-
-def _cache_flag(tmp_path: Path, session_id: str = "test-session") -> Path:
-    project = tmp_path.name
-    safe = re.sub(r'[^a-zA-Z0-9]', '-', project)
-    safe_sid = re.sub(r'[^a-zA-Z0-9]', '-', session_id)
-    return Path(tempfile.gettempdir()) / f"zie-{safe}-session-context-{safe_sid}"
 
 
 class TestSubagentContextCache:
     def test_injects_on_cache_miss(self, tmp_path):
         _make_zf(tmp_path)
-        flag = _cache_flag(tmp_path)
-        flag.unlink(missing_ok=True)
         r = _run_hook(tmp_path, "Explore")
         assert r.returncode == 0
         out = r.stdout.strip()
         assert out, "should emit additionalContext on cache miss"
-        flag.unlink(missing_ok=True)
 
     def test_writes_cache_flag_on_inject(self, tmp_path):
         _make_zf(tmp_path)
-        flag = _cache_flag(tmp_path)
-        flag.unlink(missing_ok=True)
-        _run_hook(tmp_path, "Explore")
-        assert flag.exists(), "cache flag must be written after first inject"
-        flag.unlink(missing_ok=True)
+        r = _run_hook(tmp_path, "Explore")
+        assert r.returncode == 0
+        # Verify cache flag written via CacheManager (unified session cache)
+        cache = CacheManager(tmp_path / ".zie" / "cache")
+        assert cache.has_flag("session-context-injected", SESSION_ID), "cache flag must be written after first inject"
 
     def test_skips_inject_on_cache_hit(self, tmp_path):
         _make_zf(tmp_path)
-        flag = _cache_flag(tmp_path)
-        flag.write_text("cached")  # pre-write flag = cache hit
+        cache = CacheManager(tmp_path / ".zie" / "cache")
+        cache.set_flag("session-context-injected", SESSION_ID)
         r = _run_hook(tmp_path, "Explore")
         assert r.returncode == 0
         # On cache hit the hook exits 0 with no stdout
         assert r.stdout.strip() == "", "should emit nothing on cache hit"
-        flag.unlink(missing_ok=True)
 
 
 class TestSubagentContextBudgetTable:
@@ -148,27 +141,27 @@ class TestSubagentContextBudgetTable:
 
     def test_explore_agent_gets_context(self, tmp_path):
         _make_zf(tmp_path)
-        _cache_flag(tmp_path).unlink(missing_ok=True)
+        cache = CacheManager(tmp_path / ".zie" / "cache")
+        cache.delete("session-context-injected", SESSION_ID)
         r = _run_hook(tmp_path, "Explore")
         assert r.returncode == 0
         assert r.stdout.strip(), "Explore agent must receive context"
-        _cache_flag(tmp_path).unlink(missing_ok=True)
 
     def test_brainstorm_agent_gets_no_context(self, tmp_path):
         _make_zf(tmp_path)
-        _cache_flag(tmp_path).unlink(missing_ok=True)
+        cache = CacheManager(tmp_path / ".zie" / "cache")
+        cache.delete("session-context-injected", SESSION_ID)
         r = _run_hook(tmp_path, "brainstorm")
         assert r.returncode == 0
         assert r.stdout.strip() == "", "brainstorm agent must receive NO context injection"
-        _cache_flag(tmp_path).unlink(missing_ok=True)
 
     def test_unknown_agent_falls_back_to_conservative_default(self, tmp_path):
         _make_zf(tmp_path)
-        _cache_flag(tmp_path).unlink(missing_ok=True)
+        cache = CacheManager(tmp_path / ".zie" / "cache")
+        cache.delete("session-context-injected", SESSION_ID)
         r = _run_hook(tmp_path, "UnknownAgentType42")
         # Unknown gets conservative default — exits 0, may or may not emit
         assert r.returncode == 0
-        _cache_flag(tmp_path).unlink(missing_ok=True)
 
     @pytest.mark.error_path
     def test_exits_zero_on_malformed_event(self, tmp_path):
@@ -176,19 +169,22 @@ class TestSubagentContextBudgetTable:
         env["CLAUDE_CWD"] = str(tmp_path)
         r = subprocess.run(
             [sys.executable, str(HOOK)],
-            input="not json", capture_output=True, text=True, env=env,
+            input="not json",
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0
 
 
 class TestSessionCleanup:
-    """session-cleanup.py explicitly unlinks the session-context cache flag."""
+    """session-cleanup.py clears session-context cache via CacheManager."""
 
-    def test_cleanup_unlinks_cache_flag(self, tmp_path):
+    def test_cleanup_clears_context_flag(self, tmp_path):
         _make_zf(tmp_path)
-        flag = _cache_flag(tmp_path)
-        flag.write_text("cached")
-        assert flag.exists()
+        cache = CacheManager(tmp_path / ".zie" / "cache")
+        cache.set_flag("session-context-injected", "test-session")
+        assert cache.has_flag("session-context-injected", "test-session")
 
         cleanup_hook = HOOKS_DIR / "session-cleanup.py"
         env = os.environ.copy()
@@ -196,16 +192,22 @@ class TestSessionCleanup:
         r = subprocess.run(
             [sys.executable, str(cleanup_hook)],
             input=json.dumps({"session_id": "test-session", "stop_reason": "end_turn"}),
-            capture_output=True, text=True, env=env,
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0
-        assert not flag.exists(), "session-cleanup must delete the session-context cache flag"
+        # Use a fresh CacheManager to verify disk state (in-memory cache won't
+        # reflect subprocess changes)
+        fresh_cache = CacheManager(tmp_path / ".zie" / "cache")
+        assert not fresh_cache.has_flag("session-context-injected", "test-session"), (
+            "session-cleanup must clear the session-context cache flag"
+        )
 
     def test_cleanup_handles_missing_flag_gracefully(self, tmp_path):
         _make_zf(tmp_path)
-        flag = _cache_flag(tmp_path)
-        flag.unlink(missing_ok=True)
-        assert not flag.exists()
+        cache = CacheManager(tmp_path / ".zie" / "cache")
+        cache.delete("session-context-injected", "test-session")
 
         cleanup_hook = HOOKS_DIR / "session-cleanup.py"
         env = os.environ.copy()
@@ -213,6 +215,8 @@ class TestSessionCleanup:
         r = subprocess.run(
             [sys.executable, str(cleanup_hook)],
             input=json.dumps({"session_id": "test-session", "stop_reason": "end_turn"}),
-            capture_output=True, text=True, env=env,
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0  # no exception when flag is already absent

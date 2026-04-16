@@ -14,8 +14,9 @@ class TestZieImplement:
 
     def test_no_unqualified_full_roadmap_read(self):
         text = read_command("implement.md")
-        assert "Read `zie-framework/ROADMAP.md`\n" not in text, \
+        assert "Read `zie-framework/ROADMAP.md`\n" not in text, (
             "zie-implement.md must not contain an unqualified full ROADMAP.md read"
+        )
 
 
 class TestZieStatus:
@@ -25,13 +26,15 @@ class TestZieStatus:
 
     def test_next_done_count_instruction_present(self):
         text = read_command("status.md")
-        assert "count" in text.lower() or "grep" in text.lower(), \
+        assert "count" in text.lower() or "grep" in text.lower(), (
             "zie-status.md must instruct grep/count for Next and Done sections"
+        )
 
     def test_no_unqualified_full_roadmap_read(self):
         text = read_command("status.md")
-        assert "Read `zie-framework/ROADMAP.md`\n" not in text, \
+        assert "Read `zie-framework/ROADMAP.md`\n" not in text, (
             "zie-status.md must not contain an unqualified full ROADMAP.md read"
+        )
 
 
 class TestZiePlan:
@@ -45,8 +48,9 @@ class TestZiePlan:
 
     def test_no_unqualified_full_roadmap_read(self):
         text = read_command("plan.md")
-        assert "Read `zie-framework/ROADMAP.md`\n" not in text, \
+        assert "Read `zie-framework/ROADMAP.md`\n" not in text, (
             "zie-plan.md must not contain an unqualified full ROADMAP.md read"
+        )
 
 
 class TestZieSpec:
@@ -56,8 +60,9 @@ class TestZieSpec:
 
     def test_no_unqualified_full_roadmap_read(self):
         text = read_command("spec.md")
-        assert "Read `zie-framework/ROADMAP.md`\n" not in text, \
+        assert "Read `zie-framework/ROADMAP.md`\n" not in text, (
             "zie-spec.md must not contain an unqualified full ROADMAP.md read"
+        )
 
 
 class TestZieRetro:
@@ -68,13 +73,13 @@ class TestZieRetro:
     def test_done_section_recent_limit_present(self):
         text = read_command("retro.md")
         assert "Done" in text, "zie-retro.md must reference Done section"
-        assert "20" in text or "recent" in text.lower(), \
-            "zie-retro.md must limit Done section read to recent items"
+        assert "20" in text or "recent" in text.lower(), "zie-retro.md must limit Done section read to recent items"
 
     def test_no_unqualified_full_roadmap_read(self):
         text = read_command("retro.md")
-        assert "Read `zie-framework/ROADMAP.md`\n" not in text, \
+        assert "Read `zie-framework/ROADMAP.md`\n" not in text, (
             "zie-retro.md must not contain an unqualified full ROADMAP.md read"
+        )
 
 
 class TestZieRelease:
@@ -84,5 +89,6 @@ class TestZieRelease:
 
     def test_no_unqualified_full_roadmap_read(self):
         text = read_command("release.md")
-        assert "Read `zie-framework/ROADMAP.md`\n" not in text, \
+        assert "Read `zie-framework/ROADMAP.md`\n" not in text, (
             "zie-release.md must not contain an unqualified full ROADMAP.md read"
+        )

@@ -2,6 +2,7 @@
 Error-path tests: hooks must exit 0 when subprocess calls time out.
 Uses importlib.util to load hook in-process and mock.patch to inject TimeoutExpired.
 """
+
 import importlib.util
 import subprocess
 from pathlib import Path

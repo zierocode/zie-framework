@@ -12,6 +12,7 @@ Usage:
     python3 hooks/approve.py zie-framework/specs/YYYY-MM-DD-<slug>-design.md
     python3 hooks/approve.py zie-framework/plans/YYYY-MM-DD-<slug>.md
 """
+
 import datetime
 import os
 import re
@@ -26,6 +27,7 @@ def _reviewer_marker(file_path: str) -> Path:
     project = Path(os.environ.get("CLAUDE_CWD", os.getcwd())).name
     safe = re.sub(r"[^a-zA-Z0-9]", "-", project)
     return Path(tempfile.gettempdir()) / f"zie-{safe}-reviewer-approved-{kind}"
+
 
 _APPROVED_FALSE_RE = re.compile(r"^approved:\s*(false)?\s*$", re.MULTILINE)
 _APPROVED_AT_BLANK_RE = re.compile(r"^approved_at:\s*$", re.MULTILINE)

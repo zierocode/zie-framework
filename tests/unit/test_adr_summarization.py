@@ -1,4 +1,5 @@
 """Unit tests for ADR summary extraction logic in hooks/adr_summary.py."""
+
 import sys
 from pathlib import Path
 

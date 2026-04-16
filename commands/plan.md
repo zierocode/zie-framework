@@ -92,6 +92,8 @@ Print: `[Plan {N}/{total}] plan-review pass`
    - If all fixes verified → proceed to Zie approval below
    - If any issue unfixable → surface to Zie
 3. If ✅ Approved on initial scan → proceed to Zie approval below.
+   - 0 issues → APPROVED immediately (no confirm pass needed)
+   - Max 2 total iterations: initial scan + confirm pass
 
 ## ขออนุมัติ plan (ทีละ plan)
 

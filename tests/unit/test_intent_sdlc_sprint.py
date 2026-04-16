@@ -3,6 +3,7 @@
 Uses text + AST parsing since intent-sdlc.py calls sys.exit() at module level
 (via read_event()) and cannot be directly imported.
 """
+
 import re
 from pathlib import Path
 
@@ -17,7 +18,11 @@ def _source():
 def _get_intent_pattern():
     """Extract INTENT_PATTERN regex from source."""
     source = _source()
-    match = re.search(r'INTENT_PATTERN = re\.compile\(r"""(.*?)""", re\.IGNORECASE \| re\.VERBOSE\)', source, re.DOTALL)
+    match = re.search(
+        r'INTENT_PATTERN = re\.compile\(\s*\n\s*r"""(.*?)""",\s*\n\s*re\.IGNORECASE \| re\.VERBOSE,?\s*\n\)',
+        source,
+        re.DOTALL,
+    )
     if match:
         pattern_str = match.group(1)
         return re.compile(pattern_str, re.IGNORECASE | re.VERBOSE)
@@ -32,9 +37,7 @@ class TestSprintPatternsInSource:
 
     def test_sprint_intent_pattern_exists(self):
         source = _source()
-        assert "?P<sprint>" in source, (
-            "INTENT_PATTERN must have 'sprint' named group"
-        )
+        assert "?P<sprint>" in source, "INTENT_PATTERN must have 'sprint' named group"
 
 
 class TestSprintRegexMatching:
@@ -54,28 +57,23 @@ class TestSprintRegexMatching:
 
     def test_english_sprint_pattern(self):
         compiled = self._sprint_compiled()
-        assert any(p.search("sprint") for p in compiled), \
-            "must match English 'sprint'"
+        assert any(p.search("sprint") for p in compiled), "must match English 'sprint'"
 
     def test_clear_backlog_pattern(self):
         compiled = self._sprint_compiled()
-        assert any(p.search("clear backlog") for p in compiled), \
-            "must match 'clear backlog'"
+        assert any(p.search("clear backlog") for p in compiled), "must match 'clear backlog'"
 
     def test_thai_clear_backlog_pattern(self):
         compiled = self._sprint_compiled()
-        assert any(p.search("เคลียร์ backlog") for p in compiled), \
-            "must match Thai 'เคลียร์ backlog'"
+        assert any(p.search("เคลียร์ backlog") for p in compiled), "must match Thai 'เคลียร์ backlog'"
 
     def test_ship_all_pattern(self):
         compiled = self._sprint_compiled()
-        assert any(p.search("ship all") for p in compiled), \
-            "must match 'ship all'"
+        assert any(p.search("ship all") for p in compiled), "must match 'ship all'"
 
     def test_zie_sprint_pattern(self):
         compiled = self._sprint_compiled()
-        assert any(p.search("zie-sprint") for p in compiled), \
-            "must match 'zie-sprint'"
+        assert any(p.search("zie-sprint") for p in compiled), "must match 'zie-sprint'"
 
 
 # ── Runtime behavior tests (Area 3 — Intent Intelligence) ────────────────────
@@ -92,21 +90,24 @@ _HOOK = _REPO_ROOT / "hooks" / "intent-sdlc.py"
 
 
 def _flag(project: str, name: str) -> Path:
-    safe = re.sub(r'[^a-zA-Z0-9]', '-', project)
+    safe = re.sub(r"[^a-zA-Z0-9]", "-", project)
     return Path(tempfile.gettempdir()) / f"zie-{safe}-{name}"
 
 
 def _run_hook(message: str, tmp_path: Path) -> subprocess.CompletedProcess:
     zf = tmp_path / "zie-framework"
     zf.mkdir(exist_ok=True)
-    (zf / ".config").write_text('{}')
+    (zf / ".config").write_text("{}")
     (zf / "ROADMAP.md").write_text("## Now\n\n## Next\n\n## Done\n")
     env = os.environ.copy()
     env["CLAUDE_CWD"] = str(tmp_path)
     event = json.dumps({"prompt": message, "session_id": "test-intent"})
     return subprocess.run(
         [sys.executable, str(_HOOK)],
-        input=event, capture_output=True, text=True, env=env,
+        input=event,
+        capture_output=True,
+        text=True,
+        env=env,
     )
 
 
@@ -128,15 +129,11 @@ class TestSprintIntentFlag:
                 cache_file = cache_dir / "session-cache.json"
                 if cache_file.exists():
                     import json as _json
+
                     cache_data = _json.loads(cache_file.read_text())
                     # Look for sprint flag in any session
-                    has_sprint_flag = any(
-                        "intent-sprint-flag" in k
-                        for k in cache_data
-                    )
-                    assert has_sprint_flag, (
-                        "sprint flag must be written to CacheManager when sprint intent detected"
-                    )
+                    has_sprint_flag = any("intent-sprint-flag" in k for k in cache_data)
+                    assert has_sprint_flag, "sprint flag must be written to CacheManager when sprint intent detected"
 
     def test_thai_sprint_triggers_hint(self, tmp_path):
         r = _run_hook("ทำเลย เคลียร์ backlog ทั้งหมดเลย", tmp_path)
@@ -187,6 +184,9 @@ class TestIntentSdlcErrorPath:
         env["CLAUDE_CWD"] = str(tmp_path)
         r = subprocess.run(
             [sys.executable, str(_HOOK)],
-            input="not json", capture_output=True, text=True, env=env,
+            input="not json",
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0

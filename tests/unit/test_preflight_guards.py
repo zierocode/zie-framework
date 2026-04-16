@@ -6,6 +6,7 @@ in the referenced command-conventions.md or inline:
 2. Read .config
 3. Read ROADMAP.md
 """
+
 import re
 from pathlib import Path
 
@@ -13,9 +14,9 @@ COMMANDS_DIR = Path(__file__).parents[2] / "commands"
 CONVENTIONS = Path(__file__).parents[2] / "zie-framework" / "project" / "command-conventions.md"
 COMMAND_FILES = sorted(COMMANDS_DIR.glob("*.md"))
 
-PREFLIGHT_FULL_RE = re.compile(r'<!-- preflight: full -->')
-PREFLIGHT_MINIMAL_RE = re.compile(r'<!-- preflight: minimal -->')
-PREFLIGHT_REF_RE = re.compile(r'\[Pre-flight standard\]')
+PREFLIGHT_FULL_RE = re.compile(r"<!-- preflight: full -->")
+PREFLIGHT_MINIMAL_RE = re.compile(r"<!-- preflight: minimal -->")
+PREFLIGHT_REF_RE = re.compile(r"\[Pre-flight standard\]")
 
 
 class TestPreflightFullGuards:
@@ -50,10 +51,7 @@ class TestPreflightFullGuards:
         expected_minimal = {"health.md", "brief.md", "guide.md", "next.md", "status.md"}
         found = set(minimal_commands)
         missing = expected_minimal - found
-        assert not missing, (
-            f"Expected minimal preflight in: {missing}\n"
-            f"Found minimal in: {found}"
-        )
+        assert not missing, f"Expected minimal preflight in: {missing}\nFound minimal in: {found}"
 
     def test_init_has_no_preflight_declaration(self):
         """init creates the framework — should not have standard pre-flight."""

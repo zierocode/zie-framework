@@ -1,4 +1,5 @@
 """Tests for hooks/intent-sdlc.py — merged UserPromptSubmit hook."""
+
 import json
 import os
 import subprocess
@@ -40,16 +41,12 @@ class TestIntentSdlcHappyPath:
         return json.loads(r.stdout)["additionalContext"]
 
     def test_fix_intent_detected(self, tmp_path):
-        cwd = make_cwd_with_zf(
-            tmp_path, "## Now\n- [ ] my-feature — fix\n\n## Next\n"
-        )
+        cwd = make_cwd_with_zf(tmp_path, "## Now\n- [ ] my-feature — fix\n\n## Next\n")
         r = run_hook({"prompt": "there is a bug in the auth module"}, tmp_cwd=cwd)
         assert "/fix" in self._ctx(r)
 
     def test_implement_intent_detected(self, tmp_path):
-        cwd = make_cwd_with_zf(
-            tmp_path, "## Now\n- [ ] my-feature — implement\n\n## Next\n"
-        )
+        cwd = make_cwd_with_zf(tmp_path, "## Now\n- [ ] my-feature — implement\n\n## Next\n")
         r = run_hook({"prompt": "start coding this task now"}, tmp_cwd=cwd)
         assert "/implement" in self._ctx(r)
 
@@ -115,8 +112,14 @@ class TestIntentSdlcRoadmapCache:
         roadmap_path = cwd / "zie-framework" / "ROADMAP.md"
         # Prime cache with an active task via CacheManager (mtime invalidation)
         cache = CacheManager(cwd / ".zie" / "cache")
-        cache.set("roadmap", "## Now\n- [ ] cached-feature — implement\n\n## Next\n", sid, ttl=600,
-                  invalidation="mtime", source_path=str(roadmap_path))
+        cache.set(
+            "roadmap",
+            "## Now\n- [ ] cached-feature — implement\n\n## Next\n",
+            sid,
+            ttl=600,
+            invalidation="mtime",
+            source_path=str(roadmap_path),
+        )
         r = run_hook({"prompt": "implement the task"}, tmp_cwd=cwd, session_id=sid)
         assert r.returncode == 0
         assert r.stdout.strip() != ""
@@ -182,11 +185,7 @@ class TestPipelineGates:
         assert "⛔" not in ctx
 
     def test_plan_intent_multiple_slugs_any_missing_blocks(self, tmp_path):
-        roadmap = (
-            "## Now\n\n"
-            "## Next\n- [ ] feat-a — spec\n- [ ] feat-b — spec\n\n"
-            "## Ready\n"
-        )
+        roadmap = "## Now\n\n## Next\n- [ ] feat-a — spec\n- [ ] feat-b — spec\n\n## Ready\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
         self._make_spec(cwd / "zie-framework" / "specs", "feat-a", approved=True)
         r = run_hook({"prompt": "plan feat-a and feat-b together"}, tmp_cwd=cwd)
@@ -270,17 +269,13 @@ class TestHelperFunctions:
     def test_spec_approved_true(self, tmp_path):
         specs = tmp_path / "zie-framework" / "specs"
         specs.mkdir(parents=True)
-        (specs / "2026-01-01-my-feat-design.md").write_text(
-            "---\napproved: true\n---\n# Spec\n"
-        )
+        (specs / "2026-01-01-my-feat-design.md").write_text("---\napproved: true\n---\n# Spec\n")
         assert self.spec_approved(tmp_path, "my-feat") is True
 
     def test_spec_approved_false_flag(self, tmp_path):
         specs = tmp_path / "zie-framework" / "specs"
         specs.mkdir(parents=True)
-        (specs / "2026-01-01-my-feat-design.md").write_text(
-            "---\napproved: false\n---\n# Spec\n"
-        )
+        (specs / "2026-01-01-my-feat-design.md").write_text("---\napproved: false\n---\n# Spec\n")
         assert self.spec_approved(tmp_path, "my-feat") is False
 
     def test_spec_approved_missing_file(self, tmp_path):
@@ -321,11 +316,7 @@ class TestPositionalGuidance:
         assert "/plan" in ctx
 
     def test_slug_in_ready_nudges_zie_implement(self, tmp_path):
-        roadmap = (
-            "## Now\n\n"
-            "## Next\n\n"
-            "## Ready\n- [ ] auth-login — plan ✓\n"
-        )
+        roadmap = "## Now\n\n## Next\n\n## Ready\n- [ ] auth-login — plan ✓\n"
         cwd = make_cwd_with_zf(tmp_path, roadmap_content=roadmap)
         self._make_spec(cwd / "zie-framework" / "specs", "auth-login", approved=True)
         r = run_hook({"prompt": "what is the progress on auth-login"}, tmp_cwd=cwd)
@@ -364,9 +355,7 @@ class TestNoActiveTrackSuggestion:
         assert "/hotfix" in ctx or "sprint" in ctx
 
     def test_no_suggestion_when_now_lane_active(self, tmp_path):
-        cwd = make_cwd_with_zf(
-            tmp_path, "## Now\n- [ ] my-feature — implement\n\n## Next\n"
-        )
+        cwd = make_cwd_with_zf(tmp_path, "## Now\n- [ ] my-feature — implement\n\n## Next\n")
         r = run_hook({"prompt": "there is a bug in the auth module"}, tmp_cwd=cwd)
         ctx = self._ctx(r)
         assert "no active track" not in ctx.lower()

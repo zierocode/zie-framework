@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """PostToolUse:Edit/Write hook — checkpoint WIP to zie-memory every 5 edits."""
+
 import os
 import sys
 
@@ -63,13 +64,19 @@ try:
     content = f"[WIP:{project}] {wip_summary} (checkpoint at {count} edits)"
 
     try:
-        call_zie_memory_api(api_url, api_key, "/api/hooks/wip-update", {
-            "content": content,
-            "priority": "project",
-            "tags": ["wip", "checkpoint", project],
-            "project": project,
-            "force": True,
-        }, timeout=3)
+        call_zie_memory_api(
+            api_url,
+            api_key,
+            "/api/hooks/wip-update",
+            {
+                "content": content,
+                "priority": "project",
+                "tags": ["wip", "checkpoint", project],
+                "project": project,
+                "force": True,
+            },
+            timeout=3,
+        )
     except Exception as e:
         print(f"[zie-framework] wip-checkpoint: {e}", file=sys.stderr)
 

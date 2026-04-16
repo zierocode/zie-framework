@@ -5,6 +5,7 @@ Blocks completion (exit 2) if pytest's last-failed cache has entries.
 Warns (exit 0) if uncommitted implementation files are detected.
 Gate is only enforced for tasks whose title contains 'implement' or 'fix'.
 """
+
 import json
 import os
 import re
@@ -13,14 +14,27 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_event import get_cwd, read_event
 from utils_config import load_config
+from utils_event import get_cwd, read_event
 
-IMPL_EXTS = frozenset((
-    ".py", ".ts", ".tsx", ".js", ".jsx",
-    ".go", ".rs", ".rb", ".java", ".kt",
-    ".swift", ".c", ".cpp", ".h",
-))
+IMPL_EXTS = frozenset(
+    (
+        ".py",
+        ".ts",
+        ".tsx",
+        ".js",
+        ".jsx",
+        ".go",
+        ".rs",
+        ".rb",
+        ".java",
+        ".kt",
+        ".swift",
+        ".c",
+        ".cpp",
+        ".h",
+    )
+)
 
 _DEFAULT_TEST_INDICATORS = ("test_", "_test.", ".test.", ".spec.")
 
@@ -97,9 +111,7 @@ def check_uncommitted_files(cwd: Path) -> tuple:
         suffix = f"\n  (+{len(impl_lines) - 5} more)" if len(impl_lines) > 5 else ""
         msg = (
             "[zie-framework] WARNING: uncommitted implementation files detected"
-            " — consider committing before closing task.\n"
-            + "\n".join(f"  {ln}" for ln in shown)
-            + suffix
+            " — consider committing before closing task.\n" + "\n".join(f"  {ln}" for ln in shown) + suffix
         )
         return True, msg
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
@@ -114,7 +126,7 @@ def main():
         sys.exit(0)
 
     title_lower = title.lower()
-    if not re.search(r'\bimplement\b', title_lower) and not re.search(r'\bfix\b', title_lower):
+    if not re.search(r"\bimplement\b", title_lower) and not re.search(r"\bfix\b", title_lower):
         sys.exit(0)
 
     cwd = get_cwd()
@@ -126,8 +138,7 @@ def main():
             print(block_msg, file=sys.stderr)
             sys.exit(2)
     except Exception as e:
-        print(f"[zie-framework] task-completed-gate: check_pytest_cache error: {e}",
-              file=sys.stderr)
+        print(f"[zie-framework] task-completed-gate: check_pytest_cache error: {e}", file=sys.stderr)
 
     # Check 2 — uncommitted implementation files
     try:
@@ -135,8 +146,7 @@ def main():
         if warned:
             print(warn_msg)
     except Exception as e:
-        print(f"[zie-framework] task-completed-gate: check_uncommitted_files error: {e}",
-              file=sys.stderr)
+        print(f"[zie-framework] task-completed-gate: check_uncommitted_files error: {e}", file=sys.stderr)
 
     sys.exit(0)
 

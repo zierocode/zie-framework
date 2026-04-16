@@ -91,5 +91,5 @@ Next steps:
 
 - Be specific — don't approve vague specs
 - Be concise — don't invent requirements the user didn't ask for
-- Return ALL issues in one response — don't stop at the first
+- Return ALL issues found — don't stop at the first issue
 - Max 2 iterations: initial scan (all issues) + confirm pass. 0 issues → APPROVED immediately.

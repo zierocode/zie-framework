@@ -1,4 +1,5 @@
 """Tests for is_zie_initialized() and get_project_name() in utils.py."""
+
 import os
 import sys
 from pathlib import Path

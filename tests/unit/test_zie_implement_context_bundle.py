@@ -1,4 +1,5 @@
 """Structural test: zie-implement must use adr_cache_path in context bundle."""
+
 from pathlib import Path
 
 ZIE_IMPLEMENT = Path(__file__).parents[2] / "commands" / "implement.md"

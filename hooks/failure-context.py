@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 """PostToolUseFailure hook — inject SDLC debug context on tool failure."""
+
 import json
 import os
 import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_event import get_cwd, read_event
 from utils_config import load_config
+from utils_error import log_error
+from utils_event import get_cwd, read_event
 from utils_roadmap import (
     get_cached_git_status,
     parse_roadmap_section_content,
     read_roadmap_cached,
     write_git_status_cache,
 )
-from utils_error import log_error
 
 ALLOWED_TOOLS = {"Bash", "Write", "Edit"}
 
@@ -72,13 +73,12 @@ try:
         else:
             log_result = subprocess.run(
                 ["git", "log", "-1", "--pretty=%h %s"],
-                capture_output=True, text=True, cwd=str(cwd), timeout=subprocess_timeout,
+                capture_output=True,
+                text=True,
+                cwd=str(cwd),
+                timeout=subprocess_timeout,
             )
-            last_commit = (
-                log_result.stdout.strip()
-                if log_result.returncode == 0
-                else "(git unavailable)"
-            )
+            last_commit = log_result.stdout.strip() if log_result.returncode == 0 else "(git unavailable)"
             if log_result.returncode == 0:
                 write_git_status_cache(session_id, "log", last_commit)
     except subprocess.TimeoutExpired as e:
@@ -99,13 +99,12 @@ try:
         else:
             branch_result = subprocess.run(
                 ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-                capture_output=True, text=True, cwd=str(cwd), timeout=subprocess_timeout,
+                capture_output=True,
+                text=True,
+                cwd=str(cwd),
+                timeout=subprocess_timeout,
             )
-            branch = (
-                branch_result.stdout.strip()
-                if branch_result.returncode == 0
-                else "(git unavailable)"
-            )
+            branch = branch_result.stdout.strip() if branch_result.returncode == 0 else "(git unavailable)"
             if branch_result.returncode == 0:
                 write_git_status_cache(session_id, "branch", branch)
     except subprocess.TimeoutExpired as e:
@@ -120,10 +119,7 @@ try:
 
     # Build context string
     context_string = (
-        "[SDLC context at failure]\n"
-        f"Active task: {active_task}\n"
-        f"Branch: {branch}\n"
-        f"Last commit: {last_commit}"
+        f"[SDLC context at failure]\nActive task: {active_task}\nBranch: {branch}\nLast commit: {last_commit}"
     )
 
     print(json.dumps({"additionalContext": context_string}))

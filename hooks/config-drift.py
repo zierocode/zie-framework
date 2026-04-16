@@ -8,13 +8,13 @@ before continuing. Unrecognised paths exit silently.
 Output protocol: JSON {"additionalContext": "..."} to stdout (same as
 UserPromptSubmit hooks). Exit code is always 0 — hook never blocks Claude.
 """
+
 import json
 import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_error import log_error
 from utils_event import read_event
 
 # Outer guard ----------------------------------------------------------------

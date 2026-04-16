@@ -1,4 +1,5 @@
 """Structural tests: zie-release.md must use graceful skip, not blocking fallback."""
+
 from pathlib import Path
 
 ROOT = Path(__file__).parents[2]
@@ -19,16 +20,12 @@ class TestReleaseLeanFallback:
     def test_skip_message_present(self):
         """Release fallback must print a skip message, not block."""
         src = self._release()
-        assert "docs-sync unavailable" in src, (
-            "zie-release.md fallback must print 'docs-sync unavailable' skip message"
-        )
+        assert "docs-sync unavailable" in src, "zie-release.md fallback must print 'docs-sync unavailable' skip message"
 
     def test_manual_check_reference_present(self):
         """Release fallback must reference make docs-sync for manual check."""
         src = self._release()
-        assert "make docs-sync" in src, (
-            "zie-release.md must reference 'make docs-sync' as the manual fallback"
-        )
+        assert "make docs-sync" in src, "zie-release.md must reference 'make docs-sync' as the manual fallback"
 
 
 class TestMakefileDocsSyncTarget:

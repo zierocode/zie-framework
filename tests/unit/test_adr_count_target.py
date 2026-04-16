@@ -1,4 +1,5 @@
 """Tests for make adr-count Makefile target."""
+
 import subprocess
 from pathlib import Path
 

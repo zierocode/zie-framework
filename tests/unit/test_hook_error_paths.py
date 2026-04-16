@@ -4,6 +4,7 @@ Validates ADR-003: hooks exit 0 even on error, with graceful degradation.
 Each test runs the hook as a subprocess with malformed/edge-case input
 and asserts exit code is 0.
 """
+
 import json
 import os
 import subprocess
@@ -35,6 +36,7 @@ def _run_hook(script_name: str, stdin_data: str, env: dict = None) -> subprocess
 
 # --- Hooks with hyphenated filenames (can't import directly) ---
 
+
 class TestSdlcCompactErrorPaths:
     """Error-path coverage for sdlc-compact.py."""
 
@@ -59,11 +61,13 @@ class TestSafetyCheckErrorPaths:
 
     def test_path_outside_project_exits_0(self):
         """Path outside project dir should exit 0 (allow)."""
-        event = json.dumps({
-            "session_id": "test",
-            "tool_name": "Write",
-            "tool_input": {"file_path": "/etc/passwd"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test",
+                "tool_name": "Write",
+                "tool_input": {"file_path": "/etc/passwd"},
+            }
+        )
         result = _run_hook("safety-check.py", event)
         assert result.returncode == 0
 
@@ -78,11 +82,13 @@ class TestSubagentContextErrorPaths:
 
     def test_missing_cwd_exits_0(self):
         """Missing cwd should exit 0."""
-        event = json.dumps({
-            "session_id": "test",
-            "tool_name": "Agent",
-            "tool_input": {"prompt": "test"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test",
+                "tool_name": "Agent",
+                "tool_input": {"prompt": "test"},
+            }
+        )
         result = _run_hook("subagent-context.py", event)
         assert result.returncode == 0
 
@@ -97,12 +103,14 @@ class TestFailureContextErrorPaths:
 
     def test_interrupt_event_exits_0(self):
         """Interrupt event with missing fields should exit 0."""
-        event = json.dumps({
-            "session_id": "test",
-            "is_interrupt": True,
-            "tool_name": "Bash",
-            "tool_input": {"command": "test"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test",
+                "is_interrupt": True,
+                "tool_name": "Bash",
+                "tool_input": {"command": "test"},
+            }
+        )
         result = _run_hook("failure-context.py", event)
         assert result.returncode == 0
 
@@ -117,10 +125,12 @@ class TestSessionCleanupErrorPaths:
 
     def test_empty_event_exits_0(self):
         """Empty event dict should exit 0."""
-        event = json.dumps({
-            "session_id": "test-sess",
-            "message": {"role": "user", "content": "bye"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test-sess",
+                "message": {"role": "user", "content": "bye"},
+            }
+        )
         result = _run_hook("session-cleanup.py", event)
         assert result.returncode == 0
 
@@ -144,11 +154,13 @@ class TestReviewerGateErrorPaths:
 
     def test_tool_use_event_exits_0(self):
         """ToolUse event for non-file tool should exit 0."""
-        event = json.dumps({
-            "session_id": "test",
-            "tool_name": "Bash",
-            "tool_input": {"command": "echo hello"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test",
+                "tool_name": "Bash",
+                "tool_input": {"command": "echo hello"},
+            }
+        )
         result = _run_hook("reviewer-gate.py", event)
         assert result.returncode == 0
 
@@ -172,11 +184,13 @@ class TestSessionLearnErrorPaths:
 
     def test_assistant_end_turn_exits_0(self):
         """Assistant end_turn event should exit 0."""
-        event = json.dumps({
-            "session_id": "test-sess",
-            "message": {"role": "assistant", "content": "test"},
-            "stop_reason": "end_turn",
-        })
+        event = json.dumps(
+            {
+                "session_id": "test-sess",
+                "message": {"role": "assistant", "content": "test"},
+                "stop_reason": "end_turn",
+            }
+        )
         result = _run_hook("session-learn.py", event)
         assert result.returncode == 0
 
@@ -191,10 +205,12 @@ class TestSessionResumeErrorPaths:
 
     def test_missing_cwd_exits_0(self):
         """Missing cwd should exit 0."""
-        event = json.dumps({
-            "session_id": "test",
-            "message": {"role": "user", "content": "hi"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test",
+                "message": {"role": "user", "content": "hi"},
+            }
+        )
         result = _run_hook("session-resume.py", event)
         assert result.returncode == 0
 
@@ -209,10 +225,12 @@ class TestIntentSdlcErrorPaths:
 
     def test_user_message_exits_0(self):
         """User message event should exit 0."""
-        event = json.dumps({
-            "session_id": "test",
-            "message": {"role": "user", "content": "hello"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test",
+                "message": {"role": "user", "content": "hello"},
+            }
+        )
         result = _run_hook("intent-sdlc.py", event)
         assert result.returncode == 0
 
@@ -241,10 +259,12 @@ class TestAutoTestErrorPaths:
 
     def test_tool_use_event_exits_0(self):
         """ToolUse event for test tool should exit 0."""
-        event = json.dumps({
-            "session_id": "test",
-            "tool_name": "Bash",
-            "tool_input": {"command": "pytest test_x.py"},
-        })
+        event = json.dumps(
+            {
+                "session_id": "test",
+                "tool_name": "Bash",
+                "tool_input": {"command": "pytest test_x.py"},
+            }
+        )
         result = _run_hook("auto-test.py", event)
         assert result.returncode == 0

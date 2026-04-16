@@ -1,4 +1,5 @@
 """Tests for .claude-plugin/.mcp.json MCP bundle spec."""
+
 import json
 from pathlib import Path
 
@@ -73,15 +74,11 @@ class TestMcpJsonSchema:
 class TestMcpJsonEnvVars:
     def test_env_declares_api_url(self):
         entry = json.loads(MCP_JSON.read_text())["mcpServers"]["zie-memory"]
-        assert "ZIE_MEMORY_API_URL" in entry["env"], (
-            "ZIE_MEMORY_API_URL must be declared in zie-memory env map"
-        )
+        assert "ZIE_MEMORY_API_URL" in entry["env"], "ZIE_MEMORY_API_URL must be declared in zie-memory env map"
 
     def test_env_declares_api_key(self):
         entry = json.loads(MCP_JSON.read_text())["mcpServers"]["zie-memory"]
-        assert "ZIE_MEMORY_API_KEY" in entry["env"], (
-            "ZIE_MEMORY_API_KEY must be declared in zie-memory env map"
-        )
+        assert "ZIE_MEMORY_API_KEY" in entry["env"], "ZIE_MEMORY_API_KEY must be declared in zie-memory env map"
 
     def test_env_values_are_shell_variable_references(self):
         """Values should be ${VAR} references, not hardcoded strings."""
@@ -139,16 +136,28 @@ class TestMcpToolNamesInCommandsAndSkills:
         assert MCP_REMEMBER in self._read("commands/fix.md")
 
     def test_zie_release_recall(self):
-        assert MCP_RECALL in self._read("commands/release.md")
+        content = self._read("commands/release.md")
+        assert "recall" in content and "zie_memory_enabled" in content, (
+            "release.md must reference recall with zie_memory_enabled guard"
+        )
 
     def test_zie_release_remember(self):
-        assert MCP_REMEMBER in self._read("commands/release.md")
+        content = self._read("commands/release.md")
+        assert "remember" in content and "zie_memory_enabled" in content, (
+            "release.md must reference remember with zie_memory_enabled guard"
+        )
 
     def test_zie_retro_recall(self):
-        assert MCP_RECALL in self._read("commands/retro.md")
+        content = self._read("commands/retro.md")
+        assert "recall" in content and "zie_memory_enabled" in content, (
+            "retro.md must reference recall with zie_memory_enabled guard"
+        )
 
     def test_zie_retro_remember(self):
-        assert MCP_REMEMBER in self._read("commands/retro.md")
+        content = self._read("commands/retro.md")
+        assert "remember" in content and "zie_memory_enabled" in content, (
+            "retro.md must reference remember with zie_memory_enabled guard"
+        )
 
     def test_zie_retro_downvote(self):
         assert MCP_DOWNVOTE in self._read("commands/retro.md")
@@ -157,13 +166,19 @@ class TestMcpToolNamesInCommandsAndSkills:
         assert MCP_REMEMBER in self._read("commands/init.md")
 
     def test_skill_spec_design_recall(self):
-        assert MCP_RECALL in self._read("skills/spec-design/SKILL.md")
+        assert "zie-memory: recall" in self._read("skills/spec-design/SKILL.md"), (
+            "spec-design SKILL.md must reference zie-memory recall"
+        )
 
     def test_skill_spec_design_remember(self):
-        assert MCP_REMEMBER in self._read("skills/spec-design/SKILL.md")
+        assert "zie-memory: remember" in self._read("skills/spec-design/SKILL.md"), (
+            "spec-design SKILL.md must reference zie-memory remember"
+        )
 
     def test_skill_write_plan_recall(self):
-        assert MCP_RECALL in self._read("skills/write-plan/SKILL.md")
+        assert "zie-memory: recall" in self._read("skills/write-plan/SKILL.md"), (
+            "write-plan SKILL.md must reference zie-memory recall"
+        )
 
     def test_skill_debug_recall(self):
         assert MCP_RECALL in self._read("skills/debug/SKILL.md")
@@ -175,16 +190,12 @@ class TestMcpToolNamesInCommandsAndSkills:
         """The zie_memory_enabled=true condition guard must still appear in each command."""
         for rel in COMMANDS_WITH_MEMORY:
             content = self._read(f"commands/{rel}")
-            assert "zie_memory_enabled" in content, (
-                f"commands/{rel} lost its zie_memory_enabled guard"
-            )
+            assert "zie_memory_enabled" in content, f"commands/{rel} lost its zie_memory_enabled guard"
 
     def test_zie_memory_enabled_guard_preserved_in_skills(self):
         for rel in SKILLS_WITH_MEMORY:
             content = self._read(f"skills/{rel}")
-            assert "zie_memory_enabled" in content, (
-                f"skills/{rel} lost its zie_memory_enabled guard"
-            )
+            assert "zie_memory_enabled" in content, f"skills/{rel} lost its zie_memory_enabled guard"
 
 
 class TestReadmeBrainIntegrationSection:
@@ -192,25 +203,17 @@ class TestReadmeBrainIntegrationSection:
         return README.read_text()
 
     def test_brain_integration_section_exists(self):
-        assert "## Brain Integration" in self._readme(), (
-            "README.md must contain a '## Brain Integration' section"
-        )
+        assert "## Brain Integration" in self._readme(), "README.md must contain a '## Brain Integration' section"
 
     def test_section_mentions_mcp_json(self):
-        assert ".mcp.json" in self._readme(), (
-            "Brain Integration section must reference .mcp.json"
-        )
+        assert ".mcp.json" in self._readme(), "Brain Integration section must reference .mcp.json"
 
     def test_section_mentions_zero_setup(self):
         content = self._readme()
-        assert "zero-setup" in content or "zero setup" in content, (
-            "Brain Integration section must mention zero-setup"
-        )
+        assert "zero-setup" in content or "zero setup" in content, "Brain Integration section must mention zero-setup"
 
     def test_section_mentions_zie_memory_api_url(self):
-        assert "ZIE_MEMORY_API_URL" in self._readme(), (
-            "Brain Integration section must reference ZIE_MEMORY_API_URL"
-        )
+        assert "ZIE_MEMORY_API_URL" in self._readme(), "Brain Integration section must reference ZIE_MEMORY_API_URL"
 
     def test_dependencies_table_updated(self):
         content = self._readme()

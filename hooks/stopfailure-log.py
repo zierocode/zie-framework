@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """StopFailure hook — log API error events to a project-scoped /tmp file."""
+
 import os
 import sys
 from datetime import datetime, timezone
@@ -10,6 +11,7 @@ try:
     from utils_event import get_cwd, read_event, sanitize_log_field
     from utils_io import project_tmp_path, safe_project_name
     from utils_roadmap import parse_roadmap_now
+
     event = read_event()
 except Exception:
     sys.exit(0)

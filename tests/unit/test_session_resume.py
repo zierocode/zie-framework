@@ -4,6 +4,7 @@ Strategy: run the hook as a subprocess with a synthetic CLAUDE_CWD pointing
 to a temp directory that contains a minimal zie-framework/ tree, then assert
 on stdout directly.
 """
+
 import json
 import os
 import re
@@ -11,7 +12,7 @@ import stat
 import subprocess
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -19,8 +20,7 @@ REPO_ROOT = Path(__file__).parents[2]
 HOOK = REPO_ROOT / "hooks" / "session-resume.py"
 
 
-def _make_zf(tmp_path: Path, *, version="1.0.0", project_type="lib",
-             zie_memory=False, now_items=None) -> Path:
+def _make_zf(tmp_path: Path, *, version="1.0.0", project_type="lib", zie_memory=False, now_items=None) -> Path:
     """Build a minimal zie-framework scaffold under tmp_path."""
     zf = tmp_path / "zie-framework"
     zf.mkdir()
@@ -43,9 +43,23 @@ def _make_zf(tmp_path: Path, *, version="1.0.0", project_type="lib",
     # commands/ directory at PROJECT ROOT for context loader
     commands_dir = tmp_path / "commands"
     commands_dir.mkdir(exist_ok=True)
-    for cmd in ("backlog", "spec", "plan", "implement", "release", "retro",
-                "sprint", "fix", "chore", "hotfix", "status", "audit",
-                "resync", "init", "guide"):
+    for cmd in (
+        "backlog",
+        "spec",
+        "plan",
+        "implement",
+        "release",
+        "retro",
+        "sprint",
+        "fix",
+        "chore",
+        "hotfix",
+        "status",
+        "audit",
+        "resync",
+        "init",
+        "guide",
+    ):
         (commands_dir / f"{cmd}.md").write_text(f"# /{cmd}")
 
     # skills/ directory at PROJECT ROOT
@@ -59,7 +73,8 @@ def _make_zf(tmp_path: Path, *, version="1.0.0", project_type="lib",
 def _clean_session_cache(session_id: str) -> None:
     """Clean session cache directories between tests."""
     import shutil
-    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '-', session_id)
+
+    safe_id = re.sub(r"[^a-zA-Z0-9_-]", "-", session_id)
     cache_dir = Path("/tmp") / f"zie-{safe_id}"
     if cache_dir.exists():
         shutil.rmtree(cache_dir)
@@ -90,18 +105,14 @@ class TestOutputLineCount:
         result = _run_hook(tmp_path)
         assert result.returncode == 0
         lines = result.stdout.strip().splitlines()
-        assert len(lines) >= 2, (
-            f"Expected at least 2 lines, got {len(lines)}:\n{result.stdout}"
-        )
+        assert len(lines) >= 2, f"Expected at least 2 lines, got {len(lines)}:\n{result.stdout}"
 
     def test_with_active_feature_has_at_least_2_lines(self, tmp_path):
         _make_zf(tmp_path, now_items=["session-resume-compression"])
         result = _run_hook(tmp_path)
         assert result.returncode == 0
         lines = result.stdout.strip().splitlines()
-        assert len(lines) >= 2, (
-            f"Expected at least 2 lines, got {len(lines)}:\n{result.stdout}"
-        )
+        assert len(lines) >= 2, f"Expected at least 2 lines, got {len(lines)}:\n{result.stdout}"
 
 
 class TestOutputFormat:
@@ -146,6 +157,7 @@ HOOK_DIR = REPO_ROOT / "hooks"
 def _import_session_resume():
     """Import session-resume as a module (adds hooks/ to sys.path)."""
     import importlib.util
+
     if str(HOOK_DIR) not in sys.path:
         sys.path.insert(0, str(HOOK_DIR))
     spec = importlib.util.spec_from_file_location("session_resume", HOOK)
@@ -163,12 +175,13 @@ class TestCheckPlaywrightVersion:
             sys.path.insert(0, str(HOOK_DIR))
         # Import the function directly
         import importlib.util
+
         spec = importlib.util.spec_from_file_location("_sr_mod", HOOK)
         self._mod = importlib.util.module_from_spec(spec)
         # Patch read_event and sys.exit so module-level guard doesn't execute
         import unittest.mock as _mock
-        with _mock.patch("builtins.open"), _mock.patch("sys.exit"), \
-             _mock.patch("sys.stdin") as mock_stdin:
+
+        with _mock.patch("builtins.open"), _mock.patch("sys.exit"), _mock.patch("sys.stdin") as mock_stdin:
             mock_stdin.read.return_value = '{"session_id": "test"}'
             try:
                 spec.loader.exec_module(self._mod)
@@ -178,16 +191,15 @@ class TestCheckPlaywrightVersion:
     def test_disabled_when_playwright_not_enabled(self, capsys):
         """No subprocess spawned when playwright_enabled is False/absent."""
         config = {"playwright_enabled": False}
-        with patch("subprocess.run") as mock_run:
-            self._mod._check_playwright_version(config)
-        mock_run.assert_not_called()
+        with patch.object(self._mod, "get_playwright_version_cached", return_value="1.55.1"):
+            self._mod._check_playwright_version(config, "test-session", Path("/tmp"))
         assert capsys.readouterr().err == ""
 
     def test_not_installed_logs_warning_and_disables(self, capsys):
-        """FileNotFoundError → warning on stderr and playwright disabled."""
+        """Empty version string → warning on stderr and playwright disabled."""
         config = {"playwright_enabled": True}
-        with patch.object(self._mod.subprocess, "run", side_effect=FileNotFoundError()):
-            self._mod._check_playwright_version(config)
+        with patch.object(self._mod, "get_playwright_version_cached", return_value=""):
+            self._mod._check_playwright_version(config, "test-session", Path("/tmp"))
         assert config["playwright_enabled"] is False
         err = capsys.readouterr().err
         assert "playwright not found" in err
@@ -195,10 +207,8 @@ class TestCheckPlaywrightVersion:
     def test_old_version_logs_cve_warning_and_disables(self, capsys):
         """Version below minimum → CVE-2025-59288 warning and disabled."""
         config = {"playwright_enabled": True}
-        mock_result = MagicMock()
-        mock_result.stdout = "Version 1.50.0\n"
-        with patch.object(self._mod.subprocess, "run", return_value=mock_result):
-            self._mod._check_playwright_version(config)
+        with patch.object(self._mod, "get_playwright_version_cached", return_value="1.50.0"):
+            self._mod._check_playwright_version(config, "test-session", Path("/tmp"))
         assert config["playwright_enabled"] is False
         err = capsys.readouterr().err
         assert "CVE-2025-59288" in err
@@ -207,20 +217,16 @@ class TestCheckPlaywrightVersion:
     def test_safe_version_no_output_no_disable(self, capsys):
         """Version >= minimum → no stderr, playwright stays enabled."""
         config = {"playwright_enabled": True}
-        mock_result = MagicMock()
-        mock_result.stdout = "Version 1.55.1\n"
-        with patch.object(self._mod.subprocess, "run", return_value=mock_result):
-            self._mod._check_playwright_version(config)
+        with patch.object(self._mod, "get_playwright_version_cached", return_value="1.55.1"):
+            self._mod._check_playwright_version(config, "test-session", Path("/tmp"))
         assert config["playwright_enabled"] is True
         assert capsys.readouterr().err == ""
 
     def test_parse_error_logs_notice_does_not_disable(self, capsys):
         """Unparseable version string → parse-error notice, playwright NOT disabled."""
         config = {"playwright_enabled": True}
-        mock_result = MagicMock()
-        mock_result.stdout = "not a version at all\n"
-        with patch.object(self._mod.subprocess, "run", return_value=mock_result):
-            self._mod._check_playwright_version(config)
+        with patch.object(self._mod, "get_playwright_version_cached", return_value="not a version at all"):
+            self._mod._check_playwright_version(config, "test-session", Path("/tmp"))
         assert config.get("playwright_enabled") is True
         err = capsys.readouterr().err
         assert "could not parse playwright version" in err
@@ -289,7 +295,9 @@ def _run_hook_no_zf(tmp_path: Path) -> subprocess.CompletedProcess:
     return subprocess.run(
         [sys.executable, str(HOOK)],
         input=json.dumps({"session_id": "test-session"}),
-        capture_output=True, text=True, env=env,
+        capture_output=True,
+        text=True,
+        env=env,
     )
 
 
@@ -299,8 +307,8 @@ class TestInitNudge:
     def test_prints_init_nudge_when_no_zf(self, tmp_path):
         result = _run_hook_no_zf(tmp_path)
         assert result.returncode == 0
-        assert "/init" in result.stdout, (
-            "must print /init nudge when zie-framework/ absent, got: " + repr(result.stdout)
+        assert "/init" in result.stdout, "must print /init nudge when zie-framework/ absent, got: " + repr(
+            result.stdout
         )
 
     def test_init_nudge_mentions_zie_framework(self, tmp_path):
@@ -317,7 +325,9 @@ class TestStalenessWarning:
         # We simulate staleness by writing PROJECT.md with a very old mtime
         project_md = zf / "PROJECT.md"
         project_md.write_text("# Project\nStale content")
-        import os as _os, time as _time
+        import os as _os
+        import time as _time
+
         old_mtime = _time.time() - 86400  # 1 day ago
         _os.utime(project_md, (old_mtime, old_mtime))
         result = _run_hook(tmp_path)
@@ -334,10 +344,9 @@ class TestCommandListOutput:
         result = _run_hook(tmp_path)
         assert result.returncode == 0
         # Command list line starts with [zf] and contains cmds:
-        assert any(
-            "cmds:" in line and "[zf]" in line
-            for line in result.stdout.splitlines()
-        ), "stdout must contain a command list line"
+        assert any("cmds:" in line and "[zf]" in line for line in result.stdout.splitlines()), (
+            "stdout must contain a command list line"
+        )
 
     def test_command_list_contains_core_commands(self, tmp_path):
         _make_zf(tmp_path)
@@ -354,10 +363,7 @@ class TestCommandListOutput:
         result = _run_hook(tmp_path)
         # /health should NOT appear unless commands/health.md exists
         # (check that it's absent in the command list line)
-        cmd_lines = [
-            l for l in result.stdout.splitlines()
-            if "cmds:" in l
-        ]
+        cmd_lines = [line for line in result.stdout.splitlines() if "cmds:" in line]
         if cmd_lines:
             assert "/health" not in cmd_lines[0], (
                 "/health must be omitted from command list when commands/health.md absent"
@@ -368,21 +374,14 @@ class TestCommandListOutput:
         # Provide SKILL.md so guard logic runs (not hardcoded fallback)
         skill_dir = tmp_path / "skills" / "context-map"
         skill_dir.mkdir(parents=True, exist_ok=True)
-        (skill_dir / "SKILL.md").write_text(
-            "## Command Map\n\n- `/spec` — design\n- `/health` — health dashboard\n"
-        )
+        (skill_dir / "SKILL.md").write_text("## Command Map\n\n- `/spec` — design\n- `/health` — health dashboard\n")
         health_dir = tmp_path / "commands"
         health_dir.mkdir(exist_ok=True)
         (health_dir / "health.md").write_text("# /health")
         result = _run_hook(tmp_path)
-        cmd_lines = [
-            l for l in result.stdout.splitlines()
-            if "cmds:" in l
-        ]
+        cmd_lines = [line for line in result.stdout.splitlines() if "cmds:" in line]
         if cmd_lines:
-            assert "/health" in cmd_lines[0], (
-                "/health must be included when commands/health.md exists"
-            )
+            assert "/health" in cmd_lines[0], "/health must be included when commands/health.md exists"
 
 
 class TestBacklogNudge:
@@ -412,6 +411,8 @@ class TestSessionResumeErrorPath:
         result = subprocess.run(
             [sys.executable, str(HOOK)],
             input="not json at all",
-            capture_output=True, text=True, env=env,
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert result.returncode == 0

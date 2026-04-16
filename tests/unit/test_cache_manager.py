@@ -1,11 +1,11 @@
 """Tests for CacheManager: TTL, mtime, and session invalidation modes."""
+
 import os
+import sys
 import time
-from pathlib import Path
 
 import pytest
 
-import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 from utils_cache import CacheManager
 
@@ -52,10 +52,12 @@ class TestTTLInvalidation:
     def test_get_or_compute_caches(self, tmp_path):
         cache = CacheManager(tmp_path / "cache")
         calls = 0
+
         def compute():
             nonlocal calls
             calls += 1
             return "computed"
+
         result = cache.get_or_compute("key1", "sess1", compute, ttl=600)
         assert result == "computed"
         assert calls == 1
@@ -72,16 +74,14 @@ class TestMtimeInvalidation:
         cache = CacheManager(tmp_path / "cache")
         src = tmp_path / "source.txt"
         src.write_text("original")
-        cache.set("doc", "content", "sess1", ttl=600,
-                  invalidation="mtime", source_path=str(src))
+        cache.set("doc", "content", "sess1", ttl=600, invalidation="mtime", source_path=str(src))
         assert cache.get("doc", "sess1") == "content"
 
     def test_mtime_invalidate_on_change(self, tmp_path):
         cache = CacheManager(tmp_path / "cache")
         src = tmp_path / "source.txt"
         src.write_text("original")
-        cache.set("doc", "content", "sess1", ttl=600,
-                  invalidation="mtime", source_path=str(src))
+        cache.set("doc", "content", "sess1", ttl=600, invalidation="mtime", source_path=str(src))
         # Modify the file (advance mtime)
         time.sleep(0.05)
         src.write_text("modified")
@@ -92,44 +92,51 @@ class TestMtimeInvalidation:
         cache = CacheManager(tmp_path / "cache")
         src = tmp_path / "source.txt"
         src.write_text("original")
-        cache.set("doc", "content", "sess1", ttl=600,
-                  invalidation="mtime", source_path=str(src))
+        cache.set("doc", "content", "sess1", ttl=600, invalidation="mtime", source_path=str(src))
         # Read again without modifying — should still be cached
         assert cache.get("doc", "sess1") == "content"
 
     def test_mtime_source_path_missing(self, tmp_path):
         cache = CacheManager(tmp_path / "cache")
         src = tmp_path / "nonexistent.txt"
-        cache.set("doc", "content", "sess1", ttl=600,
-                  invalidation="mtime", source_path=str(src))
+        cache.set("doc", "content", "sess1", ttl=600, invalidation="mtime", source_path=str(src))
         # File doesn't exist — should be invalidated
         assert cache.get("doc", "sess1") is None
 
     def test_mtime_requires_source_path(self, tmp_path):
         cache = CacheManager(tmp_path / "cache")
         with pytest.raises(ValueError, match="source_path is required"):
-            cache.set("doc", "content", "sess1", ttl=600,
-                      invalidation="mtime")
+            cache.set("doc", "content", "sess1", ttl=600, invalidation="mtime")
 
     def test_get_or_compute_with_mtime(self, tmp_path):
         cache = CacheManager(tmp_path / "cache")
         src = tmp_path / "source.txt"
         src.write_text("original")
         calls = 0
+
         def compute():
             nonlocal calls
             calls += 1
             return src.read_text()
+
         result = cache.get_or_compute(
-            "doc", "sess1", compute, ttl=600,
-            invalidation="mtime", source_path=str(src),
+            "doc",
+            "sess1",
+            compute,
+            ttl=600,
+            invalidation="mtime",
+            source_path=str(src),
         )
         assert result == "original"
         assert calls == 1
         # Second call — same mtime, should use cache
         result2 = cache.get_or_compute(
-            "doc", "sess1", compute, ttl=600,
-            invalidation="mtime", source_path=str(src),
+            "doc",
+            "sess1",
+            compute,
+            ttl=600,
+            invalidation="mtime",
+            source_path=str(src),
         )
         assert result2 == "original"
         assert calls == 1  # compute not called again
@@ -139,13 +146,19 @@ class TestMtimeInvalidation:
         src = tmp_path / "source.txt"
         src.write_text("original")
         calls = 0
+
         def compute():
             nonlocal calls
             calls += 1
             return src.read_text()
+
         cache.get_or_compute(
-            "doc", "sess1", compute, ttl=600,
-            invalidation="mtime", source_path=str(src),
+            "doc",
+            "sess1",
+            compute,
+            ttl=600,
+            invalidation="mtime",
+            source_path=str(src),
         )
         assert calls == 1
         # Modify file
@@ -153,8 +166,12 @@ class TestMtimeInvalidation:
         src.write_text("modified")
         cache2 = CacheManager(tmp_path / "cache")
         result = cache2.get_or_compute(
-            "doc", "sess1", compute, ttl=600,
-            invalidation="mtime", source_path=str(src),
+            "doc",
+            "sess1",
+            compute,
+            ttl=600,
+            invalidation="mtime",
+            source_path=str(src),
         )
         assert result == "modified"
         assert calls == 2

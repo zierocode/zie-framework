@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Stop hook — store session learnings in zie-memory and write pending_learn."""
+
 import json
 import os
 import sys
@@ -9,20 +10,20 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(__file__))
 from utils_error import log_error
 from utils_event import call_zie_memory_api, get_cwd, read_event
-from utils_io import atomic_write, persistent_project_path, project_tmp_path
+from utils_io import atomic_write, project_tmp_path
 from utils_roadmap import parse_roadmap_now
 
 _STAGE_KEYWORDS = [
-    ("spec",      ["spec"]),
-    ("plan",      ["plan"]),
+    ("spec", ["spec"]),
+    ("plan", ["plan"]),
     ("implement", ["implement", "code", "build"]),
-    ("fix",       ["fix", "bug"]),
-    ("release",   ["release", "deploy"]),
-    ("retro",     ["retro"]),
+    ("fix", ["fix", "bug"]),
+    ("release", ["release", "deploy"]),
+    ("retro", ["retro"]),
 ]
 
 _PATTERN_LOG_LINES_TRIGGER = 10  # rebuild aggregate every N sessions
-_PATTERN_LOG_LOOKBACK = 30       # use last N records for aggregate
+_PATTERN_LOG_LOOKBACK = 30  # use last N records for aggregate
 
 
 def _detect_stage(task_text: str) -> str:
@@ -87,8 +88,7 @@ try:
     try:
         atomic_write(
             pending_learn_file,
-            f"project={project}\n"
-            f"wip={wip_context}\n",
+            f"project={project}\nwip={wip_context}\n",
         )
         os.chmod(pending_learn_file, 0o600)
     except (OSError, PermissionError) as e:
@@ -98,11 +98,13 @@ try:
     _log_path = project_tmp_path("pattern-log", project)
     _agg_path = project_tmp_path("pattern-aggregate", project)
     try:
-        _record = json.dumps({
-            "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "stage": stage_at_end,
-            "wip": wip_context[:120],
-        })
+        _record = json.dumps(
+            {
+                "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "stage": stage_at_end,
+                "wip": wip_context[:120],
+            }
+        )
         with open(_log_path, "a") as _f:
             _f.write(_record + "\n")
         os.chmod(_log_path, 0o600)
@@ -125,10 +127,15 @@ try:
         sys.exit(0)
 
     try:
-        call_zie_memory_api(api_url, api_key, "/api/hooks/session-stop", {
-            "project": project,
-            "wip_summary": wip_context,
-        })
+        call_zie_memory_api(
+            api_url,
+            api_key,
+            "/api/hooks/session-stop",
+            {
+                "project": project,
+                "wip_summary": wip_context,
+            },
+        )
     except Exception as e:
         print(f"[zie-framework] session-learn: {e}", file=sys.stderr)
 

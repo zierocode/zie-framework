@@ -1,4 +1,5 @@
 """Tests for commands/init.md content spec compliance."""
+
 import os
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -20,8 +21,12 @@ class TestZieInitPipelineSummary:
         """Pipeline block must list all 6 SDLC stages in order."""
         content = read_init()
         stages = [
-            "/backlog", "/spec", "/plan",
-            "/implement", "/release", "/retro",
+            "/backlog",
+            "/spec",
+            "/plan",
+            "/implement",
+            "/release",
+            "/retro",
         ]
         for stage in stages:
             assert stage in content, f"Missing stage: {stage}"
@@ -32,7 +37,7 @@ class TestZieInitPipelineSummary:
 
     def test_pipeline_first_feature_hint(self):
         content = read_init()
-        assert 'First feature: /backlog' in content
+        assert "First feature: /backlog" in content
 
     def test_pipeline_summary_after_print_summary_step(self):
         """Pipeline block must appear within or after the Print summary step."""
@@ -41,9 +46,7 @@ class TestZieInitPipelineSummary:
         pipeline_idx = content.find("SDLC pipeline:")
         assert print_summary_idx != -1, "Print summary step not found in zie-init.md"
         assert pipeline_idx != -1, "SDLC pipeline block not found"
-        assert pipeline_idx > print_summary_idx, (
-            "Pipeline summary must appear after Print summary header"
-        )
+        assert pipeline_idx > print_summary_idx, "Pipeline summary must appear after Print summary header"
 
     def test_migration_complete_line_documented(self):
         """Migration complete line must be documented in Step 13."""

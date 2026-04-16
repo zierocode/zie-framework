@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Unit tests for session-resume auto-improve functionality."""
+
 import json
 import os
 import shutil
@@ -81,36 +82,40 @@ class TestSessionResumeAutoImprove:
         # Create session memory with high-confidence patterns
         zf = test_repo / "zie-framework"
         memory_file = zf / "memory" / "session-20260414-120000.json"
-        memory_file.write_text(json.dumps({
-            "session_id": "test-session-001",
-            "timestamp": {"start": "2026-04-14T12:00:00Z", "end": "2026-04-14T12:30:00Z"},
-            "patterns": [
+        memory_file.write_text(
+            json.dumps(
                 {
-                    "id": "workflow-20260414-001",
-                    "category": "workflow",
-                    "description": "TDD loop: Read → Edit → Bash test",
-                    "confidence": 0.96,
-                    "auto_apply": True,
-                    "frequency": 5,
-                },
-                {
-                    "id": "decision-20260414-001",
-                    "category": "decision",
-                    "description": "Use atomic writes for all file operations",
-                    "confidence": 0.98,
-                    "auto_apply": True,
-                    "frequency": 3,
-                },
-                {
-                    "id": "workflow-20260414-002",
-                    "category": "workflow",
-                    "description": "Low confidence pattern",
-                    "confidence": 0.80,
-                    "auto_apply": False,
-                    "frequency": 2,
+                    "session_id": "test-session-001",
+                    "timestamp": {"start": "2026-04-14T12:00:00Z", "end": "2026-04-14T12:30:00Z"},
+                    "patterns": [
+                        {
+                            "id": "workflow-20260414-001",
+                            "category": "workflow",
+                            "description": "TDD loop: Read → Edit → Bash test",
+                            "confidence": 0.96,
+                            "auto_apply": True,
+                            "frequency": 5,
+                        },
+                        {
+                            "id": "decision-20260414-001",
+                            "category": "decision",
+                            "description": "Use atomic writes for all file operations",
+                            "confidence": 0.98,
+                            "auto_apply": True,
+                            "frequency": 3,
+                        },
+                        {
+                            "id": "workflow-20260414-002",
+                            "category": "workflow",
+                            "description": "Low confidence pattern",
+                            "confidence": 0.80,
+                            "auto_apply": False,
+                            "frequency": 2,
+                        },
+                    ],
                 }
-            ]
-        }))
+            )
+        )
 
         result = subprocess.run(
             ["python3", str(hook)],
@@ -135,20 +140,24 @@ class TestSessionResumeAutoImprove:
 
         zf = test_repo / "zie-framework"
         memory_file = zf / "memory" / "session-20260414-120000.json"
-        memory_file.write_text(json.dumps({
-            "session_id": "test-session-001",
-            "timestamp": {"start": "2026-04-14T12:00:00Z", "end": "2026-04-14T12:30:00Z"},
-            "patterns": [
+        memory_file.write_text(
+            json.dumps(
                 {
-                    "id": "workflow-20260414-001",
-                    "category": "workflow",
-                    "description": "TDD loop: Read → Edit → Bash test",
-                    "confidence": 0.96,
-                    "auto_apply": True,
-                    "frequency": 5,
+                    "session_id": "test-session-001",
+                    "timestamp": {"start": "2026-04-14T12:00:00Z", "end": "2026-04-14T12:30:00Z"},
+                    "patterns": [
+                        {
+                            "id": "workflow-20260414-001",
+                            "category": "workflow",
+                            "description": "TDD loop: Read → Edit → Bash test",
+                            "confidence": 0.96,
+                            "auto_apply": True,
+                            "frequency": 5,
+                        }
+                    ],
                 }
-            ]
-        }))
+            )
+        )
 
         subprocess.run(
             ["python3", str(hook)],
@@ -236,20 +245,24 @@ class TestSessionResumeAutoImprove:
 
         zf = test_repo / "zie-framework"
         memory_file = zf / "memory" / "session-20260414-120000.json"
-        memory_file.write_text(json.dumps({
-            "session_id": "test-session-001",
-            "timestamp": {"start": "2026-04-14T12:00:00Z", "end": "2026-04-14T12:30:00Z"},
-            "patterns": [
+        memory_file.write_text(
+            json.dumps(
                 {
-                    "id": "workflow-20260414-001",
-                    "category": "workflow",
-                    "description": "Low confidence pattern",
-                    "confidence": 0.90,
-                    "auto_apply": False,
-                    "frequency": 3,
+                    "session_id": "test-session-001",
+                    "timestamp": {"start": "2026-04-14T12:00:00Z", "end": "2026-04-14T12:30:00Z"},
+                    "patterns": [
+                        {
+                            "id": "workflow-20260414-001",
+                            "category": "workflow",
+                            "description": "Low confidence pattern",
+                            "confidence": 0.90,
+                            "auto_apply": False,
+                            "frequency": 3,
+                        }
+                    ],
                 }
-            ]
-        }))
+            )
+        )
 
         result = subprocess.run(
             ["python3", str(hook)],
@@ -271,20 +284,24 @@ class TestSessionResumeAutoImprove:
 
         zf = test_repo / "zie-framework"
         memory_file = zf / "memory" / "session-20260414-120000.json"
-        memory_file.write_text(json.dumps({
-            "session_id": "test-session-001",
-            "timestamp": {"start": "2026-04-14T12:00:00Z", "end": "2026-04-14T12:30:00Z"},
-            "patterns": [
+        memory_file.write_text(
+            json.dumps(
                 {
-                    "id": "code-20260414-001",
-                    "category": "code",
-                    "description": "High confidence code pattern",
-                    "confidence": 0.97,
-                    "auto_apply": True,
-                    "frequency": 5,
+                    "session_id": "test-session-001",
+                    "timestamp": {"start": "2026-04-14T12:00:00Z", "end": "2026-04-14T12:30:00Z"},
+                    "patterns": [
+                        {
+                            "id": "code-20260414-001",
+                            "category": "code",
+                            "description": "High confidence code pattern",
+                            "confidence": 0.97,
+                            "auto_apply": True,
+                            "frequency": 5,
+                        }
+                    ],
                 }
-            ]
-        }))
+            )
+        )
 
         result = subprocess.run(
             ["python3", str(hook)],

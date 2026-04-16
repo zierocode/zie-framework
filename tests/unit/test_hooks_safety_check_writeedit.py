@@ -1,11 +1,9 @@
 """Tests for Write/Edit path in hooks/safety-check.py (merged from input-sanitizer.py)."""
+
 import json
 import os
 import subprocess
 import sys
-from pathlib import Path
-
-import pytest
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HOOK = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
@@ -127,7 +125,8 @@ class TestErrorResilience:
         r = subprocess.run(
             [sys.executable, HOOK],
             input=json.dumps(event),
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         assert r.returncode == 0
         assert r.stdout.strip() == ""
@@ -136,7 +135,8 @@ class TestErrorResilience:
         r = subprocess.run(
             [sys.executable, HOOK],
             input='"just a string"',
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         assert r.returncode == 0
         assert r.stdout.strip() == ""
@@ -152,7 +152,8 @@ class TestErrorResilience:
         r = subprocess.run(
             [sys.executable, HOOK],
             input=json.dumps(event),
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
             env={**os.environ, "CLAUDE_CWD": str(tmp_path)},
         )
         assert r.returncode == 0

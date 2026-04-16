@@ -1,4 +1,5 @@
 """Verify that all three reviewer skills use context_bundle for ADR loading."""
+
 from pathlib import Path
 
 import pytest
@@ -16,9 +17,7 @@ REVIEWER_SKILLS = [
 def test_reviewer_uses_context_bundle(skill_path):
     """Reviewers receive ADRs via context_bundle from caller (not disk reads)."""
     content = skill_path.read_text(encoding="utf-8")
-    assert "context_bundle" in content, (
-        f"{skill_path.parent.name}/SKILL.md does not reference context_bundle"
-    )
+    assert "context_bundle" in content, f"{skill_path.parent.name}/SKILL.md does not reference context_bundle"
     # Verify Phase 1 validates context_bundle
     assert "Phase 1" in content and "Validate Context Bundle" in content, (
         f"{skill_path.parent.name}/SKILL.md missing Phase 1 context bundle validation"

@@ -1,4 +1,5 @@
 """Test parallel execution patterns."""
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
@@ -13,46 +14,40 @@ class TestParallelExecutionPatterns:
     def test_zie_implement_parallel_agents(self):
         """zie-implement.md must use background agents for parallel execution."""
         text = (CMD_DIR / "implement.md").read_text()
-        assert "background" in text.lower() or "parallel" in text.lower(), \
+        assert "background" in text.lower() or "parallel" in text.lower(), (
             "zie-implement.md must describe background/parallel agent execution"
+        )
 
     def test_zie_implement_file_conflict_in_plan_tools(self):
         """File conflict detection is documented in write-plan and plan-review."""
         write_plan_text = (SKILLS_DIR / "write-plan" / "SKILL.md").read_text()
-        assert "conflict" in write_plan_text.lower(), \
-            "write-plan/SKILL.md must document file conflict detection"
+        assert "conflict" in write_plan_text.lower(), "write-plan/SKILL.md must document file conflict detection"
 
     def test_zie_plan_parallel_agents(self):
         """zie-plan.md must describe parallel Agent dispatch."""
         text = (CMD_DIR / "plan.md").read_text()
-        assert "parallel" in text.lower() or "Agent" in text, \
-            "zie-plan.md must describe parallel Agent dispatch"
+        assert "parallel" in text.lower() or "Agent" in text, "zie-plan.md must describe parallel Agent dispatch"
 
     def test_zie_release_fork_terminology_fixed(self):
         """zie-release.md must not use misleading 'Fork Skill' terminology."""
         text = (CMD_DIR / "release.md").read_text()
         # Either removed or converted to true async
-        assert "Fork `Skill" not in text, \
-            "zie-release.md must not use 'Fork `Skill' terminology"
+        assert "Fork `Skill" not in text, "zie-release.md must not use 'Fork `Skill' terminology"
 
     def test_depends_on_syntax_documented(self):
         """write-plan/SKILL.md must document depends_on syntax."""
         text = (SKILLS_DIR / "write-plan" / "SKILL.md").read_text()
-        assert "depends_on" in text, \
-            "write-plan/SKILL.md must document depends_on syntax"
+        assert "depends_on" in text, "write-plan/SKILL.md must document depends_on syntax"
 
     def test_plan_reviewer_suggests_depends_on(self):
         """plan-review/SKILL.md must suggest depends_on for shared files."""
         text = (SKILLS_DIR / "plan-review" / "SKILL.md").read_text()
-        assert "depends_on" in text, \
-            "plan-review/SKILL.md must mention depends_on"
-        assert "file conflict" in text.lower(), \
-            "plan-review/SKILL.md must mention file conflict detection"
+        assert "depends_on" in text, "plan-review/SKILL.md must mention depends_on"
+        assert "file conflict" in text.lower(), "plan-review/SKILL.md must mention file conflict detection"
 
     def test_parallel_docs_created(self):
         """zie-framework/docs/parallel-execution-patterns.md must exist."""
-        assert (DOCS_DIR / "parallel-execution-patterns.md").exists(), \
-            "parallel-execution-patterns.md must be created"
+        assert (DOCS_DIR / "parallel-execution-patterns.md").exists(), "parallel-execution-patterns.md must be created"
 
 
 class TestFileConflictDetection:

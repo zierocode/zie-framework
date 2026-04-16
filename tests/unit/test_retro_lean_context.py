@@ -1,4 +1,5 @@
 """Structural tests: zie-retro.md must pre-extract Done section for agents."""
+
 from pathlib import Path
 
 RETRO_MD = Path(__file__).parents[2] / "commands" / "retro.md"
@@ -17,23 +18,15 @@ class TestRetroLeanContext:
     def test_adr_write_step_present(self):
         """ADR inline write step must exist in zie-retro.md."""
         src = self._src()
-        assert "Write ADR" in src or "Write` →" in src, (
-            "zie-retro.md must have an inline ADR write step"
-        )
+        assert "Write ADR" in src or "Write` →" in src, "zie-retro.md must have an inline ADR write step"
         # done_section_current is defined in compact bundle, available to inline steps
-        assert "done_section_current" in src, (
-            "compact bundle must include done_section_current for ADR/ROADMAP writes"
-        )
+        assert "done_section_current" in src, "compact bundle must include done_section_current for ADR/ROADMAP writes"
 
     def test_roadmap_update_step_present(self):
-        """ROADMAP inline update step must exist in zie-retro.md."""
+        """ROADMAP Done update step must exist in retro.md."""
         src = self._src()
-        assert "Update ROADMAP Done" in src, (
-            "zie-retro.md must have an inline ROADMAP Done update step"
-        )
-        assert "done_section_current" in src, (
-            "compact bundle must include done_section_current for ROADMAP update"
-        )
+        assert "ROADMAP Done" in src, "retro.md must have a ROADMAP Done update step"
+        assert "done_section_current" in src, "compact bundle must include done_section_current for ROADMAP update"
 
     def test_agents_do_not_re_read_full_roadmap(self):
         """Agent prompts must not instruct agents to re-read the full ROADMAP file."""
@@ -46,6 +39,4 @@ class TestRetroLeanContext:
         assert "re-read ROADMAP" not in agents_region, (
             "Agent prompts must not instruct re-reading ROADMAP — use done_section_current instead"
         )
-        assert "read full" not in agents_region.lower(), (
-            "Agent prompts must not instruct reading the full ROADMAP file"
-        )
+        assert "read full" not in agents_region.lower(), "Agent prompts must not instruct reading the full ROADMAP file"

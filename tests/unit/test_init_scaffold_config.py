@@ -1,10 +1,11 @@
 """Tests for init-scaffold-claude-code-config: template existence and .ignore merge logic."""
+
 import json
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-TEMPLATES  = REPO_ROOT / "templates"
-INIT_MD    = REPO_ROOT / "commands" / "init.md"
+TEMPLATES = REPO_ROOT / "templates"
+INIT_MD = REPO_ROOT / "commands" / "init.md"
 
 
 class TestTemplatesExist:
@@ -37,7 +38,7 @@ class TestTemplatesExist:
 
     def test_dot_ignore_template_has_patterns(self):
         path = TEMPLATES / "dot-ignore.template"
-        lines = [l.strip() for l in path.read_text().splitlines() if l.strip()]
+        lines = [line.strip() for line in path.read_text().splitlines() if line.strip()]
         assert len(lines) >= 5, f".ignore template should have >= 5 patterns, got {len(lines)}"
         assert "__pycache__/" in lines
         assert "node_modules/" in lines
@@ -61,9 +62,7 @@ class TestInitMdReferences:
 
     def test_init_md_references_dot_ignore(self):
         content = INIT_MD.read_text()
-        assert "dot-ignore.template" in content, (
-            "init.md must reference templates/dot-ignore.template"
-        )
+        assert "dot-ignore.template" in content, "init.md must reference templates/dot-ignore.template"
 
     def test_init_md_has_step_12(self):
         content = INIT_MD.read_text()
@@ -77,7 +76,7 @@ class TestDotIgnoreMerge:
 
     def _get_template_patterns(self) -> list[str]:
         path = TEMPLATES / "dot-ignore.template"
-        return [l.strip() for l in path.read_text().splitlines() if l.strip()]
+        return [line.strip() for line in path.read_text().splitlines() if line.strip()]
 
     def test_merge_appends_missing_patterns(self, tmp_path: Path):
         """If .ignore has some patterns, merge adds only the missing ones."""
@@ -90,7 +89,7 @@ class TestDotIgnoreMerge:
         merged = existing.read_text().rstrip("\n") + "\n" + "\n".join(new_lines) + "\n"
         existing.write_text(merged)
 
-        result_lines = [l for l in existing.read_text().splitlines() if l.strip()]
+        result_lines = [line for line in existing.read_text().splitlines() if line.strip()]
         for pattern in template_patterns:
             assert pattern in result_lines, f"Pattern '{pattern}' missing after merge"
 
@@ -105,7 +104,7 @@ class TestDotIgnoreMerge:
         merged = existing.read_text().rstrip("\n") + "\n" + "\n".join(new_lines) + "\n"
         existing.write_text(merged)
 
-        result_lines = [l for l in existing.read_text().splitlines() if l.strip()]
+        result_lines = [line for line in existing.read_text().splitlines() if line.strip()]
         assert len(result_lines) == len(set(result_lines)), "No duplicate lines in merged .ignore"
 
     def test_merge_preserves_existing(self, tmp_path: Path):

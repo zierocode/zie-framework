@@ -1,4 +1,5 @@
 """Tests for hooks/reviewer-gate.py — blocks approved:true writes to spec/plan files."""
+
 import json
 import os
 import subprocess
@@ -11,7 +12,9 @@ REPO_ROOT = Path(__file__).parents[2]
 HOOK = str(REPO_ROOT / "hooks" / "reviewer-gate.py")
 
 
-def run_hook(tool_name: str, tool_input: dict, cwd: str | None = None, existing_content: str = "") -> subprocess.CompletedProcess:
+def run_hook(
+    tool_name: str, tool_input: dict, cwd: str | None = None, existing_content: str = ""
+) -> subprocess.CompletedProcess:
     event = {"tool_name": tool_name, "tool_input": tool_input}
     env = os.environ.copy()
     env["CLAUDE_CWD"] = cwd or str(REPO_ROOT)
@@ -84,7 +87,11 @@ class TestReviewerGateAllows:
         # File already has approved: true — allow updating other fields
         write_spec(tmp_path, "approved: true\napproved_at: 2026-04-10\n---\n# Spec\n")
         path = "zie-framework/specs/2026-04-11-test-feature-design.md"
-        r = run_hook("Write", {"file_path": path, "content": "approved: true\napproved_at: 2026-04-11\n---\n# Spec\n"}, cwd=str(tmp_path))
+        r = run_hook(
+            "Write",
+            {"file_path": path, "content": "approved: true\napproved_at: 2026-04-11\n---\n# Spec\n"},
+            cwd=str(tmp_path),
+        )
         assert r.returncode == 0
 
     def test_allows_bash_tool(self, tmp_path):

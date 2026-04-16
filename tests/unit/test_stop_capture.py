@@ -1,4 +1,5 @@
 """Unit tests for hooks/stop-capture.py (Area 1 — Conversation Capture)."""
+
 import json
 import os
 import subprocess

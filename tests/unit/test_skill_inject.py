@@ -1,11 +1,12 @@
 """Tests for skill auto-inject: phase-to-skill mapping and context injection."""
+
 import json
 import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
-from utils_skill_inject import inject_skill_context, DEFAULT_SKILL_MAPPING, MAX_INJECT_CHARS
-from pathlib import Path
+
+from utils_skill_inject import DEFAULT_SKILL_MAPPING, MAX_INJECT_CHARS, inject_skill_context
 
 
 class TestDefaultMapping:

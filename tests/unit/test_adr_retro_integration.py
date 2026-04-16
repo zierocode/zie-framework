@@ -1,4 +1,5 @@
 """Integration-style unit tests for the retro ADR summarization step."""
+
 import sys
 from pathlib import Path
 

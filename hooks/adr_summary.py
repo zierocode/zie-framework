@@ -2,15 +2,14 @@
 
 Used by /retro to compress old ADRs into ADR-000-summary.md.
 """
+
 from __future__ import annotations
 
 import re
 
 _ADR_NUMBER_RE = re.compile(r"^(ADR-\d+)", re.IGNORECASE)
 _H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
-_DECISION_SECTION_RE = re.compile(
-    r"##\s+Decision\s*\n(.*?)(?=\n##|\Z)", re.DOTALL | re.IGNORECASE
-)
+_DECISION_SECTION_RE = re.compile(r"##\s+Decision\s*\n(.*?)(?=\n##|\Z)", re.DOTALL | re.IGNORECASE)
 _HEADING_RE = re.compile(r"^#{1,6}\s+", re.MULTILINE)
 
 MAX_DECISION_LEN = 120

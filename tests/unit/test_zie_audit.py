@@ -15,29 +15,27 @@ def read_skill():
 
 class TestZieAuditCommand:
     def test_command_file_exists(self):
-        assert (COMMANDS / "audit.md").exists(), \
-            "commands/audit.md must exist"
+        assert (COMMANDS / "audit.md").exists(), "commands/audit.md must exist"
 
     def test_allowed_tools_include_websearch_and_webfetch(self):
         content = read_cmd("audit")
-        assert "WebSearch" in content, \
-            "audit must include WebSearch for external research"
-        assert "WebFetch" in content, \
-            "audit must include WebFetch for external research"
+        assert "WebSearch" in content, "audit must include WebSearch for external research"
+        assert "WebFetch" in content, "audit must include WebFetch for external research"
 
     def test_has_research_profile(self):
         # Skill is canonical; command delegates
         content = read_skill()
-        assert "stack" in content or "deps" in content, \
-            "audit skill must build a research profile (stack, deps)"
+        assert "stack" in content or "deps" in content, "audit skill must build a research profile (stack, deps)"
 
     def test_has_three_dimensions(self):
         content = read_skill()
         assert "Security" in content, "audit skill must cover Security dimension"
-        assert "Code Health" in content or "Quality" in content or "Lean" in content, \
+        assert "Code Health" in content or "Quality" in content or "Lean" in content, (
             "audit skill must cover Code Health/Lean dimension"
-        assert "Structural" in content or "Architecture" in content, \
+        )
+        assert "Structural" in content or "Architecture" in content, (
             "audit skill must cover Structural/Architecture dimension"
+        )
 
     def test_research_sources_are_dynamic(self):
         content = read_skill()
@@ -61,16 +59,15 @@ class TestZieAuditCommand:
 
     def test_has_synthesis_phase(self):
         content = read_skill()
-        assert "Synthesis" in content or "synthesis" in content, \
+        assert "Synthesis" in content or "synthesis" in content, (
             "audit skill must have a synthesis phase to consolidate findings"
+        )
 
     def test_report_saved(self):
         content = read_skill()
-        assert "audit-" in content or "audit_" in content or "evidence" in content, \
-            "audit report must be saved"
+        assert "audit-" in content or "audit_" in content or "evidence" in content, "audit report must be saved"
 
     def test_components_md_lists_zie_audit(self):
         components = ROOT / "zie-framework" / "project" / "components.md"
         content = components.read_text()
-        assert "/audit" in content, \
-            "project/components.md must list /audit command"
+        assert "/audit" in content, "project/components.md must list /audit command"

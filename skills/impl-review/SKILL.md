@@ -89,5 +89,5 @@ Next steps:
 
 - Be specific about file and line when flagging issues
 - Don't nitpick style unless it causes real confusion
-- Return ALL issues in one response — don't stop at the first
+- Return ALL issues found — don't stop at the first issue
 - Max 2 iterations: initial scan (all issues) + confirm pass. 0 issues → APPROVED immediately.

@@ -106,5 +106,5 @@ Next steps:
 
 - Reject vague steps ("implement the feature", "add tests")
 - Reject missing `make test-unit` verification in TDD steps
-- Return ALL issues in one response — don't stop at the first
+- Return ALL issues found — don't stop at the first issue
 - Max 2 iterations: initial scan (all issues) + confirm pass. 0 issues → APPROVED immediately.

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Unit tests for command-map-pre-load caching."""
-import json
-import os
+
 import shutil
 import tempfile
 import time
@@ -9,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from hooks.utils_cache import CacheManager, get_cache_manager
+from hooks.utils_cache import CacheManager
 
 
 @pytest.fixture
@@ -76,7 +75,8 @@ class TestCommandMapCache:
                 break
             if in_cmd_map and line.strip().startswith("- `/"):
                 import re
-                m = re.search(r'`(/[a-z]+)`', line)
+
+                m = re.search(r"`(/[a-z]+)`", line)
                 if m:
                     cmd_names.append(m.group(1))
 
@@ -131,6 +131,7 @@ class TestCommandMapCache:
     def test_ttl_is_1800_seconds(self, test_project, cache_dir):
         """Command map cache TTL is 1800s (30 minutes)."""
         from hooks.utils_config import CACHE_TTLS
+
         assert CACHE_TTLS.get("command_map") == 1800
 
 

@@ -15,32 +15,34 @@ class TestConfigCollapseImplement:
     def test_implement_no_config_key_enumeration(self):
         """zie-implement pre-flight must not enumerate config keys as comma-separated list."""
         content = read("commands/implement.md")
-        assert "project_type, test_runner" not in content, \
+        assert "project_type, test_runner" not in content, (
             "zie-implement must not enumerate config keys (project_type, test_runner) — collapse to intent line"
+        )
 
 
 class TestConfigCollapseFix:
     def test_fix_no_config_key_enumeration(self):
         """zie-fix pre-flight must not enumerate config keys."""
         content = read("commands/fix.md")
-        assert "project_type, test_runner" not in content, \
-            "zie-fix must not enumerate config keys in pre-flight"
+        assert "project_type, test_runner" not in content, "zie-fix must not enumerate config keys in pre-flight"
 
 
 class TestConfigCollapseRelease:
     def test_release_no_config_key_enumeration(self):
         """zie-release pre-flight must not enumerate config keys as comma list."""
         content = read("commands/release.md")
-        assert "has_frontend, playwright_enabled, test_runner" not in content, \
+        assert "has_frontend, playwright_enabled, test_runner" not in content, (
             "zie-release must not enumerate config keys — collapse to intent line"
+        )
 
 
 class TestConfigCollapseStatus:
     def test_status_no_config_key_enumeration(self):
         """zie-status step 2 must not enumerate config keys as comma list."""
         content = read("commands/status.md")
-        assert "project_type, test_runner, has_frontend, playwright_enabled" not in content, \
+        assert "project_type, test_runner, has_frontend, playwright_enabled" not in content, (
             "zie-status must not enumerate all config keys — collapse to intent read"
+        )
 
 
 # ── Task 5–6: Pre-flight simplify + handoff blocks ───────────────────────────
@@ -49,16 +51,14 @@ class TestConfigCollapseStatus:
 class TestHandoffBlockBacklog:
     def test_backlog_has_handoff_block(self):
         content = read("commands/backlog.md")
-        assert "## ขั้นตอนถัดไป" in content, \
-            "zie-backlog must have a ## ขั้นตอนถัดไป handoff block"
+        assert "## ขั้นตอนถัดไป" in content, "zie-backlog must have a ## ขั้นตอนถัดไป handoff block"
 
     def test_backlog_handoff_suggests_zie_spec(self):
         content = read("commands/backlog.md")
         handoff_start = content.find("## ขั้นตอนถัดไป")
         assert handoff_start != -1, "zie-backlog must have ## ขั้นตอนถัดไป"
         handoff_section = content[handoff_start:]
-        assert "/spec" in handoff_section, \
-            "zie-backlog handoff must suggest /spec as next step"
+        assert "/spec" in handoff_section, "zie-backlog handoff must suggest /spec as next step"
 
     def test_backlog_preflight_is_concise(self):
         """Pre-flight in zie-backlog must be ≤ 3 items."""
@@ -67,25 +67,25 @@ class TestHandoffBlockBacklog:
         next_section = content.find("\n## ", preflight_start + 1)
         preflight_section = content[preflight_start:next_section]
         # Count numbered items (1. 2. 3.)
-        items = [line for line in preflight_section.split("\n")
-                 if line.strip() and line.strip()[0].isdigit() and ". " in line]
-        assert len(items) <= 3, \
-            f"zie-backlog pre-flight must have ≤ 3 items, found {len(items)}"
+        items = [
+            line
+            for line in preflight_section.split("\n")
+            if line.strip() and line.strip()[0].isdigit() and ". " in line
+        ]
+        assert len(items) <= 3, f"zie-backlog pre-flight must have ≤ 3 items, found {len(items)}"
 
 
 class TestHandoffBlockPlan:
     def test_plan_has_handoff_block(self):
         content = read("commands/plan.md")
-        assert "## ขั้นตอนถัดไป" in content, \
-            "zie-plan must have a ## ขั้นตอนถัดไป handoff block"
+        assert "## ขั้นตอนถัดไป" in content, "zie-plan must have a ## ขั้นตอนถัดไป handoff block"
 
     def test_plan_handoff_suggests_zie_implement(self):
         content = read("commands/plan.md")
         handoff_start = content.find("## ขั้นตอนถัดไป")
         assert handoff_start != -1, "zie-plan must have ## ขั้นตอนถัดไป"
         handoff_section = content[handoff_start:]
-        assert "/implement" in handoff_section, \
-            "zie-plan handoff must suggest /implement as next step"
+        assert "/implement" in handoff_section, "zie-plan handoff must suggest /implement as next step"
 
 
 # ── Task 7: Intent-driven RED/GREEN/REFACTOR in zie-implement ─────────────────
@@ -95,8 +95,9 @@ class TestIntentDrivenImplement:
     def test_red_section_not_bullet_list(self):
         """TDD in zie-implement must be a Skill pointer, not 4+ inline bullet items."""
         content = read("commands/implement.md")
-        assert "Skill(zie-framework:tdd-loop)" in content, \
+        assert "Skill(zie-framework:tdd-loop)" in content, (
             "zie-implement must invoke Skill(zie-framework:tdd-loop) for TDD loop"
+        )
         # The tdd-loop invocation must not be buried in 4+ bullets
         tdd_pos = content.find("Skill(zie-framework:tdd-loop)")
         tdd_line = content[:tdd_pos].count("\n")
@@ -106,8 +107,9 @@ class TestIntentDrivenImplement:
         context_end = min(len(lines), tdd_line + 3)
         nearby = lines[context_start:context_end]
         bullet_lines = [ln for ln in nearby if ln.strip().startswith("- ")]
-        assert len(bullet_lines) <= 2, \
+        assert len(bullet_lines) <= 2, (
             f"zie-implement TDD invocation must be concise (≤ 2 nearby bullets), found {len(bullet_lines)}"
+        )
 
 
 # ── Task 9: Gate descriptions simplified in zie-release ───────────────────────
@@ -117,18 +119,27 @@ class TestGateDescriptionsRelease:
     def test_unit_test_gate_is_concise(self):
         """zie-release unit test gate must be ≤ 3 lines of description."""
         content = read("commands/release.md")
-        gate_start = content.find("### ตรวจสอบ: Unit Tests")
-        next_gate = content.find("### ตรวจสอบ:", gate_start + 1)
-        assert gate_start != -1, "zie-release must have ตรวจสอบ: Unit Tests section"
-        gate_section = content[gate_start:next_gate]
+        # v1.32.0+ uses "Gate 1/5: Unit Tests" format
+        gate_start = content.find("Gate 1/5: Unit Tests")
+        if gate_start == -1:
+            gate_start = content.find("### ตรวจสอบ: Unit Tests")
+        assert gate_start != -1, "zie-release must have Unit Tests gate section"
+        next_gate = content.find("### Gate", gate_start + 1)
+        if next_gate == -1:
+            next_gate = content.find("### ตรวจสอบ:", gate_start + 1)
+        gate_section = content[gate_start:next_gate] if next_gate != -1 else content[gate_start:]
         # Count non-empty, non-heading, non-code-fence lines
-        desc_lines = [ln for ln in gate_section.split("\n")
-                      if ln.strip()
-                      and not ln.strip().startswith("#")
-                      and not ln.strip().startswith("```")
-                      and ln.strip() not in ("make test-unit", "make test-fast")]
-        assert len(desc_lines) <= 3, \
+        desc_lines = [
+            ln
+            for ln in gate_section.split("\n")
+            if ln.strip()
+            and not ln.strip().startswith("#")
+            and not ln.strip().startswith("```")
+            and ln.strip() not in ("make test-unit", "make test-fast")
+        ]
+        assert len(desc_lines) <= 3, (
             f"zie-release unit gate must be concise (≤ 3 description lines), found {len(desc_lines)}: {desc_lines}"
+        )
 
 
 # ── Task 10: Memory pattern standardization ──────────────────────────────────
@@ -150,11 +161,13 @@ class TestMemoryPatternStandardization:
             lines = content.split("\n")
             for i, line in enumerate(lines):
                 if "recall " in line and "recall project" in line:
-                    assert "limit=" in line, \
-                        f"{cmd_path}:{i+1} — recall call missing limit= parameter: {line.strip()!r}"
+                    assert "limit=" in line, (
+                        f"{cmd_path}:{i + 1} — recall call missing limit= parameter: {line.strip()!r}"
+                    )
 
     def test_implement_wip_remember_uses_supersedes(self):
         """zie-implement WIP checkpoint remember must use supersedes to prevent duplicate WIPs."""
         content = read("commands/implement.md")
-        assert "supersedes" in content, \
+        assert "supersedes" in content, (
             "zie-implement WIP remember must use supersedes= to prevent duplicate WIP memories"
+        )

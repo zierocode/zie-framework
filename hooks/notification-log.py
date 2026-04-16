@@ -4,6 +4,7 @@
 Injects additionalContext when the same permission has been prompted
 3 or more times in the current session.
 """
+
 import json
 import os
 import sys
@@ -71,11 +72,15 @@ try:
     records = _append_and_write(log_path, message)
     count = sum(1 for r in records if r.get("msg") == message)
     if count >= 3:
-        print(json.dumps({
-            "additionalContext": (
-                "This permission has been asked 3+ times this session. "
-                "Run /zie-permissions to add it to the allow list."
+        print(
+            json.dumps(
+                {
+                    "additionalContext": (
+                        "This permission has been asked 3+ times this session. "
+                        "Run /zie-permissions to add it to the allow list."
+                    )
+                }
             )
-        }))
+        )
 except Exception as e:
     print(f"[zie-framework] notification-log: {e}", file=sys.stderr)

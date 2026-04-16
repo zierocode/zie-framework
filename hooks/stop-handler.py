@@ -5,20 +5,21 @@ Single git status call, combined nudge checks, one log entry.
 Always exits 0 (ADR-003) — never blocks Claude.
 Infinite-loop guard: exits immediately when stop_hook_active is truthy.
 """
+
 import fnmatch
 import json
 import os
 import re
 import subprocess
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_event import get_cwd, read_event
-from utils_config import load_config
-from utils_roadmap import get_cached_git_status, parse_roadmap_items_with_dates, write_git_status_cache
 from utils_cache import get_cache_manager
+from utils_config import load_config
 from utils_error import log_error
+from utils_event import get_cwd, read_event
+from utils_roadmap import get_cached_git_status, parse_roadmap_items_with_dates, write_git_status_cache
 
 # Canonical implementation file patterns for zie-framework layout.
 IMPL_PATTERNS = [
@@ -69,19 +70,19 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                     if line.startswith("##") and in_now:
                         break
                     if in_now and "[ ]" in line:
-                        slug_match = re.search(r'\[([^\]]+)\]\(backlog/([^\)]+)\.md\)', line)
+                        slug_match = re.search(r"\[([^\]]+)\]\(backlog/([^\)]+)\.md\)", line)
                         slug = slug_match.group(2) if slug_match else line.strip()
                         now_items_raw.append(slug)
 
             for slug in now_items_raw:
                 try:
-                    slug_pattern = re.compile(r'^\+- \[ \] ' + re.escape(slug))
+                    slug_pattern = re.compile(r"^\+- \[ \] " + re.escape(slug))
                     lines = git_log_output.splitlines()
                     date_match = None
                     for i, line in enumerate(lines):
                         if slug_pattern.match(line):
                             for j in range(max(0, i - 5), i):
-                                dm = re.search(r'^Date:\s+(\d{4}-\d{2}-\d{2})', lines[j])
+                                dm = re.search(r"^Date:\s+(\d{4}-\d{2}-\d{2})", lines[j])
                                 if dm:
                                     date_match = dm
                                     break
@@ -119,14 +120,10 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
     try:
         items_with_dates = parse_roadmap_items_with_dates(roadmap_path, "next")
         today = _dt.date.today()
-        stale_count = sum(
-            1 for _, d in items_with_dates
-            if d is not None and (today - d).days > 30
-        )
+        stale_count = sum(1 for _, d in items_with_dates if d is not None and (today - d).days > 30)
         if stale_count > 0:
             print(
-                f"[zie-framework] nudge: {stale_count} backlog item(s) in Next are older than "
-                "30 days — review or defer"
+                f"[zie-framework] nudge: {stale_count} backlog item(s) in Next are older than 30 days — review or defer"
             )
     except (OSError, ValueError) as _e:
         log_error("stop-handler", "stale_backlog_nudge", _e)
@@ -149,7 +146,7 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                             if mtime != today:
                                 continue
                             content = md_file.read_text()
-                            if re.search(r'^approved:\s*true\s*$', content, re.MULTILINE):
+                            if re.search(r"^approved:\s*true\s*$", content, re.MULTILINE):
                                 found_approved = True
                                 break
                         except (OSError, FileNotFoundError) as _e:
@@ -197,10 +194,7 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                         cache.set_flag("compact-tier-mandatory", session_id)
                 elif pct >= advisory_threshold:
                     if not cache.has_flag("compact-tier-advisory", session_id):
-                        print(
-                            f"[zf] Context at {pct_int}% "
-                            "— consider /compact soon to stay efficient."
-                        )
+                        print(f"[zf] Context at {pct_int}% — consider /compact soon to stay efficient.")
                         cache.set_flag("compact-tier-advisory", session_id)
     except Exception as _e:
         log_error("stop-handler", "context_window_nudge", _e)

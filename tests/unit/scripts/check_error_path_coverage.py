@@ -10,6 +10,7 @@ Reads test IDs from stdin (one per line, pytest -q format).
 Exits 0 if all in-scope hooks have ≥1 error-path test.
 Exits 1 if any hook has 0, printing a summary table.
 """
+
 import sys
 
 HOOKS_IN_SCOPE = [

@@ -1,4 +1,5 @@
 """End-to-end smoke tests for ADR summarization pipeline."""
+
 import sys
 from pathlib import Path
 
@@ -21,10 +22,7 @@ def _make_adrs(directory: Path, count: int) -> list:
 
 
 def _simulate_retro_summarization(directory: Path) -> dict:
-    individual = sorted([
-        p for p in directory.glob("ADR-*.md")
-        if p.name != "ADR-000-summary.md"
-    ])
+    individual = sorted([p for p in directory.glob("ADR-*.md") if p.name != "ADR-000-summary.md"])
     count = len(individual)
     summary_written = False
     compressed_count = 0
@@ -39,10 +37,7 @@ def _simulate_retro_summarization(directory: Path) -> dict:
         summary_written = True
         compressed_count = len(to_compress)
 
-    remaining = sorted([
-        p for p in directory.glob("ADR-*.md")
-        if p.name != "ADR-000-summary.md"
-    ])
+    remaining = sorted([p for p in directory.glob("ADR-*.md") if p.name != "ADR-000-summary.md"])
     return {
         "summary_written": summary_written,
         "compressed_count": compressed_count,

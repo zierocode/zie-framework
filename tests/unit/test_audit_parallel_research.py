@@ -31,6 +31,6 @@ class TestAuditParallelResearch:
 
     def test_synthesis_agent_has_no_websearch(self):
         phase4 = _phase_text(4)
-        assert "no WebSearch" in phase4 or "0 WebSearch" in phase4, (
-            "Phase 4 synthesis must explicitly have no WebSearch"
+        assert "No WebSearch" in phase4 or "no WebSearch" in phase4 or "0 WebSearch" in phase4, (
+            "Phase 4 synthesis must explicitly state no WebSearch"
         )

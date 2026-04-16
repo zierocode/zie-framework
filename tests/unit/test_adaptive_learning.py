@@ -1,5 +1,6 @@
 """Tests for adaptive learning — session-learn.py pattern recording +
 intent-sdlc.py threshold adjustment (Sprint B)."""
+
 import json
 import os
 import re
@@ -16,7 +17,7 @@ INTENT_SDLC = REPO_ROOT / "hooks" / "intent-sdlc.py"
 
 
 def _safe(name: str) -> str:
-    return re.sub(r'[^a-zA-Z0-9]', '-', name)
+    return re.sub(r"[^a-zA-Z0-9]", "-", name)
 
 
 def _pattern_log(tmp_path: Path) -> Path:
@@ -31,9 +32,7 @@ def _run_session_learn(tmp_path: Path, env_overrides: dict | None = None) -> sub
     """Run session-learn.py with a minimal environment."""
     zf = tmp_path / "zie-framework"
     zf.mkdir(exist_ok=True)
-    (zf / "ROADMAP.md").write_text(
-        "# ROADMAP\n\n## Now\n\n- implement this feature\n\n## Done\n"
-    )
+    (zf / "ROADMAP.md").write_text("# ROADMAP\n\n## Now\n\n- implement this feature\n\n## Done\n")
     env = {**os.environ, "CLAUDE_CWD": str(tmp_path), "ZIE_MEMORY_ENABLED": "0"}
     if env_overrides:
         env.update(env_overrides)
@@ -46,15 +45,11 @@ def _run_session_learn(tmp_path: Path, env_overrides: dict | None = None) -> sub
     )
 
 
-def _run_intent_sdlc(
-    tmp_path: Path, message: str, aggregate: dict | None = None
-) -> subprocess.CompletedProcess:
+def _run_intent_sdlc(tmp_path: Path, message: str, aggregate: dict | None = None) -> subprocess.CompletedProcess:
     """Run intent-sdlc.py with optional aggregate pre-written."""
     zf = tmp_path / "zie-framework"
     zf.mkdir(exist_ok=True)
-    (zf / "ROADMAP.md").write_text(
-        "# ROADMAP\n\n## Now\n\n## Next\n\n- some-feature\n\n## Done\n"
-    )
+    (zf / "ROADMAP.md").write_text("# ROADMAP\n\n## Now\n\n## Next\n\n- some-feature\n\n## Done\n")
     agg_path = _pattern_agg(tmp_path)
     if aggregate is not None:
         agg_path.write_text(json.dumps(aggregate))
@@ -87,7 +82,7 @@ class TestSessionRecordWritten:
         assert r.returncode == 0
         record = json.loads(log_path.read_text().strip().splitlines()[-1])
         assert "ts" in record, "record must have ts field"
-        assert re.match(r'\d{4}-\d{2}-\d{2}T', record["ts"]), "ts must be ISO format"
+        assert re.match(r"\d{4}-\d{2}-\d{2}T", record["ts"]), "ts must be ISO format"
 
     def test_record_written_with_wip_field(self, tmp_path):
         """Session record must include wip field."""
@@ -104,14 +99,14 @@ class TestSessionRecordWritten:
         log_path.unlink(missing_ok=True)
         zf = tmp_path / "zie-framework"
         zf.mkdir(exist_ok=True)
-        (zf / "ROADMAP.md").write_text(
-            "# ROADMAP\n\n## Now\n\n- spec my-feature — write design doc\n\n## Done\n"
-        )
+        (zf / "ROADMAP.md").write_text("# ROADMAP\n\n## Now\n\n- spec my-feature — write design doc\n\n## Done\n")
         env = {**os.environ, "CLAUDE_CWD": str(tmp_path), "ZIE_MEMORY_ENABLED": "0"}
         subprocess.run(
             [sys.executable, str(SESSION_LEARN)],
             input=json.dumps({"session_id": "stage-detect"}),
-            capture_output=True, text=True, env=env,
+            capture_output=True,
+            text=True,
+            env=env,
         )
         record = json.loads(log_path.read_text().strip().splitlines()[-1])
         assert record["stage"] == "spec", f"expected spec, got {record['stage']!r}"
@@ -122,14 +117,14 @@ class TestSessionRecordWritten:
         log_path.unlink(missing_ok=True)
         zf = tmp_path / "zie-framework"
         zf.mkdir(exist_ok=True)
-        (zf / "ROADMAP.md").write_text(
-            "# ROADMAP\n\n## Now\n\n## Done\n"
-        )
+        (zf / "ROADMAP.md").write_text("# ROADMAP\n\n## Now\n\n## Done\n")
         env = {**os.environ, "CLAUDE_CWD": str(tmp_path), "ZIE_MEMORY_ENABLED": "0"}
         subprocess.run(
             [sys.executable, str(SESSION_LEARN)],
             input=json.dumps({"session_id": "idle-stage"}),
-            capture_output=True, text=True, env=env,
+            capture_output=True,
+            text=True,
+            env=env,
         )
         record = json.loads(log_path.read_text().strip().splitlines()[-1])
         assert record["stage"] == "idle"
@@ -144,10 +139,7 @@ class TestAggregateRebuild:
         agg_path.unlink(missing_ok=True)
 
         # Write 9 records manually — aggregate should NOT exist yet
-        records = [
-            json.dumps({"ts": "2026-01-01T00:00:00Z", "stage": "implement", "wip": "x"})
-            for _ in range(9)
-        ]
+        records = [json.dumps({"ts": "2026-01-01T00:00:00Z", "stage": "implement", "wip": "x"}) for _ in range(9)]
         log_path.write_text("\n".join(records) + "\n")
 
         r = _run_session_learn(tmp_path)  # adds 10th record
@@ -166,10 +158,7 @@ class TestAggregateRebuild:
         agg_path.unlink(missing_ok=True)
 
         # Write 8 records — this run adds the 9th
-        records = [
-            json.dumps({"ts": "2026-01-01T00:00:00Z", "stage": "implement", "wip": "x"})
-            for _ in range(8)
-        ]
+        records = [json.dumps({"ts": "2026-01-01T00:00:00Z", "stage": "implement", "wip": "x"}) for _ in range(8)]
         log_path.write_text("\n".join(records) + "\n")
 
         r = _run_session_learn(tmp_path)
@@ -184,10 +173,7 @@ class TestAggregateRebuild:
         agg_path.unlink(missing_ok=True)
 
         # 9 implement + this session = 10; implement should win
-        records = [
-            json.dumps({"ts": "2026-01-01T00:00:00Z", "stage": "implement", "wip": "x"})
-            for _ in range(9)
-        ]
+        records = [json.dumps({"ts": "2026-01-01T00:00:00Z", "stage": "implement", "wip": "x"}) for _ in range(9)]
         log_path.write_text("\n".join(records) + "\n")
         _run_session_learn(tmp_path)
 
@@ -241,9 +227,7 @@ class TestThresholdAdjustment:
         # Backlog item exists in ROADMAP so guidance would normally fire
         zf = tmp_path / "zie-framework"
         zf.mkdir(exist_ok=True)
-        (zf / "ROADMAP.md").write_text(
-            "# ROADMAP\n\n## Now\n\n## Next\n\n- some-feature\n\n## Done\n"
-        )
+        (zf / "ROADMAP.md").write_text("# ROADMAP\n\n## Now\n\n## Next\n\n- some-feature\n\n## Done\n")
         r = _run_intent_sdlc(tmp_path, "let's work on some-feature")
         assert r.returncode == 0
 

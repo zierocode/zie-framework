@@ -40,8 +40,7 @@ def test_sdlc_compact_no_zf_dir(tmp_path, run_hook):
 
 @pytest.mark.error_path
 def test_safety_check_no_zf_dir(tmp_path, run_hook):
-    r = run_hook("safety-check.py", {"tool_name": "Bash", "tool_input": {"command": "ls"}},
-                 tmp_cwd=tmp_path)
+    r = run_hook("safety-check.py", {"tool_name": "Bash", "tool_input": {"command": "ls"}}, tmp_cwd=tmp_path)
     assert r.returncode == 0
 
 

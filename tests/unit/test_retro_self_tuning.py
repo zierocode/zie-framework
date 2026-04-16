@@ -1,8 +1,7 @@
 """Tests for self-tuning proposal logic extracted from /retro."""
-import json
+
 import os
 import sys
-from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 from utils_self_tuning import (
@@ -28,9 +27,7 @@ class TestParseRedCycleDurations:
         assert 5 in result
 
     def test_returns_at_most_5_cycles(self):
-        log = "\n".join(
-            [f"abc{i} RED phase stuck {i+2} days" for i in range(10)]
-        )
+        log = "\n".join([f"abc{i} RED phase stuck {i + 2} days" for i in range(10)])
         result = parse_red_cycle_durations_from_log(log)
         assert len(result) <= 5
 

@@ -1,4 +1,5 @@
 """Tests for hooks/failure-context.py — PostToolUseFailure debug context."""
+
 import json
 import os
 import subprocess
@@ -182,21 +183,32 @@ class TestFailureContextRoadmapCache:
     def test_uses_cache_over_disk(self, tmp_path):
         """Cache content takes priority over disk ROADMAP."""
         import sys
+
         sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
         from utils_cache import CacheManager
+
         zf = tmp_path / "zie-framework"
         zf.mkdir()
         # Disk: empty Now
         (zf / "ROADMAP.md").write_text("## Now\n\n## Next\n")
         sid = "test-failure-cache-unique-88z"
         cache = CacheManager(tmp_path / ".zie" / "cache")
-        cache.set("roadmap", "## Now\n- [ ] cached-failure-task\n\n## Next\n", sid, ttl=600,
-                  invalidation="mtime", source_path=str(zf / "ROADMAP.md"))
+        cache.set(
+            "roadmap",
+            "## Now\n- [ ] cached-failure-task\n\n## Next\n",
+            sid,
+            ttl=600,
+            invalidation="mtime",
+            source_path=str(zf / "ROADMAP.md"),
+        )
         event = {"tool_name": "Bash", "session_id": sid}
         env = {**os.environ, "CLAUDE_CWD": str(tmp_path)}
         r = subprocess.run(
-            [sys.executable, HOOK], input=json.dumps(event),
-            capture_output=True, text=True, env=env,
+            [sys.executable, HOOK],
+            input=json.dumps(event),
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0
         ctx = json.loads(r.stdout)["additionalContext"]
@@ -211,14 +223,18 @@ class TestFailureContextGitCache:
         """Cached git log is used instead of running a subprocess."""
         sys.path.insert(0, os.path.join(REPO_ROOT, "hooks"))
         from utils_roadmap import write_git_status_cache
+
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         sid = "test-git-cache-fc-77x"
         write_git_status_cache(sid, "log", "abc1234 cached commit message")
         event = {"tool_name": "Bash", "session_id": sid}
         env = {**os.environ, "CLAUDE_CWD": str(cwd)}
         r = subprocess.run(
-            [sys.executable, HOOK], input=json.dumps(event),
-            capture_output=True, text=True, env=env,
+            [sys.executable, HOOK],
+            input=json.dumps(event),
+            capture_output=True,
+            text=True,
+            env=env,
         )
         assert r.returncode == 0
         ctx = json.loads(r.stdout)["additionalContext"]
@@ -229,7 +245,7 @@ class TestFailureContextTimeoutFromConfig:
     def test_subprocess_timeout_s_read_from_config(self):
         """failure-context.py must read subprocess_timeout_s from validated config."""
         source = Path(HOOK).read_text()
-        assert 'config["subprocess_timeout_s"]' in source, \
+        assert 'config["subprocess_timeout_s"]' in source, (
             "failure-context.py must use config['subprocess_timeout_s'], not hardcoded timeout"
-        assert "timeout=5" not in source, \
-            "hardcoded timeout=5 must be removed from failure-context.py"
+        )
+        assert "timeout=5" not in source, "hardcoded timeout=5 must be removed from failure-context.py"

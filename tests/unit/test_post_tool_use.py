@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Unit tests for post-tool-use hook (auto-decide suggestions)."""
+
 import json
 import os
 import shutil
@@ -71,16 +72,18 @@ class TestPostToolUseHook:
         hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-fail-001"
-        event_data = json.dumps({
-            "tool": {"name": "Bash"},
-            "tool_result": {
-                "tool": "Bash",
-                "command": "pytest tests/test_foo.py",
-                "exit_code": 1,
-                "output": "FAILED tests/test_foo.py::test_bar - AssertionError",
-                "stderr": "",
+        event_data = json.dumps(
+            {
+                "tool": {"name": "Bash"},
+                "tool_result": {
+                    "tool": "Bash",
+                    "command": "pytest tests/test_foo.py",
+                    "exit_code": 1,
+                    "output": "FAILED tests/test_foo.py::test_bar - AssertionError",
+                    "stderr": "",
+                },
             }
-        })
+        )
         result = subprocess.run(
             ["python3", str(hook)],
             capture_output=True,
@@ -99,16 +102,18 @@ class TestPostToolUseHook:
         hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-multi-001"
-        event_data = json.dumps({
-            "tool": {"name": "Bash"},
-            "tool_result": {
-                "tool": "Bash",
-                "command": "make test",
-                "exit_code": 1,
-                "output": "ERROR: test_1\nERROR: test_2\nERROR: test_3\nERROR: test_4",
-                "stderr": "",
+        event_data = json.dumps(
+            {
+                "tool": {"name": "Bash"},
+                "tool_result": {
+                    "tool": "Bash",
+                    "command": "make test",
+                    "exit_code": 1,
+                    "output": "ERROR: test_1\nERROR: test_2\nERROR: test_3\nERROR: test_4",
+                    "stderr": "",
+                },
             }
-        })
+        )
         result = subprocess.run(
             ["python3", str(hook)],
             capture_output=True,
@@ -128,15 +133,15 @@ class TestPostToolUseHook:
         hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-spec-001"
-        event_data = json.dumps({
-            "tool": {"name": "Write"},
-            "tool_result": {
-                "tool": "Write",
-                "input": {
-                    "file_path": "/Users/test/zie-framework/specs/2026-04-14-test-feature-design.md"
-                }
+        event_data = json.dumps(
+            {
+                "tool": {"name": "Write"},
+                "tool_result": {
+                    "tool": "Write",
+                    "input": {"file_path": "/Users/test/zie-framework/specs/2026-04-14-test-feature-design.md"},
+                },
             }
-        })
+        )
         result = subprocess.run(
             ["python3", str(hook)],
             capture_output=True,
@@ -154,15 +159,15 @@ class TestPostToolUseHook:
         hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-plan-001"
-        event_data = json.dumps({
-            "tool": {"name": "Write"},
-            "tool_result": {
-                "tool": "Write",
-                "input": {
-                    "file_path": "/Users/test/zie-framework/plans/test-feature.md"
-                }
+        event_data = json.dumps(
+            {
+                "tool": {"name": "Write"},
+                "tool_result": {
+                    "tool": "Write",
+                    "input": {"file_path": "/Users/test/zie-framework/plans/test-feature.md"},
+                },
             }
-        })
+        )
         result = subprocess.run(
             ["python3", str(hook)],
             capture_output=True,
@@ -183,16 +188,18 @@ class TestPostToolUseHook:
 
         # Trigger 4 test failures
         for i in range(4):
-            event_data = json.dumps({
-                "tool": {"name": "Bash"},
-                "tool_result": {
-                    "tool": "Bash",
-                    "command": f"pytest test{i}.py",
-                    "exit_code": 1,
-                    "output": "FAILED",
-                    "stderr": "",
+            event_data = json.dumps(
+                {
+                    "tool": {"name": "Bash"},
+                    "tool_result": {
+                        "tool": "Bash",
+                        "command": f"pytest test{i}.py",
+                        "exit_code": 1,
+                        "output": "FAILED",
+                        "stderr": "",
+                    },
                 }
-            })
+            )
             result = subprocess.run(
                 ["python3", str(hook)],
                 capture_output=True,
@@ -212,16 +219,18 @@ class TestPostToolUseHook:
         hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-format-001"
-        event_data = json.dumps({
-            "tool": {"name": "Bash"},
-            "tool_result": {
-                "tool": "Bash",
-                "command": "pytest",
-                "exit_code": 1,
-                "output": "FAILED",
-                "stderr": "",
+        event_data = json.dumps(
+            {
+                "tool": {"name": "Bash"},
+                "tool_result": {
+                    "tool": "Bash",
+                    "command": "pytest",
+                    "exit_code": 1,
+                    "output": "FAILED",
+                    "stderr": "",
+                },
             }
-        })
+        )
         result = subprocess.run(
             ["python3", str(hook)],
             capture_output=True,
@@ -250,16 +259,18 @@ class TestPostToolUseHook:
         hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-success-001"
-        event_data = json.dumps({
-            "tool": {"name": "Bash"},
-            "tool_result": {
-                "tool": "Bash",
-                "command": "pytest",
-                "exit_code": 0,
-                "output": "passed",
-                "stderr": "",
+        event_data = json.dumps(
+            {
+                "tool": {"name": "Bash"},
+                "tool_result": {
+                    "tool": "Bash",
+                    "command": "pytest",
+                    "exit_code": 0,
+                    "output": "passed",
+                    "stderr": "",
+                },
             }
-        })
+        )
         result = subprocess.run(
             ["python3", str(hook)],
             capture_output=True,
@@ -295,13 +306,7 @@ class TestPostToolUseHook:
         hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-nomatch-001"
-        event_data = json.dumps({
-            "tool": {"name": "Read"},
-            "tool_result": {
-                "tool": "Read",
-                "output": "file content"
-            }
-        })
+        event_data = json.dumps({"tool": {"name": "Read"}, "tool_result": {"tool": "Read", "output": "file content"}})
         result = subprocess.run(
             ["python3", str(hook)],
             capture_output=True,
@@ -326,16 +331,18 @@ class TestSuggestionFrequency:
         env["CLAUDE_SESSION_ID"] = "test-cooldown-001"
 
         # First suggestion should fire
-        event_data = json.dumps({
-            "tool": {"name": "Bash"},
-            "tool_result": {
-                "tool": "Bash",
-                "command": "pytest",
-                "exit_code": 1,
-                "output": "FAILED",
-                "stderr": "",
+        event_data = json.dumps(
+            {
+                "tool": {"name": "Bash"},
+                "tool_result": {
+                    "tool": "Bash",
+                    "command": "pytest",
+                    "exit_code": 1,
+                    "output": "FAILED",
+                    "stderr": "",
+                },
             }
-        })
+        )
         result1 = subprocess.run(
             ["python3", str(hook)],
             capture_output=True,

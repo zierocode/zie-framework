@@ -1,12 +1,11 @@
 """Tests for persistent snapshot in hooks/sdlc-compact.py."""
+
 import json
 import os
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
-
-import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
 HOOK = REPO_ROOT / "hooks" / "sdlc-compact.py"
@@ -81,7 +80,8 @@ class TestPostCompactPersistentRead:
 
         # Delete any /tmp snapshot so PostCompact must fall back to persistent
         import re as _re
-        safe_project = _re.sub(r'[^a-zA-Z0-9]', '-', cwd.name)
+
+        safe_project = _re.sub(r"[^a-zA-Z0-9]", "-", cwd.name)
         tmp_snap = Path(tempfile.gettempdir()) / f"zie-{safe_project}-compact-snapshot"
         tmp_snap.unlink(missing_ok=True)
 
@@ -120,6 +120,6 @@ class TestPostCompactPersistentRead:
         assert r.returncode == 0
         # Should still produce output (from live ROADMAP fallback)
         # The output may be minimal since Now lane has [x] test-item
-        output = r.stdout.strip()
+        r.stdout.strip()
         # It's OK for output to be empty or minimal — just shouldn't crash
         assert r.returncode == 0

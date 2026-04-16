@@ -13,14 +13,15 @@ Exits:
   2 — spec/plan transitioning to approved:true via Write/Edit → block
   0 — any error → graceful degradation, always allow
 """
+
 import os
 import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
-from utils_event import get_cwd, read_event
 from utils_error import log_error
+from utils_event import get_cwd, read_event
 
 _APPROVED_TRUE_RE = re.compile(r"^approved:\s*true\s*$", re.MULTILINE)
 

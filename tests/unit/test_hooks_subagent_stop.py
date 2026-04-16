@@ -1,4 +1,5 @@
 """Tests for hooks/subagent-stop.py"""
+
 import json
 import os
 import subprocess
@@ -44,6 +45,7 @@ VALID_EVENT = {
 # Helpers / fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(autouse=True)
 def _cleanup_log(tmp_path):
     yield
@@ -55,6 +57,7 @@ def _cleanup_log(tmp_path):
 # ---------------------------------------------------------------------------
 # TestSubagentStopNormalWrite
 # ---------------------------------------------------------------------------
+
 
 class TestSubagentStopNormalWrite:
     def test_log_file_created_on_valid_event(self, tmp_path):
@@ -117,6 +120,7 @@ class TestSubagentStopNormalWrite:
 # TestSubagentStopTruncation
 # ---------------------------------------------------------------------------
 
+
 class TestSubagentStopTruncation:
     def test_long_message_truncated_to_500(self, tmp_path):
         cwd = make_cwd(tmp_path)
@@ -146,6 +150,7 @@ class TestSubagentStopTruncation:
 # ---------------------------------------------------------------------------
 # TestSubagentStopMissingFields
 # ---------------------------------------------------------------------------
+
 
 class TestSubagentStopMissingFields:
     def test_empty_event_writes_unknown_placeholders(self, tmp_path):
@@ -184,6 +189,7 @@ class TestSubagentStopMissingFields:
 # TestSubagentStopGuardrails
 # ---------------------------------------------------------------------------
 
+
 class TestSubagentStopGuardrails:
     def test_no_write_when_no_zf_dir(self, tmp_path):
         # tmp_path has no zie-framework/ subdir
@@ -215,6 +221,7 @@ class TestSubagentStopGuardrails:
 # TestSubagentStopSymlinkGuard
 # ---------------------------------------------------------------------------
 
+
 class TestSubagentStopSymlinkGuard:
     def test_symlink_at_log_path_skips_write(self, tmp_path):
         cwd = make_cwd(tmp_path)
@@ -226,9 +233,7 @@ class TestSubagentStopSymlinkGuard:
         r = run_hook(VALID_EVENT, tmp_cwd=cwd)
 
         assert r.returncode == 0
-        assert real_target.read_text() == "do not overwrite", (
-            "symlink target must not be overwritten"
-        )
+        assert real_target.read_text() == "do not overwrite", "symlink target must not be overwritten"
 
     def test_symlink_guard_prints_warning_to_stderr(self, tmp_path):
         cwd = make_cwd(tmp_path)
@@ -248,6 +253,7 @@ class TestSubagentStopSymlinkGuard:
 # TestSubagentStopMultipleEvents
 # ---------------------------------------------------------------------------
 
+
 class TestSubagentStopMultipleEvents:
     def test_three_events_produce_three_lines(self, tmp_path):
         cwd = make_cwd(tmp_path)
@@ -266,8 +272,7 @@ class TestSubagentStopMultipleEvents:
         cwd = make_cwd(tmp_path)
         for i in range(3):
             run_hook(
-                {"agent_id": f"id-{i}", "agent_type": "reviewer",
-                 "last_assistant_message": f"msg{i}"},
+                {"agent_id": f"id-{i}", "agent_type": "reviewer", "last_assistant_message": f"msg{i}"},
                 tmp_cwd=cwd,
             )
         log = project_tmp_path("subagent-log", tmp_path.name)

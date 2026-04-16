@@ -13,10 +13,6 @@ effort: medium
 
 See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-flight).
 
-Parse `--focus <dim>` from `$ARGUMENTS` if present (e.g. `--focus security`).
+Parse `--focus <dim>` from `$ARGUMENTS` if present. Invoke `Skill(zie-framework:audit)`.
 
-Invoke `Skill(zie-framework:audit)` passing `--focus <dim>` or no args.
-
-Phases: [Phase 1/3] dimension research (Agent ✓), [Phase 2/3] synthesis, [Phase 3/3] backlog. [Research 1/15] per WebSearch.
-
-→ /backlog to capture audit findings
+→ /backlog to capture findings
