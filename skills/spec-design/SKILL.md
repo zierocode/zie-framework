@@ -113,7 +113,7 @@ When `$ARGUMENTS[1]` is `autonomous`:
 
 8. **Store spec approval in brain** — if `zie_memory_enabled=true`: → zie-memory: remember("Spec approved: <feature>. Key decisions: [<d1>].", tags=[spec, `<project>`, `<feature-area>`])
 
-9. Print handoff — do NOT auto-invoke write-plan:
+9. Print handoff — do NOT auto-invoke zie-framework:write-plan:
    ```text
    Spec approved ✓ (reviewed by spec-review) → zie-framework/specs/YYYY-MM-DD-<slug>-design.md
 

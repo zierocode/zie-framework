@@ -21,7 +21,7 @@ See [Pre-flight standard](../zie-framework/project/command-conventions.md#pre-fl
 
 | Flag | Description | Default |
 | --- | --- | --- |
-| `--draft-plan` | After spec is approved, auto-invoke `write-plan` and move plan to Ready if approved. Skips manual `/plan` step. | off |
+| `--draft-plan` | After spec is approved, auto-invoke `zie-framework:write-plan` and move plan to Ready if approved. Skips manual `/plan` step. | off |
 
 ## Context Bundle
 
