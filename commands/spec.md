@@ -1,6 +1,6 @@
 ---
 description: Turn a backlog item into a written spec with Acceptance Criteria. Second stage of the SDLC pipeline.
-argument-hint: "[slug|\"idea\"] — backlog slug or inline idea string (e.g. zie-spec add-csv-export OR zie-spec \"add rate limiting\")"
+argument-hint: "[slug|\"idea\"] — backlog slug or inline idea string (e.g. /spec add-csv-export OR /spec \"add rate limiting\")"
 allowed-tools: Read, Write, Edit, Bash, Glob, Skill
 model: sonnet
 effort: medium

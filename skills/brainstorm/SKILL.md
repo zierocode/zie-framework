@@ -1,5 +1,5 @@
 ---
-name: brainstorm
+name: zie-framework:brainstorm
 description: Discovery skill — read project context, research best practices, synthesize opportunities, discuss with Zie, write .zie/handoff.md ready for /sprint.
 user-invocable: true
 context: fork

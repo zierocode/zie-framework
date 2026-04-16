@@ -1,5 +1,5 @@
 ---
-name: spec-design
+name: zie-framework:spec-design
 description: Brainstorm and write a design spec for a new feature. Saves to zie-framework/specs/.
 argument-hint: "<slug> [full|quick]"
 metadata:

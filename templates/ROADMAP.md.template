@@ -1,7 +1,7 @@
 # ROADMAP — {{project_name}}
 
 > Single source of truth for what's being built and why.
-> Updated by /zie-idea (Next), /zie-plan (Ready), /zie-build (Now), /zie-ship (Done), /zie-retro (reprioritization).
+> Updated by /backlog (Next), /plan (Ready), /implement (Now), /release (Done), /retro (reprioritization).
 
 ---
 
@@ -23,7 +23,7 @@
 
 <!-- Ready to start. Ordered by priority. -->
 
-- [ ] (add features here after /zie-idea)
+- [ ] (add features here after /backlog)
 
 ---
 

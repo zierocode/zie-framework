@@ -1,5 +1,5 @@
 ---
-name: test-pyramid
+name: zie-framework:test-pyramid
 description: Testing strategy by project type — which tests to write, when to run them
 user-invocable: false
 argument-hint: ""

@@ -10,13 +10,13 @@
 
 | Command | ทำอะไร |
 |---|---|
-| /zie-idea | Brainstorm → spec → backlog item |
-| /zie-plan | Backlog → draft plan → approval → Ready |
-| /zie-build | Ready → TDD implementation |
-| /zie-fix | Bug → regression test → fix → verify |
-| /zie-ship | Release gate → merge → tag → retro |
-| /zie-status | Snapshot สถานะปัจจุบัน |
-| /zie-retro | Retrospective → ADRs → brain storage |
+| /backlog | Brainstorm → spec → backlog item |
+| /plan | Backlog → draft plan → approval → Ready |
+| /implement | Ready → TDD implementation |
+| /fix | Bug → regression test → fix → verify |
+| /release | Release gate → merge → tag → retro |
+| /status | Snapshot สถานะปัจจุบัน |
+| /retro | Retrospective → ADRs → brain storage |
 
 ## Knowledge
 
