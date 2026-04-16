@@ -115,12 +115,12 @@ class TestFailureContextErrorPaths:
         assert result.returncode == 0
 
 
-class TestSessionCleanupErrorPaths:
-    """Error-path coverage for session-cleanup.py."""
+class TestSessionEndErrorPaths:
+    """Error-path coverage for session-end.py (merged from session-stop + session-learn + session-cleanup)."""
 
     def test_malformed_json_exits_0(self):
         """Malformed event JSON should exit 0."""
-        result = _run_hook("session-cleanup.py", "not-json")
+        result = _run_hook("session-end.py", "not-json")
         assert result.returncode == 0
 
     def test_empty_event_exits_0(self):
@@ -131,7 +131,7 @@ class TestSessionCleanupErrorPaths:
                 "message": {"role": "user", "content": "bye"},
             }
         )
-        result = _run_hook("session-cleanup.py", event)
+        result = _run_hook("session-end.py", event)
         assert result.returncode == 0
 
 
@@ -144,12 +144,12 @@ class TestNotificationLogErrorPaths:
         assert result.returncode == 0
 
 
-class TestReviewerGateErrorPaths:
-    """Error-path coverage for reviewer-gate.py."""
+class TestSafetyCheckReviewerGateErrorPaths:
+    """Error-path coverage for reviewer-gate (now inside safety-check.py)."""
 
     def test_malformed_json_exits_0(self):
         """Malformed event JSON should exit 0 (allow on error)."""
-        result = _run_hook("reviewer-gate.py", "not-json")
+        result = _run_hook("safety-check.py", "not-json")
         assert result.returncode == 0
 
     def test_tool_use_event_exits_0(self):
@@ -161,25 +161,25 @@ class TestReviewerGateErrorPaths:
                 "tool_input": {"command": "echo hello"},
             }
         )
-        result = _run_hook("reviewer-gate.py", event)
+        result = _run_hook("safety-check.py", event)
         assert result.returncode == 0
 
 
 class TestDesignTrackerErrorPaths:
-    """Error-path coverage for design-tracker.py."""
+    """Error-path coverage for design-tracker (now inside intent-sdlc.py)."""
 
     def test_malformed_json_exits_0(self):
         """Malformed event JSON should exit 0."""
-        result = _run_hook("design-tracker.py", "not-json")
+        result = _run_hook("intent-sdlc.py", "not-json")
         assert result.returncode == 0
 
 
 class TestSessionLearnErrorPaths:
-    """Error-path coverage for session-learn.py."""
+    """Error-path coverage for session-learn (now inside session-end.py)."""
 
     def test_malformed_json_exits_0(self):
         """Malformed event JSON should exit 0."""
-        result = _run_hook("session-learn.py", "not-json")
+        result = _run_hook("session-end.py", "not-json")
         assert result.returncode == 0
 
     def test_assistant_end_turn_exits_0(self):
@@ -191,7 +191,7 @@ class TestSessionLearnErrorPaths:
                 "stop_reason": "end_turn",
             }
         )
-        result = _run_hook("session-learn.py", event)
+        result = _run_hook("session-end.py", event)
         assert result.returncode == 0
 
 

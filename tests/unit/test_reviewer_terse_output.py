@@ -1,100 +1,33 @@
+"""Tests for the unified review skill's terse output format."""
+
 from pathlib import Path
 
 SKILLS_DIR = Path(__file__).parents[2] / "skills"
+REVIEW_SKILL = SKILLS_DIR / "review" / "SKILL.md"
 
 
-class TestSpecReviewerTerseOutput:
-    def _text(self) -> str:
-        return (SKILLS_DIR / "spec-review" / "SKILL.md").read_text()
+def read_review():
+    return REVIEW_SKILL.read_text()
 
+
+class TestReviewTerseOutput:
     def test_approval_line_is_exactly_approved(self):
-        text = self._text()
-        assert "✅ APPROVED\n```" in text, "Approval block must end immediately after '✅ APPROVED' with no extra lines"
-
-    def test_no_verbose_approval_prose(self):
-        text = self._text()
-        assert "Spec is complete, clear, and scoped correctly." not in text, "Verbose approval prose must be removed"
+        text = read_review()
+        assert "✅ APPROVED\n```" in text, "Approval block must end immediately after APPROVED with no extra lines"
 
     def test_issues_header_present(self):
-        text = self._text()
-        assert "❌ Issues Found" in text
+        assert "❌ Issues Found" in read_review()
 
     def test_no_prose_before_bullets(self):
-        text = self._text()
+        text = read_review()
         assert "❌ Issues Found\n\n1." in text, "Issues block must have no prose between header and first bullet"
 
     def test_single_line_fix_prompt(self):
-        text = self._text()
+        text = read_review()
         assert "Fix these and re-submit for review." in text
 
-    def test_phase_headings_unchanged(self):
-        text = self._text()
-        assert "## Phase 1" in text
-        assert "## Phase 2" in text
-        assert "## Phase 3" in text
-
-
-class TestPlanReviewerTerseOutput:
-    def _text(self) -> str:
-        return (SKILLS_DIR / "plan-review" / "SKILL.md").read_text()
-
-    def test_approval_line_is_exactly_approved(self):
-        text = self._text()
-        assert "✅ APPROVED\n```" in text, "Approval block must end immediately after '✅ APPROVED' with no extra lines"
-
-    def test_no_verbose_approval_prose(self):
-        text = self._text()
-        assert "Plan is complete, TDD-structured, and covers the spec." not in text, (
-            "Verbose approval prose must be removed"
-        )
-
-    def test_issues_header_present(self):
-        text = self._text()
-        assert "❌ Issues Found" in text
-
-    def test_no_prose_before_bullets(self):
-        text = self._text()
-        assert "❌ Issues Found\n\n1." in text, "Issues block must have no prose between header and first bullet"
-
-    def test_single_line_fix_prompt(self):
-        text = self._text()
-        assert "Fix these and re-submit for review." in text
-
-    def test_phase_headings_unchanged(self):
-        text = self._text()
-        assert "## Phase 1" in text
-        assert "## Phase 2" in text
-        assert "## Phase 3" in text
-
-
-class TestImplReviewerTerseOutput:
-    def _text(self) -> str:
-        return (SKILLS_DIR / "impl-review" / "SKILL.md").read_text()
-
-    def test_approval_line_is_exactly_approved(self):
-        text = self._text()
-        assert "✅ APPROVED\n```" in text, "Approval block must end immediately after '✅ APPROVED' with no extra lines"
-
-    def test_no_verbose_approval_prose(self):
-        text = self._text()
-        assert "Implementation satisfies AC. Tests present and passing." not in text, (
-            "Verbose approval prose must be removed"
-        )
-
-    def test_issues_header_present(self):
-        text = self._text()
-        assert "❌ Issues Found" in text
-
-    def test_no_prose_before_bullets(self):
-        text = self._text()
-        assert "❌ Issues Found\n\n1." in text, "Issues block must have no prose between header and first bullet"
-
-    def test_single_line_fix_prompt(self):
-        text = self._text()
-        assert "Fix these, re-run make test-unit, and re-invoke impl-review." in text
-
-    def test_phase_headings_unchanged(self):
-        text = self._text()
+    def test_phase_headings_present(self):
+        text = read_review()
         assert "## Phase 1" in text
         assert "## Phase 2" in text
         assert "## Phase 3" in text

@@ -4,7 +4,7 @@ AI-native SDLC framework plugin for Claude Code. ติดตั้ง structure
 workflow เข้าไปในทุก project: spec-first TDD, intent detection, memory
 integration, safety guardrails.
 
-**Version**: 1.32.2  **Status**: active
+**Version**: 1.33.0  **Status**: active
 
 ---
 
@@ -16,21 +16,16 @@ integration, safety guardrails.
 | /spec | Backlog item → design spec with reviewer loop |
 | /plan | Approved spec → draft plan → approval → Ready lane |
 | /implement | Ready → TDD implementation + impl-review gate |
-| /fix | Bug → regression test → fix → verify. Non-urgent bugs; no immediate release. |
+| /fix | Bug → regression test → fix → verify. Non-urgent bugs; no immediate release. (`--hotfix` for emergencies, `--chore` for maintenance) |
 | /release | Release gate → readiness check → `make release` → retro |
 | /status | Snapshot สถานะปัจจุบัน |
 | /resync | Rescan codebase + update knowledge docs + hash |
 | /retro | Retrospective → ADRs → brain storage |
 | /audit | 9-dimension audit + external research → scored report → backlog |
 | /sprint | Sprint clear — batch all items through full pipeline (spec→plan→implement→release→retro) |
-| /chore | Maintenance task track — no spec required |
-| /hotfix | Emergency fix track — prod incidents only; triggers immediate release. Use /fix for non-urgent bugs. |
 | /spike | Time-boxed exploration in an isolated sandbox directory |
-| /next | Rank backlog items by impact, age, and dependencies — recommend top 3 |
-| /rescue | Pipeline diagnosis — stuck items + recovery actions |
-| /health | Hook health + config validation check |
-| /guide | On-demand framework walkthrough + pipeline position |
-| /brief | Display `.zie/handoff.md` session brief |
+| /next | Rank backlog items by impact, age, and dependencies — recommend top 3 (`--rescue` for pipeline diagnosis) |
+| /status | Show current SDLC state (`--guide` for walkthrough, `--health` for hook check, `--brief` for design brief) |
 | /init | Bootstrap: initialize framework in a new project |
 
 ## Skills
@@ -50,9 +45,8 @@ integration, safety guardrails.
 | debug | Systematic bug diagnosis and fix path |
 | audit | 9-dimension audit analysis (invoked by /audit command) |
 | docs-sync | Verify CLAUDE.md and README.md are in sync with repo state |
-| load-context | Load shared context bundle (ADRs + project context) for reviewer skills |
+| context | Load shared context bundle (ADRs + project context) + framework reference maps |
 | brainstorm | Discovery skill — read project context, research, generate ideas |
-| context-map | Command map, workflow map, and anti-patterns reference |
 
 ## Agents
 

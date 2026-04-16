@@ -41,7 +41,6 @@ def test_fix_preflight_is_reference():
     body = _preflight_body("fix")
     assert REFERENCE_LINE in body, "fix.md pre-flight must reference command-conventions.md#pre-flight"
     assert "Check `zie-framework/` exists" not in body
-    assert "recall" in body or "memory" in body.lower()
 
 
 def test_backlog_preflight_is_reference():

@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.33.0 — 2026-04-17
+
+### Added
+
+- Unified parametric reviewer skill (`review` with `phase=spec|plan|impl`) replaces 3 separate skills
+- Merged context skills: `context-map` + `load-context` → single `context` skill
+- Command flags: `/status --health`, `/fix --hotfix`/`--chore`, `/implement --guide`
+
+### Changed
+
+- Merged 20 commands → 14 (brief→/status, chore→/fix --chore, guide→/status --guide, health→/status --health, hotfix→/fix --hotfix, rescue→/next --rescue)
+- Deleted 5 orphaned agents (auditor, builder, shipper, spec-review, plan-review)
+- Compressed command files — skill invocations replace inline re-specification (~2200 lines removed)
+- Compressed hook output: 27→18 hook registrations
+- Consolidated ADRs: 42→25
+- Updated all test assertions for merged/renamed skills and commands
+
+### Removed
+
+- `spec-review`, `plan-review`, `impl-review` skills (merged into `review`)
+- `context-map`, `load-context` skills (merged into `context`)
+- `quality-gate`, `reviewer-gate`, `session-learn`, `session-cleanup`, `session-stop`, `stop-capture`, `wip-checkpoint`, `design-tracker` hooks (consolidated or removed)
+
 ## v1.32.2 — 2026-04-16
 
 ### Fixed

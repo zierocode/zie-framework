@@ -37,21 +37,21 @@ class TestZieReleaseModel:
 
 
 class TestImplReviewerModel:
-    def test_impl_reviewer_uses_haiku(self):
+    def test_review_skill_uses_haiku(self):
         import re
 
         import yaml
 
-        text = read("skills/impl-review/SKILL.md")
+        text = read("skills/review/SKILL.md")
         match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
         assert match
         fm = yaml.safe_load(match.group(1))
-        assert fm.get("model") == "haiku", "impl-review SKILL.md must use haiku"
+        assert fm.get("model") == "haiku", "review SKILL.md must use haiku"
 
-    def test_impl_reviewer_has_note_annotation(self):
-        text = read("skills/impl-review/SKILL.md")
+    def test_review_skill_has_model_effort_frontmatter(self):
+        text = read("skills/review/SKILL.md")
         # v1.32.0+: NOTE annotations were removed during skill compaction
         # Check for model/effort frontmatter instead as proof of model routing
         assert "model: haiku" in text or "effort:" in text, (
-            "impl-review must have model/effort frontmatter for model routing"
+            "review must have model/effort frontmatter for model routing"
         )

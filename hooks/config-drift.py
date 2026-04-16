@@ -44,26 +44,15 @@ try:
 
     # Branch A: CLAUDE.md — matches on filename alone (any depth)
     if changed.name == "CLAUDE.md":
-        msg = (
-            f"[zie-framework] CLAUDE.md has been updated on disk. "
-            f"Re-read it now with Read('{file_path}') before continuing "
-            f"so your instructions are current."
-        )
+        msg = f"[zf] CLAUDE.md updated → Read('{file_path}') to reload"
 
     # Branch B: settings.json inside a .claude directory
     elif changed.name == "settings.json" and ".claude" in changed.parts:
-        msg = (
-            f"[zie-framework] .claude/settings.json has been updated on disk. "
-            f"Re-read it now with Read('{file_path}') before continuing "
-            f"so your permission rules are current."
-        )
+        msg = f"[zf] .claude/settings.json updated → Read('{file_path}') to reload permissions"
 
     # Branch C: .config under cwd/zie-framework/
     elif changed.name == ".config" and str(changed).startswith(str(cwd / "zie-framework")):
-        msg = (
-            "[zie-framework] zie-framework/.config has changed. "
-            "Run /resync to reload project configuration before continuing."
-        )
+        msg = "[zf] zie-framework/.config changed → /resync to reload"
 
     # No match — unrelated config change, stay quiet
     else:

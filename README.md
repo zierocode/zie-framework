@@ -14,7 +14,6 @@ claude plugin install zierocode/zie-framework
 | Command | Stage | Description |
 | --- | --- | --- |
 | `/init` | Bootstrap | Initialize framework in a project |
-| `/status` | Anytime | Show current SDLC state |
 | `/resync` | Anytime | Rescan codebase + update knowledge docs |
 | `/backlog` | 1 — Capture | Capture a new backlog item |
 | `/spec` | 2 — Design | Write a design spec with reviewer loop |
@@ -23,16 +22,11 @@ claude plugin install zierocode/zie-framework
 | `/release` | 5 — Release | Test gates → readiness → `make release` |
 | `/retro` | 6 — Learn | Retrospective + ADRs + brain storage |
 | `/sprint` | Sprint | Batch all items: spec + plan + implement + release + retro |
-| `/fix` | Debug | Bug path — skip to systematic fix |
-| `/chore` | Maintenance | Maintenance task track — no spec required |
-| `/hotfix` | Emergency | Emergency fix track — ship without full pipeline |
+| `/fix` | Debug | Bug fix path (`--hotfix` for emergencies, `--chore` for maintenance) |
 | `/spike` | Research | Time-boxed exploration in isolated sandbox |
 | `/audit` | Health | 9-dimension audit + external research → backlog |
-| `/next` | Planning | Rank backlog items by impact, age, dependencies — top 3 |
-| `/rescue` | Recovery | Pipeline diagnosis — stuck items + recovery actions |
-| `/health` | Observability | Hook health + config validation check |
-| `/guide` | Onboarding | Framework walkthrough + pipeline position |
-| `/brief` | Context | Display `.zie/handoff.md` session brief |
+| `/next` | Planning | Rank backlog items (`--rescue` for pipeline diagnosis) |
+| `/status` | Anytime | SDLC state (`--guide`, `--health`, `--brief` for expanded views) |
 
 ## Skills
 
@@ -42,24 +36,21 @@ Skills are invoked automatically by commands as subagents — not called directl
 | --- | --- |
 | `zie-framework:brainstorm` | Discovery skill — research context, synthesize opportunities, write handoff |
 | `zie-framework:spec-design` | Draft design spec from backlog item |
-| `zie-framework:spec-review` | Review spec for completeness and correctness |
 | `zie-framework:write-plan` | Convert approved spec into implementation plan |
-| `zie-framework:plan-review` | Review plan for feasibility and test coverage |
+| `zie-framework:review` | Unified reviewer — spec, plan, or impl (pass `phase=`) |
 | `zie-framework:tdd-loop` | RED/GREEN/REFACTOR loop for a single task |
-| `zie-framework:impl-review` | Review implementation against spec and plan |
 | `zie-framework:verify` | Post-implementation verification gate |
 | `zie-framework:test-pyramid` | Test strategy advisor |
 | `zie-framework:debug` | Systematic bug diagnosis and fix path |
-| `zie-framework:load-context` | Load shared ADR and project context bundle |
+| `zie-framework:context` | Load shared ADR + project context bundle and framework reference maps |
 | `zie-framework:audit` | 9-dimension audit analysis (invoked by /audit) |
 | `zie-framework:docs-sync` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
-| `zie-framework:context-map` | Command map, workflow map, and anti-patterns guide for the framework |
 
 ## Pipeline
 
 ```text
-/backlog → /spec ──[spec-review]──► /plan ──[plan-review]──►
-/implement ──[impl-review per task]──► /release ──[test gates]──► /retro
+/backlog → /spec ──[review:spec]──► /plan ──[review:plan]──►
+/implement ──[review:impl per task]──► /release ──[test gates]──► /retro
 ```
 
 Each stage has a single responsibility. Quality gates run automatically as
@@ -68,9 +59,9 @@ subagents at every handoff — max 3 iterations before surfacing to human.
 | Stage | Command | Gate |
 | --- | --- | --- |
 | 1 — Capture | `/backlog` | — |
-| 2 — Design | `/spec` | spec-review loop |
-| 3 — Plan | `/plan` | plan-review loop |
-| 4 — Build | `/implement` | impl-review after each task |
+| 2 — Design | `/spec` | review loop (spec) |
+| 3 — Plan | `/plan` | review loop (plan) |
+| 4 — Build | `/implement` | review per task (impl) |
 | 5 — Release | `/release` | unit → integration → e2e → verify |
 | 6 — Learn | `/retro` | — |
 

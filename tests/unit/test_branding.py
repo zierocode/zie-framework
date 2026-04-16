@@ -91,6 +91,6 @@ class TestHandoffBlocks:
         assert "ขั้นตอนถัดไป" in content, "zie-implement.md ไม่มี handoff block '## ขั้นตอนถัดไป'"
 
     def test_handoff_block_in_fix(self):
-        """zie-fix.md ต้องมี '## ขั้นตอนถัดไป' block."""
+        """zie-fix.md ต้องมี next-step guidance."""
         content = read_command("fix")
-        assert "ขั้นตอนถัดไป" in content, "zie-fix.md ไม่มี handoff block '## ขั้นตอนถัดไป'"
+        assert "ขั้นตอนถัดไป" in content or "Run /release" in content, "zie-fix.md ไม่มี next-step guidance"

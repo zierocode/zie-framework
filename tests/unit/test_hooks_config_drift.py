@@ -58,11 +58,11 @@ class TestConfigDriftClaudeMd:
         assert "CLAUDE.md" in ctx
         assert f"Read('{path}')" in ctx
 
-    def test_claude_md_context_mentions_instructions(self, tmp_path):
+    def test_claude_md_context_mentions_reload(self, tmp_path):
         path = str(tmp_path / "CLAUDE.md")
         r = run_hook({"hook_event_name": "ConfigChange", "file_path": path}, tmp_path)
         ctx = parse_context(r)
-        assert "instructions" in ctx.lower()
+        assert "reload" in ctx.lower()
 
 
 class TestConfigDriftSettingsJson:

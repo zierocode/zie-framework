@@ -241,7 +241,7 @@ class TestNewIntentCombinedRegex:
         )
         ctx = self._parse_context(r.stdout)
         assert ctx is not None
-        assert "/fix" in ctx or "/hotfix" in ctx
+        assert "/fix" in ctx or "/fix --hotfix" in ctx
 
     def test_chore_intent_two_signals(self, tmp_path):
         """cleanup + refactor → chore (2 signals)."""
@@ -251,4 +251,4 @@ class TestNewIntentCombinedRegex:
         )
         ctx = self._parse_context(r.stdout)
         assert ctx is not None
-        assert "/chore" in ctx
+        assert "/fix --chore" in ctx

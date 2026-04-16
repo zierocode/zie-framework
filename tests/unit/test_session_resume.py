@@ -100,19 +100,19 @@ def _run_hook(tmp_path: Path, session_id: str = "test-session-resume") -> subpro
 
 
 class TestOutputLineCount:
-    def test_no_active_feature_has_at_least_2_lines(self, tmp_path):
+    def test_no_active_feature_has_at_least_1_line(self, tmp_path):
         _make_zf(tmp_path, now_items=None)
         result = _run_hook(tmp_path)
         assert result.returncode == 0
         lines = result.stdout.strip().splitlines()
-        assert len(lines) >= 2, f"Expected at least 2 lines, got {len(lines)}:\n{result.stdout}"
+        assert len(lines) >= 1, f"Expected at least 1 line, got {len(lines)}:\n{result.stdout}"
 
-    def test_with_active_feature_has_at_least_2_lines(self, tmp_path):
+    def test_with_active_feature_has_at_least_1_line(self, tmp_path):
         _make_zf(tmp_path, now_items=["session-resume-compression"])
         result = _run_hook(tmp_path)
         assert result.returncode == 0
         lines = result.stdout.strip().splitlines()
-        assert len(lines) >= 2, f"Expected at least 2 lines, got {len(lines)}:\n{result.stdout}"
+        assert len(lines) >= 1, f"Expected at least 1 line, got {len(lines)}:\n{result.stdout}"
 
 
 class TestOutputFormat:
@@ -337,51 +337,28 @@ class TestStalenessWarning:
 
 
 class TestCommandListOutput:
-    """session-resume prints framework command list when zie-framework/ found."""
+    """session-resume prints status line with /backlog nudge when zie-framework/ found."""
 
-    def test_command_list_present_on_fresh_state(self, tmp_path):
+    def test_status_line_present_on_fresh_state(self, tmp_path):
         _make_zf(tmp_path)
         result = _run_hook(tmp_path)
         assert result.returncode == 0
-        # Command list line starts with [zf] and contains cmds:
-        assert any("cmds:" in line and "[zf]" in line for line in result.stdout.splitlines()), (
-            "stdout must contain a command list line"
+        # Status line starts with [zf] and contains version info
+        assert any("[zf]" in line for line in result.stdout.splitlines()), (
+            "stdout must contain a [zf] status line"
         )
 
-    def test_command_list_contains_core_commands(self, tmp_path):
-        _make_zf(tmp_path)
+    def test_status_line_contains_version(self, tmp_path):
+        _make_zf(tmp_path, version="2.3.4")
         result = _run_hook(tmp_path)
         out = result.stdout
-        for cmd in ("/spec", "/plan", "/implement", "/release", "/retro"):
-            assert cmd in out, f"command list must include {cmd}"
+        assert "v2.3.4" in out, "status line must include version"
 
-    def test_health_omitted_when_commands_health_missing(self, tmp_path):
-        _make_zf(tmp_path)
-        # Ensure no commands/health.md exists in tmp_path
-        health_cmd = tmp_path / "commands" / "health.md"
-        health_cmd.unlink(missing_ok=True)
+    def test_backlog_nudge_in_status_when_no_active_feature(self, tmp_path):
+        _make_zf(tmp_path, now_items=None)
         result = _run_hook(tmp_path)
-        # /health should NOT appear unless commands/health.md exists
-        # (check that it's absent in the command list line)
-        cmd_lines = [line for line in result.stdout.splitlines() if "cmds:" in line]
-        if cmd_lines:
-            assert "/health" not in cmd_lines[0], (
-                "/health must be omitted from command list when commands/health.md absent"
-            )
-
-    def test_health_included_when_commands_health_present(self, tmp_path):
-        _make_zf(tmp_path)
-        # Provide SKILL.md so guard logic runs (not hardcoded fallback)
-        skill_dir = tmp_path / "skills" / "context-map"
-        skill_dir.mkdir(parents=True, exist_ok=True)
-        (skill_dir / "SKILL.md").write_text("## Command Map\n\n- `/spec` — design\n- `/health` — health dashboard\n")
-        health_dir = tmp_path / "commands"
-        health_dir.mkdir(exist_ok=True)
-        (health_dir / "health.md").write_text("# /health")
-        result = _run_hook(tmp_path)
-        cmd_lines = [line for line in result.stdout.splitlines() if "cmds:" in line]
-        if cmd_lines:
-            assert "/health" in cmd_lines[0], "/health must be included when commands/health.md exists"
+        out = result.stdout
+        assert "/backlog" in out, "status line must include /backlog nudge when no active feature"
 
 
 class TestBacklogNudge:

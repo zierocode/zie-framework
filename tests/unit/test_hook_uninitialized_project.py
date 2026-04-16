@@ -57,6 +57,6 @@ def test_failure_context_no_zf_dir(tmp_path, run_hook):
 
 
 @pytest.mark.error_path
-def test_session_cleanup_no_zf_dir(tmp_path, run_hook):
-    r = run_hook("session-cleanup.py", {}, tmp_cwd=tmp_path)
+def test_session_end_no_zf_dir(tmp_path, run_hook):
+    r = run_hook("session-end.py", {}, tmp_cwd=tmp_path)
     assert r.returncode == 0

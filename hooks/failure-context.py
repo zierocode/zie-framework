@@ -117,10 +117,8 @@ try:
         log_error("failure-context", "git_branch", e)
         branch = "(git unavailable)"
 
-    # Build context string
-    context_string = (
-        f"[SDLC context at failure]\nActive task: {active_task}\nBranch: {branch}\nLast commit: {last_commit}"
-    )
+    # Build context string (compact single-line format)
+    context_string = f"[zf] failure: task={active_task} branch={branch} last={last_commit}"
 
     print(json.dumps({"additionalContext": context_string}))
 

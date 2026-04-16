@@ -64,7 +64,9 @@ class TestZieStatusInjections:
 
     def test_injections_precede_first_step(self):
         inject_pos = self.content.find("!`cat zie-framework/ROADMAP.md")
-        step1_pos = self.content.find("\n1. **Check initialization**")
+        step1_pos = self.content.find("\n1. **Parse flags**")
+        if step1_pos < 0:
+            step1_pos = self.content.find("\n1. **Check initialization**")
         assert 0 < inject_pos < step1_pos, "ROADMAP injection must appear before first step"
 
 

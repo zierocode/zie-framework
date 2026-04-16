@@ -50,22 +50,14 @@ class TestPostToolUseHook:
         assert (hooks_dir / "post-tool-use.py").exists()
 
     def test_hook_registered(self):
-        """post-tool-use registered in hooks.json for Bash and Write|Edit."""
+        """post-tool-use registered in hooks.json for Bash and Edit|Write."""
         hooks_json_path = Path(__file__).parent.parent.parent / "hooks" / "hooks.json"
         hooks_json = json.loads(hooks_json_path.read_text())
         post_tool_hooks = hooks_json.get("hooks", {}).get("PostToolUse", [])
 
-        # Check Bash matcher
-        bash_hooks = [h for h in post_tool_hooks if h.get("matcher") == "Bash"]
-        assert len(bash_hooks) > 0
-        bash_commands = [h["hooks"][0]["command"] for h in bash_hooks]
-        assert any("post-tool-use.py" in cmd for cmd in bash_commands)
-
-        # Check Write|Edit matcher
-        write_hooks = [h for h in post_tool_hooks if h.get("matcher") == "Write|Edit"]
-        assert len(write_hooks) > 0
-        write_commands = [h["hooks"][0]["command"] for h in write_hooks]
-        assert any("post-tool-use.py" in cmd for cmd in write_commands)
+        # Flatten all commands across all PostToolUse entries
+        all_commands = [h["command"] for group in post_tool_hooks for h in group.get("hooks", [])]
+        assert any("post-tool-use.py" in cmd for cmd in all_commands), "post-tool-use.py not in PostToolUse hooks"
 
     def test_test_failure_detection(self, test_repo):
         """Test failure triggers /fix suggestion."""
@@ -125,7 +117,7 @@ class TestPostToolUseHook:
 
         assert result.returncode == 0
         # Should trigger either test_failure or multiple_errors suggestion
-        assert "Suggestion" in result.stdout
+        assert "[zf] suggestion:" in result.stdout or "/fix" in result.stdout
         assert "/fix" in result.stdout or "errors" in result.stdout.lower()
 
     def test_spec_complete_detection(self, test_repo):
@@ -215,7 +207,7 @@ class TestPostToolUseHook:
         assert result.returncode == 0
 
     def test_suggestion_format(self, test_repo):
-        """Suggestion follows correct markdown format."""
+        """Suggestion follows compact single-line format."""
         hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-format-001"
@@ -248,11 +240,8 @@ class TestPostToolUseHook:
         assert "additionalContext" in suggestion_data
         suggestion = suggestion_data["additionalContext"]
 
-        # Check format
-        assert "## Suggestion" in suggestion
-        assert "**Detected:**" in suggestion
-        assert "**Recommended action:**" in suggestion
-        assert "Skip" in suggestion
+        # Check compact format: [zf] suggestion: ...
+        assert "[zf] suggestion:" in suggestion
 
     def test_no_suggestion_on_success(self, test_repo):
         """Successful test run produces no suggestion."""

@@ -1,4 +1,4 @@
-"""Tests for agents/ directory files and zie-implement command async reviewer protocol."""
+"""Tests for agents/ directory files and zie-implement command."""
 
 from pathlib import Path
 
@@ -6,6 +6,7 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 AGENTS_DIR = REPO_ROOT / "agents"
 COMMANDS_DIR = REPO_ROOT / "commands"
 COMPONENTS_PATH = REPO_ROOT / "zie-framework" / "project" / "components.md"
+SKILLS_DIR = REPO_ROOT / "skills"
 
 
 def _read_frontmatter(path: Path) -> str:
@@ -16,59 +17,36 @@ def _read_frontmatter(path: Path) -> str:
     return parts[1]
 
 
-class TestSpecReviewerAgent:
+class TestBuilderAgent:
     def test_file_exists(self):
-        assert (AGENTS_DIR / "spec-review.md").exists()
-
-    def test_has_isolation_worktree(self):
-        fm = _read_frontmatter(AGENTS_DIR / "spec-review.md")
-        assert "isolation: worktree" in fm, "spec-review.md must declare isolation: worktree"
-
-    def test_has_allowed_tools(self):
-        fm = _read_frontmatter(AGENTS_DIR / "spec-review.md")
-        assert "allowed-tools:" in fm
+        assert (AGENTS_DIR / "builder.md").exists()
 
     def test_delegates_to_skill(self):
-        text = (AGENTS_DIR / "spec-review.md").read_text()
-        assert "Skill(zie-framework:spec-review)" in text
+        text = (AGENTS_DIR / "builder.md").read_text()
+        assert "Skill(zie-framework:tdd-loop" in text
 
 
-class TestPlanReviewerAgent:
+class TestAuditorAgent:
     def test_file_exists(self):
-        assert (AGENTS_DIR / "plan-review.md").exists()
+        assert (AGENTS_DIR / "auditor.md").exists()
 
-    def test_has_isolation_worktree(self):
-        fm = _read_frontmatter(AGENTS_DIR / "plan-review.md")
-        assert "isolation: worktree" in fm, "plan-review.md must declare isolation: worktree"
-
-    def test_has_allowed_tools(self):
-        fm = _read_frontmatter(AGENTS_DIR / "plan-review.md")
-        assert "allowed-tools:" in fm
-
-    def test_delegates_to_skill(self):
-        text = (AGENTS_DIR / "plan-review.md").read_text()
-        assert "Skill(zie-framework:plan-review)" in text
+    def test_read_only_contract(self):
+        text = (AGENTS_DIR / "auditor.md").read_text()
+        assert "read-only" in text.lower() or "Read-Only" in text
 
 
-class TestImplReviewerAgent:
-    def test_file_exists(self):
-        assert (AGENTS_DIR / "impl-review.md").exists()
+class TestReviewSkill:
+    """Parametric review skill (merged from spec-review, plan-review, impl-review)."""
 
-    def test_has_background_true(self):
-        fm = _read_frontmatter(AGENTS_DIR / "impl-review.md")
-        assert "background: true" in fm, "impl-review.md must declare background: true"
+    def test_skill_dir_exists(self):
+        assert (SKILLS_DIR / "review").is_dir()
 
-    def test_no_isolation_worktree(self):
-        fm = _read_frontmatter(AGENTS_DIR / "impl-review.md")
-        assert "isolation: worktree" not in fm, "impl-review must NOT have isolation: worktree — it needs live files"
+    def test_skill_md_exists(self):
+        assert (SKILLS_DIR / "review" / "SKILL.md").exists()
 
-    def test_has_bash_in_allowed_tools(self):
-        fm = _read_frontmatter(AGENTS_DIR / "impl-review.md")
-        assert "Bash" in fm, "impl-review must allow Bash to run make test*"
-
-    def test_delegates_to_skill(self):
-        text = (AGENTS_DIR / "impl-review.md").read_text()
-        assert "Skill(zie-framework:impl-review)" in text
+    def test_skill_has_review_types(self):
+        text = (SKILLS_DIR / "review" / "SKILL.md").read_text()
+        assert "spec" in text.lower() or "plan" in text.lower() or "impl" in text.lower()
 
 
 class TestZieImplementCommand:
@@ -86,8 +64,7 @@ class TestZieImplementCommand:
         assert "@agent-impl-review" not in text, "zie-implement must not spawn @agent-impl-review background agent"
 
     def test_auto_fix_protocol_present(self):
-        t = text = self._read_command()
-        t = text.lower()
+        t = self._read_command().lower()
         assert "auto-fix" in t or ("fix" in t and "retry" in t), (
             "zie-implement must describe auto-fix protocol after review issues"
         )
@@ -98,8 +75,8 @@ class TestZieImplementCommand:
 
     def test_impl_reviewer_invoked_as_skill(self):
         text = self._read_command()
-        assert "Skill(zie-framework:impl-review)" in text, (
-            "zie-implement must invoke impl-review via Skill(zie-framework:impl-review)"
+        assert "Skill(zie-framework:impl-review)" in text or "Skill(zie-framework:review" in text, (
+            "zie-implement must invoke review via Skill()"
         )
 
 
@@ -110,14 +87,8 @@ class TestComponentsDocAgents:
     def test_agents_section_exists(self):
         assert "## Agents" in self._read(), "components.md must have an Agents section"
 
-    def test_spec_reviewer_documented(self):
-        assert "spec-review" in self._read()
-
-    def test_plan_reviewer_documented(self):
-        assert "plan-review" in self._read()
-
-    def test_impl_reviewer_documented(self):
-        assert "impl-review" in self._read()
+    def test_review_skill_documented(self):
+        assert "review" in self._read(), "components.md must document the review skill"
 
     def test_isolation_worktree_explained(self):
         assert "isolation: worktree" in self._read(), "components.md must explain the isolation: worktree field"

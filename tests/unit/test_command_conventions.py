@@ -1,4 +1,4 @@
-"""Tests for command convention compliance across all 20 command files.
+"""Tests for command convention compliance across all command files.
 
 Verifies:
 1. Every command has a pre-flight reference or declares preflight level
@@ -13,7 +13,7 @@ from pathlib import Path
 COMMANDS_DIR = Path(__file__).parents[2] / "commands"
 CONVENTIONS = Path(__file__).parents[2] / "zie-framework" / "project" / "command-conventions.md"
 COMMAND_FILES = sorted(COMMANDS_DIR.glob("*.md"))
-assert len(COMMAND_FILES) >= 20, f"Expected 20 command files, found {len(COMMAND_FILES)}"
+assert len(COMMAND_FILES) >= 14, f"Expected 14+ command files, found {len(COMMAND_FILES)}"
 
 # Patterns
 HEADER_RE = re.compile(r"^# /(\w+) — ", re.MULTILINE)

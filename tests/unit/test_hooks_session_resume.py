@@ -309,7 +309,7 @@ class TestSessionResumeDriftDetection:
         cwd = make_cwd(tmp_path, config={"knowledge_hash": "deadbeef0000"}, roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
         assert r.returncode == 0
-        assert len(r.stdout.strip().splitlines()) >= 4
+        assert len(r.stdout.strip().splitlines()) >= 2
 
     def test_silent_when_hash_matches(self, tmp_path):
         """No drift warning in stdout — drift check is now background-only."""
@@ -325,14 +325,14 @@ class TestSessionResumeDriftDetection:
         assert result.returncode == 0
 
     def test_output_line_count_unchanged_without_drift(self, tmp_path):
-        """Without drift, output has at least 4 lines."""
+        """Without drift, output has at least 2 lines (header + backlog nudge)."""
         REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         kh = os.path.join(REPO, "hooks", "knowledge-hash.py")
         result = subprocess.run([sys.executable, kh, "--root", str(tmp_path)], capture_output=True, text=True)
         current_hash = result.stdout.strip()
         cwd = make_cwd(tmp_path, config={"knowledge_hash": current_hash}, roadmap=SAMPLE_ROADMAP)
         r = run_hook(tmp_cwd=cwd)
-        assert len(r.stdout.strip().splitlines()) >= 4
+        assert len(r.stdout.strip().splitlines()) >= 2
 
 
 class TestSessionResumeOuterGuard:

@@ -132,26 +132,19 @@ class TestHooksJsonSubagentStop:
         )
 
 
-class TestHooksJsonSessionLearnCleanup:
-    """Test async→background fix for Stop hooks."""
+class TestHooksJsonSessionEnd:
+    """Test session-end.py (merged from session-stop + session-learn + session-cleanup)."""
 
     def _load(self):
         with open(HOOKS_JSON) as f:
             return json.load(f)
 
-    def test_session_learn_has_background_true(self):
+    def test_session_end_has_background_true(self):
         data = self._load()
         entries = data["hooks"]["Stop"]
-        learn_entries = [h for e in entries for h in e["hooks"] if "session-learn.py" in h["command"]]
-        assert len(learn_entries) == 1, "session-learn.py not found in Stop hooks"
-        assert learn_entries[0].get("background") is True, "session-learn.py must have background: true"
-
-    def test_session_cleanup_has_background_true(self):
-        data = self._load()
-        entries = data["hooks"]["Stop"]
-        cleanup_entries = [h for e in entries for h in e["hooks"] if "session-cleanup.py" in h["command"]]
-        assert len(cleanup_entries) == 1, "session-cleanup.py not found in Stop hooks"
-        assert cleanup_entries[0].get("background") is True, "session-cleanup.py must have background: true"
+        end_entries = [h for e in entries for h in e["hooks"] if "session-end.py" in h["command"]]
+        assert len(end_entries) == 1, "session-end.py not found in Stop hooks"
+        assert end_entries[0].get("background") is True, "session-end.py must have background: true"
 
     def test_no_async_true_in_stop_hooks(self):
         """async: true should not exist in Stop hooks (was replaced by background: true)."""
@@ -160,6 +153,43 @@ class TestHooksJsonSessionLearnCleanup:
         async_keys = [h.get("async") for e in entries for h in e["hooks"]]
         # None of them should be True
         assert not any(async_keys), "Found async: true in Stop hooks - should be background: true"
+
+    def test_no_removed_hooks_in_stop(self):
+        """Removed hooks (session-stop, session-learn, session-cleanup, stop-capture) must not appear."""
+        data = self._load()
+        entries = data["hooks"]["Stop"]
+        commands = [h["command"] for e in entries for h in e["hooks"]]
+        for removed in ["session-stop.py", "session-learn.py", "session-cleanup.py", "stop-capture.py"]:
+            assert not any(removed in cmd for cmd in commands), f"Removed hook {removed} still in Stop hooks"
+
+    def test_no_removed_hooks_in_pretooluse(self):
+        """Removed hooks (quality-gate, reviewer-gate) must not appear in PreToolUse."""
+        data = self._load()
+        entries = data["hooks"].get("PreToolUse", [])
+        commands = [h["command"] for e in entries for h in e["hooks"]]
+        for removed in ["quality-gate.py", "reviewer-gate.py"]:
+            assert not any(removed in cmd for cmd in commands), f"Removed hook {removed} still in PreToolUse"
+
+    def test_no_removed_hooks_in_posttooluse(self):
+        """Removed hook wip-checkpoint must not appear in PostToolUse."""
+        data = self._load()
+        entries = data["hooks"].get("PostToolUse", [])
+        commands = [h["command"] for e in entries for h in e["hooks"]]
+        assert not any("wip-checkpoint" in cmd for cmd in commands), "Removed hook wip-checkpoint still in PostToolUse"
+
+    def test_no_removed_hooks_in_userpromptsubmit(self):
+        """Removed hook design-tracker must not appear in UserPromptSubmit."""
+        data = self._load()
+        entries = data["hooks"].get("UserPromptSubmit", [])
+        commands = [h["command"] for e in entries for h in e["hooks"]]
+        assert not any("design-tracker" in cmd for cmd in commands), "Removed hook design-tracker still in UserPromptSubmit"
+
+    def test_subagentstart_has_single_entry(self):
+        """SubagentStart should have single entry with Explore|Plan matcher."""
+        data = self._load()
+        entries = data["hooks"].get("SubagentStart", [])
+        assert len(entries) == 1, f"Expected 1 SubagentStart entry, found {len(entries)}"
+        assert "Explore|Plan" in entries[0].get("matcher", ""), "SubagentStart matcher should be Explore|Plan"
 
 
 class TestHooksJsonSafetyCheckAgent:
@@ -200,16 +230,21 @@ class TestHooksJsonSafetyCheckAgent:
         )
 
 
-class TestHooksJsonWipCheckpointBackground:
+class TestHooksJsonPostToolUseBackground:
+    """Test post-tool-use.py background setting (merged from wip-checkpoint)."""
+
     def _load(self):
         with open(HOOKS_JSON) as f:
             return json.load(f)
 
-    def test_wip_checkpoint_is_background(self):
+    def test_post_tool_use_write_edit_is_background(self):
         data = self._load()
         post_tool_hooks = data["hooks"]["PostToolUse"]
-        wip_entries = [h for group in post_tool_hooks for h in group["hooks"] if "wip-checkpoint" in h["command"]]
-        assert len(wip_entries) == 1, "Expected exactly one wip-checkpoint PostToolUse entry"
-        assert wip_entries[0].get("background") is True, (
-            "wip-checkpoint must have background: true to avoid blocking Claude on every file save"
+        ptu_write = [
+            h for group in post_tool_hooks if "Edit" in group.get("matcher", "") and "Write" in group.get("matcher", "")
+            for h in group["hooks"] if "post-tool-use" in h["command"]
+        ]
+        assert len(ptu_write) >= 1, "post-tool-use.py not found in Edit|Write PostToolUse"
+        assert ptu_write[0].get("background") is True, (
+            "post-tool-use.py must have background: true for Edit|Write to avoid blocking"
         )

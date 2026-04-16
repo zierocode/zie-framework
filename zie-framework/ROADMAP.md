@@ -24,9 +24,17 @@
 
 ---
 
+## Done — v1.33.0 (2026-04-17)
+
+- [x] consolidate-sprint — Merge commands 20→14, compress skills, slim agents, update tests
+
+## Done — v1.32.2 (2026-04-16)
+
+- [x] fix: add zie-framework: prefix to all skill names and update stale references
+
 ## Done — v1.32.1 (2026-04-16)
 
-- [x] chore: rename-skills-agents — Remove redundant zie- prefix from skills/agents, align naming (audit, impl-review, plan-review, spec-review, docs-sync, context-map, auditor, builder, shipper)
+- [x] chore: rename-skills-agents — Remove redundant zie- prefix from skills/agents, align naming
 
 ## Done — v1.31.0 (2026-04-15)
 
@@ -91,7 +99,7 @@
 
 ## Done — v1.23.0 (2026-04-12) — Sprint A+B
 
-- [x] sprint-a-b — 10 items: self-awareness, context-efficiency, intent-intelligence, brainstorming, conversation-capture, /rescue, /health, /next, quality-gate, adaptive-learning
+- [x] sprint-a-b — 10 items: self-awareness, context-efficiency, intent-intelligence, brainstorming, conversation-capture, /next --rescue, /status --health, /next, quality-gate, adaptive-learning
 
 ## Done — v1.22.0 (2026-04-06) — Token Reduction
 

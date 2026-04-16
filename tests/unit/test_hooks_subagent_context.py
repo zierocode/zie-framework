@@ -331,17 +331,13 @@ class TestHooksJsonRegistration:
         data = json.loads(hooks_json.read_text())
         assert "SubagentStart" in data["hooks"], "SubagentStart key missing from hooks.json"
 
-    def test_subagentstart_has_separate_explore_and_plan_matchers(self):
-        """SubagentStart must have separate Explore and Plan entries (not combined)."""
+    def test_subagentstart_has_combined_explore_plan_matcher(self):
+        """SubagentStart must have a single entry with Explore|Plan matcher (merged from 2 entries)."""
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         data = json.loads(hooks_json.read_text())
         entry = data["hooks"]["SubagentStart"]
-        matchers = [e.get("matcher") for e in entry]
-        assert "Explore" in matchers, "SubagentStart must have an 'Explore' matcher"
-        assert "Plan" in matchers, "SubagentStart must have a 'Plan' matcher"
-        assert "Explore|Plan" not in matchers, (
-            "SubagentStart must not use combined 'Explore|Plan' matcher — use separate entries"
-        )
+        assert len(entry) == 1, f"SubagentStart should have 1 entry, found {len(entry)}"
+        assert "Explore|Plan" in entry[0].get("matcher", ""), "SubagentStart matcher should be 'Explore|Plan'"
 
     def test_subagentstart_command_references_correct_script(self):
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"

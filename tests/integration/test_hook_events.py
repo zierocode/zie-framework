@@ -193,21 +193,21 @@ class TestAutoTestHook:
 
 
 # ---------------------------------------------------------------------------
-# PostToolUse — wip-checkpoint.py (Edit event, no memory keys set)
+# PostToolUse — post-tool-use.py (merged from post-tool-use + wip-checkpoint)
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.integration
-class TestWipCheckpointHook:
+class TestPostToolUseHook:
     def test_exits_zero_without_memory_keys(self):
-        # ZIE_MEMORY_API_KEY absent → hook should fast-exit cleanly
+        # ZIE_MEMORY_API_KEY absent → WIP checkpoint fast-exits cleanly
         env = {"ZIE_MEMORY_API_KEY": "", "ZIE_MEMORY_API_URL": ""}
-        result = run_hook("wip-checkpoint.py", "posttooluse_edit_event.json", extra_env=env)
+        result = run_hook("post-tool-use.py", "posttooluse_edit_event.json", extra_env=env)
         assert_clean_exit(result)
 
     def test_produces_no_traceback(self):
         env = {"ZIE_MEMORY_API_KEY": "", "ZIE_MEMORY_API_URL": ""}
-        result = run_hook("wip-checkpoint.py", "posttooluse_edit_event.json", extra_env=env)
+        result = run_hook("post-tool-use.py", "posttooluse_edit_event.json", extra_env=env)
         assert "Traceback" not in result.stderr
 
 
@@ -267,36 +267,20 @@ class TestStopGuardHook:
 
 
 # ---------------------------------------------------------------------------
-# Stop — session-learn.py (no memory keys set)
+# Stop — session-end.py (merged from session-stop + session-learn + session-cleanup)
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.integration
-class TestSessionLearnHook:
+class TestSessionEndHook:
     def test_exits_zero_without_memory_keys(self):
         env = {"ZIE_MEMORY_API_KEY": "", "ZIE_MEMORY_API_URL": ""}
-        result = run_hook("session-learn.py", "stop_event.json", extra_env=env)
+        result = run_hook("session-end.py", "stop_event.json", extra_env=env)
         assert_clean_exit(result)
 
     def test_produces_no_traceback(self):
         env = {"ZIE_MEMORY_API_KEY": "", "ZIE_MEMORY_API_URL": ""}
-        result = run_hook("session-learn.py", "stop_event.json", extra_env=env)
-        assert "Traceback" not in result.stderr
-
-
-# ---------------------------------------------------------------------------
-# Stop — session-cleanup.py
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.integration
-class TestSessionCleanupHookIntegration:
-    def test_exits_zero_with_stop_event(self):
-        result = run_hook("session-cleanup.py", "stop_event.json")
-        assert_clean_exit(result)
-
-    def test_produces_no_traceback(self):
-        result = run_hook("session-cleanup.py", "stop_event.json")
+        result = run_hook("session-end.py", "stop_event.json", extra_env=env)
         assert "Traceback" not in result.stderr
 
 

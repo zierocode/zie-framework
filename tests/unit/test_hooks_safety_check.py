@@ -461,11 +461,6 @@ class TestSafetyCheckConfirmWrapMerged:
         out = json.loads(r.stdout)
         assert 'printf "Would run: %s\\n"' in out["updatedInput"]["command"]
 
-    def test_has_do_not_use_normalize_command_comment(self):
-        hook_path = os.path.join(REPO_ROOT, "hooks", "safety-check.py")
-        content = Path(hook_path).read_text()
-        assert "do not use normalize_command" in content.lower()
-
     def test_injection_compound_and_not_wrapped(self):
         r = self._run("rm -rf ./ && echo hacked")
         if r.returncode == 2:

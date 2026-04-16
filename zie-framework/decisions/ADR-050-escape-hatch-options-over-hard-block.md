@@ -14,9 +14,9 @@ friction for legitimate non-pipeline workflows like hotfixes, spikes, and chores
 Changed the no-track response from a hard ⛔ STOP to an informational nudge listing
 four options:
 - standard: `/backlog` → `/spec` → `/plan` → `/implement`
-- hotfix: `/hotfix`
+- hotfix: `/fix --hotfix`
 - spike: `/spike`
-- chore: `/chore`
+- chore: `/fix --chore`
 
 The hook still surfaces the nudge but does not block Claude from proceeding. The
 `is_track_active(cwd)` check now also considers open drift log entries (not just ROADMAP

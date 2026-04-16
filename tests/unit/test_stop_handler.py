@@ -369,7 +369,8 @@ class TestHooksJsonRegistration:
         first_cmd = all_commands[0]
         assert "stop-handler.py" in first_cmd, f"stop-handler.py must be the first Stop hook; got: {first_cmd}"
 
-    def test_session_learn_still_registered(self):
+    def test_session_end_registered(self):
+        """session-end.py (merged from session-stop + session-learn + session-cleanup) must be in Stop hooks."""
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         data = json.loads(hooks_json.read_text())
         stop_hooks = data["hooks"]["Stop"]
@@ -377,9 +378,10 @@ class TestHooksJsonRegistration:
         for group in stop_hooks:
             for hook in group.get("hooks", []):
                 all_commands.append(hook.get("command", ""))
-        assert any("session-learn.py" in c for c in all_commands)
+        assert any("session-end.py" in c for c in all_commands), "session-end.py not found in Stop hooks"
 
-    def test_session_cleanup_still_registered(self):
+    def test_no_removed_session_hooks_in_stop(self):
+        """Removed session hooks must not appear in Stop hooks."""
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         data = json.loads(hooks_json.read_text())
         stop_hooks = data["hooks"]["Stop"]
@@ -387,9 +389,11 @@ class TestHooksJsonRegistration:
         for group in stop_hooks:
             for hook in group.get("hooks", []):
                 all_commands.append(hook.get("command", ""))
-        assert any("session-cleanup.py" in c for c in all_commands)
+        for removed in ("session-stop.py", "session-learn.py", "session-cleanup.py"):
+            assert not any(removed in c for c in all_commands), f"Removed hook {removed} still in Stop hooks"
 
-    def test_stop_handler_before_session_learn(self):
+    def test_stop_handler_before_session_end(self):
+        """stop-handler.py must appear before session-end.py in Stop hooks."""
         hooks_json = Path(REPO_ROOT) / "hooks" / "hooks.json"
         data = json.loads(hooks_json.read_text())
         stop_hooks = data["hooks"]["Stop"]
@@ -398,8 +402,8 @@ class TestHooksJsonRegistration:
             for hook in group.get("hooks", []):
                 all_commands.append(hook.get("command", ""))
         handler_idx = next(i for i, c in enumerate(all_commands) if "stop-handler.py" in c)
-        learn_idx = next(i for i, c in enumerate(all_commands) if "session-learn.py" in c)
-        assert handler_idx < learn_idx, "stop-handler.py must appear before session-learn.py"
+        end_idx = next(i for i, c in enumerate(all_commands) if "session-end.py" in c)
+        assert handler_idx < end_idx, "stop-handler.py must appear before session-end.py"
 
 
 # ---------------------------------------------------------------------------

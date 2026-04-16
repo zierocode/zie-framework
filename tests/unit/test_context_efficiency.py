@@ -18,10 +18,8 @@ HOOKS_DIR = REPO_ROOT / "hooks"
 # Rough token estimate: 1 token ≈ 4 chars for English prose.
 # These thresholds are generous to avoid false failures from minor content edits.
 FAST_PATH_BUDGETS = {
-    "spec-review": 600,  # ≤120 tokens ≈ 480 chars; 600 gives 25% margin
-    "plan-review": 600,
-    "impl-review": 400,  # ≤80 tokens ≈ 320 chars; 400 gives 25% margin
-    "load-context": 300,  # ≤60 tokens ≈ 240 chars; 300 gives 25% margin
+    "review": 600,  # ≤120 tokens ≈ 480 chars; 600 gives 25% margin
+    "context": 300,  # ≤60 tokens ≈ 240 chars; 300 gives 25% margin
 }
 
 
@@ -42,44 +40,24 @@ class TestFastPathPresent:
         fast_section = parts[1].split(detail_marker, 1)[0]
         return fast_section
 
-    def test_spec_reviewer_has_fast_path(self):
-        block = self._fast_path_block("spec-review")
+    def test_review_has_fast_path(self):
+        block = self._fast_path_block("review")
         assert len(block) > 0
 
-    def test_plan_reviewer_has_fast_path(self):
-        block = self._fast_path_block("plan-review")
+    def test_context_has_fast_path(self):
+        block = self._fast_path_block("context")
         assert len(block) > 0
 
-    def test_impl_reviewer_has_fast_path(self):
-        block = self._fast_path_block("impl-review")
-        assert len(block) > 0
-
-    def test_load_context_has_fast_path(self):
-        block = self._fast_path_block("load-context")
-        assert len(block) > 0
-
-    def test_spec_reviewer_fast_path_under_budget(self):
-        block = self._fast_path_block("spec-review")
-        assert len(block) <= FAST_PATH_BUDGETS["spec-review"], (
-            f"spec-review FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['spec-review']}"
+    def test_review_fast_path_under_budget(self):
+        block = self._fast_path_block("review")
+        assert len(block) <= FAST_PATH_BUDGETS["review"], (
+            f"review FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['review']}"
         )
 
-    def test_plan_reviewer_fast_path_under_budget(self):
-        block = self._fast_path_block("plan-review")
-        assert len(block) <= FAST_PATH_BUDGETS["plan-review"], (
-            f"plan-review FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['plan-review']}"
-        )
-
-    def test_impl_reviewer_fast_path_under_budget(self):
-        block = self._fast_path_block("impl-review")
-        assert len(block) <= FAST_PATH_BUDGETS["impl-review"], (
-            f"impl-review FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['impl-review']}"
-        )
-
-    def test_load_context_fast_path_under_budget(self):
-        block = self._fast_path_block("load-context")
-        assert len(block) <= FAST_PATH_BUDGETS["load-context"], (
-            f"load-context FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['load-context']}"
+    def test_context_fast_path_under_budget(self):
+        block = self._fast_path_block("context")
+        assert len(block) <= FAST_PATH_BUDGETS["context"], (
+            f"context FAST PATH is {len(block)} chars, must be ≤{FAST_PATH_BUDGETS['context']}"
         )
 
 
@@ -177,8 +155,8 @@ class TestSubagentContextBudgetTable:
         assert r.returncode == 0
 
 
-class TestSessionCleanup:
-    """session-cleanup.py clears session-context cache via CacheManager."""
+class TestSessionEnd:
+    """session-end.py (merged from session-stop+learn+cleanup) clears session-context cache via CacheManager."""
 
     def test_cleanup_clears_context_flag(self, tmp_path):
         _make_zf(tmp_path)
@@ -186,22 +164,22 @@ class TestSessionCleanup:
         cache.set_flag("session-context-injected", "test-session")
         assert cache.has_flag("session-context-injected", "test-session")
 
-        cleanup_hook = HOOKS_DIR / "session-cleanup.py"
+        end_hook = HOOKS_DIR / "session-end.py"
         env = os.environ.copy()
         env["CLAUDE_CWD"] = str(tmp_path)
+        env["ZIE_MEMORY_API_KEY"] = ""
+        env["ZIE_MEMORY_API_URL"] = ""
         r = subprocess.run(
-            [sys.executable, str(cleanup_hook)],
+            [sys.executable, str(end_hook)],
             input=json.dumps({"session_id": "test-session", "stop_reason": "end_turn"}),
             capture_output=True,
             text=True,
             env=env,
         )
         assert r.returncode == 0
-        # Use a fresh CacheManager to verify disk state (in-memory cache won't
-        # reflect subprocess changes)
         fresh_cache = CacheManager(tmp_path / ".zie" / "cache")
         assert not fresh_cache.has_flag("session-context-injected", "test-session"), (
-            "session-cleanup must clear the session-context cache flag"
+            "session-end must clear the session-context cache flag"
         )
 
     def test_cleanup_handles_missing_flag_gracefully(self, tmp_path):
@@ -209,11 +187,13 @@ class TestSessionCleanup:
         cache = CacheManager(tmp_path / ".zie" / "cache")
         cache.delete("session-context-injected", "test-session")
 
-        cleanup_hook = HOOKS_DIR / "session-cleanup.py"
+        end_hook = HOOKS_DIR / "session-end.py"
         env = os.environ.copy()
         env["CLAUDE_CWD"] = str(tmp_path)
+        env["ZIE_MEMORY_API_KEY"] = ""
+        env["ZIE_MEMORY_API_URL"] = ""
         r = subprocess.run(
-            [sys.executable, str(cleanup_hook)],
+            [sys.executable, str(end_hook)],
             input=json.dumps({"session_id": "test-session", "stop_reason": "end_turn"}),
             capture_output=True,
             text=True,

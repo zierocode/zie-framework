@@ -1,46 +1,24 @@
-"""
-Test that Phase 1 of each reviewer skill is a compact delegation stub.
-
-After consolidation, the Phase 1 block should delegate to reviewer-context
-rather than duplicating the disk-fallback logic inline.
-"""
+"""Test that the consolidated review skill exists and delegates correctly."""
 
 from pathlib import Path
 
 SKILLS_DIR = Path(__file__).parents[2] / "skills"
 
 
-def _phase1_lines(skill_name: str) -> int:
-    """Count lines in Phase 1 section of a reviewer skill."""
-    text = (SKILLS_DIR / skill_name / "SKILL.md").read_text()
-    lines = text.splitlines()
-    in_phase1 = False
-    count = 0
-    for line in lines:
-        if "## Phase 1" in line:
-            in_phase1 = True
-            continue
-        if in_phase1 and line.startswith("## "):
-            break
-        if in_phase1:
-            count += 1
-    return count
+def test_review_skill_exists():
+    """The merged review skill must exist."""
+    assert (SKILLS_DIR / "review" / "SKILL.md").exists()
 
 
-def test_spec_reviewer_phase1_is_compact():
-    """Phase 1 must be a compact stub — no inline ADR read prose."""
-    assert _phase1_lines("spec-review") <= 8, "spec-review Phase 1 is too long — inline disk-fallback prose not removed"
+def test_review_skill_has_review_types():
+    """The review skill must support spec, plan, and impl review types."""
+    text = (SKILLS_DIR / "review" / "SKILL.md").read_text()
+    assert "spec" in text.lower()
+    assert "plan" in text.lower()
+    assert "impl" in text.lower()
 
 
-def test_plan_reviewer_phase1_is_compact():
-    """Phase 1 must be a compact stub — no inline ADR read prose."""
-    assert _phase1_lines("plan-review") <= 8, "plan-review Phase 1 is too long — inline disk-fallback prose not removed"
-
-
-def test_impl_reviewer_phase1_is_compact():
-    """Phase 1 must be a compact stub — no inline ADR read steps.
-    12-line limit allows for adr_cache_path note and 'files changed' step.
-    """
-    assert _phase1_lines("impl-review") <= 12, (
-        "impl-review Phase 1 is too long — inline disk-fallback prose not removed"
-    )
+def test_review_skill_has_review_phases():
+    """The review skill must define review phases."""
+    text = (SKILLS_DIR / "review" / "SKILL.md").read_text()
+    assert "Phase" in text or "phase" in text

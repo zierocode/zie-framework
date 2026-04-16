@@ -20,31 +20,15 @@ def read_frontmatter(skill_name: str) -> dict:
     return yaml.safe_load(parts[1]) or {}
 
 
-class TestReviewerSkillsFrontmatter:
-    def test_spec_reviewer_user_invocable_false(self):
-        fm = read_frontmatter("spec-review")
-        assert fm.get("user-invocable") is False, "spec-review must have user-invocable: false"
+class TestReviewSkillFrontmatter:
+    def test_review_user_invocable_false(self):
+        fm = read_frontmatter("review")
+        assert fm.get("user-invocable") is False, "review must have user-invocable: false"
 
-    def test_spec_reviewer_allowed_tools(self):
-        fm = read_frontmatter("spec-review")
-        assert fm.get("allowed-tools") == "Read, Grep, Glob", "spec-review must have allowed-tools: Read, Grep, Glob"
-
-    def test_plan_reviewer_user_invocable_false(self):
-        fm = read_frontmatter("plan-review")
-        assert fm.get("user-invocable") is False, "plan-review must have user-invocable: false"
-
-    def test_plan_reviewer_allowed_tools(self):
-        fm = read_frontmatter("plan-review")
-        assert fm.get("allowed-tools") == "Read, Grep, Glob", "plan-review must have allowed-tools: Read, Grep, Glob"
-
-    def test_impl_reviewer_user_invocable_false(self):
-        fm = read_frontmatter("impl-review")
-        assert fm.get("user-invocable") is False, "impl-review must have user-invocable: false"
-
-    def test_impl_reviewer_allowed_tools(self):
-        fm = read_frontmatter("impl-review")
+    def test_review_allowed_tools(self):
+        fm = read_frontmatter("review")
         assert fm.get("allowed-tools") == "Read, Grep, Glob, Bash", (
-            "impl-review must have allowed-tools: Read, Grep, Glob, Bash"
+            "review must have allowed-tools: Read, Grep, Glob, Bash"
         )
 
 
@@ -77,9 +61,7 @@ class TestPlanningSkillsFrontmatter:
 
 
 ALL_SKILLS = [
-    "spec-review",
-    "plan-review",
-    "impl-review",
+    "review",
     "tdd-loop",
     "test-pyramid",
     "debug",

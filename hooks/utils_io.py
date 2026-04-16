@@ -12,7 +12,7 @@ def safe_project_name(project: str) -> str:
     """Sanitize a project name to alphanumeric-and-dash only.
 
     Single source of truth for the sanitization rule used in tmp paths and
-    session-cleanup globs. Replaces any non-alphanumeric character with '-'.
+    session-end globs. Replaces any non-alphanumeric character with '-'.
     """
     return re.sub(r"[^a-zA-Z0-9]", "-", project)
 

@@ -30,7 +30,7 @@ def _wp():
 
 class TestSprintApprovalFlow:
     def test_sprint_phase1_uses_approve_py_for_plans(self):
-        """Sprint Phase 1 must call approve.py after plan-review — not write approved:true."""
+        """Sprint Phase 1 must call approve.py after review — not write approved:true."""
         t = _sprint()
         phase1_idx = t.index("PHASE 1")
         phase2_idx = t.index("PHASE 2")
@@ -45,7 +45,6 @@ class TestSprintApprovalFlow:
         phase1_idx = t.index("PHASE 1")
         phase2_idx = t.index("PHASE 2")
         phase1 = t[phase1_idx:phase2_idx]
-        # Should reference approve.py, not instruct to 'write approved: true' directly
         assert "write `approved: true`" not in phase1, (
             "Sprint Phase 1 must not say 'write approved:true' — use approve.py instead"
         )
@@ -55,7 +54,6 @@ class TestSpecDesignAutonomousApproval:
     def test_autonomous_mode_uses_approve_py(self):
         """spec-design autonomous mode must call approve.py, not write approved:true directly."""
         t = _spec()
-        # Find autonomous mode section
         auto_idx = t.index("## Autonomous Mode")
         autonomous_section = t[auto_idx : auto_idx + 800]
         assert "approve.py" in autonomous_section, (
@@ -101,12 +99,12 @@ class TestSpecCommandDraftPlanApproval:
             "spec --draft-plan must not instruct writing approved:true directly"
         )
 
-    def test_spec_draft_plan_invokes_plan_reviewer(self):
-        """--draft-plan branch must run plan-review before approving."""
+    def test_spec_draft_plan_invokes_reviewer(self):
+        """--draft-plan branch must run review before approving."""
         text = self._spec_cmd()
         draft_idx = text.index("--draft-plan branch")
         draft_section = text[draft_idx : draft_idx + 800]
-        assert "plan-review" in draft_section, "spec --draft-plan must invoke plan-review before approve.py"
+        assert "review" in draft_section, "spec --draft-plan must invoke review before approve.py"
 
 
 class TestWritePlanApprovalGate:
