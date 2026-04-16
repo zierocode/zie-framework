@@ -20,7 +20,7 @@ Entry point skill for all new work. Run before /sprint or /backlog to understand
 
 <!-- context-load: adrs + project context -->
 Extract keywords from brainstorm topic (split on whitespace, remove stop words, take top 6 unique terms).
-Invoke `Skill(zie-framework:load-context, '<keywords>')` → result available as `context_bundle`. Use `context_bundle` in place of direct ADR/context.md reads below.
+Invoke `Skill(zie-framework:context, '<keywords>')` → result available as `context_bundle`. Use `context_bundle` in place of direct ADR/context.md reads below.
 
 ## Phase 1 — Read Project Knowledge (not source files)
 

@@ -26,15 +26,13 @@
 | Skill | ทำอะไร | Invoked by |
 | --- | --- | --- |
 | spec-design | Brainstorm → design spec + spec-review loop | /spec |
-| spec-review | Phase 1-3 review with context bundle | spec-design |
+| review | Parametric reviewer: phase=spec|plan|impl; context bundle passthrough (v1.32.2) | spec-design, write-plan, /implement |
 | write-plan | Spec → task plan + plan-review loop | /plan, spec-design |
-| plan-review | Phase 1-3 review with context bundle | write-plan |
 | tdd-loop | RED/GREEN/REFACTOR guide; enforces "run tests once per phase" (never re-run for different grep — capture once, grep the capture) (v1.18.1) | /implement |
-| impl-review | Phase 1-3 review with context bundle; `model: haiku` with sonnet escalation for security/arch changes | /implement |
 | test-pyramid | Choose test level (unit/int/e2e) | /implement (RED phase) |
 | debug | Reproduce → isolate → fix | /implement, /fix |
 | verify | Pre-release verification checklist; `context: fork` with optional captured `test_output` | /fix, /release, /implement |
-| load-context | Load shared context bundle (ADRs + project/context.md) once per session; Step 0 cache-check via get_cached_adrs before disk read (v1.18.1) | /plan, /implement, /sprint |
+| context | Load shared context bundle (ADRs + project/context.md) + framework reference maps; keyword-filtered ADR cache (v1.32.2) | /plan, /implement, /sprint, /spec, /brainstorm |
 | docs-sync | Verify CLAUDE.md/README.md match commands/skills/hooks on disk; `context: fork` | /retro, /release |
 
 ## Hooks
@@ -77,11 +75,8 @@ invoke the corresponding skill.
 
 | Agent | Frontmatter | Invoked by | Purpose |
 | --- | --- | --- | --- |
-| `agents/spec-review.md` | `isolation: worktree` | `spec-design` skill | Review spec from clean committed snapshot |
-| `agents/plan-review.md` | `isolation: worktree` | `write-plan` skill | Review plan from clean committed snapshot |
-| `agents/impl-review.md` | `background: true` | `/implement` step 6 | Review task impl asynchronously; deferred-check on next iteration |
-| `agents/implement-mode.md` | `permissionMode: acceptEdits`, `tools: all` | `--agent zie-framework:builder` | TDD session agent — SDLC context, WIP=1, tdd-loop + test-pyramid preload |
-| `agents/audit-mode.md` | `permissionMode: plan`, `tools: [Read, Grep, Glob, WebSearch]` | `--agent zie-framework:auditor` | Read-only analysis session; findings surfaced as backlog candidates |
+| `agents/builder.md` | `permissionMode: acceptEdits`, `tools: all` | `--agent zie-framework:builder` | TDD session agent — SDLC context, WIP=1, tdd-loop + test-pyramid preload |
+| `agents/auditor.md` | `permissionMode: plan`, `tools: [Read, Grep, Glob, WebSearch]` | `--agent zie-framework:auditor` | Read-only analysis session; findings surfaced as backlog candidates |
 
 ### Field reference
 

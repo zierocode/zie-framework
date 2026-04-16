@@ -62,14 +62,14 @@ class TestNormalFailure:
         event = {"tool_name": "Bash"}
         result = run_hook(event, tmp_cwd=cwd)
         data = json.loads(result.stdout)
-        assert "Branch:" in data["additionalContext"]
+        assert "branch=" in data["additionalContext"]
 
     def test_additionalcontext_contains_last_commit(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)
         event = {"tool_name": "Bash"}
         result = run_hook(event, tmp_cwd=cwd)
         data = json.loads(result.stdout)
-        assert "Last commit:" in data["additionalContext"]
+        assert "last=" in data["additionalContext"]
 
     def test_no_quick_fix_string(self, tmp_path):
         cwd = make_cwd(tmp_path, roadmap=SAMPLE_ROADMAP)

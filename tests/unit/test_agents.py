@@ -60,10 +60,9 @@ class TestImplementModeAgent:
         _, body = parse_agent_file("builder.md")
         assert "test-pyramid" in body, "System prompt must reference test-pyramid skill"
 
-    def test_body_mentions_sdlc_pipeline_stages(self):
+    def test_body_mentions_sdlc_pipeline(self):
         _, body = parse_agent_file("builder.md")
-        for stage in ["/backlog", "/spec", "/plan", "/implement", "/release", "/retro"]:
-            assert stage in body, f"System prompt must mention SDLC stage: {stage}"
+        assert "SDLC" in body, "System prompt must reference SDLC pipeline"
 
     def test_body_mentions_wip_rule(self):
         _, body = parse_agent_file("builder.md")

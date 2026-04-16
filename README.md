@@ -50,10 +50,9 @@ Skills are invoked automatically by commands as subagents — not called directl
 | `zie-framework:verify` | Post-implementation verification gate |
 | `zie-framework:test-pyramid` | Test strategy advisor |
 | `zie-framework:debug` | Systematic bug diagnosis and fix path |
-| `zie-framework:load-context` | Load shared ADR and project context bundle |
+| `zie-framework:context` | Load shared ADR + project context bundle and framework reference maps |
 | `zie-framework:audit` | 9-dimension audit analysis (invoked by /audit) |
 | `zie-framework:docs-sync` | Verify CLAUDE.md/README.md match commands/skills/hooks on disk |
-| `zie-framework:context-map` | Command map, workflow map, and anti-patterns guide for the framework |
 
 ## Pipeline
 

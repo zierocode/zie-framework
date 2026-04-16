@@ -9,8 +9,8 @@ def text():
 
 class TestInlineImplReviewer:
     def test_impl_reviewer_skill_invoked(self):
-        assert "Skill(zie-framework:impl-review)" in text(), (
-            "implement.md must invoke Skill(zie-framework:impl-review) for HIGH-risk tasks"
+        assert "Skill(zie-framework:review" in text(), (
+            "implement.md must invoke Skill(zie-framework:review) for review tasks"
         )
 
     def test_no_background_agent_spawn(self):

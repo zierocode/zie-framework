@@ -56,7 +56,7 @@ Print: `[MERGED] <slug-a> + <slug-b> → <combined-slug> — both touch <X>`. Ne
 ## Load Context Bundle
 
 Extract keywords per item from backlog items (Problem + Approach — top 6 terms each).
-Invoke `Skill(zie-framework:load-context, '<first-item-keywords>')` → `context_bundle` (ADRs + project context). Used by all downstream phases.
+Invoke `Skill(zie-framework:context, '<first-item-keywords>')` → `context_bundle` (ADRs + project context). Used by all downstream phases.
 
 ## Autonomous Mode
 

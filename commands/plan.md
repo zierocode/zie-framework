@@ -72,7 +72,7 @@ For each resolved slug (whether from args or from no-args selection):
 <!-- context-load: adrs + project context -->
 
 Extract keywords from spec (Problem + Approach sections — split on whitespace, remove stop words, take top 6 unique terms).
-Invoke `Skill(zie-framework:load-context, '<keywords>')` → result available as `context_bundle`
+Invoke `Skill(zie-framework:context, '<keywords>')` → result available as `context_bundle`
 (calls `write_adr_cache`, bundles `adr_cache_path` + `decisions/` + `project/context.md`).
 Pass `context_bundle` to every reviewer invocation below.
 
@@ -82,8 +82,7 @@ For each drafted plan `[Plan {N}/{total}]`, before showing to Zie:
 
 Print: `[Plan {N}/{total}] plan-review pass`
 
-1. Invoke `@agent-plan-review` with:
-   <!-- fallback: Skill(zie-framework:plan-review) -->
+1. Invoke `Skill(zie-framework:review, 'phase=plan')` with:
    - Path to plan file
    - Path to spec file (`zie-framework/specs/*-<slug>-design.md`)
    - `context_bundle` (pre-loaded ADRs + context.md)

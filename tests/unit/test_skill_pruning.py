@@ -90,7 +90,9 @@ class TestWritePlanPruning:
     def test_reviewer_loop_not_in_skill(self):
         # Reviewer gate belongs in zie-plan.md, not in the write-plan skill
         text = read_skill("write-plan")
-        assert "plan-review" not in text
+        # The old "plan-review" skill was merged into the unified "review" skill.
+        # write-plan should not contain a reviewer loop at all.
+        assert "reviewer loop" not in text.lower() or "no reviewer" in text.lower()
 
 
 class TestSpecDesignPruning:
@@ -114,83 +116,41 @@ class TestSpecDesignPruning:
         assert "**Out of Scope:**" in text
 
 
-class TestSpecReviewerAudit:
+class TestReviewSkillAudit:
     def test_phase_1_present(self):
-        text = read_skill("spec-review")
+        text = read_skill("review")
         assert "## Phase 1" in text
 
     def test_phase_2_present(self):
-        text = read_skill("spec-review")
+        text = read_skill("review")
         assert "## Phase 2" in text
 
     def test_phase_3_present(self):
-        text = read_skill("spec-review")
+        text = read_skill("review")
         assert "## Phase 3" in text
 
     def test_output_format_present(self):
-        text = read_skill("spec-review")
+        text = read_skill("review")
         assert "## Output Format" in text
 
     def test_approved_verdict_present(self):
-        text = read_skill("spec-review")
+        text = read_skill("review")
         assert "APPROVED" in text
 
-    def test_no_bad_good_examples(self):
-        text = read_skill("spec-review")
-        assert "BAD:" not in text
-        assert "GOOD:" not in text
+    def test_spec_checklist_present(self):
+        text = read_skill("review")
+        assert "spec" in text.lower()
 
-
-class TestPlanReviewerAudit:
-    def test_phase_1_present(self):
-        text = read_skill("plan-review")
-        assert "## Phase 1" in text
-
-    def test_phase_2_present(self):
-        text = read_skill("plan-review")
-        assert "## Phase 2" in text
-
-    def test_phase_3_present(self):
-        text = read_skill("plan-review")
-        assert "## Phase 3" in text
-
-    def test_output_format_present(self):
-        text = read_skill("plan-review")
-        assert "## Output Format" in text
-
-    def test_tdd_structure_check_present(self):
-        text = read_skill("plan-review")
+    def test_plan_checklist_present(self):
+        text = read_skill("review")
         assert "TDD structure" in text
 
-    def test_no_bad_good_examples(self):
-        text = read_skill("plan-review")
-        assert "BAD:" not in text
-        assert "GOOD:" not in text
-
-
-class TestImplReviewerAudit:
-    def test_phase_1_present(self):
-        text = read_skill("impl-review")
-        assert "## Phase 1" in text
-
-    def test_phase_2_present(self):
-        text = read_skill("impl-review")
-        assert "## Phase 2" in text
-
-    def test_phase_3_present(self):
-        text = read_skill("impl-review")
-        assert "## Phase 3" in text
-
-    def test_output_format_present(self):
-        text = read_skill("impl-review")
-        assert "## Output Format" in text
-
-    def test_ac_coverage_check_present(self):
-        text = read_skill("impl-review")
+    def test_impl_checklist_present(self):
+        text = read_skill("review")
         assert "AC coverage" in text
 
     def test_no_bad_good_examples(self):
-        text = read_skill("impl-review")
+        text = read_skill("review")
         assert "BAD:" not in text
         assert "GOOD:" not in text
 

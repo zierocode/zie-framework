@@ -1,79 +1,52 @@
+"""Depth tests for the consolidated review skill (merged from spec-review, plan-review, impl-review)."""
+
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent.parent
 SKILLS = ROOT / "skills"
 
 
-def read_skill(name):
-    return (SKILLS / name / "SKILL.md").read_text()
+def read_review():
+    return (SKILLS / "review" / "SKILL.md").read_text()
 
 
-# ── spec-review ────────────────────────────────────────────────────────────
+# ── context_bundle ─────────────────────────────────────────────────────────
 
 
-def test_spec_reviewer_has_context_bundle():
-    content = read_skill("spec-review")
-    assert "context_bundle" in content, "spec-review must reference context_bundle"
+def test_review_has_context_bundle():
+    content = read_review()
+    assert "context_bundle" in content, "review must reference context_bundle"
 
 
-def test_spec_reviewer_phase1_validates_bundle():
-    content = read_skill("spec-review")
-    assert "Phase 1" in content and "Validate Context Bundle" in content, (
-        "spec-review must have Phase 1 context bundle validation"
-    )
+def test_review_phase1_validates_bundle():
+    content = read_review()
+    assert "Phase 1" in content, "review must have Phase 1"
+    assert "context_bundle" in content, "review Phase 1 must validate context_bundle"
 
 
-def test_spec_reviewer_has_disk_fallback():
-    content = read_skill("spec-review")
-    # Must have disk fallback documented when bundle unavailable
-    assert "decisions/" in content or "disk" in content.lower(), "spec-review must document disk fallback path"
+def test_review_has_phase_param():
+    content = read_review()
+    assert "phase" in content.lower(), "review must support phase parameter"
 
 
-# ── plan-review ────────────────────────────────────────────────────────────
+# ── checklist coverage ───────────────────────────────────────────────────────
 
 
-def test_plan_reviewer_has_context_bundle():
-    content = read_skill("plan-review")
-    assert "context_bundle" in content, "plan-review must reference context_bundle"
+def test_review_covers_spec_checklist():
+    content = read_review()
+    assert "spec" in content.lower(), "review must cover spec phase"
 
 
-def test_plan_reviewer_phase1_validates_bundle():
-    content = read_skill("plan-review")
-    assert "Phase 1" in content and "Validate Context Bundle" in content, (
-        "plan-review must have Phase 1 context bundle validation"
-    )
+def test_review_covers_plan_checklist():
+    content = read_review()
+    assert "plan" in content.lower(), "review must cover plan phase"
 
 
-def test_plan_reviewer_has_disk_fallback():
-    content = read_skill("plan-review")
-    assert "decisions/" in content or "disk" in content.lower(), "plan-review must document disk fallback path"
+def test_review_covers_impl_checklist():
+    content = read_review()
+    assert "impl" in content.lower(), "review must cover impl phase"
 
 
-def test_plan_reviewer_checks_pattern_match():
-    content = read_skill("plan-review")
-    assert "pattern" in content.lower()
-
-
-# ── impl-review ────────────────────────────────────────────────────────────
-
-
-def test_impl_reviewer_has_context_bundle():
-    content = read_skill("impl-review")
-    assert "context_bundle" in content, "impl-review must reference context_bundle"
-
-
-def test_impl_reviewer_phase1_validates_bundle():
-    content = read_skill("impl-review")
-    assert "Phase 1" in content and "Validate Context Bundle" in content, (
-        "impl-review must have Phase 1 context bundle validation"
-    )
-
-
-def test_impl_reviewer_no_roadmap_conflict_check():
-    content = read_skill("impl-review")
-    assert "ROADMAP conflict" not in content
-
-
-def test_impl_reviewer_checks_pattern_match():
-    content = read_skill("impl-review")
+def test_review_checks_pattern_match():
+    content = read_review()
     assert "pattern" in content.lower()

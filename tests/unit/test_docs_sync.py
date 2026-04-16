@@ -45,8 +45,8 @@ class TestProjectMd:
             "PROJECT.md Skills table has ghost entry 'retro-format' — skill was deleted"
         )
 
-    def test_skills_table_has_load_context(self):
-        assert "load-context" in self._content(), "PROJECT.md Skills table missing load-context"
+    def test_skills_table_has_context(self):
+        assert "| context |" in self._content(), "PROJECT.md Skills table missing context skill"
 
     def test_commands_table_header_is_english(self):
         """Commands table header must use 'Description', not Thai."""

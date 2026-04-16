@@ -25,8 +25,8 @@ def test_project(cache_dir):
     project = cache_dir / "test-project"
     project.mkdir()
 
-    # Create skills/context-map/SKILL.md
-    skills_dir = project / "skills" / "context-map"
+    # Create skills/context/SKILL.md
+    skills_dir = project / "skills" / "context"
     skills_dir.mkdir(parents=True)
     skill_file = skills_dir / "SKILL.md"
     skill_file.write_text("""# Using zie-framework
@@ -60,7 +60,7 @@ class TestCommandMapCache:
 
     def test_parse_commands_from_skill(self, test_project, cache_dir):
         """Commands are parsed correctly from SKILL.md."""
-        skill_path = test_project / "skills" / "context-map" / "SKILL.md"
+        skill_path = test_project / "skills" / "context" / "SKILL.md"
         commands_dir = test_project / "commands"
         guarded = ["/health", "/rescue"]
 
@@ -97,7 +97,7 @@ class TestCommandMapCache:
 
     def test_cache_key_includes_mtime(self, test_project, cache_dir):
         """Cache key includes SKILL.md mtime for invalidation."""
-        skill_path = test_project / "skills" / "context-map" / "SKILL.md"
+        skill_path = test_project / "skills" / "context" / "SKILL.md"
         mtime = skill_path.stat().st_mtime
 
         cache_key = f"command_map:{mtime}"
@@ -106,7 +106,7 @@ class TestCommandMapCache:
 
     def test_cache_invalidates_on_mtime_change(self, test_project, cache_dir):
         """Cache is invalidated when SKILL.md mtime changes."""
-        skill_path = test_project / "skills" / "context-map" / "SKILL.md"
+        skill_path = test_project / "skills" / "context" / "SKILL.md"
         cache = CacheManager(cache_dir / ".zie" / "cache")
         session_id = "test_session"
 
@@ -147,7 +147,7 @@ class TestCommandMapIntegration:
         session_id = "test_session"
 
         # Pre-populate cache
-        skill_path = test_project / "skills" / "context-map" / "SKILL.md"
+        skill_path = test_project / "skills" / "context" / "SKILL.md"
         mtime = skill_path.stat().st_mtime
         cache_key = f"command_map:{mtime}"
         cache.set(cache_key, "[zie-framework] framework: commands — /cached", session_id, ttl=1800)

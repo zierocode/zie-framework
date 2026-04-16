@@ -64,15 +64,15 @@ class TestArgumentIndexedDocs:
 
     def test_write_plan_does_not_invoke_plan_reviewer(self):
         content = read_skill("write-plan")
-        assert "plan-review" not in content, (
-            "write-plan/SKILL.md must NOT reference the plan-review loop (reviewer gate belongs in zie-plan.md)"
+        # The old "plan-review" skill was merged into unified "review" skill.
+        # write-plan should not contain a reviewer loop.
+        assert "reviewer loop" not in content.lower(), (
+            "write-plan/SKILL.md must NOT reference a reviewer loop (reviewer gate belongs in zie-plan.md)"
         )
 
 
 class TestArgumentHintFrontmatter:
     NO_ARG_SKILLS = [
-        "spec-review",
-        "plan-review",
         "debug",
         "tdd-loop",
         "test-pyramid",
@@ -99,6 +99,13 @@ class TestArgumentHintFrontmatter:
         for skill in all_skills:
             content = read_skill(skill)
             assert "argument-hint:" in content, f"skills/{skill}/SKILL.md must have argument-hint: in frontmatter"
+
+
+class TestReviewSkillArgumentHint:
+    def test_review_has_phase_argument_hint(self):
+        content = read_skill("review")
+        assert "argument-hint:" in content, "review/SKILL.md must have argument-hint: in frontmatter"
+        assert "phase" in content, "review/SKILL.md argument-hint must document phase parameter"
 
 
 class TestZieAuditSkill:

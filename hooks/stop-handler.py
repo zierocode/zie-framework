@@ -187,14 +187,12 @@ def _run_combined_nudges(cwd, config, subprocess_timeout, git_status_output, ses
                 if pct >= mandatory_threshold:
                     if not cache.has_flag("compact-tier-mandatory", session_id):
                         print(
-                            f"[zf] Context at {pct_int}% — too full for heavy commands. "
-                            "Start a fresh session instead: run `make zie-release` in a new terminal "
-                            "for release, or open a new Claude window for other commands."
+                            f"[zf] Context at {pct_int}% — start a fresh session."
                         )
                         cache.set_flag("compact-tier-mandatory", session_id)
                 elif pct >= advisory_threshold:
                     if not cache.has_flag("compact-tier-advisory", session_id):
-                        print(f"[zf] Context at {pct_int}% — consider /compact soon to stay efficient.")
+                        print(f"[zf] Context at {pct_int}% — /compact soon recommended.")
                         cache.set_flag("compact-tier-advisory", session_id)
     except Exception as _e:
         log_error("stop-handler", "context_window_nudge", _e)

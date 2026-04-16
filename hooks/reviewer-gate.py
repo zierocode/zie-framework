@@ -62,7 +62,7 @@ try:
         sys.exit(0)  # idempotent — already approved
 
     kind = "spec" if "specs/" in file_path else "plan"
-    skill = "zie-framework:spec-review" if kind == "spec" else "zie-framework:plan-review"
+    skill = "zie-framework:review, 'phase=spec'" if kind == "spec" else "zie-framework:review, 'phase=plan'"
 
     print(
         f"[reviewer-gate] BLOCKED: Cannot self-approve {kind}.\n"

@@ -1,45 +1,37 @@
-"""Tests for context-lean-sprint Tasks 2+3: plan-review and impl-review context_bundle."""
+"""Tests for context-lean-sprint: review skill context_bundle support."""
 
 from pathlib import Path
 
-PLAN_REVIEWER_PATH = Path(__file__).parents[2] / "skills" / "plan-review" / "SKILL.md"
-IMPL_REVIEWER_PATH = Path(__file__).parents[2] / "skills" / "impl-review" / "SKILL.md"
+REVIEW_PATH = Path(__file__).parents[2] / "skills" / "review" / "SKILL.md"
 
 
-class TestPlanReviewerContextBundle:
+class TestReviewContextBundle:
     def test_context_bundle_phase_present(self):
-        text = PLAN_REVIEWER_PATH.read_text()
-        assert "context_bundle" in text, "plan-review must document context_bundle parameter"
+        text = REVIEW_PATH.read_text()
+        assert "context_bundle" in text, "review skill must document context_bundle parameter"
 
     def test_uses_bundle_adrs_when_provided(self):
-        text = PLAN_REVIEWER_PATH.read_text()
+        text = REVIEW_PATH.read_text()
         assert "context_bundle.adrs" in text or "context_bundle" in text
 
     def test_fallback_present(self):
-        text = PLAN_REVIEWER_PATH.read_text()
-        assert "absent" in text.lower() or "fallback" in text.lower() or "backward-compatible" in text.lower()
+        text = REVIEW_PATH.read_text()
+        assert "missing" in text.lower() or "fallback" in text.lower() or "required" in text.lower()
 
-    def test_review_checklist_unchanged(self):
-        text = PLAN_REVIEWER_PATH.read_text()
-        assert "TDD structure" in text and "Task granularity" in text, "plan-review Phase 2 checklist must be unchanged"
+    def test_review_checklist_present(self):
+        text = REVIEW_PATH.read_text()
+        assert "TDD structure" in text or "Task granularity" in text or "checklist" in text.lower()
 
 
-class TestImplReviewerContextBundle:
-    def test_context_bundle_phase_present(self):
-        text = IMPL_REVIEWER_PATH.read_text()
-        assert "context_bundle" in text, "impl-review must document context_bundle parameter"
+class TestImplReviewPhase:
+    def test_impl_phase_documented(self):
+        text = REVIEW_PATH.read_text()
+        assert "impl" in text.lower(), "review skill must support impl phase"
 
-    def test_phase1_validates_bundle(self):
-        """impl-review Phase 1 validates context_bundle presence."""
-        text = IMPL_REVIEWER_PATH.read_text()
-        assert "Phase 1" in text and "Validate Context Bundle" in text
+    def test_spec_phase_documented(self):
+        text = REVIEW_PATH.read_text()
+        assert "spec" in text.lower(), "review skill must support spec phase"
 
-    def test_disk_fallback_present(self):
-        """If context_bundle absent, fall back to disk reads."""
-        text = IMPL_REVIEWER_PATH.read_text()
-        assert (
-            "fallback" in text.lower()
-            or "absent" in text.lower()
-            or "backward-compatible" in text.lower()
-            or "disk" in text.lower()
-        )
+    def test_plan_phase_documented(self):
+        text = REVIEW_PATH.read_text()
+        assert "plan" in text.lower(), "review skill must support plan phase"

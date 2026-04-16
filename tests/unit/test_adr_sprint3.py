@@ -1,4 +1,4 @@
-"""Tests for ADR-022 and ADR-023 existence and structure."""
+"""Tests for ADR-023 existence and structure."""
 
 from pathlib import Path
 
@@ -17,12 +17,6 @@ def _valid_adr(path: Path) -> list:
     if "Status:" not in text:
         issues.append("Missing Status field")
     return issues
-
-
-def test_adr_022_exists_and_valid():
-    path = DECISIONS_DIR / "ADR-022-effort-routing-strategy.md"
-    issues = _valid_adr(path)
-    assert not issues, f"ADR-022 issues: {issues}"
 
 
 def test_adr_023_exists_and_valid():

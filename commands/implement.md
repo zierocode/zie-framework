@@ -47,7 +47,7 @@ Tasks without `depends_on` run in parallel (max 4 concurrent). Tasks with `<!-- 
 <!-- context-load: adrs + project context -->
 
 Extract keywords from plan (Goal + Architecture sections — split on whitespace, remove stop words, take top 6 unique terms).
-Invoke `Skill(zie-framework:load-context, '<keywords>')` → result available as `context_bundle`
+Invoke `Skill(zie-framework:context, '<keywords>')` → result available as `context_bundle`
 (calls `write_adr_cache`, bundles `adr_cache_path` + `decisions/` + `project/context.md`).
 Pass `context_bundle` to every impl-review call.
 
@@ -81,7 +81,7 @@ Test level selection (print once before task loop, not per task):
    - HIGH: new function/class, changed behavior, external API call, file I/O, subprocess, non-test production code changed, or `<!-- review: required -->`
    - LOW: test-only, docs/config, rename/reformat, minor constant addition
 4. **impl-review** (HIGH only): <!-- BLOCKING: do not mark task complete until all checks pass -->
-   Invoke `Skill(zie-framework:impl-review)` with `context_bundle`.
+   Invoke `Skill(zie-framework:review, 'phase=impl')` with `context_bundle`.
    - ✅ APPROVED → continue
    - ❌ Issues Found → auto-fix inline → `make test-unit` → if pass continue; if fail after 1 retry → surface to Zie
 5. **→ LOW risk:** `make test-unit` + print `[risk: LOW] Skipping impl-review`.

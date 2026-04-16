@@ -481,8 +481,16 @@ try:
         parts.append(f"now:{active_task} stage:{stage} next:{suggested_cmd} tests:{test_status}")
     context = "[zf] " + " | ".join(parts)
 
-    # ── Skill auto-inject ────────────────────────────────────────────────────────
-    _skill_content = inject_skill_context(best or stage, cwd)
+    # ── Skill auto-inject (dedup: skip if session-resume already injected same stage) ────
+    _inject_stage = best or stage
+    _already_injected = ""
+    try:
+        _already_injected = cache.get("skill-injected-stage", session_id) or ""
+    except Exception:
+        pass
+    _skill_content = ""
+    if _inject_stage != _already_injected:
+        _skill_content = inject_skill_context(_inject_stage, cwd)
     if _skill_content:
         context += "\n\n" + _skill_content
 

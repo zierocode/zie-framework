@@ -125,7 +125,7 @@ class TestPostToolUseHook:
 
         assert result.returncode == 0
         # Should trigger either test_failure or multiple_errors suggestion
-        assert "Suggestion" in result.stdout
+        assert "[zf] suggestion:" in result.stdout or "/fix" in result.stdout
         assert "/fix" in result.stdout or "errors" in result.stdout.lower()
 
     def test_spec_complete_detection(self, test_repo):
@@ -215,7 +215,7 @@ class TestPostToolUseHook:
         assert result.returncode == 0
 
     def test_suggestion_format(self, test_repo):
-        """Suggestion follows correct markdown format."""
+        """Suggestion follows compact single-line format."""
         hook = Path(__file__).parent.parent.parent / "hooks" / "post-tool-use.py"
         env = os.environ.copy()
         env["CLAUDE_SESSION_ID"] = "test-format-001"
@@ -248,11 +248,8 @@ class TestPostToolUseHook:
         assert "additionalContext" in suggestion_data
         suggestion = suggestion_data["additionalContext"]
 
-        # Check format
-        assert "## Suggestion" in suggestion
-        assert "**Detected:**" in suggestion
-        assert "**Recommended action:**" in suggestion
-        assert "Skip" in suggestion
+        # Check compact format: [zf] suggestion: ...
+        assert "[zf] suggestion:" in suggestion
 
     def test_no_suggestion_on_success(self, test_repo):
         """Successful test run produces no suggestion."""

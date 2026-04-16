@@ -40,10 +40,10 @@ class TestParallelExecutionPatterns:
         assert "depends_on" in text, "write-plan/SKILL.md must document depends_on syntax"
 
     def test_plan_reviewer_suggests_depends_on(self):
-        """plan-review/SKILL.md must suggest depends_on for shared files."""
-        text = (SKILLS_DIR / "plan-review" / "SKILL.md").read_text()
-        assert "depends_on" in text, "plan-review/SKILL.md must mention depends_on"
-        assert "file conflict" in text.lower(), "plan-review/SKILL.md must mention file conflict detection"
+        """review skill with phase=plan must mention depends_on for shared files."""
+        text = (SKILLS_DIR / "review" / "SKILL.md").read_text()
+        assert "depends_on" in text, "review skill must mention depends_on"
+        assert "conflict" in text.lower(), "review skill must mention conflict detection"
 
     def test_parallel_docs_created(self):
         """zie-framework/docs/parallel-execution-patterns.md must exist."""

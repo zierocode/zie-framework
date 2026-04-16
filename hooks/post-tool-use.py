@@ -37,42 +37,10 @@ _MULTIPLE_ERROR_PATTERNS = [
 
 # Suggestion templates
 _SUGGESTION_TEMPLATES = {
-    "test_failure": """## Suggestion
-
-**Detected:** {error_count} test(s) failing
-
-**Recommended action:** Run `/fix` to debug and fix failing tests
-
-**Why:** Failing tests block progress to next phase
-
-> Skip: type "skip" or continue with another command""",
-    "multiple_errors": """## Suggestion
-
-**Detected:** {error_count} similar errors in output
-
-**Recommended action:** Review error pattern and fix root cause
-
-**Why:** Multiple similar errors suggest a common underlying issue
-
-> Skip: type "skip" or continue with another command""",
-    "spec_complete": """## Suggestion
-
-**Detected:** Spec file written ({spec_name})
-
-**Recommended action:** Run `/plan {slug}` to draft implementation plan
-
-**Why:** Plan required before implementation can begin
-
-> Skip: type "skip" or continue with another command""",
-    "plan_complete": """## Suggestion
-
-**Detected:** Plan file written ({plan_name})
-
-**Recommended action:** Run `/implement` to start TDD implementation
-
-**Why:** Ready to begin implementation with approved plan
-
-> Skip: type "skip" or continue with another command""",
+    "test_failure": "[zf] suggestion: {error_count} test(s) failing → run /fix",
+    "multiple_errors": "[zf] suggestion: {error_count} similar errors → review pattern and fix root cause",
+    "spec_complete": "[zf] suggestion: spec written ({spec_name}) → run /plan {slug}",
+    "plan_complete": "[zf] suggestion: plan written ({plan_name}) → run /implement",
 }
 
 

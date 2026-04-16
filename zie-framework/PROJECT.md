@@ -50,9 +50,8 @@ integration, safety guardrails.
 | debug | Systematic bug diagnosis and fix path |
 | audit | 9-dimension audit analysis (invoked by /audit command) |
 | docs-sync | Verify CLAUDE.md and README.md are in sync with repo state |
-| load-context | Load shared context bundle (ADRs + project context) for reviewer skills |
+| context | Load shared context bundle (ADRs + project context) + framework reference maps |
 | brainstorm | Discovery skill — read project context, research, generate ideas |
-| context-map | Command map, workflow map, and anti-patterns reference |
 
 ## Agents
 

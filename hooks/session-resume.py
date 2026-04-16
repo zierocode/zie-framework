@@ -18,7 +18,6 @@ from utils_error import log_error  # noqa: E402
 from utils_event import get_cwd, log_hook_timing, read_event  # noqa: E402
 from utils_roadmap import is_mtime_fresh, parse_roadmap_section, parse_roadmap_section_content  # noqa: E402
 from utils_skill_inject import inject_skill_context  # noqa: E402
-from zie_context_loader import get_cached_context  # noqa: E402
 
 # Minimum safe Playwright version — derived from CVE-2025-59288.
 # CVE-2025-59288: arbitrary code execution via malicious CDP response.
@@ -141,17 +140,8 @@ try:
     else:
         active_label = "No active feature — run /backlog to start one"
 
-    # Build dynamic command list from cache
-    _cmd_list = "/backlog /spec /plan /implement /sprint /fix /chore /hotfix /guide /status /audit /retro /release /resync /init"
-    try:
-        context = get_cached_context(cwd)
-        _cmd_list = " ".join(c["name"] for c in context["commands"])
-    except Exception as _e:
-        print(f"[zf] session-resume: context cache failed: {_e}", file=sys.stderr)
-
     lines = [
         f"[zf] {project_name}({project_type}) v{version} | now:{active_label} | mem:{'on' if zie_memory else 'off'}",
-        f"[zf] cmds: {_cmd_list} | workflow: backlog→spec→plan→implement→release→retro",
     ]
 
     print("\n".join(lines))
@@ -195,6 +185,11 @@ try:
             _skill_ctx = inject_skill_context(_stage, cwd)
             if _skill_ctx:
                 print(f"[zf] knowledge: skill-auto-inject stage={_stage}")
+                # Store injected stage so intent-sdlc can skip re-injection
+                try:
+                    cache.set("skill-injected-stage", _stage, session_id, ttl=600)
+                except Exception as _ce:
+                    print(f"[zf] session-resume: skill-dedup-cache failed: {_ce}", file=sys.stderr)
     except Exception as _e:
         print(f"[zf] session-resume: skill-inject failed: {_e}", file=sys.stderr)
 
@@ -215,9 +210,7 @@ try:
         if not isinstance(_e, FileNotFoundError):
             print(f"[zf] session-resume: staleness check skipped: {_e}", file=sys.stderr)
 
-    # Load command map from unified cache (invalidate on SKILL.md mtime change)
-    # Anti-patterns (compact)
-    print("[zf] anti: reviewer first; no skip on 'ทำเลย'")
+    # Anti-patterns moved to CLAUDE.md — no per-session injection needed
 
     # Backlog nudge: Next lane items pending
     try:

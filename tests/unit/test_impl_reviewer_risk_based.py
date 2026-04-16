@@ -78,8 +78,8 @@ class TestReviewerGate:
     def test_reviewer_not_invoked_unconditionally(self):
         t = text().lower()
         lines = t.splitlines()
-        reviewer_lines = [i for i, ln in enumerate(lines) if "impl-review" in ln and "skill" in ln]
-        assert reviewer_lines, "Skill(zie-framework:impl-review) line must exist in implement.md"
+        reviewer_lines = [i for i, ln in enumerate(lines) if "review" in ln and "skill" in ln]
+        assert reviewer_lines, "Skill(zie-framework:review) line must exist in implement.md"
         for idx in reviewer_lines:
             context_block = "\n".join(lines[max(0, idx - 10) : idx + 1])
-            assert "high" in context_block, f"impl-review Skill at line {idx + 1} must be inside a HIGH risk guard"
+            assert "high" in context_block, f"review Skill at line {idx + 1} must be inside a HIGH risk guard"
