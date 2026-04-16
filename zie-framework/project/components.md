@@ -1,6 +1,6 @@
 # Components Registry — zie-framework
 
-**Last updated:** 2026-04-06 (v1.21.0)
+**Last updated:** 2026-04-17 (v1.33.0)
 
 ## Commands
 
@@ -10,14 +10,14 @@
 | /spec | backlog slug OR inline idea string; `--draft-plan` flag | approved spec + optional plan | spec-design |
 | /plan | slug(s) | approved plan in Ready; auto-approves on reviewer ✅ APPROVED | write-plan skill |
 | /implement | (reads ROADMAP Now) | feature tasks | tdd-loop, test-pyr |
-| /fix | bug description | regression test + fix | debug, verify |
+| /fix | bug description; `--hotfix` for emergencies, `--chore` for maintenance | regression test + fix | debug, verify |
 | /spike | exploration slug | sandbox in `spike-<slug>/`, FINDINGS.md, no ROADMAP write | none |
-| /release | (ROADMAP Now) | release tag + ADRs; parallel gates 2-4; haiku model | verify, make release |
-| /status | (reads files) | status snapshot | none |
+| /release | (ROADMAP Now) | release tag + ADRs; parallel gates 2-4 | verify, make release |
+| /status | (reads files); `--health` for hook check, `--guide` for walkthrough, `--brief` for design brief | status snapshot | none |
 | /resync | (codebase scan) | updated knowledge docs | Agent(Explore) |
 | /retro | (reads git log) | ADRs + brain memories | retro-format skill |
 | /sprint | (reads ROADMAP Next/Ready) | batch pipeline: spec+plan→implement→release→retro; Phase 1 as Skill() chain (ADR-060); autonomous_mode=true for unattended run; Phase 4 auto-retro (v1.21.0) | Agent, Skill |
-| /audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | thin dispatcher → audit skill (canonical); audit report + backlog (v1.19.0) | audit skill |
+| /audit | `--focus` dim (security,deps,code,perf,structure,obs,external) | audit report + backlog | audit skill |
 
 ## Skills
 
@@ -42,10 +42,8 @@
 | intent-sdlc.py | PreToolUse:Bash | intent detection → suggest SDLC command (JSON out); pattern dedup cache; session-level intent flags |
 | session-resume.py | SessionStart | แสดง project state + active feature |
 | failure-context.py | PostToolUseFailure:Bash/Write/Edit | inject SDLC debug context (active task, branch, last commit, quick-fix hint); is_interrupt guard; reads branch/log from session git cache before subprocess |
-| stop-handler.py | Stop | merged stop-guard + compact-hint + stop-pipeline-guard; uncommitted file check, sprint intent nudge, context health nudge; stop_hook_active infinite-loop guard |
-| session-learn.py | PostToolUse | สังเกต patterns, บันทึก micro-learnings |
-| wip-checkpoint.py | PeriodicTask | บันทึก WIP progress สู่ brain; counter ValueError recovery |
-| session-cleanup.py | Stop | ลบ project-scoped /tmp files on exit |
+| stop-handler.py | Stop | merged stop-guard + compact-hint + stop-pipeline-guard + session-learn + wip-checkpoint + session-cleanup; uncommitted file check, sprint intent nudge, context health nudge; stop_hook_active infinite-loop guard |
+| session-end.py | Stop | merged session-cleanup + session-learn + session-stop + stop-capture; cleanup + micro-learning + WIP checkpoint + uncommitted files + sprint intent nudge |
 | sdlc-compact.py | PreCompact / PostCompact | snapshot SDLC state before compaction; restore as additionalContext after; reads branch/diff from session git cache before subprocess |
 | subagent-context.py | SubagentStart:Explore/Plan | inject active feature slug, first incomplete task, ADR count into research subagents |
 | config-drift.py | ConfigChange:project_settings\|user_settings | ตรวจ CLAUDE.md / settings.json / zie-framework/.config drift → inject additionalContext to re-read |

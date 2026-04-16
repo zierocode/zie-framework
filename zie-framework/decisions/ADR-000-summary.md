@@ -83,3 +83,4 @@ Compressed on 2026-04-03. 30 ADRs → summary table.
 | — | v1.30.0 | Context-loader sprint + non-Claude model compat docs | Accepted |
 | — | v1.31.0 | Deeper thinking prompts, command compress, audit quick wins | Accepted |
 | — | v1.32.0 | ADR keyword filter, inline verification, parallel agents, remove GitHub CI | Accepted |
+| — | v1.33.0 | Command merge via flags (20→14), unified review skill (3→1), context skill merge (2→1), skill invocation compression, hook consolidation (27→18), ADR archival (42→25) | Accepted |
